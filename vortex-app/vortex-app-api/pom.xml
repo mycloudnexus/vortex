@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>vortex-app-api</artifactId>
+    <name>vortex-app-api</name>
+    <version>0.0.0</version>
+    <packaging>jar</packaging>
+    <parent>
+        <groupId>com.consoleconnect.vortex</groupId>
+        <artifactId>vortex-app</artifactId>
+        <version>0.0.0</version>
+    </parent>
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+    <dependencies>
+        <!-- vortex features -->
+        <dependency>
+            <groupId>com.consoleconnect.vortex</groupId>
+            <artifactId>vortex-java-sdk-core</artifactId>
+        </dependency>
+
+        <!-- test -->
+        <dependency>
+            <groupId>com.consoleconnect.vortex</groupId>
+            <artifactId>vortex-java-sdk-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>vortex-app</artifactId>
+    <name>vortex-app</name>
+    <version>0.0.0</version>
+    <packaging>pom</packaging>
+    <parent>
+        <groupId>com.consoleconnect.vortex</groupId>
+        <artifactId>vortex-platform</artifactId>
+        <version>0.0.0</version>
+    </parent>
+    
+
+    <modules>
+        <module>vortex-app-api</module>
+    </modules>
+
+    <properties>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+
+        <!-- annotation processor -->
+        <lombok.version>1.18.34</lombok.version>
+        <org.lombok-mapstruct-binding.version>0.2.0</org.lombok-mapstruct-binding.version>
+        <org.mapstruct.version>1.6.0</org.mapstruct.version>
+        <maven.deploy.skip>false</maven.deploy.skip>
+        <docker.build.skip>false</docker.build.skip>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.consoleconnect.vortex</groupId>
+                <artifactId>vortex-java-sdk-core</artifactId>
+                <version>0.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.consoleconnect.vortex</groupId>
+                <artifactId>vortex-java-sdk-test</artifactId>
+                <version>0.0.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <!-- ops -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>2.2</version>
+        </dependency>
+
+        <!-- swagger-ui-->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webflux-api</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
+        <!-- prometheus-->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <!--  DB migration -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
+        <!-- ops done -->
+
+        <!-- dev -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <additionalProperties>
+                        <encoding.source>UTF-8</encoding.source>
+                        <encoding.reporting>UTF-8</encoding.reporting>
+                    </additionalProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-info</goal>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+    </build>
+
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>vortex java sdk</name>
+            <url>https://maven.pkg.github.com/mycloudnexus/vortex</url>
+        </repository>
+    </repositories>
+</project>
