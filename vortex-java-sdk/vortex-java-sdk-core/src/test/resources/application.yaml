@@ -78,3 +78,10 @@ springdoc:
 logging:
   level:
     com.consoleconnect.vortex: DEBUG
+
+app:
+  auth:
+    auth0:
+      domain: ${RESELLER_AUTH0_DOMAIN:""}
+      clientId: ${RESELLER_AUTH0_CLIENT:""}
+      clientSecret: ${RESELLER_AUTH0_SECRET:""
