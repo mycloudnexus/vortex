@@ -1,11 +1,11 @@
-package com.consoleconnect.vortex.core.controller;
+package com.consoleconnect.vortex.iam.controller;
 
 import com.consoleconnect.vortex.core.entity.CompanyEntity;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.model.req.CompanyDto;
-import com.consoleconnect.vortex.core.service.CompanyService;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
+import com.consoleconnect.vortex.iam.service.CompanyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;

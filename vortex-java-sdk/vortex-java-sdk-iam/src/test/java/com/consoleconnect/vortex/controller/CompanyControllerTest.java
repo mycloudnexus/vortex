@@ -1,14 +1,15 @@
-package vortex.controller;
+package com.consoleconnect.vortex.controller;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 
 import com.auth0.json.mgmt.organizations.Organization;
-import com.consoleconnect.vortex.auth.service.OrganizationService;
-import com.consoleconnect.vortex.common.toolkit.Paging;
 import com.consoleconnect.vortex.config.TestApplication;
 import com.consoleconnect.vortex.core.entity.CompanyEntity;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.model.req.CompanyDto;
+import com.consoleconnect.vortex.core.toolkit.Paging;
+import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
 import com.consoleconnect.vortex.test.WebTestClientHelper;
