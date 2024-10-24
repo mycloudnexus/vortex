@@ -1,4 +1,4 @@
-package com.consoleconnect.vortex.core.service;
+package com.consoleconnect.vortex.iam.service;
 
 import com.consoleconnect.vortex.core.entity.CompanyEntity;
 import com.consoleconnect.vortex.core.enums.CompanyStatusEnum;

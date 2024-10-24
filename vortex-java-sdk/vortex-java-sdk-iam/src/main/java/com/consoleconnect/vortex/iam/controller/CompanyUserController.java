@@ -1,11 +1,11 @@
-package com.consoleconnect.vortex.core.controller;
+package com.consoleconnect.vortex.iam.controller;
 
-import com.consoleconnect.vortex.auth.model.UserResponse;
-import com.consoleconnect.vortex.auth.model.UserSignUpReq;
-import com.consoleconnect.vortex.auth.service.OrganizationUserService;
 import com.consoleconnect.vortex.core.entity.CompanyEntity;
 import com.consoleconnect.vortex.core.model.HttpResponse;
-import com.consoleconnect.vortex.core.service.CompanyService;
+import com.consoleconnect.vortex.iam.model.UserResponse;
+import com.consoleconnect.vortex.iam.model.UserSignUpReq;
+import com.consoleconnect.vortex.iam.service.CompanyService;
+import com.consoleconnect.vortex.iam.service.OrganizationUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
