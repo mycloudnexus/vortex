@@ -1,16 +1,15 @@
 package com.consoleconnect.vortex.test;
 
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.util.UriBuilder;
-
 import java.net.URI;
 import java.time.Duration;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.util.UriBuilder;
 
 public class WebTestClientHelper {
 

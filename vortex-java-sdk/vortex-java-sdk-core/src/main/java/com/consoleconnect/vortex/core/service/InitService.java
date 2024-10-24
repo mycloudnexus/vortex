@@ -4,12 +4,11 @@ import com.consoleconnect.vortex.core.entity.CompanyEntity;
 import com.consoleconnect.vortex.core.enums.CompanyStatusEnum;
 import com.consoleconnect.vortex.core.repo.CompanyRepository;
 import jakarta.annotation.PostConstruct;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.time.ZonedDateTime;
-import java.util.Optional;
 
 @Slf4j
 @Service

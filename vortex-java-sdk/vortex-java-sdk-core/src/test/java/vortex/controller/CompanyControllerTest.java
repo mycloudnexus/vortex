@@ -1,5 +1,7 @@
 package vortex.controller;
 
+import static org.mockito.ArgumentMatchers.anyString;
+
 import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.auth.service.OrganizationService;
 import com.consoleconnect.vortex.common.toolkit.Paging;
@@ -20,8 +22,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
-
-import static org.mockito.ArgumentMatchers.anyString;
 
 @MockIntegrationTest
 @ContextConfiguration(classes = TestApplication.class)
