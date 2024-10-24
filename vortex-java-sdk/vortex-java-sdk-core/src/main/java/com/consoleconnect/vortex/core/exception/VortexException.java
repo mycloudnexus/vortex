@@ -1,15 +1,64 @@
 package com.consoleconnect.vortex.core.exception;
 
-import lombok.Getter;
+import java.io.Serial;
+import lombok.Generated;
+import org.springframework.http.HttpStatus;
 
-@Getter
 public class VortexException extends RuntimeException {
-
-  private static final String NOT_FOUND_MSG = "404 Not Found";
-  private static final String NOT_FOUND_DESC =
-      "The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.";
-
+  @Serial private static final long serialVersionUID = 2322270398663247466L;
   private final int code;
+
+  public static VortexException badRequest(String message) {
+    return new VortexException(HttpStatus.BAD_REQUEST.value(), message);
+  }
+
+  public static VortexException badRequest(String message, Throwable cause) {
+    return new VortexException(HttpStatus.BAD_REQUEST.value(), message, cause);
+  }
+
+  public static VortexException notFound(String message) {
+    return new VortexException(HttpStatus.NOT_FOUND.value(), message);
+  }
+
+  public static VortexException notFound(String message, Throwable cause) {
+    return new VortexException(HttpStatus.NOT_FOUND.value(), message, cause);
+  }
+
+  public static VortexException unauthorized(String message) {
+    return new VortexException(HttpStatus.UNAUTHORIZED.value(), message);
+  }
+
+  public static VortexException unauthorized(String message, Throwable cause) {
+    return new VortexException(HttpStatus.UNAUTHORIZED.value(), message, cause);
+  }
+
+  public static VortexException forbidden(String message) {
+    return new VortexException(HttpStatus.FORBIDDEN.value(), message);
+  }
+
+  public static VortexException forbidden(String message, Throwable cause) {
+    return new VortexException(HttpStatus.FORBIDDEN.value(), message, cause);
+  }
+
+  public static VortexException internalError(String message) {
+    return new VortexException(HttpStatus.INTERNAL_SERVER_ERROR.value(), message);
+  }
+
+  public static VortexException internalError(String message, Throwable cause) {
+    return new VortexException(HttpStatus.INTERNAL_SERVER_ERROR.value(), message, cause);
+  }
+
+  public static VortexException notImplemented(String message) {
+    return new VortexException(HttpStatus.NOT_IMPLEMENTED.value(), message);
+  }
+
+  public static VortexException notImplemented(String message, Throwable cause) {
+    return new VortexException(HttpStatus.NOT_IMPLEMENTED.value(), message, cause);
+  }
+
+  public static VortexException exception(int code, String message, Throwable cause) {
+    return new VortexException(code, message, cause);
+  }
 
   public VortexException(int code) {
     this.code = code;
@@ -30,35 +79,8 @@ public class VortexException extends RuntimeException {
     this.code = code;
   }
 
-  public static VortexException badRequest(String message) {
-    return new VortexException(400, message);
-  }
-
-  public static VortexException notFound(String message) {
-    return new VortexException(404, message);
-  }
-
-  public static VortexException notFound(String message, Throwable cause) {
-    return new VortexException(404, message, cause);
-  }
-
-  public static VortexException notFoundDefault() {
-    return new VortexException(404, NOT_FOUND_MSG, new IllegalArgumentException(NOT_FOUND_DESC));
-  }
-
-  public static VortexException unauthorized(String message) {
-    return new VortexException(401, message);
-  }
-
-  public static VortexException forbidden(String message) {
-    return new VortexException(403, message);
-  }
-
-  public static VortexException internalError(String message) {
-    return new VortexException(500, message);
-  }
-
-  public static VortexException notImplemented(String message) {
-    return new VortexException(501, message);
+  @Generated
+  public int getCode() {
+    return this.code;
   }
 }
