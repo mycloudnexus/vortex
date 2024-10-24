@@ -52,7 +52,7 @@ class CompanyControllerTest extends AbstractIntegrationTest {
 
     CompanyDto req = new CompanyDto();
     req.setCompanyName("name");
-    req.setShortName("shortName");
+    req.setShortName("shortname");
 
     String path = String.format("%s", COMPANY_BASE_PATH);
     testClientHelper.postAndVerify(
@@ -91,7 +91,7 @@ class CompanyControllerTest extends AbstractIntegrationTest {
         (uriBuilder -> uriBuilder.path(COMPANY_BASE_PATH).build()),
         new ParameterizedTypeReference<HttpResponse<Paging<CompanyEntity>>>() {},
         res -> {
-          Assertions.assertEquals(res.getData().getTotal(), 1L);
+          Assertions.assertEquals(res.getData().getTotal(), 2L);
         });
   }
 
@@ -110,6 +110,8 @@ class CompanyControllerTest extends AbstractIntegrationTest {
   @Order(5)
   @Test
   void testDeleteCompany() {
+    doReturn(1).when(organizationService).delete(anyString());
+
     String path = String.format("%s/%s", COMPANY_BASE_PATH, companyId);
     testClientHelper.deleteAndVerify(
         (uriBuilder -> uriBuilder.path(path).build()),

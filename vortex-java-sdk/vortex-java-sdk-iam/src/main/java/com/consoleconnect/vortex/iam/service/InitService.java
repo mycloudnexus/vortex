@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class InitService {
   private final CompanyRepository companyRepository;
 
-  @Value("${app.reseller-company}")
+  @Value("${app.default-company}")
   private String resellerCompany;
 
   public InitService(CompanyRepository companyRepository) {
