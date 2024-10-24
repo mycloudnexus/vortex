@@ -32,7 +32,7 @@ public class OrganizationUserService {
   private Auth0Client auth0Client;
 
   // username-and-password strategy
-  private static final String CONNECTION_STRATEGY_PWD = "auth0";
+  private static final String CONNECTION_STRATEGY = "auth0";
   private static final String VALIDATION_REGEX =
       "^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=\\S+$).{10,20}$";
 
@@ -79,7 +79,7 @@ public class OrganizationUserService {
           organizationsEntity.getConnections(organization.getId(), null).execute().getBody();
       EnabledConnection enabledConnection = enabledConnectionsPage.getItems().get(0);
 
-      if (!CONNECTION_STRATEGY_PWD.equals(enabledConnection.getConnection().getStrategy())) {
+      if (!CONNECTION_STRATEGY.equals(enabledConnection.getConnection().getStrategy())) {
         throw VortexException.badRequest("Don't support for you company.");
       }
 
