@@ -15,6 +15,7 @@ import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.iam.client.Auth0Client;
 import com.consoleconnect.vortex.iam.model.UserResponse;
 import com.consoleconnect.vortex.iam.model.UserSignUpReq;
+import com.consoleconnect.vortex.iam.utils.Constants;
 import com.consoleconnect.vortex.iam.utils.DataMapper;
 import com.google.common.collect.Lists;
 import java.util.Collections;
@@ -31,8 +32,6 @@ public class OrganizationUserService {
   private static final String USER_CONNECTION_QUERY = "identities.connection:\"%s\"";
   private Auth0Client auth0Client;
 
-  // username-and-password strategy
-  private static final String CONNECTION_STRATEGY = "auth0";
   private static final String VALIDATION_REGEX =
       "^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=\\S+$).{10,20}$";
 
@@ -79,7 +78,8 @@ public class OrganizationUserService {
           organizationsEntity.getConnections(organization.getId(), null).execute().getBody();
       EnabledConnection enabledConnection = enabledConnectionsPage.getItems().get(0);
 
-      if (!CONNECTION_STRATEGY.equals(enabledConnection.getConnection().getStrategy())) {
+      if (!Constants.DEFAULT_CONNECTION_STRATEGY.equals(
+          enabledConnection.getConnection().getStrategy())) {
         throw VortexException.badRequest("Don't support for you company.");
       }
 

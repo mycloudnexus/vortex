@@ -1,12 +1,16 @@
 package com.consoleconnect.vortex.iam.service;
 
 import com.auth0.client.mgmt.OrganizationsEntity;
+import com.auth0.client.mgmt.filter.ConnectionFilter;
 import com.auth0.exception.Auth0Exception;
+import com.auth0.json.mgmt.connections.Connection;
+import com.auth0.json.mgmt.connections.ConnectionsPage;
 import com.auth0.json.mgmt.organizations.EnabledConnection;
 import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.net.Request;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.iam.client.Auth0Client;
+import com.consoleconnect.vortex.iam.utils.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,10 +59,32 @@ public class OrganizationService {
     organization.setDisplayName(displayName);
     Request<Organization> organizationRequest = organizationsEntity.create(organization);
     try {
-      return organizationRequest.execute().getBody();
+      organization = organizationRequest.execute().getBody();
+
+      // add default connection: username-and-password
+      EnabledConnection enabledConnection = new EnabledConnection(getDefaultConnection().getId());
+      Request<EnabledConnection> enabledConnectionRequest =
+          organizationsEntity.addConnection(organization.getId(), enabledConnection);
+      enabledConnectionRequest.execute().getBody();
+
+      return organization;
     } catch (Auth0Exception e) {
       log.error("[module-auth]create organizations.error", e);
       throw VortexException.badRequest("[module-auth]create organizations.error" + e.getMessage());
+    }
+  }
+
+  public Connection getDefaultConnection() {
+    try {
+      ConnectionFilter filter = new ConnectionFilter();
+      filter.withStrategy(Constants.DEFAULT_CONNECTION_STRATEGY);
+      filter.withName(Constants.DEFAULT_CONNECTION_NAME);
+      ConnectionsPage response =
+          this.auth0Client.getMgmtClient().connections().listAll(filter).execute().getBody();
+      return response.getItems().get(0);
+    } catch (Exception e) {
+      log.error("[module-auth]get.connection error", e);
+      throw VortexException.badRequest("Get the default connection error," + e.getMessage());
     }
   }
 
