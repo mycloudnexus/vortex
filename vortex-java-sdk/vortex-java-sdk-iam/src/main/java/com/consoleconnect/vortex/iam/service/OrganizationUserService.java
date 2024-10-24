@@ -96,6 +96,7 @@ public class OrganizationUserService {
       organizationsEntity
           .addMembers(organization.getId(), new Members(List.of(user.getId())))
           .execute();
+
       return user.getId();
     } catch (APIException e) {
       log.error("[module-auth]signUp.api.error", e);
