@@ -33,7 +33,8 @@ public class OrganizationUserService {
 
   // username-and-password strategy
   private static final String CONNECTION_STRATEGY_PWD = "auth0";
-  private static final String PWD_REGEX = "^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=\\S+$).{10,20}$";
+  private static final String VALIDATION_REGEX =
+      "^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=\\S+$).{10,20}$";
 
   public OrganizationUserService(Auth0Client auth0Client) {
     this.auth0Client = auth0Client;
@@ -159,7 +160,7 @@ public class OrganizationUserService {
   }
 
   public void validateEmailAndPwd(String pwd) {
-    if (!pwd.matches(PWD_REGEX)) {
+    if (!pwd.matches(VALIDATION_REGEX)) {
       throw VortexException.badRequest(
           "The length of password must between 10 to 20. And it should contain at lest one lower letter, one upper letter and one number.");
     }

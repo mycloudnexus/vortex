@@ -1,6 +1,6 @@
 package com.consoleconnect.vortex.iam.utils;
 
-import com.consoleconnect.vortex.auth.enums.UserStatus;
+import com.consoleconnect.vortex.iam.enums.UserStatus;
 import java.util.Date;
 
 public final class DataMapperUtils {
