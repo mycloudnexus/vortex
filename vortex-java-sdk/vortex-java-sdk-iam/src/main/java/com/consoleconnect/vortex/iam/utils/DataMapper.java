@@ -16,11 +16,13 @@ public interface DataMapper {
 
   @Mapping(source = "familyName", target = "lastName")
   @Mapping(source = "givenName", target = "firstName")
-  @Mapping(target = "userStatus", constant = "ACTIVE")
+  @Mapping(target = "userStatus", expression = "java(DataMapperUtils.userStatus(user.isBlocked()))")
+  @Mapping(source = "id", target = "userId")
   UserResponse memberToUserResponse(User user);
 
   List<UserResponse> invitationToUserResponses(List<Invitation> userList);
 
+  @Mapping(source = "id", target = "userId")
   @Mapping(source = "invitee.email", target = "email")
   @Mapping(
       target = "userStatus",
