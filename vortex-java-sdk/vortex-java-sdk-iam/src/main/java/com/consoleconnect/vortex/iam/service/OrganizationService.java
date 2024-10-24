@@ -69,7 +69,7 @@ public class OrganizationService {
 
       return organization;
     } catch (Auth0Exception e) {
-      log.error("[module-auth]create organizations.error", e);
+      log.error("create organizations.error", e);
       throw VortexException.badRequest("[module-auth]create organizations.error" + e.getMessage());
     }
   }
@@ -83,7 +83,7 @@ public class OrganizationService {
           this.auth0Client.getMgmtClient().connections().listAll(filter).execute().getBody();
       return response.getItems().get(0);
     } catch (Exception e) {
-      log.error("[module-auth]get.connection error", e);
+      log.error("get.connection error", e);
       throw VortexException.badRequest("Get the default connection error," + e.getMessage());
     }
   }

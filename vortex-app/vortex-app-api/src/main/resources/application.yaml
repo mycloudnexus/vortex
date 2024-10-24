@@ -81,5 +81,6 @@ app:
   auth:
     auth0:
       domain: ${AUTH0_DOMAIN}
+      spaClientId: ${AUTH0_SPA_CLIENT}
       clientId: ${AUTH0_CLIENT}
       clientSecret: ${AUTH0_SECRET}

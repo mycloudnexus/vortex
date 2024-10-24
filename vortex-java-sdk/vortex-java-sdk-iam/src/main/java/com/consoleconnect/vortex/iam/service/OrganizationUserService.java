@@ -30,10 +30,9 @@ import org.springframework.util.CollectionUtils;
 @Service
 public class OrganizationUserService {
   private static final String USER_CONNECTION_QUERY = "identities.connection:\"%s\"";
-  private Auth0Client auth0Client;
-
   private static final String VALIDATION_REGEX =
       "^(?=.*\\d)(?=.*[A-Z])(?=.*[a-z])(?=\\S+$).{10,20}$";
+  private Auth0Client auth0Client;
 
   public OrganizationUserService(Auth0Client auth0Client) {
     this.auth0Client = auth0Client;
@@ -99,10 +98,10 @@ public class OrganizationUserService {
 
       return user.getId();
     } catch (APIException e) {
-      log.error("[module-auth]signUp.api.error", e);
+      log.error("signUp.api.error", e);
       throw VortexException.badRequest(e.getDescription());
     } catch (Exception e) {
-      log.error("[module-auth]signUp.error", e);
+      log.error("signUp.error", e);
       throw VortexException.badRequest(e.getMessage());
     }
   }
@@ -154,7 +153,7 @@ public class OrganizationUserService {
         result.addAll(DataMapper.INSTANCE.invitationToUserResponses(invitations));
       }
     } catch (Exception e) {
-      log.error("[module-auth]getOrganizations.error", e);
+      log.error("getOrganizations.error", e);
     }
 
     return result;
@@ -164,6 +163,23 @@ public class OrganizationUserService {
     if (!pwd.matches(VALIDATION_REGEX)) {
       throw VortexException.badRequest(
           "The length of password must between 10 to 20. And it should contain at lest one lower letter, one upper letter and one number.");
+    }
+  }
+
+  public Boolean invite(String shortName, String inviterEmail, String inviteeEmail) {
+    try {
+      ManagementAPI managementAPI = getMgmtAPI();
+      OrganizationsEntity organizationsEntity = managementAPI.organizations();
+      Organization organization = organizationsEntity.getByName(shortName).execute().getBody();
+      String spaClientId = this.auth0Client.getAuth0Config().getSpaClientId();
+      Invitation invitation =
+          new Invitation(new Inviter(inviterEmail), new Invitee(inviteeEmail), spaClientId);
+      invitation.setSendInvitationEmail(true);
+      organizationsEntity.createInvitation(organization.getId(), invitation).execute().getBody();
+      return true;
+    } catch (Exception e) {
+      log.error("invite.error", e);
+      throw VortexException.badRequest("Invite error: " + e.getMessage());
     }
   }
 }

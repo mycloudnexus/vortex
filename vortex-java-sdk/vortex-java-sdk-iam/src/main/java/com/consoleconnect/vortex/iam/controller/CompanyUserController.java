@@ -2,6 +2,7 @@ package com.consoleconnect.vortex.iam.controller;
 
 import com.consoleconnect.vortex.core.entity.CompanyEntity;
 import com.consoleconnect.vortex.core.model.HttpResponse;
+import com.consoleconnect.vortex.iam.model.UserInviteReq;
 import com.consoleconnect.vortex.iam.model.UserResponse;
 import com.consoleconnect.vortex.iam.model.UserSignUpReq;
 import com.consoleconnect.vortex.iam.service.CompanyService;
@@ -39,10 +40,21 @@ public class CompanyUserController {
     return HttpResponse.ok(organizationUserService.listByOrg(company.getShortName()));
   }
 
-  @Operation(description = "create company", summary = "create company")
+  @Operation(description = "sign up", summary = "sign up")
   @PostMapping()
   public HttpResponse<String> signUp(@Valid @RequestBody UserSignUpReq userSignUpReq) {
     companyService.getOneByShortName(userSignUpReq.getOrganizationName());
     return HttpResponse.ok(organizationUserService.signUp(userSignUpReq));
+  }
+
+  @Operation(description = "invite", summary = "invite")
+  @PostMapping("/invite")
+  public HttpResponse<Boolean> invite(@Valid @RequestBody UserInviteReq userInviteReq) {
+    CompanyEntity company = companyService.getOne(userInviteReq.getCompanyId());
+    return HttpResponse.ok(
+        organizationUserService.invite(
+            company.getShortName(),
+            userInviteReq.getInviterEmail(),
+            userInviteReq.getInviteeEmail()));
   }
 }
