@@ -43,7 +43,7 @@ jobs:
 
           gh pr comment $PR_NUMBER -F table.txt
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   java-unit-test:
     name: java-unit-test
     runs-on: ubuntu-latest
