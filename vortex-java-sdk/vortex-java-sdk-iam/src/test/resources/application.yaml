@@ -78,3 +78,12 @@ springdoc:
 logging:
   level:
     com.consoleconnect.vortex: DEBUG
+
+app:
+  default-company: ${DEFAULT_COMPANY:""}
+  auth:
+    auth0:
+      domain: ${AUTH0_DOMAIN:""}
+      spaClientId: ${AUTH0_SPA_CLIENT:""}
+      clientId: ${AUTH0_CLIENT:""}
+      clientSecret: ${AUTH0_SECRET:""}

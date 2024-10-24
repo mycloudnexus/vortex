@@ -1,0 +1,8 @@
+{
+  "dataCenterFacility":"hkg05",
+  "speed":"1000",
+  "durationUnit":"y",
+  "portName":"test-guox-order",
+  "paymentType":"invoice",
+  "bundleCrossConnect":false
+}
