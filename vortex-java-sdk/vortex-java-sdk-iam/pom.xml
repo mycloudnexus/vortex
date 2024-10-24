@@ -20,7 +20,22 @@
             <artifactId>vortex-java-sdk-core</artifactId>
             <version>0.0.0</version>
         </dependency>
-        
+
+        <!-- spring security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-resource-server</artifactId>
+        </dependency>
+
         <!-- dev -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
