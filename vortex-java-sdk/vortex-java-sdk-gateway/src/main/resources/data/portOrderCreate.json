@@ -1,0 +1,311 @@
+{
+  "id": "6719eaeafacb3cc2b5b728d0",
+  "portName": "test-guox-order",
+  "speed": {
+    "value": 1000,
+    "name": "1000 Mbps"
+  },
+  "paymentType": "invoice",
+  "discountId": null,
+  "billingId": "6719eae9facb3cc2b5b728cd",
+  "externalId": null,
+  "salesRecordId": null,
+  "paymentTransactionId": null,
+  "payg": true,
+  "status": "created",
+  "loaStatus": "TODO",
+  "isEdgePort": false,
+  "cancelled": false,
+  "edgePayload": null,
+  "requestSource": "CONSOLE_APP",
+  "createdBy": "xguo",
+  "tags": [],
+  "type": "PHYSICAL",
+  "isManualCreate": false,
+  "dataCenterFacilityId": "5a8ba8c58195000012e9f13f",
+  "metroId": "77d9f1fbbcaa906f3cddb6d1",
+  "companyId": "65a4f18aec61ae42ae9606df",
+  "crossConnectId": null,
+  "deleted": false,
+  "deletedAt": null,
+  "createdAt": "2024-10-24T06:36:26.008Z",
+  "updatedAt": "2024-10-24T06:36:26.188Z",
+  "durationUnit": "y",
+  "company": {
+    "system": {
+      "welcomeMessage": null
+    },
+    "company": {
+      "companySize": null,
+      "dateFounded": null,
+      "clientId": null,
+      "first": null,
+      "last": null,
+      "address": null,
+      "city": null,
+      "state": null,
+      "zip": null,
+      "phone": null,
+      "fax": null,
+      "addresses": [
+        {
+          "geo": {
+            "type": "Point",
+            "coordinates": []
+          },
+          "registered": false,
+          "address": "1",
+          "city": "1",
+          "state": null,
+          "zip": null,
+          "country": "US",
+          "email": null,
+          "phone": null
+        }
+      ],
+      "partnerType": null,
+      "businessType": "Enterprise",
+      "registeredName": "ConsoleCore POPing company",
+      "website": "1.com",
+      "isIoTDemoCompany": false,
+      "industry": "the arts"
+    },
+    "cloudProviderDetails": {
+      "asn": {
+        "range": []
+      },
+      "bgpAuthority": "PCCWGLOBAL",
+      "companyType": "DCP"
+    },
+    "stats": {
+      "articles": 0,
+      "events": 0,
+      "followers": 0,
+      "following": 3,
+      "interconnections": 0,
+      "members": 32,
+      "posts": 0,
+      "privateArticles": 0,
+      "privateEvents": 0,
+      "privatePosts": 0
+    },
+    "avatarId": null,
+    "background": null,
+    "headline": null,
+    "summary": null,
+    "location": null,
+    "accountManagerEmail": null,
+    "accountManagerId": null,
+    "username": "consolecore-poping-company",
+    "name": "ConsoleCore POPing company",
+    "type": "COMPANY",
+    "overviewImage": "671751e9a06936b128f4015b",
+    "categories": [
+      "Enterprise"
+    ],
+    "portsActive": 71,
+    "businessRegistrationNumber": "123321",
+    "bundleCrossConnectChargeId": null,
+    "deletedAt": null,
+    "tags": [],
+    "createdAt": "2024-01-15T08:49:16.823Z",
+    "updatedAt": "2024-10-24T06:02:32.877Z",
+    "deleted": false,
+    "displayOrder": -299,
+    "groups": [],
+    "isCloudProvider": false,
+    "status": "ACTIVE",
+    "verified": true,
+    "verifiedIdentity": true,
+    "billingAccount": "",
+    "signedCompanyRefId": 3,
+    "signedCompanyVerified": true,
+    "selectiveQinQTunnelProvider": [],
+    "companies": [],
+    "id": "65a4f18aec61ae42ae9606df",
+    "online": false
+  },
+  "dataCenterFacility": {
+    "system": {
+      "welcomeMessage": null
+    },
+    "company": {
+      "privacy": {
+        "network": {
+          "mode": "PUBLIC",
+          "blackListIds": [],
+          "whiteListIds": []
+        },
+        "community": {
+          "mode": "PUBLIC",
+          "blackListIds": [],
+          "whiteListIds": []
+        }
+      },
+      "businessType": null,
+      "partnerType": null,
+      "companySize": null,
+      "dateFounded": null,
+      "registeredName": null,
+      "businessRegistrationCertReference": null,
+      "businessRegistrationCertUploadedAt": null,
+      "businessRegistrationCertRejectedReason": null,
+      "clientId": null,
+      "first": null,
+      "last": null,
+      "address": null,
+      "city": null,
+      "state": null,
+      "zip": null,
+      "phone": null,
+      "fax": null,
+      "addresses": [
+        {
+          "geo": {
+            "type": "Point",
+            "coordinates": [
+              "114.177216",
+              "22.302711"
+            ]
+          },
+          "registered": false,
+          "address": "",
+          "city": "Hong Kong",
+          "state": "",
+          "zip": "zipcode",
+          "country": "HK",
+          "email": null,
+          "phone": null
+        }
+      ],
+      "regionalInternetRegistry": [],
+      "businessRegistrationCertVerified": "UNVERIFIED",
+      "website": "http://www.company.com1",
+      "emailDomains": [],
+      "industry": "",
+      "businessDevelopmentManagerTypePreference": "UNSPECIFIED",
+      "isIoTDemoCompany": false
+    },
+    "dataCenterFacility": {
+      "airportCodes": [],
+      "speeds": [],
+      "metroId": "77d9f1fbbcaa906f3cddb6d1",
+      "ready": true,
+      "id": "05a75ed0-b35b-46bf-8019-22b0d2701913",
+      "nniReady": true,
+      "brandId": null,
+      "canBundleCrossConnect": false
+    },
+    "cloudProviderDetails": {
+      "asn": {
+        "range": []
+      },
+      "bgpAuthority": "PCCWGLOBAL",
+      "companyType": "DCP"
+    },
+    "stats": {
+      "members": 0,
+      "interconnections": 0,
+      "followers": 5,
+      "following": 0,
+      "privateArticles": 0,
+      "privateEvents": 0,
+      "privatePosts": 0,
+      "articles": 0,
+      "events": 0,
+      "posts": 0
+    },
+    "overviewImage": null,
+    "businessRegistrationNumber": null,
+    "signedCompanyRefId": null,
+    "accountManagerEmail": null,
+    "accountManagerId": null,
+    "createdAt": "2018-02-20T04:49:09.604Z",
+    "updatedAt": "2024-10-17T08:32:19.121Z",
+    "username": "hkg05",
+    "deletedAt": null,
+    "deleted": false,
+    "verified": true,
+    "tags": [
+      "offnet",
+      "monthly-ports"
+    ],
+    "status": "ACTIVE",
+    "displayOrder": -299,
+    "groups": [],
+    "location": null,
+    "summary": "",
+    "headline": null,
+    "background": null,
+    "avatarId": null,
+    "name": "hkg39-Asia-HK-APAC",
+    "type": "DATA_CENTER_FACILITY",
+    "popIds": [
+      "bd473460-8567-4dd4-9164-1a3e7648e760",
+      "fb9b0300-e17f-4ec1-b893-dac41b54bf3e"
+    ],
+    "costbookLocationId": "5ce379fc628923000a4fbe3a",
+    "costbookLocation": {
+      "name": "ASIA 1",
+      "id": "5ce379fc628923000a4fbe3a",
+      "deletedAt": null,
+      "createdAt": "2019-05-21T04:09:32.819Z",
+      "updatedAt": "2019-11-05T01:31:28.426Z",
+      "tags": [
+        "generated"
+      ],
+      "gatewayIds": [],
+      "regionIds": [
+        "5a370b348f220300127f834e"
+      ],
+      "regions": [
+        {
+          "name": "APAC",
+          "id": "5a370b348f220300127f834e",
+          "deletedAt": null,
+          "createdAt": "2017-12-18T00:26:28.610Z",
+          "updatedAt": "2018-09-11T04:15:10.124Z",
+          "deleted": false,
+          "priceMultiplier": 1,
+          "insightRegion": "Asia"
+        }
+      ],
+      "gateways": []
+    },
+    "verifiedIdentity": false,
+    "provider": [
+      "PCCWGLOBAL"
+    ],
+    "destinationPortOnly": false,
+    "categories": [],
+    "nnis": null,
+    "isCloudProvider": false,
+    "l3CostbookLocationId": "622abbac2058a300150f7dd2",
+    "bundleCrossConnectChargeId": null,
+    "signedCompanyVerified": false,
+    "selectiveQinQTunnelProvider": [],
+    "companies": [],
+    "id": "5a8ba8c58195000012e9f13f",
+    "online": false
+  },
+  "metro": {
+    "name": "Hong Kong",
+    "code": "HKG",
+    "logo": null,
+    "canCreateController": false,
+    "tags": [],
+    "description": "a",
+    "country": "hk",
+    "rir": "APNIC",
+    "regionIds": [
+      "5c05cb06cad910000ae251f4"
+    ],
+    "ready": true,
+    "deleted": false,
+    "id": "77d9f1fbbcaa906f3cddb6d1",
+    "deletedAt": null,
+    "createdAt": "2017-12-18T00:45:44.120Z",
+    "updatedAt": "2024-02-25T05:02:47.267Z"
+  },
+  "capabilities": {}
+}
