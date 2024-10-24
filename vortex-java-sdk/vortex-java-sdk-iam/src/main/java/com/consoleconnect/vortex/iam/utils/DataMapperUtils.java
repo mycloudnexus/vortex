@@ -5,6 +5,8 @@ import java.util.Date;
 import org.apache.commons.lang3.BooleanUtils;
 
 public final class DataMapperUtils {
+  private DataMapperUtils() {}
+
   public static UserStatus invitationStatus(Date expireAt) {
     UserStatus status = UserStatus.PENDING;
     if (expireAt.before(new Date())) {
