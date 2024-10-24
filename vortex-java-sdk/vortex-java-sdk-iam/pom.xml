@@ -3,39 +3,50 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>vortex-app-api</artifactId>
-    <name>vortex-app-api</name>
+    <artifactId>vortex-java-sdk-iam</artifactId>
+    <name>vortex-java-sdk-iam</name>
     <version>0.0.0</version>
     <packaging>jar</packaging>
     <parent>
         <groupId>com.consoleconnect.vortex</groupId>
-        <artifactId>vortex-app</artifactId>
+        <artifactId>vortex-java-sdk</artifactId>
         <version>0.0.0</version>
     </parent>
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-    </properties>
+
     <dependencies>
-        <!-- vortex features -->
+        
         <dependency>
             <groupId>com.consoleconnect.vortex</groupId>
             <artifactId>vortex-java-sdk-core</artifactId>
+            <version>0.0.0</version>
+        </dependency>
+        
+        <!-- dev -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
-            <groupId>com.consoleconnect.vortex</groupId>
-            <artifactId>vortex-java-sdk-iam</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.consoleconnect.vortex</groupId>
-            <artifactId>vortex-java-sdk-gateway</artifactId>
-        </dependency>
 
         <!-- test -->
         <dependency>
             <groupId>com.consoleconnect.vortex</groupId>
             <artifactId>vortex-java-sdk-test</artifactId>
+            <version>0.0.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
