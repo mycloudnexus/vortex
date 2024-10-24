@@ -6,6 +6,7 @@ import com.auth0.json.auth.TokenHolder;
 import com.auth0.net.TokenRequest;
 import com.auth0.net.client.Auth0HttpClient;
 import com.auth0.net.client.DefaultHttpClient;
+import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.iam.model.AppProperty;
 import com.consoleconnect.vortex.iam.model.Auth0Config;
 import lombok.Getter;
@@ -45,11 +46,10 @@ public class Auth0Client {
       TokenRequest tokenRequest =
           authClient.requestToken(String.format(TOKEN_URL_TEMPLATE, auth0Config.getDomain()));
       TokenHolder holder = tokenRequest.execute().getBody();
-      String accessToken = holder.getAccessToken();
-      return accessToken;
+      return holder.getAccessToken();
     } catch (Exception e) {
       log.error("[module-auth]Error calling Auth0", e);
-      throw new RuntimeException("Error calling Auth" + e.getMessage());
+      throw VortexException.badRequest("Error calling Auth" + e.getMessage());
     }
   }
 }

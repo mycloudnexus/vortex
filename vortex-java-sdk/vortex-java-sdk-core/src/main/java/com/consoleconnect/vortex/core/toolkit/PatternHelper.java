@@ -11,12 +11,4 @@ public class PatternHelper {
     Pattern p = Pattern.compile(SHORTNAME_REGEX);
     return p.matcher(str).matches();
   }
-
-  public static void main(String[] args) {
-    System.out.println(validShortName("my-string-12_3"));
-    System.out.println(validShortName("4my-string-12_3"));
-    System.out.println(validShortName("_my-string-12_3"));
-    System.out.println(validShortName("-my-string-12_3"));
-    System.out.println(validShortName("My-string-12_3"));
-  }
 }

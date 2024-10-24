@@ -91,7 +91,7 @@ class CompanyControllerTest extends AbstractIntegrationTest {
         (uriBuilder -> uriBuilder.path(COMPANY_BASE_PATH).build()),
         new ParameterizedTypeReference<HttpResponse<Paging<CompanyEntity>>>() {},
         res -> {
-          Assertions.assertEquals(res.getData().getTotal(), 2L);
+          Assertions.assertEquals(2L, res.getData().getTotal());
         });
   }
 
