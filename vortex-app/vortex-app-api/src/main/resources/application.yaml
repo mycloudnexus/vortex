@@ -71,7 +71,7 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
-    supported-submit-methods: ["get", "post", "patch", "delete"]
+    supported-submit-methods: [ "get", "post", "patch", "delete" ]
     config-url: /v3/api-docs/swagger-config
     urls:
       - url: /v3/api-docs
@@ -86,7 +86,16 @@ logging:
 
 app:
   auth0:
-    domain: ${AUTH0_DOMAIN:consoleconnect.auth0.com}
-    audience: ${AUTH0_AUDIENCE:https://partner.consoleconnect.com/api}
-    client-id: ${AUTH0_CLIENT_ID:client-id}
-    client-secret: ${AUTH0_CLIENT_SECRET:client-secret}
+    mgmt-api:
+      domain: ${AUTH0_MGMT_API_DOMAIN:consoleconnect.auth0.com}
+      client-id: ${AUTH0_MGMT_API_CLIENT_ID:mgmt-api-client-id}
+      client-secret: ${AUTH0_MGMT_API_CLIENT_SECRET:mgmt-api-client-secret}
+      audience: ${AUTH0_MGMT_API_AUDIENCE:https://partner.consoleconnect.com/api}
+    app:
+      client-id: ${AUTH0_APP_CLIENT_ID:app-client-id}
+
+    mgmt-org-id: ${AUTH0_MGMT_ORG_ID:mgmt-org-id}
+    roles:
+      mgmt-role-id: ${AUTH0_MGMT_ROLE_ID:mgmt-role-id}
+      admin-role-id: ${AUTH0_ADMIN_ROLE_ID:admin-role-id}
+      user-role-id: ${AUTH0_USER_ROLE_ID:user-role-id}
