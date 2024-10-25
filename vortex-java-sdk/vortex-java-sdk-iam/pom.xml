@@ -14,7 +14,7 @@
     </parent>
 
     <dependencies>
-        
+
         <dependency>
             <groupId>com.consoleconnect.vortex</groupId>
             <artifactId>vortex-java-sdk-core</artifactId>
@@ -34,6 +34,13 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-resource-server</artifactId>
+        </dependency>
+
+        <!--auth0 -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>auth0</artifactId>
+            <version>2.14.0</version>
         </dependency>
 
         <!-- dev -->
