@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Getter
 public class Auth0Client {
-  private final Auth0Property auth0Property;
+  @Getter private final Auth0Property auth0Property;
   private final AuthAPI auth0AuthAPI;
   private final Auth0HttpClient auth0HttpClient;
   private TokenHolder tokenHolder;
@@ -25,15 +25,15 @@ public class Auth0Client {
     this.auth0HttpClient = DefaultHttpClient.newBuilder().build();
     this.auth0AuthAPI =
         AuthAPI.newBuilder(
-                this.auth0Property.getDomain(),
-                this.auth0Property.getClientId(),
-                this.auth0Property.getClientSecret())
+                this.auth0Property.getMgmtApi().getDomain(),
+                this.auth0Property.getMgmtApi().getClientId(),
+                this.auth0Property.getMgmtApi().getClientSecret())
             .withHttpClient(auth0HttpClient)
             .build();
   }
 
   public ManagementAPI getMgmtClient() {
-    return ManagementAPI.newBuilder(auth0Property.getDomain(), getAccessToken())
+    return ManagementAPI.newBuilder(auth0Property.getMgmtApi().getDomain(), getAccessToken())
         .withHttpClient(auth0HttpClient)
         .build();
   }
@@ -42,7 +42,8 @@ public class Auth0Client {
     // Check if token is null or expired
     if (tokenHolder == null || new Date().after(tokenHolder.getExpiresAt())) {
       try {
-        TokenRequest tokenRequest = auth0AuthAPI.requestToken(auth0Property.getAudience());
+        TokenRequest tokenRequest =
+            auth0AuthAPI.requestToken(auth0Property.getMgmtApi().getAudience());
         tokenHolder = tokenRequest.execute().getBody();
       } catch (Exception e) {
         log.error("Error calling Auth0", e);
