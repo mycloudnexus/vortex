@@ -3,12 +3,11 @@ package com.consoleconnect.vortex.iam.config;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
-import com.consoleconnect.vortex.iam.model.AuthDataProperty;
+import com.consoleconnect.vortex.iam.model.ResourceServerProperty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -32,16 +31,10 @@ import reactor.core.publisher.Mono;
 public class WebSecurityConfig {
 
   @Bean
-  @ConfigurationProperties(prefix = "app.security")
-  public AuthDataProperty authDataProperty() {
-    return new AuthDataProperty();
-  }
-
-  @Bean
   @Order(1)
   public SecurityWebFilterChain securityWebFilterChain(
-      ServerHttpSecurity http, AuthDataProperty authDataProperty) {
-    AuthDataProperty.ResourceServer resourceServer = authDataProperty.getResourceServer();
+      ServerHttpSecurity http, ResourceServerProperty resourceServer) {
+
     return http.csrf(ServerHttpSecurity.CsrfSpec::disable)
         .cors(
             cors ->

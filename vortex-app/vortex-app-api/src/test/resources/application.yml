@@ -77,7 +77,6 @@ logging:
   level:
     com.consoleconnect.vortex: DEBUG
 app:
-  security:
-    resource-server:
-      allowed-paths:
-        - /actuator/**
+  resource-server:
+    allowed-paths:
+      - /actuator/**
