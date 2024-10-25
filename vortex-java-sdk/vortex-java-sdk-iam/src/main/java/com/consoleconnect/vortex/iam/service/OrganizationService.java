@@ -1,9 +1,11 @@
 package com.consoleconnect.vortex.iam.service;
 
+import com.auth0.client.mgmt.ConnectionsEntity;
 import com.auth0.client.mgmt.OrganizationsEntity;
 import com.auth0.client.mgmt.RolesEntity;
 import com.auth0.client.mgmt.filter.PageFilter;
 import com.auth0.exception.Auth0Exception;
+import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.organizations.*;
 import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
@@ -12,8 +14,11 @@ import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
+import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.CreateInivitationDto;
 import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
+import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
+import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import java.util.ArrayList;
 import java.util.List;
@@ -186,6 +191,94 @@ public class OrganizationService {
       return PagingHelper.toPage(items, page, size);
     } catch (Auth0Exception e) {
       throw VortexException.internalError("Failed to get roles of organization: " + orgId);
+    }
+  }
+
+  public Paging<OrganizationConnection> listConnections(String orgId, int page, int size) {
+    try {
+      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
+      Request<EnabledConnectionsPage> request = organizationsEntity.getConnections(orgId, null);
+      List<EnabledConnection> items = request.execute().getBody().getItems();
+
+      List<com.auth0.json.mgmt.connections.Connection> connections =
+          this.auth0Client
+              .getMgmtClient()
+              .connections()
+              .listAll(null)
+              .execute()
+              .getBody()
+              .getItems();
+
+      List<OrganizationConnection> organizationConnections =
+          items.stream()
+              .map(
+                  item -> {
+                    OrganizationConnection organizationConnection = new OrganizationConnection();
+                    organizationConnection.setConnectionId(item.getConnectionId());
+                    organizationConnection.setAssignMembershipOnLogin(
+                        item.isAssignMembershipOnLogin());
+                    organizationConnection.setShowAsButton(item.getShowAsButton());
+                    organizationConnection.setConnection(
+                        connections.stream()
+                            .filter(connection -> connection.getId().equals(item.getConnectionId()))
+                            .findFirst()
+                            .get());
+                    return organizationConnection;
+                  })
+              .toList();
+      return PagingHelper.toPage(organizationConnections, page, size);
+    } catch (Auth0Exception e) {
+      throw VortexException.internalError("Failed to get connections of organization: " + orgId);
+    }
+  }
+
+  public OrganizationConnection createConnection(
+      String orgId, CreateConnectionDto request, String requestedBy) {
+    log.info("creating connection:orgId:{}, {},requestedBy:{}", orgId, request, requestedBy);
+    try {
+
+      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
+
+      // only one connection is allowed for an organization
+      if (!organizationsEntity
+          .getConnections(orgId, null)
+          .execute()
+          .getBody()
+          .getItems()
+          .isEmpty()) {
+        throw VortexException.badRequest("Connection already exists for organization: " + orgId);
+      }
+
+      // create connection
+      ConnectionsEntity connectionsEntity = this.auth0Client.getMgmtClient().connections();
+
+      Connection connection =
+          new Connection(request.getName(), ConnectionStrategryEnum.OIDC.getValue());
+      connection.setEnabledClients(List.of(auth0Client.getAuth0Property().getApp().getClientId()));
+      connection.setOptions(request.getOdic().toMap());
+
+      Connection createdConnection = connectionsEntity.create(connection).execute().getBody();
+
+      // bind connection
+      EnabledConnection enabledConnection = new EnabledConnection();
+      enabledConnection.setConnectionId(createdConnection.getId());
+      enabledConnection.setShowAsButton(false);
+      enabledConnection.setAssignMembershipOnLogin(false);
+
+      EnabledConnection createdEnabledConnection =
+          organizationsEntity.addConnection(orgId, enabledConnection).execute().getBody();
+
+      OrganizationConnection organizationConnection = new OrganizationConnection();
+      organizationConnection.setConnectionId(createdEnabledConnection.getConnectionId());
+      organizationConnection.setAssignMembershipOnLogin(
+          createdEnabledConnection.isAssignMembershipOnLogin());
+      organizationConnection.setShowAsButton(createdEnabledConnection.getShowAsButton());
+      organizationConnection.setConnection(createdConnection);
+      return organizationConnection;
+
+    } catch (Auth0Exception e) {
+      log.error("create connections.error", e);
+      throw VortexException.internalError("Failed to create connections of organization: " + orgId);
     }
   }
 }
