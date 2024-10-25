@@ -38,6 +38,7 @@ public class OrganizationService {
   }
 
   public Paging<Organization> search(String q, int page, int size) {
+    log.info("search organizations, q:{}, page:{}, size:{}", q, page, size);
     try {
       PageFilter pageFilter = new PageFilter();
       pageFilter.withTotals(true);
