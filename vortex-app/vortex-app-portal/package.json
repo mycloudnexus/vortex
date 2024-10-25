@@ -1,6 +1,6 @@
 {
   "name": "vortex-app-portal",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Vortex Portal",
   "main": "index.js",
   "scripts": {
