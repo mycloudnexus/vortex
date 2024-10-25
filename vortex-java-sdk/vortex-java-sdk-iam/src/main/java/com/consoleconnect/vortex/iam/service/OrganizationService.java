@@ -132,8 +132,7 @@ public class OrganizationService {
     } else {
       roleIds.add(auth0Client.getAuth0Property().getRoles().getUserRoleId());
     }
-    Roles roles = new Roles(roleIds);
-    return roles;
+    return new Roles(roleIds);
   }
 
   public Paging<Invitation> listInvitations(String orgId, int page, int size) {
