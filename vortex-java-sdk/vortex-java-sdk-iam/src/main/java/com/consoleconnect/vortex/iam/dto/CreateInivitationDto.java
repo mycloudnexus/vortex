@@ -1,10 +1,10 @@
 package com.consoleconnect.vortex.iam.dto;
 
-import com.consoleconnect.vortex.iam.enums.RoleEnum;
+import java.util.List;
 import lombok.Data;
 
 @Data
 public class CreateInivitationDto {
   private String email;
-  private RoleEnum role;
+  private List<String> roles;
 }

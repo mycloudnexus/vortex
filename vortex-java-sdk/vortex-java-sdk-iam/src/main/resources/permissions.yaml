@@ -1,0 +1,29 @@
+---
+- name: mgmt
+  description: Platform Management
+  permissions:
+    - name: mgmt:org:create
+      description: Create Organization
+    - name: mgmt:org:delete
+      description: Delete Organization
+    - name: mgmt:org:update
+      description: Update Organization
+    - name: mgmt:org:read
+      description: Read Organization
+    - name: mgmt:org:list
+      description: List Organizations
+    - name: mgmt:user:list
+      description: List Users
+    - name: mgmt:user:read
+      description: Read User details
+    - name: mgmt:role:list
+      description: List roles
+    - name: mgmt:role:read
+      description: Read role details
+- name: Org
+  description: Organization Mgmt
+  permissions:
+    - name: org:update
+      description: Update Organization
+    - name: org:read
+      description: Read Organization
