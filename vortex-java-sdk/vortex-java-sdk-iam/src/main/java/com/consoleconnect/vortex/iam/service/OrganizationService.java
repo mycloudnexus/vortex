@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 public class OrganizationService {
 
   private final Auth0Client auth0Client;
+  private final EmailService emailService;
 
   public Organization create(CreateOrganizationDto request, String createdBy) {
     log.info("creating organization: {},requestedBy:{}", request, createdBy);
@@ -130,7 +131,10 @@ public class OrganizationService {
 
       Request<Invitation> invitationRequest =
           organizationsEntity.createInvitation(orgId, invitation);
-      return invitationRequest.execute().getBody();
+
+      Invitation createdInvitation = invitationRequest.execute().getBody();
+      emailService.sendInvitation(createdInvitation);
+      return createdInvitation;
     } catch (Auth0Exception e) {
       log.error("create invitations.error", e);
       throw VortexException.internalError("Failed to create invitations of organization: " + orgId);
@@ -182,7 +186,7 @@ public class OrganizationService {
                     roleSet.getOrgIds() == null
                         || roleSet.getOrgIds().isEmpty()
                         || roleSet.getOrgIds().contains(orgId))
-            .map(roleSet -> roleSet.getRoleId())
+            .map(Auth0Property.Role::getRoleId)
             .distinct()
             .toList();
 
