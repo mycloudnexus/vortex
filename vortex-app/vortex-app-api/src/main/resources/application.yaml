@@ -47,6 +47,21 @@ spring:
           issuer-uri: ${app.iam.jwt.issuer-uri}
           jwk-set-uri: ${app.iam.jwt.jwk-set-uri}
           audiences: ${app.iam.jwt.audience}
+  cloud:
+    gateway:
+      routes:
+        - id: downstream-api
+          uri: ${app.gateway.downstream.base-url}
+          predicates:
+            - Path=/downstream/**
+          filters:
+            - RewritePath=/downstream/(?<path>.*), /$\{path}
+            - RemoveRequestHeader=Authorization
+            - name: SetAPIKey
+              args:
+                keyName: Authorization
+                adminKey: Bearer ${app.gateway.downstream.admin-api-key}
+                userKey: Bearer ${app.gateway.downstream.user-api-key}
 management:
   endpoint:
     health:
@@ -83,6 +98,7 @@ logging:
   level:
     com.consoleconnect.vortex: DEBUG
     org.springframework.security: DEBUG
+    org.springframework.cloud.gateway: DEBUG
 
 app:
   iam:
@@ -122,3 +138,8 @@ app:
           email: ${SENDGRID_FROM_EMAIL:}
         templates:
           invite-org-member: ${SENDGRID_TEMPLATE_ID_ORG_INVITE:}
+  gateway:
+    downstream:
+      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
+      admin-api-key: ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
+      user-api-key: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
