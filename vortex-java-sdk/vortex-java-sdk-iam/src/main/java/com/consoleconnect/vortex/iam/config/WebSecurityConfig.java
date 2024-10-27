@@ -3,6 +3,7 @@ package com.consoleconnect.vortex.iam.config;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
+import com.consoleconnect.vortex.iam.acl.VortexPermissionEvaluator;
 import com.consoleconnect.vortex.iam.model.ResourceServerProperty;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +13,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,12 +31,17 @@ import reactor.core.publisher.Mono;
 @Configuration
 @Slf4j
 @EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
 public class WebSecurityConfig {
 
   @Bean
   @Order(1)
   public SecurityWebFilterChain securityWebFilterChain(
-      ServerHttpSecurity http, ResourceServerProperty resourceServer) {
+      ServerHttpSecurity http,
+      ResourceServerProperty resourceServer,
+      VortexPermissionEvaluator permissionEvaluator,
+      DefaultMethodSecurityExpressionHandler defaultWebSecurityExpressionHandler) {
+    defaultWebSecurityExpressionHandler.setPermissionEvaluator(permissionEvaluator);
 
     return http.csrf(ServerHttpSecurity.CsrfSpec::disable)
         .cors(

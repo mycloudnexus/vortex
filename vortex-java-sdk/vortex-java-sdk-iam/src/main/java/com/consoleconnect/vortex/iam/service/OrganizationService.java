@@ -19,8 +19,7 @@ import com.consoleconnect.vortex.iam.dto.CreateInivitationDto;
 import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
 import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
-import com.consoleconnect.vortex.iam.enums.RoleEnum;
-import java.util.ArrayList;
+import com.consoleconnect.vortex.iam.model.Auth0Property;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,6 +88,24 @@ public class OrganizationService {
       String orgId, CreateInivitationDto request, String requestedBy) {
 
     log.info("creating invitation:orgId:{}, {},requestedBy:{}", orgId, request, requestedBy);
+
+    if (request.getRoles() != null) {
+      for (String roleId : request.getRoles()) {
+        Auth0Property.Role role =
+            auth0Client.getAuth0Property().getRoles().stream()
+                .filter(r -> r.getRoleId().equals(roleId))
+                .findFirst()
+                .orElse(null);
+        if (role == null) {
+          throw VortexException.badRequest("Role not found: " + roleId);
+        }
+        if (role.getOrgIds() != null
+            && !role.getOrgIds().isEmpty()
+            && !role.getOrgIds().contains(orgId)) {
+          throw VortexException.badRequest("Role not found for organization: " + orgId);
+        }
+      }
+    }
     try {
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       Organization organization = organizationsEntity.get(orgId).execute().getBody();
@@ -109,7 +126,7 @@ public class OrganizationService {
           new Invitation(inviter, invitee, auth0Client.getAuth0Property().getApp().getClientId());
       invitation.setConnectionId(enabledConnectionsPage.getItems().get(0).getConnectionId());
       invitation.setSendInvitationEmail(false);
-      invitation.setRoles(getRoles(orgId, request));
+      invitation.setRoles(new Roles(request.getRoles()));
 
       Request<Invitation> invitationRequest =
           organizationsEntity.createInvitation(orgId, invitation);
@@ -118,26 +135,6 @@ public class OrganizationService {
       log.error("create invitations.error", e);
       throw VortexException.internalError("Failed to create invitations of organization: " + orgId);
     }
-  }
-
-  private Roles getRoles(String orgId, CreateInivitationDto request) {
-    List<String> roleIds = new ArrayList<>();
-
-    // check if the user is mgmt
-    boolean isMgmt = orgId.equalsIgnoreCase(auth0Client.getAuth0Property().getMgmtOrgId());
-
-    // assign mgmt role to the user
-    if (isMgmt) {
-      roleIds.add(auth0Client.getAuth0Property().getRoles().getMgmtRoleId());
-    }
-
-    // assign admin or user role to the user
-    if (request.getRole() == RoleEnum.ADMIN) {
-      roleIds.add(auth0Client.getAuth0Property().getRoles().getAdminRoleId());
-    } else {
-      roleIds.add(auth0Client.getAuth0Property().getRoles().getUserRoleId());
-    }
-    return new Roles(roleIds);
   }
 
   public Paging<Invitation> listInvitations(String orgId, int page, int size) {
@@ -178,9 +175,17 @@ public class OrganizationService {
 
   public Paging<Role> listRoles(String orgId, int page, int size) {
     List<String> roleIds =
-        List.of(
-            auth0Client.getAuth0Property().getRoles().getAdminRoleId(),
-            auth0Client.getAuth0Property().getRoles().getUserRoleId());
+        auth0Client.getAuth0Property().getRoles().stream()
+            .filter(role -> role.getRoleId() != null && !role.getRoleId().isEmpty())
+            .filter(
+                roleSet ->
+                    roleSet.getOrgIds() == null
+                        || roleSet.getOrgIds().isEmpty()
+                        || roleSet.getOrgIds().contains(orgId))
+            .map(roleSet -> roleSet.getRoleId())
+            .distinct()
+            .toList();
+
     try {
       RolesEntity rolesEntity = this.auth0Client.getMgmtClient().roles();
       List<Role> items =

@@ -44,9 +44,9 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_ISSUER_URI:https://partner.consoleconnect.com}
-          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8000/.well-known/jwks.json}
-          audiences: ${JWT_AUDIENCES:https://partner.consoleconnect.com/api}
+          issuer-uri: ${app.iam.jwt.issuer-uri}
+          jwk-set-uri: ${app.iam.jwt.jwk-set-uri}
+          audiences: ${app.iam.jwt.audience}
 management:
   endpoint:
     health:
@@ -85,17 +85,30 @@ logging:
     org.springframework.security: DEBUG
 
 app:
-  auth0:
-    mgmt-api:
-      domain: ${AUTH0_MGMT_API_DOMAIN:consoleconnect.auth0.com}
-      client-id: ${AUTH0_MGMT_API_CLIENT_ID:mgmt-api-client-id}
-      client-secret: ${AUTH0_MGMT_API_CLIENT_SECRET:mgmt-api-client-secret}
-      audience: ${AUTH0_MGMT_API_AUDIENCE:https://partner.consoleconnect.com/api}
-    app:
-      client-id: ${AUTH0_APP_CLIENT_ID:app-client-id}
-
-    mgmt-org-id: ${AUTH0_MGMT_ORG_ID:mgmt-org-id}
-    roles:
-      mgmt-role-id: ${AUTH0_MGMT_ROLE_ID:mgmt-role-id}
-      admin-role-id: ${AUTH0_ADMIN_ROLE_ID:admin-role-id}
-      user-role-id: ${AUTH0_USER_ROLE_ID:user-role-id}
+  iam:
+    jwt:
+      issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
+      audience: ${IAM_JWT_AUDIENCES:https://partner.consoleconnect.com/api}
+      jwk-set-uri: ${IAM_JWT_JWK_SET_URI:http://localhost:8000/.well-known/jwks.json}
+      custom-claims:
+        orgId: ${IAM_JWT_CUSTOM_CLAIMS_ORG_ID:org_id}
+        roles: ${IAM_JWT_CUSTOM_CLAIMS_ROLES:org_roles}
+        permissions: ${IAM_JWT_CUSTOM_CLAIMS_PERMISSIONS:permissions}
+    auth0:
+      initiation-mode: ${IAM_AUTH0_INITIATION_MODE:AUTO}
+      mgmt-api:
+        domain: ${IAM_AUTH0_MGMT_API_DOMAIN:consoleconnect.auth0.com}
+        client-id: ${IAM_AUTH0_MGMT_API_CLIENT_ID:mgmt-api-client-id}
+        client-secret: ${IAM_AUTH0_MGMT_API_CLIENT_SECRET:mgmt-api-client-secret}
+        audience: ${IAM_AUTH0_MGMT_API_AUDIENCE:https://partner.consoleconnect.com/api}
+      app:
+        client-id: ${IAM_AUTH0_APP_CLIENT_ID:app-client-id}
+      roles:
+        - role-id: ${IAM_AUTH0_ROLES_MGMT_ADMIN_ROLE_ID:}
+          org-ids:
+            - ${IAM_AUTH0_MGMT_ORG_ID:}
+        - role-id: ${IAM_AUTH0_ROLES_MGMT_USER_ROLE_ID:}
+          org-ids:
+            - ${IAM_AUTH0_ORG_MGMT_ID:}
+        - role-id: ${IAM_AUTH0_ROLES_ORG_ADMIN_ROLE_ID:}
+        - role-id: ${IAM_AUTH0_ROLES_ORG_USER_ROLE_ID:}
