@@ -8,6 +8,8 @@ public class IamProperty {
   private ResourceServerProperty resourceServer;
   private JwtProperty jwt;
 
+  private EmailProperty email;
+
   @Data
   public static class JwtProperty {
     private String issuerUri;
