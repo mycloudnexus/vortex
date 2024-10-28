@@ -94,6 +94,7 @@ public class MgmtOrganizationController extends BaseOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all invitations")
   @GetMapping("/{orgId}/invitations")
+  @Override
   public Mono<HttpResponse<Paging<Invitation>>> listInvitations(
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
