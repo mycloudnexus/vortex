@@ -1,9 +1,9 @@
 package com.consoleconnect.vortex.iam.entity;
 
 import com.consoleconnect.vortex.core.entity.AbstractEntity;
-import com.consoleconnect.vortex.core.enums.LoginTypeEnum;
-import com.consoleconnect.vortex.core.enums.OrgStatusEnum;
-import com.consoleconnect.vortex.core.enums.OrgTypeEnum;
+import com.consoleconnect.vortex.iam.enums.LoginTypeEnum;
+import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
+import com.consoleconnect.vortex.iam.enums.OrgTypeEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

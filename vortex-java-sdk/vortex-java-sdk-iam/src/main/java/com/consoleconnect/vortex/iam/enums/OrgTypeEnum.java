@@ -1,4 +1,4 @@
-package com.consoleconnect.vortex.core.enums;
+package com.consoleconnect.vortex.iam.enums;
 
 public enum OrgTypeEnum {
   MASTER,

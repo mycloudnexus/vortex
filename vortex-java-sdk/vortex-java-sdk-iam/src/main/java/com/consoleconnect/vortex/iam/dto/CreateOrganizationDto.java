@@ -1,6 +1,6 @@
 package com.consoleconnect.vortex.iam.dto;
 
-import com.consoleconnect.vortex.core.enums.OrgStatusEnum;
+import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
