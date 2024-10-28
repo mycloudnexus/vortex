@@ -2,6 +2,7 @@ package com.consoleconnect.vortex.iam.controller;
 
 import com.auth0.json.mgmt.organizations.Invitation;
 import com.auth0.json.mgmt.organizations.Member;
+import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.roles.Role;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
@@ -9,9 +10,7 @@ import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.CreateInivitationDto;
 import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
-import com.consoleconnect.vortex.iam.dto.OrganizationDto;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
-import com.consoleconnect.vortex.iam.service.VortexOrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -29,15 +28,13 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class OrganizationController {
 
-  private final VortexOrganizationService vortexOrganizationService;
-
   private final OrganizationService service;
 
   @PreAuthorize("hasPermission(#orgId, 'org', 'read') ")
   @Operation(summary = "Retrieve an organization by id")
   @GetMapping()
-  public Mono<HttpResponse<OrganizationDto>> findOne(@PathVariable String orgId) {
-    return Mono.just(HttpResponse.ok(vortexOrganizationService.findOne(orgId)));
+  public Mono<HttpResponse<Organization>> findOne(@PathVariable String orgId) {
+    return Mono.just(HttpResponse.ok(service.findOne(orgId)));
   }
 
   @PreAuthorize("hasPermission(#orgId,'org', 'read')")

@@ -2,6 +2,7 @@ package com.consoleconnect.vortex.iam.controller;
 
 import com.auth0.json.mgmt.organizations.Invitation;
 import com.auth0.json.mgmt.organizations.Member;
+import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.roles.Role;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
@@ -10,10 +11,7 @@ import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.CreateInivitationDto;
 import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
 import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
-import com.consoleconnect.vortex.iam.dto.OrganizationDto;
-import com.consoleconnect.vortex.iam.enums.OrgTypeEnum;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
-import com.consoleconnect.vortex.iam.service.VortexOrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -31,44 +29,45 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class MgmtOrganizationController {
 
-  private final VortexOrganizationService vortexOrganizationService;
   private final OrganizationService service;
 
   @PreAuthorize("hasPermission('mgmt:org', 'list')")
   @Operation(summary = "List all existing organizations")
   @GetMapping("")
-  public Mono<HttpResponse<Paging<OrganizationDto>>> search(
+  public Mono<HttpResponse<Paging<Organization>>> search(
       @RequestParam(value = "q", required = false) String q,
-      @RequestParam(value = "type", required = false) OrgTypeEnum type,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
     log.info("search, q:{}, page:{}, size:{}", q, page, size);
-    return Mono.just(HttpResponse.ok(vortexOrganizationService.search(q, type, page, size)));
+    return Mono.just(HttpResponse.ok(service.search(q, page, size)));
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'create')")
   @Operation(summary = "Create a new organization")
   @PostMapping("")
-  public Mono<HttpResponse<OrganizationDto>> create(
+  public Mono<HttpResponse<Organization>> create(
       @RequestBody CreateOrganizationDto request, JwtAuthenticationToken authenticationToken) {
-    return Mono.just(
-        HttpResponse.ok(vortexOrganizationService.create(request, authenticationToken.getName())));
+    return Mono.just(HttpResponse.ok(service.create(request, authenticationToken.getName())));
   }
 
-  @Operation(description = "update organization", summary = "update organization")
+  @PreAuthorize("hasPermission('mgmt:org', 'create')")
+  @Operation(summary = "Create a new organization")
   @PatchMapping("/{orgId}")
-  public HttpResponse<OrganizationDto> update(
-      @PathVariable(value = "orgId") String orgId, @RequestBody CreateOrganizationDto request) {
-    return HttpResponse.ok(vortexOrganizationService.update(orgId, request));
+  public Mono<HttpResponse<Organization>> update(
+      @PathVariable String orgId,
+      @RequestBody CreateOrganizationDto request,
+      JwtAuthenticationToken authenticationToken) {
+    return Mono.just(
+        HttpResponse.ok(service.update(orgId, request, authenticationToken.getName())));
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'read') ")
   @Operation(summary = "Retrieve an organization by id")
   @GetMapping("/{orgId}")
-  public Mono<HttpResponse<OrganizationDto>> findOne(@PathVariable String orgId) {
-    return Mono.just(HttpResponse.ok(vortexOrganizationService.findOne(orgId)));
+  public Mono<HttpResponse<Organization>> findOne(@PathVariable String orgId) {
+    return Mono.just(HttpResponse.ok(service.findOne(orgId)));
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'read')")
