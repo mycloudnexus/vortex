@@ -2,7 +2,6 @@
   "name": "vortex-app-portal",
   "private": true,
   "version": "0.1.0-preview",
-  "type": "module",
   "scripts": {
     "dev": "webpack-dev-server --mode development",
     "build": "webpack --mode production",
