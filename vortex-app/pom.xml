@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>vortex-app</artifactId>
     <name>vortex-app</name>
-    <version>0.0.0</version>
+    <version>0.1.0-preview</version>
     <packaging>pom</packaging>
     <parent>
         <groupId>com.consoleconnect.vortex</groupId>
         <artifactId>vortex-platform</artifactId>
-        <version>0.0.0</version>
+        <version>0.1.0-preview</version>
     </parent>
     
 
@@ -38,22 +38,22 @@
             <dependency>
                 <groupId>com.consoleconnect.vortex</groupId>
                 <artifactId>vortex-java-sdk-core</artifactId>
-                <version>0.0.0</version>
+                <version>0.1.0-preview</version>
             </dependency>
             <dependency>
                 <groupId>com.consoleconnect.vortex</groupId>
                 <artifactId>vortex-java-sdk-iam</artifactId>
-                <version>0.0.0</version>
+                <version>0.1.0-preview</version>
             </dependency>
             <dependency>
                 <groupId>com.consoleconnect.vortex</groupId>
                 <artifactId>vortex-java-sdk-gateway</artifactId>
-                <version>0.0.0</version>
+                <version>0.1.0-preview</version>
             </dependency>
             <dependency>
                 <groupId>com.consoleconnect.vortex</groupId>
                 <artifactId>vortex-java-sdk-test</artifactId>
-                <version>0.0.0</version>
+                <version>0.1.0-preview</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
