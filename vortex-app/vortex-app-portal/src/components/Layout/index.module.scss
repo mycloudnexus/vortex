@@ -1,0 +1,152 @@
+.appWrapper {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 999;
+  min-height: 100vh;
+
+  // Tablet
+  @media only screen and (min-width: 320px) {
+    :global {
+      .headroom {
+        padding: 10px 20px;
+        background: #1a263d;
+      }
+    }
+  }
+}
+
+.container {
+  height: calc(100vh - 78px);
+
+  :global {
+    .ant-layout-sider-children {
+      height: calc(100% + 200px);
+    }
+  }
+}
+
+.pageNav {
+  h3 {
+    color: #fff;
+  }
+}
+
+.settingDropdown {
+  :global {
+    .ant-dropdown-menu {
+      background: #16263f;
+    }
+    .ant-dropdown-menu-title-content {
+      color: #fff;
+      &:hover {
+        color: #23e0f9;
+      }
+    }
+  }
+}
+
+.avatarMenu {
+  background: #16263f;
+  padding: 10px;
+  width: 235px;
+}
+
+.userName {
+  font-size: 14px;
+  color: #fff;
+}
+
+.divider {
+  height: 1px;
+  width: 100%;
+  background: #fff;
+  opacity: 0.2;
+  margin: 15px 0;
+}
+
+.avatarItem {
+  width: 100%;
+  color: #fff;
+  cursor: pointer;
+  &:hover {
+    color: #23e0f9;
+  }
+}
+
+.menuMobile {
+  cursor: pointer;
+}
+ 
+.drawer {
+  :global {
+    .ant-drawer-body {
+      padding: 10px;
+    }
+    .ant-drawer-body {
+      background: #1a263d;
+    }
+  }
+}
+
+.menuItem {
+  border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
+  padding: 0.5rem 0;
+}
+
+.menuIcon {
+  margin-top: 0.3rem;
+  cursor: pointer;
+}
+
+.slider {
+  :global {
+    .ant-layout-sider-trigger {
+      display: none;
+    }
+  }
+}
+
+.network {
+  padding: 8px 18px 12px;
+}
+
+.collapseBtn {
+  svg {
+    cursor: pointer;
+    color: #fff;
+    font-size: 9px;
+  }
+}
+
+.menu {
+  padding-top: 8px;
+  height: 100%;
+  background: #f2f5f6;
+  :global {
+    .ant-menu-item {
+      margin: 0;
+      width: 100%;
+    }
+    .ant-menu-item-selected {
+      background-color: #fff;
+    }
+    .ant-menu-submenu-title {
+      padding-right: 13px;
+      margin: 0 !important;
+      width: 100%;
+    }
+  }
+}
+
+.mobileDrawer {
+  :global {
+    .ant-drawer-body {
+      padding: 0;
+    }
+    .ant-drawer-content-wrapper {
+      top: 127px;
+    }
+  }
+}
