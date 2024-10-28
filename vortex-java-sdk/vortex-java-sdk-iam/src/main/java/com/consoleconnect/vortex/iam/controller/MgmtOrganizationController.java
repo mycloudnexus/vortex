@@ -29,6 +29,7 @@ public class MgmtOrganizationController extends BaseOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'list')")
   @Operation(summary = "List all existing organizations")
   @GetMapping("")
+  @Override
   public Mono<HttpResponse<Paging<Organization>>> search(
       @RequestParam(value = "q", required = false) String q,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
@@ -41,6 +42,7 @@ public class MgmtOrganizationController extends BaseOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'create')")
   @Operation(summary = "Create a new organization")
   @PostMapping("")
+  @Override
   public Mono<HttpResponse<Organization>> create(
       @RequestBody CreateOrganizationDto request, JwtAuthenticationToken authenticationToken) {
     return super.create(request, authenticationToken);
@@ -49,6 +51,7 @@ public class MgmtOrganizationController extends BaseOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'update')")
   @Operation(summary = "update a organization")
   @PatchMapping("/{orgId}")
+  @Override
   public Mono<HttpResponse<Organization>> update(
       @PathVariable String orgId,
       @RequestBody UpdateOrganizationDto request,
@@ -59,6 +62,7 @@ public class MgmtOrganizationController extends BaseOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'read') ")
   @Operation(summary = "Retrieve an organization by id")
   @GetMapping("/{orgId}")
+  @Override
   public Mono<HttpResponse<Organization>> findOne(@PathVariable String orgId) {
     return super.findOne(orgId);
   }
@@ -66,6 +70,7 @@ public class MgmtOrganizationController extends BaseOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all existing connections")
   @GetMapping("/{orgId}/connections")
+  @Override
   public Mono<HttpResponse<Paging<OrganizationConnection>>> listConnections(
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
@@ -78,6 +83,7 @@ public class MgmtOrganizationController extends BaseOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'update')")
   @Operation(summary = "Setup a connection")
   @PostMapping("/{orgId}/connections")
+  @Override
   public Mono<HttpResponse<OrganizationConnection>> createConnection(
       @PathVariable String orgId,
       @RequestBody CreateConnectionDto request,
@@ -88,18 +94,19 @@ public class MgmtOrganizationController extends BaseOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all invitations")
   @GetMapping("/{orgId}/invitations")
-  public Mono<HttpResponse<Paging<Invitation>>> listInivitations(
+  public Mono<HttpResponse<Paging<Invitation>>> listInvitations(
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return super.listInivitations(orgId, page, size);
+    return super.listInvitations(orgId, page, size);
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'update')")
   @Operation(summary = "Create a new invitation")
   @PostMapping("/{orgId}/invitations")
+  @Override
   public Mono<HttpResponse<Invitation>> create(
       @PathVariable String orgId,
       @RequestBody CreateInivitationDto request,
@@ -110,6 +117,7 @@ public class MgmtOrganizationController extends BaseOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "Retrieve an invitation by id")
   @GetMapping("/{orgId}/invitations/{invitationId}")
+  @Override
   public Mono<HttpResponse<Invitation>> findOne(
       @PathVariable String orgId, @PathVariable String invitationId) {
     return super.findOne(orgId, invitationId);
@@ -118,6 +126,7 @@ public class MgmtOrganizationController extends BaseOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'update')")
   @Operation(summary = "Delete an invitation by id")
   @DeleteMapping("/{orgId}/invitations/{invitationId}")
+  @Override
   public Mono<HttpResponse<Void>> delete(
       @PathVariable String orgId,
       @PathVariable String invitationId,
@@ -128,6 +137,7 @@ public class MgmtOrganizationController extends BaseOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all members")
   @GetMapping("/{orgId}/members")
+  @Override
   public Mono<HttpResponse<Paging<Member>>> listMembers(
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
@@ -140,6 +150,7 @@ public class MgmtOrganizationController extends BaseOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all roles")
   @GetMapping("/{orgId}/roles")
+  @Override
   public Mono<HttpResponse<Paging<Role>>> listRoles(
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)

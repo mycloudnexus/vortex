@@ -65,7 +65,7 @@ public class BaseOrganizationController {
         HttpResponse.ok(service.createConnection(orgId, request, authenticationToken.getName())));
   }
 
-  public Mono<HttpResponse<Paging<Invitation>>> listInivitations(
+  public Mono<HttpResponse<Paging<Invitation>>> listInvitations(
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
