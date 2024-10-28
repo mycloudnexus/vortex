@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>vortex-app-api</artifactId>
     <name>vortex-app-api</name>
-    <version>0.0.0</version>
+    <version>0.1.0-preview</version>
     <packaging>jar</packaging>
     <parent>
         <groupId>com.consoleconnect.vortex</groupId>
         <artifactId>vortex-app</artifactId>
-        <version>0.0.0</version>
+        <version>0.1.0-preview</version>
     </parent>
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>

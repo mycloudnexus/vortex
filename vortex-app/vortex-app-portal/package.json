@@ -1,8 +1,8 @@
 {
   "name": "vortex-app-portal",
-  "version": "0.0.0",
-  "description": "Vortex Portal",
-  "main": "index.js",
+  "private": true,
+  "version": "0.1.0-preview",
+  "type": "module",
   "scripts": {
     "dev": "webpack-dev-server --mode development",
     "build": "webpack --mode production",
