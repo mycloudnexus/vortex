@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>vortex-java-sdk-gateway</artifactId>
     <name>vortex-java-sdk-gateway</name>
-    <version>0.0.0</version>
+    <version>0.1.0-preview</version>
     <packaging>jar</packaging>
     <parent>
         <groupId>com.consoleconnect.vortex</groupId>
         <artifactId>vortex-java-sdk</artifactId>
-        <version>0.0.0</version>
+        <version>0.1.0-preview</version>
     </parent>
 
     <dependencies>
@@ -18,7 +18,7 @@
         <dependency>
             <groupId>com.consoleconnect.vortex</groupId>
             <artifactId>vortex-java-sdk-core</artifactId>
-            <version>0.0.0</version>
+            <version>0.1.0-preview</version>
         </dependency>
 
         <!-- spring cloud gateway -->
@@ -53,7 +53,7 @@
         <dependency>
             <groupId>com.consoleconnect.vortex</groupId>
             <artifactId>vortex-java-sdk-test</artifactId>
-            <version>0.0.0</version>
+            <version>0.1.0-preview</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
