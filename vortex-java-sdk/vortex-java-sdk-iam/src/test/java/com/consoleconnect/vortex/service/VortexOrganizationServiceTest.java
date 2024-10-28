@@ -6,9 +6,9 @@ import static org.mockito.Mockito.doReturn;
 
 import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.config.TestApplication;
-import com.consoleconnect.vortex.core.entity.OrganizationEntity;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
+import com.consoleconnect.vortex.iam.entity.OrganizationEntity;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.iam.service.VortexOrganizationService;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;

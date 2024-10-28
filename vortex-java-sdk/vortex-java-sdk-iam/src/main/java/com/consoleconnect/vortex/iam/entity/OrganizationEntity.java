@@ -1,5 +1,6 @@
-package com.consoleconnect.vortex.core.entity;
+package com.consoleconnect.vortex.iam.entity;
 
+import com.consoleconnect.vortex.core.entity.AbstractEntity;
 import com.consoleconnect.vortex.core.enums.LoginTypeEnum;
 import com.consoleconnect.vortex.core.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.core.enums.OrgTypeEnum;
@@ -16,7 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(
-    name = "white_label_organization",
+    name = "vortex_organization",
     indexes = {
       @Index(columnList = "display_name", unique = true),
       @Index(columnList = "name", unique = true)

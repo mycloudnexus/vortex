@@ -1,7 +1,7 @@
-package com.consoleconnect.vortex.core.repo;
+package com.consoleconnect.vortex.iam.repo;
 
-import com.consoleconnect.vortex.core.entity.OrganizationEntity;
 import com.consoleconnect.vortex.core.enums.OrgTypeEnum;
+import com.consoleconnect.vortex.iam.entity.OrganizationEntity;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
