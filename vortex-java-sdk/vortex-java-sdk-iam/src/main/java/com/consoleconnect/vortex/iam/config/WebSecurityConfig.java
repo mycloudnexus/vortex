@@ -4,10 +4,9 @@ import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
 import com.consoleconnect.vortex.iam.acl.VortexPermissionEvaluator;
-import com.consoleconnect.vortex.iam.filter.JWTSecurityGlobalFilter;
+import com.consoleconnect.vortex.iam.filter.UserContextWebFilter;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.model.ResourceServerProperty;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -85,13 +84,16 @@ public class WebSecurityConfig {
             })
         .oauth2ResourceServer(
             oauth2 ->
-                oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                oauth2.jwt(
+                    jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter(iamProperty))))
         .addFilterAfter(
-            new JWTSecurityGlobalFilter(iamProperty), SecurityWebFiltersOrder.AUTHORIZATION)
+            new UserContextWebFilter(iamProperty), SecurityWebFiltersOrder.AUTHORIZATION)
         .build();
   }
 
-  public Converter<Jwt, Mono<AbstractAuthenticationToken>> jwtAuthenticationConverter() {
+  public Converter<Jwt, Mono<AbstractAuthenticationToken>> jwtAuthenticationConverter(
+      IamProperty iamProperty) {
+
     return new Converter<Jwt, Mono<AbstractAuthenticationToken>>() {
       @Override
       public Mono<AbstractAuthenticationToken> convert(Jwt source) {
@@ -99,8 +101,9 @@ public class WebSecurityConfig {
       }
 
       private Collection<? extends GrantedAuthority> extractResourceRoles(Jwt jwt) {
-        var resourceRoles = new ArrayList<String>(jwt.getClaim("org_roles"));
-        return resourceRoles.isEmpty()
+        List<String> resourceRoles =
+            jwt.getClaimAsStringList(iamProperty.getJwt().getCustomClaims().getRoles());
+        return resourceRoles == null || resourceRoles.isEmpty()
             ? emptySet()
             : resourceRoles.stream()
                 .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
