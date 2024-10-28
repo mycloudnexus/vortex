@@ -8,7 +8,7 @@ import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.config.TestApplication;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
-import com.consoleconnect.vortex.iam.entity.OrganizationEntity;
+import com.consoleconnect.vortex.iam.dto.OrganizationDto;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.iam.service.VortexOrganizationService;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
@@ -43,7 +43,7 @@ class VortexOrganizationServiceTest extends AbstractIntegrationTest {
     req.setDisplayName("name");
     req.setName("shortname");
 
-    OrganizationEntity org = vortexOrganizationService.create(req, "unit-test");
+    OrganizationDto org = vortexOrganizationService.create(req, "unit-test");
     Assertions.assertNotNull(org);
     orgId = org.getId().toString();
   }
@@ -54,21 +54,21 @@ class VortexOrganizationServiceTest extends AbstractIntegrationTest {
     CreateOrganizationDto req = new CreateOrganizationDto();
     req.setDisplayName("name-update");
 
-    OrganizationEntity org = vortexOrganizationService.update(orgId, req);
+    OrganizationDto org = vortexOrganizationService.update(orgId, req);
     Assertions.assertEquals(org.getDisplayName(), req.getDisplayName());
   }
 
   @Order(3)
   @Test
   void testListCompanies() {
-    Paging<OrganizationEntity> res = vortexOrganizationService.search(null, null, 0, 1);
+    Paging<OrganizationDto> res = vortexOrganizationService.search(null, null, 0, 1);
     Assertions.assertEquals(1L, res.getTotal());
   }
 
   @Order(4)
   @Test
   void testGetOrganization() {
-    OrganizationEntity org = vortexOrganizationService.findOne(orgId);
+    OrganizationDto org = vortexOrganizationService.findOne(orgId);
     Assertions.assertEquals(org.getId().toString(), orgId);
   }
 }

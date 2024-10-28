@@ -9,7 +9,7 @@ import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.CreateInivitationDto;
 import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
-import com.consoleconnect.vortex.iam.entity.OrganizationEntity;
+import com.consoleconnect.vortex.iam.dto.OrganizationDto;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.iam.service.VortexOrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +36,7 @@ public class OrganizationController {
   @PreAuthorize("hasPermission(#orgId, 'org', 'read') ")
   @Operation(summary = "Retrieve an organization by id")
   @GetMapping()
-  public Mono<HttpResponse<OrganizationEntity>> findOne(@PathVariable String orgId) {
+  public Mono<HttpResponse<OrganizationDto>> findOne(@PathVariable String orgId) {
     return Mono.just(HttpResponse.ok(vortexOrganizationService.findOne(orgId)));
   }
 

@@ -5,10 +5,12 @@ import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.core.toolkit.PatternHelper;
 import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
+import com.consoleconnect.vortex.iam.dto.OrganizationDto;
 import com.consoleconnect.vortex.iam.entity.OrganizationEntity;
 import com.consoleconnect.vortex.iam.enums.LoginTypeEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.enums.OrgTypeEnum;
+import com.consoleconnect.vortex.iam.mapper.OrganizationMapper;
 import com.consoleconnect.vortex.iam.repo.OrganizationRepository;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -31,29 +33,32 @@ public class VortexOrganizationService {
     this.organizationService = organizationService;
   }
 
-  public Paging<OrganizationEntity> search(String q, OrgTypeEnum type, int page, int size) {
+  public Paging<OrganizationDto> search(String q, OrgTypeEnum type, int page, int size) {
 
     final String key = StringUtils.isBlank(q) ? null : q.toLowerCase();
     Page<OrganizationEntity> data =
         organizationRepository.search(key, type, PageRequest.of(page, size));
-    return PagingHelper.toPaging(data, x -> x);
+    return PagingHelper.toPaging(data, x -> OrganizationMapper.INSTANCE.toOrganizationDto(x));
   }
 
-  public OrganizationEntity findOne(String orgId) {
+  public OrganizationDto findOne(String orgId) {
+    return OrganizationMapper.INSTANCE.toOrganizationDto(getById(orgId));
+  }
 
+  public OrganizationEntity getById(String orgId) {
     return organizationRepository
         .findById(UUID.fromString(orgId))
         .orElseThrow(() -> VortexException.notFound("Organization not found."));
   }
 
-  public OrganizationEntity getOneByShortName(String shortName) {
+  public OrganizationEntity getOneByName(String shortName) {
     return organizationRepository
         .findByName(shortName)
         .orElseThrow(() -> VortexException.notFound("Organization not found."));
   }
 
   @Transactional
-  public OrganizationEntity create(CreateOrganizationDto request, String createdBy) {
+  public OrganizationDto create(CreateOrganizationDto request, String createdBy) {
     log.info("creating organization: {}, requestedBy:{}", request, createdBy);
     if (request == null
         || StringUtils.isBlank(request.getDisplayName())
@@ -62,7 +67,7 @@ public class VortexOrganizationService {
     }
 
     if (request.getDisplayName().length() > 255) {
-      throw VortexException.badRequest("Display cannot exceed 255 characters.");
+      throw VortexException.badRequest("Display name cannot exceed 255 characters.");
     }
 
     if (request.getName().length() > 20) {
@@ -70,7 +75,7 @@ public class VortexOrganizationService {
     }
 
     if (!PatternHelper.validShortName(request.getName())) {
-      throw VortexException.badRequest("Invalid shortName.");
+      throw VortexException.badRequest("Invalid name.");
     }
 
     if (organizationRepository.findByDisplayName(request.getDisplayName()).isPresent()) {
@@ -86,18 +91,18 @@ public class VortexOrganizationService {
     org.setDisplayName(request.getDisplayName());
     org.setStatus(OrgStatusEnum.ACTIVE);
     org.setType(OrgTypeEnum.CUSTOMER);
-    org.setLoginType(LoginTypeEnum.INVITE);
+    org.setLoginType(LoginTypeEnum.USERNAME_PASSWORD);
     organizationRepository.save(org);
     organizationService.create(request, createdBy);
-    return org;
+    return OrganizationMapper.INSTANCE.toOrganizationDto(org);
   }
 
   @Transactional
-  public OrganizationEntity update(String orgId, CreateOrganizationDto req) {
+  public OrganizationDto update(String orgId, CreateOrganizationDto req) {
     if (req == null) {
       throw VortexException.badRequest("Payload cannot be empty.");
     }
-    OrganizationEntity org = findOne(orgId);
+    OrganizationEntity org = getById(orgId);
 
     if (StringUtils.isNotBlank(req.getDisplayName())) {
 
@@ -121,6 +126,6 @@ public class VortexOrganizationService {
     }
     organizationRepository.save(org);
     // organizationService.update(company.getName(), company.getCompanyName())
-    return org;
+    return OrganizationMapper.INSTANCE.toOrganizationDto(org);
   }
 }

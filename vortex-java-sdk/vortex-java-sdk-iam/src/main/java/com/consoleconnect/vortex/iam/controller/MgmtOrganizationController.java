@@ -10,7 +10,7 @@ import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.CreateInivitationDto;
 import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
 import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
-import com.consoleconnect.vortex.iam.entity.OrganizationEntity;
+import com.consoleconnect.vortex.iam.dto.OrganizationDto;
 import com.consoleconnect.vortex.iam.enums.OrgTypeEnum;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.iam.service.VortexOrganizationService;
@@ -37,7 +37,7 @@ public class MgmtOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'list')")
   @Operation(summary = "List all existing organizations")
   @GetMapping("")
-  public Mono<HttpResponse<Paging<OrganizationEntity>>> search(
+  public Mono<HttpResponse<Paging<OrganizationDto>>> search(
       @RequestParam(value = "q", required = false) String q,
       @RequestParam(value = "type", required = false) OrgTypeEnum type,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
@@ -51,7 +51,7 @@ public class MgmtOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'create')")
   @Operation(summary = "Create a new organization")
   @PostMapping("")
-  public Mono<HttpResponse<OrganizationEntity>> create(
+  public Mono<HttpResponse<OrganizationDto>> create(
       @RequestBody CreateOrganizationDto request, JwtAuthenticationToken authenticationToken) {
     return Mono.just(
         HttpResponse.ok(vortexOrganizationService.create(request, authenticationToken.getName())));
@@ -59,7 +59,7 @@ public class MgmtOrganizationController {
 
   @Operation(description = "update organization", summary = "update organization")
   @PatchMapping("/{orgId}")
-  public HttpResponse<OrganizationEntity> update(
+  public HttpResponse<OrganizationDto> update(
       @PathVariable(value = "orgId") String orgId, @RequestBody CreateOrganizationDto request) {
     return HttpResponse.ok(vortexOrganizationService.update(orgId, request));
   }
@@ -67,7 +67,7 @@ public class MgmtOrganizationController {
   @PreAuthorize("hasPermission('mgmt:org', 'read') ")
   @Operation(summary = "Retrieve an organization by id")
   @GetMapping("/{orgId}")
-  public Mono<HttpResponse<OrganizationEntity>> findOne(@PathVariable String orgId) {
+  public Mono<HttpResponse<OrganizationDto>> findOne(@PathVariable String orgId) {
     return Mono.just(HttpResponse.ok(vortexOrganizationService.findOne(orgId)));
   }
 
