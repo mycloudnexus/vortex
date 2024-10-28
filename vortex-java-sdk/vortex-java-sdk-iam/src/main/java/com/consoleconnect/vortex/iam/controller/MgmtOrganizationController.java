@@ -52,8 +52,8 @@ public class MgmtOrganizationController {
     return Mono.just(HttpResponse.ok(service.create(request, authenticationToken.getName())));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'create')")
-  @Operation(summary = "Create a new organization")
+  @PreAuthorize("hasPermission('mgmt:org', 'update')")
+  @Operation(summary = "update a organization")
   @PatchMapping("/{orgId}")
   public Mono<HttpResponse<Organization>> update(
       @PathVariable String orgId,
