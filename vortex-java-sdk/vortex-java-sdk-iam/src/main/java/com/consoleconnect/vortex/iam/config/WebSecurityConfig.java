@@ -4,6 +4,8 @@ import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
 import com.consoleconnect.vortex.iam.acl.VortexPermissionEvaluator;
+import com.consoleconnect.vortex.iam.filter.JWTSecurityGlobalFilter;
+import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.model.ResourceServerProperty;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +19,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -40,7 +43,8 @@ public class WebSecurityConfig {
       ServerHttpSecurity http,
       ResourceServerProperty resourceServer,
       VortexPermissionEvaluator permissionEvaluator,
-      DefaultMethodSecurityExpressionHandler defaultWebSecurityExpressionHandler) {
+      DefaultMethodSecurityExpressionHandler defaultWebSecurityExpressionHandler,
+      IamProperty iamProperty) {
     defaultWebSecurityExpressionHandler.setPermissionEvaluator(permissionEvaluator);
 
     return http.csrf(ServerHttpSecurity.CsrfSpec::disable)
@@ -82,6 +86,8 @@ public class WebSecurityConfig {
         .oauth2ResourceServer(
             oauth2 ->
                 oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+        .addFilterAfter(
+            new JWTSecurityGlobalFilter(iamProperty), SecurityWebFiltersOrder.AUTHORIZATION)
         .build();
   }
 

@@ -10,6 +10,7 @@ public class Auth0Property {
   private Config app;
 
   private List<Role> roles;
+  private String mgmtOrgId;
 
   @Data
   public static class Config {

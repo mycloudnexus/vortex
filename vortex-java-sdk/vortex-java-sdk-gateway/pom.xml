@@ -20,7 +20,14 @@
             <artifactId>vortex-java-sdk-core</artifactId>
             <version>0.0.0</version>
         </dependency>
-        
+
+        <!-- spring cloud gateway -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+            <version>4.1.5</version>
+        </dependency>
+
         <!-- dev -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
