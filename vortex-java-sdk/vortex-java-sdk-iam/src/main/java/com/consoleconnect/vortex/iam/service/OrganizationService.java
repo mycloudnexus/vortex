@@ -108,8 +108,8 @@ public class OrganizationService {
       Request<Organization> organizationRequest = organizationsEntity.update(orgId, organization);
       return organizationRequest.execute().getBody();
     } catch (Auth0Exception e) {
-      log.error("create organizations.error", e);
-      throw VortexException.badRequest("create organizations.error" + e.getMessage());
+      log.error("update organizations.error", e);
+      throw VortexException.badRequest("update organizations.error" + e.getMessage());
     }
   }
 
