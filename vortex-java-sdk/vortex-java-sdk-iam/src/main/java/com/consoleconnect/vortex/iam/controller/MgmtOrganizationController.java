@@ -11,22 +11,20 @@ import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-@AllArgsConstructor
 @RestController()
 @RequestMapping(value = "/mgmt/organizations", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Mgmt", description = "Mgmt APIs")
-@Slf4j
-public class MgmtOrganizationController {
+public class MgmtOrganizationController extends BaseOrganizationController {
 
-  private final OrganizationService service;
+  public MgmtOrganizationController(OrganizationService service) {
+    super(service);
+  }
 
   @PreAuthorize("hasPermission('mgmt:org', 'list')")
   @Operation(summary = "List all existing organizations")
@@ -37,8 +35,7 @@ public class MgmtOrganizationController {
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    log.info("search, q:{}, page:{}, size:{}", q, page, size);
-    return Mono.just(HttpResponse.ok(service.search(q, page, size)));
+    return super.search(q, page, size);
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'create')")
@@ -46,7 +43,7 @@ public class MgmtOrganizationController {
   @PostMapping("")
   public Mono<HttpResponse<Organization>> create(
       @RequestBody CreateOrganizationDto request, JwtAuthenticationToken authenticationToken) {
-    return Mono.just(HttpResponse.ok(service.create(request, authenticationToken.getName())));
+    return super.create(request, authenticationToken);
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'update')")
@@ -56,15 +53,14 @@ public class MgmtOrganizationController {
       @PathVariable String orgId,
       @RequestBody UpdateOrganizationDto request,
       JwtAuthenticationToken authenticationToken) {
-    return Mono.just(
-        HttpResponse.ok(service.update(orgId, request, authenticationToken.getName())));
+    return super.update(orgId, request, authenticationToken);
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'read') ")
   @Operation(summary = "Retrieve an organization by id")
   @GetMapping("/{orgId}")
   public Mono<HttpResponse<Organization>> findOne(@PathVariable String orgId) {
-    return Mono.just(HttpResponse.ok(service.findOne(orgId)));
+    return super.findOne(orgId);
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'read')")
@@ -76,7 +72,7 @@ public class MgmtOrganizationController {
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return Mono.just(HttpResponse.ok(service.listConnections(orgId, page, size)));
+    return super.listConnections(orgId, page, size);
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'update')")
@@ -86,8 +82,7 @@ public class MgmtOrganizationController {
       @PathVariable String orgId,
       @RequestBody CreateConnectionDto request,
       JwtAuthenticationToken authenticationToken) {
-    return Mono.just(
-        HttpResponse.ok(service.createConnection(orgId, request, authenticationToken.getName())));
+    return super.createConnection(orgId, request, authenticationToken);
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'read')")
@@ -99,7 +94,7 @@ public class MgmtOrganizationController {
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return Mono.just(HttpResponse.ok(service.listInvitations(orgId, page, size)));
+    return super.listInivitations(orgId, page, size);
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'update')")
@@ -109,9 +104,7 @@ public class MgmtOrganizationController {
       @PathVariable String orgId,
       @RequestBody CreateInivitationDto request,
       JwtAuthenticationToken jwtAuthenticationToken) {
-    return Mono.just(
-        HttpResponse.ok(
-            service.createInvitation(orgId, request, jwtAuthenticationToken.getName())));
+    return super.create(orgId, request, jwtAuthenticationToken);
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'read')")
@@ -119,7 +112,7 @@ public class MgmtOrganizationController {
   @GetMapping("/{orgId}/invitations/{invitationId}")
   public Mono<HttpResponse<Invitation>> findOne(
       @PathVariable String orgId, @PathVariable String invitationId) {
-    return Mono.just(HttpResponse.ok(service.getInvitationById(orgId, invitationId)));
+    return super.findOne(orgId, invitationId);
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'update')")
@@ -129,8 +122,7 @@ public class MgmtOrganizationController {
       @PathVariable String orgId,
       @PathVariable String invitationId,
       JwtAuthenticationToken jwtAuthenticationToken) {
-    service.deleteInvitation(orgId, invitationId, jwtAuthenticationToken.getName());
-    return Mono.just(HttpResponse.ok(null));
+    return super.delete(orgId, invitationId, jwtAuthenticationToken);
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'read')")
@@ -142,7 +134,7 @@ public class MgmtOrganizationController {
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return Mono.just(HttpResponse.ok(service.listMembers(orgId, page, size)));
+    return super.listMembers(orgId, page, size);
   }
 
   @PreAuthorize("hasPermission('mgmt:org', 'read')")
@@ -154,6 +146,6 @@ public class MgmtOrganizationController {
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return Mono.just(HttpResponse.ok(service.listRoles(orgId, page, size)));
+    return super.listRoles(orgId, page, size);
   }
 }
