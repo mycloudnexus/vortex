@@ -11,18 +11,21 @@ import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Request;
 import com.consoleconnect.vortex.core.exception.VortexException;
+import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
+import com.consoleconnect.vortex.core.toolkit.PatternHelper;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
-import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
-import com.consoleconnect.vortex.iam.dto.CreateInivitationDto;
-import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
-import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
+import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
 import com.consoleconnect.vortex.iam.model.Auth0Property;
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
@@ -36,14 +39,75 @@ public class OrganizationService {
   public Organization create(CreateOrganizationDto request, String createdBy) {
     log.info("creating organization: {},requestedBy:{}", request, createdBy);
     try {
+      check(request);
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       Organization organization = new Organization(request.getName());
       organization.setDisplayName(request.getDisplayName());
+
+      if (request.getMetadata() != null) {
+        Map<String, Object> metadata =
+            JsonToolkit.fromJson(
+                JsonToolkit.toJson(request.getMetadata()), new TypeReference<>() {});
+        organization.setMetadata(metadata);
+      }
+
       Request<Organization> organizationRequest = organizationsEntity.create(organization);
       return organizationRequest.execute().getBody();
     } catch (Auth0Exception e) {
       log.error("create organizations.error", e);
       throw VortexException.badRequest("create organizations.error" + e.getMessage());
+    }
+  }
+
+  private void check(CreateOrganizationDto request) {
+    if (request == null
+        || StringUtils.isBlank(request.getDisplayName())
+        || StringUtils.isBlank(request.getName())) {
+      throw VortexException.badRequest("Invalid parameters.");
+    }
+
+    if (request.getDisplayName().length() > 255) {
+      throw VortexException.badRequest("Display name cannot exceed 255 characters.");
+    }
+
+    if (request.getName().length() > 20) {
+      throw VortexException.badRequest("Name cannot exceed 20 characters.");
+    }
+
+    if (!PatternHelper.validShortName(request.getName())) {
+      throw VortexException.badRequest("Invalid name.");
+    }
+  }
+
+  public Organization update(String orgId, UpdateOrganizationDto request, String createdBy) {
+    log.info("updating organization: {},{},requestedBy:{}", orgId, request, createdBy);
+    if (request == null) {
+      throw VortexException.badRequest("Payload cannot be empty.");
+    }
+    try {
+      Organization organization = findOne(orgId);
+
+      if (StringUtils.isNotBlank(request.getDisplayName())) {
+        if (request.getDisplayName().length() > 255) {
+          throw VortexException.badRequest("Display name cannot exceed 255 characters.");
+        }
+        organization.setDisplayName(request.getDisplayName());
+      }
+
+      if (request.getStatus() != null) {
+        Map<String, Object> metadata = organization.getMetadata();
+        if (metadata == null) {
+          metadata = new HashMap<>();
+          organization.setMetadata(metadata);
+        }
+        metadata.put("status", request.getStatus());
+      }
+      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
+      Request<Organization> organizationRequest = organizationsEntity.update(orgId, organization);
+      return organizationRequest.execute().getBody();
+    } catch (Auth0Exception e) {
+      log.error("update organizations.error", e);
+      throw VortexException.badRequest("update organizations.error" + e.getMessage());
     }
   }
 
