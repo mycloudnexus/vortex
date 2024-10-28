@@ -11,19 +11,15 @@ import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Request;
 import com.consoleconnect.vortex.core.exception.VortexException;
+import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.core.toolkit.PatternHelper;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
-import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
-import com.consoleconnect.vortex.iam.dto.CreateInivitationDto;
-import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
-import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
+import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
-import com.consoleconnect.vortex.iam.enums.LoginTypeEnum;
-import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
-import com.consoleconnect.vortex.iam.enums.OrgTypeEnum;
 import com.consoleconnect.vortex.iam.model.Auth0Property;
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,11 +44,13 @@ public class OrganizationService {
       Organization organization = new Organization(request.getName());
       organization.setDisplayName(request.getDisplayName());
 
-      Map<String, Object> metadata = new HashMap<>();
-      metadata.put("status", OrgStatusEnum.ACTIVE);
-      metadata.put("type", OrgTypeEnum.CUSTOMER);
-      metadata.put("loginType", LoginTypeEnum.USERNAME_PASSWORD);
-      organization.setMetadata(metadata);
+      if (request.getMetadata() != null) {
+        Map<String, Object> metadata =
+            JsonToolkit.fromJson(
+                JsonToolkit.toJson(request.getMetadata()), new TypeReference<>() {});
+        organization.setMetadata(metadata);
+      }
+
       Request<Organization> organizationRequest = organizationsEntity.create(organization);
       return organizationRequest.execute().getBody();
     } catch (Auth0Exception e) {
@@ -81,8 +79,8 @@ public class OrganizationService {
     }
   }
 
-  public Organization update(String orgId, CreateOrganizationDto request, String createdBy) {
-    log.info("updating organization: {},requestedBy:{}", request, createdBy);
+  public Organization update(String orgId, UpdateOrganizationDto request, String createdBy) {
+    log.info("updating organization: {},{},requestedBy:{}", orgId, request, createdBy);
     if (request == null) {
       throw VortexException.badRequest("Payload cannot be empty.");
     }

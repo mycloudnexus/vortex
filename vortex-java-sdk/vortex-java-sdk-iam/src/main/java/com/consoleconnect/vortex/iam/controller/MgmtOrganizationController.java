@@ -7,10 +7,7 @@ import com.auth0.json.mgmt.roles.Role;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
-import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
-import com.consoleconnect.vortex.iam.dto.CreateInivitationDto;
-import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
-import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
+import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -57,7 +54,7 @@ public class MgmtOrganizationController {
   @PatchMapping("/{orgId}")
   public Mono<HttpResponse<Organization>> update(
       @PathVariable String orgId,
-      @RequestBody CreateOrganizationDto request,
+      @RequestBody UpdateOrganizationDto request,
       JwtAuthenticationToken authenticationToken) {
     return Mono.just(
         HttpResponse.ok(service.update(orgId, request, authenticationToken.getName())));
