@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -24,7 +23,6 @@ public class MgmtUserController {
 
   private final UserService service;
 
-  @PreAuthorize("hasPermission('mgmt:user', 'list')")
   @Operation(summary = "List all existing users")
   @GetMapping("")
   public Mono<HttpResponse<Paging<User>>> search(
@@ -37,7 +35,6 @@ public class MgmtUserController {
     return Mono.just(HttpResponse.ok(service.searchUsers(q, email, page, size)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:user', 'read') ")
   @Operation(summary = "Retrieve an user by id")
   @GetMapping("/{userId}")
   public Mono<HttpResponse<UserInfo>> findOne(@PathVariable String userId) {

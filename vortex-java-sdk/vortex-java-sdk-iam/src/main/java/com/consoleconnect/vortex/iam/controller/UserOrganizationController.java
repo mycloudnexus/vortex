@@ -11,6 +11,7 @@ import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.CreateInivitationDto;
 import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
+import com.consoleconnect.vortex.iam.service.UserContextService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -23,107 +24,120 @@ import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
 @RestController()
-@RequestMapping(value = "/organizations/{orgId}", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/organization", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Organization", description = "Organization APIs")
 @Slf4j
-public class OrganizationController {
+public class UserOrganizationController {
 
   private final OrganizationService service;
+  private final UserContextService userContextService;
 
-  @PreAuthorize("hasPermission(#orgId, 'org', 'read') ")
+  @PreAuthorize("hasPermission('org', 'read') ")
   @Operation(summary = "Retrieve an organization by id")
   @GetMapping()
-  public Mono<HttpResponse<Organization>> findOne(@PathVariable String orgId) {
-    return Mono.just(HttpResponse.ok(service.findOne(orgId)));
+  public Mono<HttpResponse<Organization>> findOne() {
+    return userContextService.getOrgId().map(orgId -> HttpResponse.ok(service.findOne(orgId)));
   }
 
-  @PreAuthorize("hasPermission(#orgId,'org', 'read')")
+  @PreAuthorize("hasPermission('org', 'read')")
   @Operation(summary = "List all existing connections")
   @GetMapping("/connections")
   public Mono<HttpResponse<Paging<OrganizationConnection>>> listConnections(
-      @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return Mono.just(HttpResponse.ok(service.listConnections(orgId, page, size)));
+    return userContextService
+        .getOrgId()
+        .map(orgId -> HttpResponse.ok(service.listConnections(orgId, page, size)));
   }
 
-  @PreAuthorize("hasPermission(#orgId,'org', 'update')")
+  @PreAuthorize("hasPermission('org', 'update')")
   @Operation(summary = "Setup a connection")
   @PostMapping("/connections")
   public Mono<HttpResponse<OrganizationConnection>> createConnection(
-      @PathVariable String orgId,
-      @RequestBody CreateConnectionDto request,
-      JwtAuthenticationToken authenticationToken) {
-    return Mono.just(
-        HttpResponse.ok(service.createConnection(orgId, request, authenticationToken.getName())));
+      @RequestBody CreateConnectionDto request, JwtAuthenticationToken authenticationToken) {
+    return userContextService
+        .getOrgId()
+        .map(
+            orgId ->
+                HttpResponse.ok(
+                    service.createConnection(orgId, request, authenticationToken.getName())));
   }
 
-  @PreAuthorize("hasPermission(#orgId,'org', 'read')")
+  @PreAuthorize("hasPermission('org', 'read')")
   @Operation(summary = "List all invitations")
   @GetMapping("/invitations")
   public Mono<HttpResponse<Paging<Invitation>>> listInvitations(
-      @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return Mono.just(HttpResponse.ok(service.listInvitations(orgId, page, size)));
+    return userContextService
+        .getOrgId()
+        .map(orgId -> HttpResponse.ok(service.listInvitations(orgId, page, size)));
   }
 
-  @PreAuthorize("hasPermission(#org,'org', 'update')")
+  @PreAuthorize("hasPermission('org', 'update')")
   @Operation(summary = "Create a new invitation")
   @PostMapping("/invitations")
   public Mono<HttpResponse<Invitation>> create(
-      @PathVariable String orgId,
-      @RequestBody CreateInivitationDto request,
-      JwtAuthenticationToken jwtAuthenticationToken) {
-    return Mono.just(
-        HttpResponse.ok(
-            service.createInvitation(orgId, request, jwtAuthenticationToken.getName())));
+      @RequestBody CreateInivitationDto request, JwtAuthenticationToken jwtAuthenticationToken) {
+    return userContextService
+        .getOrgId()
+        .map(
+            orgId ->
+                HttpResponse.ok(
+                    service.createInvitation(orgId, request, jwtAuthenticationToken.getName())));
   }
 
-  @PreAuthorize("hasPermission(#orgId,'org', 'read')")
+  @PreAuthorize("hasPermission('org', 'read')")
   @Operation(summary = "Retrieve an invitation by id")
   @GetMapping("/invitations/{invitationId}")
-  public Mono<HttpResponse<Invitation>> findOne(
-      @PathVariable String orgId, @PathVariable String invitationId) {
-    return Mono.just(HttpResponse.ok(service.getInvitationById(orgId, invitationId)));
+  public Mono<HttpResponse<Invitation>> findOne(@PathVariable String invitationId) {
+    return userContextService
+        .getOrgId()
+        .map(orgId -> HttpResponse.ok(service.getInvitationById(orgId, invitationId)));
   }
 
-  @PreAuthorize("hasPermission(#orgId,'org', 'update')")
+  @PreAuthorize("hasPermission('org', 'update')")
   @Operation(summary = "Delete an invitation by id")
   @DeleteMapping("/invitations/{invitationId}")
   public Mono<HttpResponse<Void>> delete(
-      @PathVariable String orgId,
-      @PathVariable String invitationId,
-      JwtAuthenticationToken jwtAuthenticationToken) {
-    service.deleteInvitation(orgId, invitationId, jwtAuthenticationToken.getName());
-    return Mono.just(HttpResponse.ok(null));
+      @PathVariable String invitationId, JwtAuthenticationToken jwtAuthenticationToken) {
+
+    return userContextService
+        .getOrgId()
+        .map(
+            orgId -> {
+              service.deleteInvitation(orgId, invitationId, jwtAuthenticationToken.getName());
+              return HttpResponse.ok(null);
+            });
   }
 
-  @PreAuthorize("hasPermission(#orgId,'org', 'read')")
+  @PreAuthorize("hasPermission('org', 'read')")
   @Operation(summary = "List all members")
   @GetMapping("/members")
   public Mono<HttpResponse<Paging<Member>>> listMembers(
-      @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return Mono.just(HttpResponse.ok(service.listMembers(orgId, page, size)));
+    return userContextService
+        .getOrgId()
+        .map(orgId -> HttpResponse.ok(service.listMembers(orgId, page, size)));
   }
 
-  @PreAuthorize("hasPermission(#orgId,'org', 'read')")
+  @PreAuthorize("hasPermission('org', 'read')")
   @Operation(summary = "List all roles")
   @GetMapping("/roles")
   public Mono<HttpResponse<Paging<Role>>> listRoles(
-      @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return Mono.just(HttpResponse.ok(service.listRoles(orgId, page, size)));
+    return userContextService
+        .getOrgId()
+        .map(orgId -> HttpResponse.ok(service.listRoles(orgId, page, size)));
   }
 }
