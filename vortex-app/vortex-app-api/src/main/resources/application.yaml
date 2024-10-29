@@ -118,6 +118,7 @@ app:
         audience: ${IAM_AUTH0_MGMT_API_AUDIENCE:https://partner.consoleconnect.com/api}
       app:
         client-id: ${IAM_AUTH0_APP_CLIENT_ID:app-client-id}
+      mgmt-org-id: ${IAM_AUTH0_MGMT_ORG_ID:}
       roles:
         - role-id: ${IAM_AUTH0_ROLES_MGMT_ADMIN_ROLE_ID:}
           org-ids:

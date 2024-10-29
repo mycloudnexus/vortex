@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class PermissionService {
   private final Auth0Client auth0Client;
 
-  // TODO: implemeting caching for permissions
+  // TODO: implementing caching for permissions
   public List<Permission> listPermissions(String roleId) {
     try {
       return auth0Client

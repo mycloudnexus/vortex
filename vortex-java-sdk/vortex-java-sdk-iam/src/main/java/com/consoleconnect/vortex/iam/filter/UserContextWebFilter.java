@@ -1,7 +1,10 @@
 package com.consoleconnect.vortex.iam.filter;
 
+import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.model.IamProperty;
+import com.consoleconnect.vortex.iam.model.UserContext;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.Ordered;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -12,7 +15,8 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
-public class JWTSecurityGlobalFilter implements WebFilter, Ordered {
+@Slf4j
+public class UserContextWebFilter implements WebFilter, Ordered {
 
   private final IamProperty iamProperty;
 
@@ -28,14 +32,23 @@ public class JWTSecurityGlobalFilter implements WebFilter, Ordered {
             securityContext -> {
               JwtAuthenticationToken jwtAuthenticationToken =
                   (JwtAuthenticationToken) securityContext.getAuthentication();
+
+              UserContext userContext = new UserContext();
+              userContext.setUserId(jwtAuthenticationToken.getName());
               String orgId =
                   jwtAuthenticationToken
                       .getToken()
                       .getClaimAsString(iamProperty.getJwt().getCustomClaims().getOrgId());
-              String userRole =
-                  orgId.equalsIgnoreCase(iamProperty.getAuth0().getMgmtOrgId()) ? "admin" : "user";
-              exchange.getAttributes().put("x-vortex-user-role", userRole);
-              exchange.getAttributes().put("x-vortex-org-id", orgId);
+              userContext.setOrgId(orgId);
+              userContext.setMgmt(iamProperty.getAuth0().getMgmtOrgId().equalsIgnoreCase(orgId));
+              userContext.setCustomerId(
+                  exchange
+                      .getRequest()
+                      .getHeaders()
+                      .getFirst(IamConstants.X_VORTEX_CUSTOMER_ORG_ID));
+
+              log.info("user context:{}", userContext);
+              exchange.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
               return Mono.just(jwtAuthenticationToken);
             })
         .then(chain.filter(exchange));
