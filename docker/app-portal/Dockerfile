@@ -15,9 +15,10 @@ WORKDIR /opt/app
 COPY vortex-app/vortex-app-portal/package.json /opt/app
 COPY vortex-app/vortex-app-portal/package-lock.json /opt/app
 COPY vortex-app/vortex-app-portal/tsconfig.json /opt/app
-COPY vortex-app/vortex-app-portal/tsconfig.node.json /opt/app
-COPY vortex-app/vortex-app-portal/vite.config.ts /opt/app
-COPY vortex-app/vortex-app-portal/index.html /opt/app
+COPY vortex-app/vortex-app-portal/webpack.config.js /opt/app
+COPY vortex-app/vortex-app-portal/.babelrc /opt/app
+COPY vortex-app/vortex-app-portal/.eslintrc.js /opt/app
+COPY vortex-app/vortex-app-portal/.eslintignore /opt/app
 COPY vortex-app/vortex-app-portal/.env.production /opt/app/.env
 COPY vortex-app/vortex-app-portal/public /opt/app/public
 COPY vortex-app/vortex-app-portal/src /opt/app/src

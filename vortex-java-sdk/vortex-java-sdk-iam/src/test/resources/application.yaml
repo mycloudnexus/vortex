@@ -78,3 +78,34 @@ springdoc:
 logging:
   level:
     com.consoleconnect.vortex: DEBUG
+
+app:
+  iam:
+    resource-server:
+      allowed-paths:
+        - /actuator/**
+    jwt:
+      issuer-uri: https://partner.consoleconnect.com
+      audience: https://partner.consoleconnect.com/api
+      jwk-set-uri: http://localhost:8000/.well-known/jwks.json
+      custom-claims:
+        orgId: org_id
+        roles: org_roles
+        permissions: permissions
+    auth0:
+      mgmt-api:
+        domain: consoleconnect.auth0.com
+        client-id: mgmt-api-client-id
+        client-secret: mgmt-api-client-secret
+        audience: https://partner.consoleconnect.com/api
+      app:
+        client-id: app-client-id
+      roles:
+
+    email:
+      enabled: false
+  gateway:
+    downstream:
+      base-url: http://localhost:3000
+      admin-api-key: api-key-has-admin-role
+      user-api-key: api-key-has-readonly-role

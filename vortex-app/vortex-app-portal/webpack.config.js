@@ -26,11 +26,12 @@ module.exports = (env, argv) => {
         '@': path.resolve(__dirname, 'src')
       }
     },
-    entry: ['./src/index.tsx'],
+    entry: [path.join(__dirname, 'src/index.tsx')
+    ],
     module: {
       rules: [
         {
-          test: /\.tsx?$/,
+          test: /\.[tj]sx?$/,
           exclude: /node_modules/,
           use: ['babel-loader']
         },

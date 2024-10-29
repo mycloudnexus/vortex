@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>vortex-java-sdk</artifactId>
     <name>vortex-java-sdk</name>
-    <version>0.0.0</version>
+    <version>0.1.0-preview</version>
 
     <packaging>pom</packaging>
     <parent>
         <groupId>com.consoleconnect.vortex</groupId>
         <artifactId>vortex-platform</artifactId>
-        <version>0.0.0</version>
+        <version>0.1.0-preview</version>
     </parent>
 
 

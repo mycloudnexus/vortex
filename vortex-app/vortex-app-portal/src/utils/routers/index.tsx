@@ -17,7 +17,6 @@ export const router = createBrowserRouter([
         path: '',
         element: <Dashboard />
       },
-
       {
         path: 'example/*',
         element: <EdgeModuleContainer />

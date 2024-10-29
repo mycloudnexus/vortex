@@ -1,6 +1,7 @@
 # vortex-portal
-Vortex FE 
+
+Vortex FE
+
 # vortex repository list
-- module tempalte: https://github.com/Console-Core/vortex-module-template
-- port module : https://github.com/Console-Core/vortex-port-module
-- price module: https://github.com/Console-Core/vortex-price-module
+
+- vortex-app-portal https://github.com/mycloudnexus/vortex/tree/main/vortex-app/vortex-app-portal

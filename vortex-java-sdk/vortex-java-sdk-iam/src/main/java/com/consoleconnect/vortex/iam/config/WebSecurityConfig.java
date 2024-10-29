@@ -3,18 +3,22 @@ package com.consoleconnect.vortex.iam.config;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
-import com.consoleconnect.vortex.iam.model.AuthDataProperty;
-import java.util.ArrayList;
+import com.consoleconnect.vortex.iam.acl.VortexPermissionEvaluator;
+import com.consoleconnect.vortex.iam.filter.UserContextWebFilter;
+import com.consoleconnect.vortex.iam.model.IamProperty;
+import com.consoleconnect.vortex.iam.model.ResourceServerProperty;
 import java.util.Collection;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,19 +33,19 @@ import reactor.core.publisher.Mono;
 @Configuration
 @Slf4j
 @EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
 public class WebSecurityConfig {
-
-  @Bean
-  @ConfigurationProperties(prefix = "app.security")
-  public AuthDataProperty authDataProperty() {
-    return new AuthDataProperty();
-  }
 
   @Bean
   @Order(1)
   public SecurityWebFilterChain securityWebFilterChain(
-      ServerHttpSecurity http, AuthDataProperty authDataProperty) {
-    AuthDataProperty.ResourceServer resourceServer = authDataProperty.getResourceServer();
+      ServerHttpSecurity http,
+      ResourceServerProperty resourceServer,
+      VortexPermissionEvaluator permissionEvaluator,
+      DefaultMethodSecurityExpressionHandler defaultWebSecurityExpressionHandler,
+      IamProperty iamProperty) {
+    defaultWebSecurityExpressionHandler.setPermissionEvaluator(permissionEvaluator);
+
     return http.csrf(ServerHttpSecurity.CsrfSpec::disable)
         .cors(
             cors ->
@@ -80,11 +84,16 @@ public class WebSecurityConfig {
             })
         .oauth2ResourceServer(
             oauth2 ->
-                oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                oauth2.jwt(
+                    jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter(iamProperty))))
+        .addFilterAfter(
+            new UserContextWebFilter(iamProperty), SecurityWebFiltersOrder.AUTHORIZATION)
         .build();
   }
 
-  public Converter<Jwt, Mono<AbstractAuthenticationToken>> jwtAuthenticationConverter() {
+  public Converter<Jwt, Mono<AbstractAuthenticationToken>> jwtAuthenticationConverter(
+      IamProperty iamProperty) {
+
     return new Converter<Jwt, Mono<AbstractAuthenticationToken>>() {
       @Override
       public Mono<AbstractAuthenticationToken> convert(Jwt source) {
@@ -92,8 +101,9 @@ public class WebSecurityConfig {
       }
 
       private Collection<? extends GrantedAuthority> extractResourceRoles(Jwt jwt) {
-        var resourceRoles = new ArrayList<String>(jwt.getClaim("org_roles"));
-        return resourceRoles.isEmpty()
+        List<String> resourceRoles =
+            jwt.getClaimAsStringList(iamProperty.getJwt().getCustomClaims().getRoles());
+        return resourceRoles == null || resourceRoles.isEmpty()
             ? emptySet()
             : resourceRoles.stream()
                 .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))

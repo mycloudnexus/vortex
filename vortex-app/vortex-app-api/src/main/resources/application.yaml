@@ -44,9 +44,24 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_ISSUER_URI:https://partner.consoleconnect.com}
-          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8000/.well-known/jwks.json}
-          audiences: ${JWT_AUDIENCES:https://partner.consoleconnect.com/api}
+          issuer-uri: ${app.iam.jwt.issuer-uri}
+          jwk-set-uri: ${app.iam.jwt.jwk-set-uri}
+          audiences: ${app.iam.jwt.audience}
+  cloud:
+    gateway:
+      routes:
+        - id: downstream-api
+          uri: ${app.gateway.downstream.base-url}
+          predicates:
+            - Path=/downstream/**
+          filters:
+            - RewritePath=/downstream/(?<path>.*), /$\{path}
+            - RemoveRequestHeader=Authorization
+            - name: SetAPIKey
+              args:
+                keyName: Authorization
+                adminKey: Bearer ${app.gateway.downstream.admin-api-key}
+                userKey: Bearer ${app.gateway.downstream.user-api-key}
 management:
   endpoint:
     health:
@@ -71,7 +86,7 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
-    supported-submit-methods: ["get", "post", "patch", "delete"]
+    supported-submit-methods: [ "get", "post", "patch", "delete" ]
     config-url: /v3/api-docs/swagger-config
     urls:
       - url: /v3/api-docs
@@ -83,3 +98,67 @@ logging:
   level:
     com.consoleconnect.vortex: DEBUG
     org.springframework.security: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+
+app:
+  iam:
+    jwt:
+      issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
+      audience: ${IAM_JWT_AUDIENCES:https://partner.consoleconnect.com/api}
+      jwk-set-uri: ${IAM_JWT_JWK_SET_URI:http://localhost:8000/.well-known/jwks.json}
+      custom-claims:
+        orgId: ${IAM_JWT_CUSTOM_CLAIMS_ORG_ID:org_id}
+        roles: ${IAM_JWT_CUSTOM_CLAIMS_ROLES:org_roles}
+        permissions: ${IAM_JWT_CUSTOM_CLAIMS_PERMISSIONS:permissions}
+    auth0:
+      mgmt-api:
+        domain: ${IAM_AUTH0_MGMT_API_DOMAIN:consoleconnect.auth0.com}
+        client-id: ${IAM_AUTH0_MGMT_API_CLIENT_ID:mgmt-api-client-id}
+        client-secret: ${IAM_AUTH0_MGMT_API_CLIENT_SECRET:mgmt-api-client-secret}
+        audience: ${IAM_AUTH0_MGMT_API_AUDIENCE:https://partner.consoleconnect.com/api}
+      app:
+        client-id: ${IAM_AUTH0_APP_CLIENT_ID:app-client-id}
+      mgmt-org-id: ${IAM_AUTH0_MGMT_ORG_ID:}
+    email:
+      enabled: ${IAM_EMAIL_ENABLED:false}
+      provider: ${IAM_EMAIL_PROVIDER:sendgrid}
+      send-grid:
+        api-key: ${SENDGRID_API_KEY:}
+        from:
+          name: ${SENDGRID_FROM_NAME:}
+          email: ${SENDGRID_FROM_EMAIL:}
+        templates:
+          invite-org-member: ${SENDGRID_TEMPLATE_ID_ORG_INVITE:}
+    resource-server:
+      path-permissions:
+        - path: /mgmt/**
+          http-methods:
+            - POST
+            - DELETE
+            - PATCH
+          roles:
+            - PLATFORM_ADMIN
+        - path: /mgmt/**
+          http-methods:
+            - GET
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_USER
+        - path: /organization/**
+          http-methods:
+            - POST
+            - PATCH
+            - DELETE
+          roles:
+            - ORG_ADMIN
+        - path: /organization/**
+          http-methods:
+            - GET
+          roles:
+            - ORG_ADMIN
+            - ORG_USER
+  gateway:
+    downstream:
+      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
+      admin-api-key: ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
+      user-api-key: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}

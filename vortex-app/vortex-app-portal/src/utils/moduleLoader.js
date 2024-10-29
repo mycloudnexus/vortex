@@ -3,9 +3,6 @@ import React from 'react'
 
 function parseModules() {
   const modules = process.env.CONSOLE_MODULES
-  // const modules = 'vortex_module_template@http://localhost:3003/remoteEntry.js'
-  console.log('--process.env', process.env.CONSOLE_MODULES)
-
   const parsedModules = []
   if (typeof modules === 'string') {
     const urls = modules.split(',')
