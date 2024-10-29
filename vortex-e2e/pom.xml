@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>vortex-e2e</artifactId>
+    <name>vortex-e2e</name>
+    <version>0.1.0-preview</version>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>com.consoleconnect.vortex</groupId>
+        <artifactId>vortex-platform</artifactId>
+        <version>0.1.0-preview</version>
+    </parent>
+
+    <modules>
+        <module>vortex-e2e-app-api</module>
+    </modules>
+</project>
