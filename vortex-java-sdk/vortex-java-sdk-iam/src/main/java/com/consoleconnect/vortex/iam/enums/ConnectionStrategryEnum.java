@@ -2,7 +2,7 @@ package com.consoleconnect.vortex.iam.enums;
 
 public enum ConnectionStrategryEnum {
   OIDC("oidc"),
-  SAML("saml"),
+  SAML("samlp"),
   OAUTH2("oauth2"),
   DB("auth0");
 

@@ -1,14 +1,10 @@
 package com.consoleconnect.vortex.iam.dto;
 
-import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
 import java.util.Map;
 import lombok.Data;
 
 @Data
 public class SamlConnection {
-  private String id;
-  private String name;
-  private String strategy = ConnectionStrategryEnum.SAML.getValue();
   private ConnectionOptions options;
 
   @Data

@@ -2,16 +2,20 @@ package com.consoleconnect.vortex.iam.dto;
 
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
 
 @Data
-public class CreateConnectionDto {
+public class UpdateConnectionDto {
 
-  private String name;
-  private ConnectionStrategryEnum strategy = ConnectionStrategryEnum.OIDC;
+  @NotBlank private String id;
+
+  private ConnectionStrategryEnum strategy = ConnectionStrategryEnum.SAML;
+
   private Oidc odic;
+
   private SamlConnection samlConnection;
 
   @Data
