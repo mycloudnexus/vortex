@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { User } from './type'
 
 export type AuthUser = {
   email: string
@@ -21,9 +22,11 @@ type AppStore = {
     name: string
   }
   setCurrentCompany: (c: { id: string; name: string }) => void
-  currentUser: AuthUser | null
-  setCurrentUser: (c: AuthUser | null) => void
+  currentAuth0User: AuthUser | null
+  setCurrentAuth0User: (c: AuthUser | null) => void
   mainColor: string
+  user: User | null
+  setUser: (c: User | null) => void
 }
 
 export const useAppStore = create<AppStore>()((set) => ({
@@ -34,7 +37,9 @@ export const useAppStore = create<AppStore>()((set) => ({
     name: 'poping'
   },
   setCurrentCompany: (currentCompany) => set({ currentCompany }),
-  setCurrentUser: (currentUser) => set({ currentUser }),
-  currentUser: null,
-  mainColor: '#FF7900'
+  setCurrentAuth0User: (currentAuth0User) => set({ currentAuth0User }),
+  currentAuth0User: null,
+  mainColor: '#FF7900',
+  user: null,
+  setUser: (user) => set({ user })
 }))

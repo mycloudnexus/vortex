@@ -10,7 +10,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 
 const SettingsMenu = () => {
   const { isMobile } = useDeviceDetect()
-  const { currentCompany, currentUser, setCurrentUser } = useAppStore()
+  const { currentCompany, currentAuth0User, setCurrentAuth0User } = useAppStore()
   const [openDrawer, setOpenDrawer] = useState(false)
   const { logout } = useAuth0()
   const items = [
@@ -30,7 +30,7 @@ const SettingsMenu = () => {
       <div className={styles.avatarMenu}>
         <Flex justify='space-between'>
           <Flex vertical gap={10}>
-            <div className={styles.userName}>{currentUser?.nickname}</div>
+            <div className={styles.userName}>{currentAuth0User?.nickname}</div>
             <div className={styles.avatarItem}>Personal details</div>
           </Flex>
         </Flex>
@@ -38,7 +38,7 @@ const SettingsMenu = () => {
         <div
           className={styles.avatarItem}
           onClick={() => {
-            setCurrentUser(null)
+            setCurrentAuth0User(null)
             window.localStorage.removeItem('token')
             logout({
               logoutParams: {
@@ -79,7 +79,11 @@ const SettingsMenu = () => {
             getPopupContainer={() => document.getElementById('nav') as HTMLDivElement}
             dropdownRender={dropdownRender}
           >
-            {currentUser ? <Avatar size='large' src={<img src={currentUser?.picture} alt='avatar' />} /> : <></>}
+            {currentAuth0User ? (
+              <Avatar size='large' src={<img src={currentAuth0User?.picture} alt='avatar' />} />
+            ) : (
+              <></>
+            )}
           </Dropdown>
         </Flex>
       )}

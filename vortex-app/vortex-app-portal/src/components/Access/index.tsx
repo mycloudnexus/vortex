@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Auth0Provider } from '@auth0/auth0-react'
-import { AUTH0_PROVIDER_ATTRIBS } from '@/constant'
+import { ENV } from '@/constant'
 
 interface AuthProviderProps {
   defaultReturnTo?: string
@@ -10,10 +10,11 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   return (
     <Auth0Provider
-      domain={AUTH0_PROVIDER_ATTRIBS.domain}
-      clientId={AUTH0_PROVIDER_ATTRIBS.clientId}
+      domain={ENV.AUTH0_DOMAIN!}
+      clientId={ENV.AUTH0_CLIENT_ID!}
       authorizationParams={{
-        redirect_uri: window.location.origin
+        redirect_uri: window.location.origin,
+        audience: ENV.AUTH0_AUDIENCE
       }}
     >
       {children}
