@@ -18,11 +18,9 @@ import com.consoleconnect.vortex.core.toolkit.PatternHelper;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
-import com.consoleconnect.vortex.iam.model.Auth0Property;
+import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.fasterxml.jackson.core.type.TypeReference;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -149,29 +147,38 @@ public class OrganizationService {
     }
   }
 
+  private List<Role> findRolesByName(List<String> roleNames) {
+    try {
+      RolesEntity rolesEntity = this.auth0Client.getMgmtClient().roles();
+      return rolesEntity.list(null).execute().getBody().getItems().stream()
+          .filter(role -> roleNames.contains(role.getName()))
+          .toList();
+    } catch (Auth0Exception e) {
+      log.error("convertRoleNameId.error", e);
+      throw VortexException.internalError("Failed to convert role name to id");
+    }
+  }
+
   public Invitation createInvitation(
       String orgId, CreateInivitationDto request, String requestedBy) {
 
     log.info("creating invitation:orgId:{}, {},requestedBy:{}", orgId, request, requestedBy);
 
-    if (request.getRoles() != null) {
-      for (String roleId : request.getRoles()) {
-        Auth0Property.Role role =
-            auth0Client.getAuth0Property().getRoles().stream()
-                .filter(r -> r.getRoleId().equals(roleId))
-                .findFirst()
-                .orElse(null);
-        if (role == null) {
-          throw VortexException.badRequest("Role not found: " + roleId);
-        }
-        if (role.getOrgIds() != null
-            && !role.getOrgIds().isEmpty()
-            && !role.getOrgIds().contains(orgId)) {
-          throw VortexException.badRequest("Role not found for organization: " + orgId);
-        }
-      }
+    if (request.getRoles() == null || request.getRoles().isEmpty()) {
+      throw VortexException.badRequest("Roles cannot be empty.");
     }
+    if (request.getEmail() == null || request.getEmail().isBlank()) {
+      throw VortexException.badRequest("Email cannot be empty.");
+    }
+
+    List<String> roleNames = getAvailableRoleNames(orgId);
+
+    if (request.getRoles().stream().anyMatch(role -> !roleNames.contains(role))) {
+      throw VortexException.badRequest("Role not found for organization: " + orgId);
+    }
+
     try {
+
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       Organization organization = organizationsEntity.get(orgId).execute().getBody();
 
@@ -191,7 +198,8 @@ public class OrganizationService {
           new Invitation(inviter, invitee, auth0Client.getAuth0Property().getApp().getClientId());
       invitation.setConnectionId(enabledConnectionsPage.getItems().get(0).getConnectionId());
       invitation.setSendInvitationEmail(false);
-      invitation.setRoles(new Roles(request.getRoles()));
+      invitation.setRoles(
+          new Roles(findRolesByName(request.getRoles()).stream().map(Role::getId).toList()));
 
       Request<Invitation> invitationRequest =
           organizationsEntity.createInvitation(orgId, invitation);
@@ -241,30 +249,20 @@ public class OrganizationService {
     }
   }
 
-  public Paging<Role> listRoles(String orgId, int page, int size) {
-    List<String> roleIds =
-        auth0Client.getAuth0Property().getRoles().stream()
-            .filter(role -> role.getRoleId() != null && !role.getRoleId().isEmpty())
-            .filter(
-                roleSet ->
-                    roleSet.getOrgIds() == null
-                        || roleSet.getOrgIds().isEmpty()
-                        || roleSet.getOrgIds().contains(orgId))
-            .map(Auth0Property.Role::getRoleId)
-            .distinct()
-            .toList();
-
-    try {
-      RolesEntity rolesEntity = this.auth0Client.getMgmtClient().roles();
-      List<Role> items =
-          rolesEntity.list(null).execute().getBody().getItems().stream()
-              .filter(role -> roleIds.contains(role.getId()))
-              .toList();
-
-      return PagingHelper.toPage(items, page, size);
-    } catch (Auth0Exception e) {
-      throw VortexException.internalError("Failed to get roles of organization: " + orgId);
+  private List<String> getAvailableRoleNames(String orgId) {
+    List<String> roleNames = new ArrayList<>();
+    roleNames.add(RoleEnum.ORG_ADMIN.name());
+    roleNames.add(RoleEnum.ORG_MEMBER.name());
+    if (auth0Client.getAuth0Property().getMgmtOrgId().equalsIgnoreCase(orgId)) {
+      // the user in mgmt organization can see all roles
+      roleNames.add(RoleEnum.PLATFORM_ADMIN.name());
+      roleNames.add(RoleEnum.PLATFORM_MEMBER.name());
     }
+    return roleNames;
+  }
+
+  public Paging<Role> listRoles(String orgId, int page, int size) {
+    return PagingHelper.toPage(findRolesByName(getAvailableRoleNames(orgId)), page, size);
   }
 
   public Paging<OrganizationConnection> listConnections(String orgId, int page, int size) {

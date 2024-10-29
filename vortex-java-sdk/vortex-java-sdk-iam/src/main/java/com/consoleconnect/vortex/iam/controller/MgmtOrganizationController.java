@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -28,7 +27,6 @@ public class MgmtOrganizationController {
 
   private final OrganizationService service;
 
-  @PreAuthorize("hasPermission('mgmt:org', 'list')")
   @Operation(summary = "List all existing organizations")
   @GetMapping("")
   public Mono<HttpResponse<Paging<Organization>>> search(
@@ -41,7 +39,6 @@ public class MgmtOrganizationController {
     return Mono.just(HttpResponse.ok(service.search(q, page, size)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'create')")
   @Operation(summary = "Create a new organization")
   @PostMapping("")
   public Mono<HttpResponse<Organization>> create(
@@ -49,7 +46,6 @@ public class MgmtOrganizationController {
     return Mono.just(HttpResponse.ok(service.create(request, authenticationToken.getName())));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'update')")
   @Operation(summary = "update a organization")
   @PatchMapping("/{orgId}")
   public Mono<HttpResponse<Organization>> update(
@@ -60,14 +56,12 @@ public class MgmtOrganizationController {
         HttpResponse.ok(service.update(orgId, request, authenticationToken.getName())));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'read') ")
   @Operation(summary = "Retrieve an organization by id")
   @GetMapping("/{orgId}")
   public Mono<HttpResponse<Organization>> findOne(@PathVariable String orgId) {
     return Mono.just(HttpResponse.ok(service.findOne(orgId)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all existing connections")
   @GetMapping("/{orgId}/connections")
   public Mono<HttpResponse<Paging<OrganizationConnection>>> listConnections(
@@ -79,7 +73,6 @@ public class MgmtOrganizationController {
     return Mono.just(HttpResponse.ok(service.listConnections(orgId, page, size)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'update')")
   @Operation(summary = "Setup a connection")
   @PostMapping("/{orgId}/connections")
   public Mono<HttpResponse<OrganizationConnection>> createConnection(
@@ -90,7 +83,6 @@ public class MgmtOrganizationController {
         HttpResponse.ok(service.createConnection(orgId, request, authenticationToken.getName())));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all invitations")
   @GetMapping("/{orgId}/invitations")
   public Mono<HttpResponse<Paging<Invitation>>> listInivitations(
@@ -102,7 +94,6 @@ public class MgmtOrganizationController {
     return Mono.just(HttpResponse.ok(service.listInvitations(orgId, page, size)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'update')")
   @Operation(summary = "Create a new invitation")
   @PostMapping("/{orgId}/invitations")
   public Mono<HttpResponse<Invitation>> create(
@@ -114,7 +105,6 @@ public class MgmtOrganizationController {
             service.createInvitation(orgId, request, jwtAuthenticationToken.getName())));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "Retrieve an invitation by id")
   @GetMapping("/{orgId}/invitations/{invitationId}")
   public Mono<HttpResponse<Invitation>> findOne(
@@ -122,7 +112,6 @@ public class MgmtOrganizationController {
     return Mono.just(HttpResponse.ok(service.getInvitationById(orgId, invitationId)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'update')")
   @Operation(summary = "Delete an invitation by id")
   @DeleteMapping("/{orgId}/invitations/{invitationId}")
   public Mono<HttpResponse<Void>> delete(
@@ -133,7 +122,6 @@ public class MgmtOrganizationController {
     return Mono.just(HttpResponse.ok(null));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all members")
   @GetMapping("/{orgId}/members")
   public Mono<HttpResponse<Paging<Member>>> listMembers(
@@ -145,7 +133,6 @@ public class MgmtOrganizationController {
     return Mono.just(HttpResponse.ok(service.listMembers(orgId, page, size)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all roles")
   @GetMapping("/{orgId}/roles")
   public Mono<HttpResponse<Paging<Role>>> listRoles(
