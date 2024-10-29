@@ -16,7 +16,6 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
     "@auth0/auth0-react": "^2.2.4",

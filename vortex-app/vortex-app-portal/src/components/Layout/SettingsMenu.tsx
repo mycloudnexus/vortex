@@ -1,12 +1,14 @@
-import useDeviceDetect from '@/hooks/useDeviceDetect'
 import { Avatar, Dropdown, Flex } from 'antd'
-import Text from '../Text'
-import { useAppStore } from '@/stores/app.store'
 import { DownOutlined, MenuOutlined } from '@ant-design/icons'
+import useDeviceDetect from '@/hooks/useDeviceDetect'
+import { useAuth0 } from '@auth0/auth0-react'
+import { useAppStore } from '@/stores/app.store'
+import { clearToken } from '@/utils/helpers/token'
+import Text from '../Text'
+
 import * as styles from './index.module.scss'
 import { useState } from 'react'
 import MobileDrawer from './MobileDrawer'
-import { useAuth0 } from '@auth0/auth0-react'
 
 const SettingsMenu = () => {
   const { isMobile } = useDeviceDetect()
@@ -39,7 +41,7 @@ const SettingsMenu = () => {
           className={styles.avatarItem}
           onClick={() => {
             setCurrentAuth0User(null)
-            window.localStorage.removeItem('token')
+            clearToken()
             logout({
               logoutParams: {
                 returnTo: window.location.origin
