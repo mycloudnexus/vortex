@@ -81,4 +81,16 @@ public class BaseOrganizationController {
   public Mono<HttpResponse<Paging<Role>>> listRoles(String orgId, int page, int size) {
     return Mono.just(HttpResponse.ok(service.listRoles(orgId, page, size)));
   }
+
+  public Mono<HttpResponse<OrganizationConnection>> dbConnection(
+      String orgId, JwtAuthenticationToken authenticationToken) {
+    return Mono.just(HttpResponse.ok(service.dbConnection(orgId, authenticationToken.getName())));
+  }
+
+  public Mono<HttpResponse<OrganizationConnection>> samlConnection(
+      String orgId, SamlConnection samlConnection, JwtAuthenticationToken authenticationToken) {
+    return Mono.just(
+        HttpResponse.ok(
+            service.createOrUpdateSAML(orgId, samlConnection, authenticationToken.getName())));
+  }
 }

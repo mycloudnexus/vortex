@@ -160,4 +160,24 @@ public class MgmtOrganizationController extends BaseOrganizationController {
           int size) {
     return super.listRoles(orgId, page, size);
   }
+
+  @PreAuthorize("hasPermission('mgmt:org', 'update')")
+  @Operation(summary = "Setup a DB connection")
+  @PostMapping("/{orgId}/connections/db")
+  @Override
+  public Mono<HttpResponse<OrganizationConnection>> dbConnection(
+      @PathVariable String orgId, JwtAuthenticationToken authenticationToken) {
+    return super.dbConnection(orgId, authenticationToken);
+  }
+
+  @PreAuthorize("hasPermission('mgmt:org', 'update')")
+  @Operation(summary = "Setup a SAML connection")
+  @PostMapping("/{orgId}/connections/saml")
+  @Override
+  public Mono<HttpResponse<OrganizationConnection>> samlConnection(
+      @PathVariable String orgId,
+      @RequestBody SamlConnection samlConnection,
+      JwtAuthenticationToken authenticationToken) {
+    return super.samlConnection(orgId, samlConnection, authenticationToken);
+  }
 }
