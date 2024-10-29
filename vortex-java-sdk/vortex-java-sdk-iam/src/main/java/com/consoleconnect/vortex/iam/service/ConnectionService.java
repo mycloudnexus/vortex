@@ -6,6 +6,7 @@ import com.auth0.json.mgmt.organizations.*;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,10 @@ public class ConnectionService {
 
   @Async
   public void cleanConnectionAndMembers(
-      ManagementAPI managementAPI, OrganizationsEntity organizationsEntity, String orgId) {
+      ManagementAPI managementAPI,
+      OrganizationsEntity organizationsEntity,
+      EnabledConnectionsPage enabledConnectionsPage,
+      String orgId) {
     log.info("cleanConnectionAndMembers, orgId={}", orgId);
     try {
       Organization organization = organizationsEntity.get(orgId).execute().getBody();
@@ -23,8 +27,7 @@ public class ConnectionService {
       // delete members
       MembersPage membersPage =
           organizationsEntity.getMembers(organization.getId(), null).execute().getBody();
-      if (Objects.nonNull(membersPage)
-          && !org.springframework.util.CollectionUtils.isEmpty(membersPage.getItems())) {
+      if (Objects.nonNull(membersPage) && CollectionUtils.isNotEmpty(membersPage.getItems())) {
         List<Member> members = membersPage.getItems();
         for (Member m : members) {
           managementAPI.users().delete(m.getUserId()).execute();
@@ -35,7 +38,7 @@ public class ConnectionService {
       InvitationsPage invitationsPage =
           organizationsEntity.getInvitations(organization.getId(), null).execute().getBody();
       if (Objects.nonNull(invitationsPage)
-          && !org.springframework.util.CollectionUtils.isEmpty(invitationsPage.getItems())) {
+          && CollectionUtils.isNotEmpty(invitationsPage.getItems())) {
         List<Invitation> invitations = invitationsPage.getItems();
         for (Invitation invitation : invitations) {
           organizationsEntity.deleteInvitation(organization.getId(), invitation.getId()).execute();
@@ -43,10 +46,8 @@ public class ConnectionService {
       }
 
       // delete connection
-      EnabledConnectionsPage enabledConnectionsPage =
-          organizationsEntity.getConnections(organization.getId(), null).execute().getBody();
       if (Objects.nonNull(enabledConnectionsPage)
-          && !org.springframework.util.CollectionUtils.isEmpty(enabledConnectionsPage.getItems())) {
+          && CollectionUtils.isNotEmpty(enabledConnectionsPage.getItems())) {
         List<EnabledConnection> enabledConnections = enabledConnectionsPage.getItems();
         for (EnabledConnection enabledConnection : enabledConnections) {
           managementAPI

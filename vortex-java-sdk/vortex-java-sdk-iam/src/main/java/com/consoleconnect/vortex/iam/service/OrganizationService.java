@@ -396,8 +396,10 @@ public class OrganizationService {
             "Failed to create or change db connections of organization: " + orgId);
       }
 
+      EnabledConnectionsPage enabledConnectionsPage =
+          organizationsEntity.getConnections(organization.getId(), null).execute().getBody();
       connectionService.cleanConnectionAndMembers(
-          managementAPI, organizationsEntity, organization.getId());
+          managementAPI, organizationsEntity, enabledConnectionsPage, organization.getId());
 
       Connection connection =
           new Connection(
@@ -441,7 +443,10 @@ public class OrganizationService {
       }
 
       // 1. check and clean existed members & connection.
-      connectionService.cleanConnectionAndMembers(managementAPI, organizationsEntity, orgId);
+      EnabledConnectionsPage enabledConnectionsPage =
+          organizationsEntity.getConnections(organization.getId(), null).execute().getBody();
+      connectionService.cleanConnectionAndMembers(
+          managementAPI, organizationsEntity, enabledConnectionsPage, orgId);
 
       // 2. create new sso connection
       Connection connection =
