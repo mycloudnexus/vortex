@@ -1,0 +1,14 @@
+{
+  "strategy":"samlp",
+  "saml": {
+    "signingCert": "#(signingCert)",
+    "signSAMLRequest":false,
+    "signatureAlgorithm":"",
+    "digestAlgorithm":"",
+    "fieldsMap":{
+    },
+    "signInEndpoint":"https://test.com/xx",
+    "signOutEndpoint":"https://test.com/xx/logout",
+    "debug":true
+  }
+}
