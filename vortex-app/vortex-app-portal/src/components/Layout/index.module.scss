@@ -9,9 +9,18 @@
   // Tablet
   @media only screen and (min-width: 320px) {
     :global {
+      .headroom-wrapper {
+        height: 78px;
+        font-family: 'Roboto', sans-serif !important;
+      }
       .headroom {
+        height: 100%;
+        box-sizing: border-box;
         padding: 10px 20px;
         background: #1a263d;
+        display: flex;
+        align-items: center;
+        width: 100%;
       }
     }
   }
@@ -78,7 +87,7 @@
 .menuMobile {
   cursor: pointer;
 }
- 
+
 .drawer {
   :global {
     .ant-drawer-body {
@@ -149,4 +158,19 @@
       top: 127px;
     }
   }
+}
+
+.menuItem {
+  text-decoration: none;
+  border-bottom: none;
+  padding: 0 20px;
+  position: relative;
+}
+
+.menuItemActive {
+  position: absolute;
+  height: 4px;
+  width: 100%;
+  left: 0;
+  bottom: -30px;
 }

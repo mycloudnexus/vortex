@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Headroom from 'react-headroom'
 import NavMain from './NavMain'
 import * as styles from './index.module.scss'
-import Sider from 'antd/es/layout/Sider'
+
 import { Flex, Menu } from 'antd'
 import NetIcon from '@/assets/icon/network.svg'
 import { useAppStore } from '@/stores/app.store'
@@ -16,32 +16,13 @@ import { ReactComponent as CRIcon } from '@/assets/icon/cloudrouter.svg'
 import { ReactComponent as L2Icon } from '@/assets/icon//l2.svg'
 import { ReactComponent as L3Icon } from '@/assets/icon/l3.svg'
 import { ReactComponent as SettingIcon } from '@/assets/icon/setting.svg'
-import { styled } from 'styled-components'
 import useDeviceDetect from '@/hooks/useDeviceDetect'
 import MainMenuMobileDrawer from './MainMenuMobileDrawer'
+import { SliderCustom } from './styled'
 
 const Layout = () => {
   const { mainColor } = useAppStore()
-  const SliderCustom = styled(Sider)`
-    .ant-menu-submenu-selected {
-      svg {
-        path {
-          stroke: ${mainColor};
-        }
-      }
-    }
-    .ant-menu-item-selected {
-      svg {
-        path {
-          fill: ${mainColor};
-          stroke: ${mainColor};
-        }
-        circle {
-          stroke: ${mainColor};
-        }
-      }
-    }
-  `
+  const SideCustom = SliderCustom(mainColor)
   const { isMobile } = useDeviceDetect()
   const [activeKeys, setActiveKeys] = useState(['1'])
   const { value: collapsed, setValue: setCollapsed, setTrue: trueCollapse, setFalse: falseCollapse } = useBoolean(false)
@@ -77,7 +58,7 @@ const Layout = () => {
   const items = [
     {
       key: '1',
-      icon: <DashboardIcon />,
+      icon: <DashboardIcon className='icon-dashboard' />,
       label: 'Dashboard',
       regex: /^\/dashboard(\/.*)?$/,
       onClick: () => {
@@ -86,28 +67,28 @@ const Layout = () => {
     },
     {
       key: '2',
-      icon: <DCIcon />,
+      icon: <DCIcon className='icon-dc' />,
       label: 'DC Ports',
       children: [{ key: '2-1', label: 'View all' }]
     },
     {
       key: '3',
-      icon: <L2Icon />,
+      icon: <L2Icon className='icon-l2' />,
       label: 'L2 Connections'
     },
     {
       key: '4',
-      icon: <L3Icon />,
+      icon: <L3Icon className='icon-l3' />,
       label: 'L3 connections'
     },
     {
       key: '5',
-      icon: <CRIcon />,
+      icon: <CRIcon className='icon-cr' />,
       label: 'CloudRouter'
     },
     {
       key: '6',
-      icon: <SettingIcon />,
+      icon: <SettingIcon className='icon-setting' />,
       label: 'Settings'
     }
   ]
@@ -126,50 +107,54 @@ const Layout = () => {
           <NavMain />
         </Suspense>
       </Headroom>
-      <Flex vertical={isMobile} className={styles.container}>
-        {isMobile ? (
-          <Flex
-            role='none'
-            style={{ background: mainColor, cursor: 'pointer' }}
-            className={styles.network}
-            gap={12}
-            align='center'
-            onClick={toggleDrawer}
-          >
-            <img src={NetIcon} alt='network' />
-            {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
-          </Flex>
-        ) : (
-          <SliderCustom collapsible collapsed={collapsed} onCollapse={setCollapsed} className={styles.slider}>
-            <Flex vertical style={{ background: mainColor }} className={styles.network}>
-              <Flex justify='flex-end' className={styles.collapseBtn}>
-                {!collapsed ? (
-                  <DoubleLeftOutlined onClick={trueCollapse} role='none' />
-                ) : (
-                  <DoubleRightOutlined onClick={falseCollapse} role='none' />
-                )}
-              </Flex>
-              <Flex gap={12} align='center' style={{ marginTop: 16 }}>
-                <img src={NetIcon} alt='network' />
-                {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
-              </Flex>
+      {/^\/$/.test(location.pathname) || /^\/network/.test(location.pathname) ? (
+        <Flex vertical={isMobile} className={styles.container}>
+          {isMobile ? (
+            <Flex
+              role='none'
+              style={{ background: mainColor, cursor: 'pointer' }}
+              className={styles.network}
+              gap={12}
+              align='center'
+              onClick={toggleDrawer}
+            >
+              <img src={NetIcon} alt='network' />
+              {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
             </Flex>
-            <Menu
-              openKeys={openKeys}
-              onOpenChange={(k) => setOpenKeys(k)}
-              onSelect={(e) => {
-                setActiveKeys(e.selectedKeys)
-              }}
-              className={styles.menu}
-              selectedKeys={activeKeys}
-              mode='inline'
-              items={items}
-              expandIcon={(iconInfo) => (iconInfo.isOpen ? <DownOutlined /> : <RightOutlined />)}
-            />
-          </SliderCustom>
-        )}
+          ) : (
+            <SideCustom collapsible collapsed={collapsed} onCollapse={setCollapsed} className={styles.slider}>
+              <Flex vertical style={{ background: mainColor }} className={styles.network}>
+                <Flex justify='flex-end' className={styles.collapseBtn}>
+                  {!collapsed ? (
+                    <DoubleLeftOutlined onClick={trueCollapse} role='none' />
+                  ) : (
+                    <DoubleRightOutlined onClick={falseCollapse} role='none' />
+                  )}
+                </Flex>
+                <Flex gap={12} align='center' style={{ marginTop: 16 }}>
+                  <img src={NetIcon} alt='network' />
+                  {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
+                </Flex>
+              </Flex>
+              <Menu
+                openKeys={openKeys}
+                onOpenChange={(k) => setOpenKeys(k)}
+                onSelect={(e) => {
+                  setActiveKeys(e.selectedKeys)
+                }}
+                className={styles.menu}
+                selectedKeys={activeKeys}
+                mode='inline'
+                items={items}
+                expandIcon={(iconInfo) => (iconInfo.isOpen ? <DownOutlined /> : <RightOutlined />)}
+              />
+            </SideCustom>
+          )}
+          <Outlet />
+        </Flex>
+      ) : (
         <Outlet />
-      </Flex>
+      )}
     </div>
   )
 }
