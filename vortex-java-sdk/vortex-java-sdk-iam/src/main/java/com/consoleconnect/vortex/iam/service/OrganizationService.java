@@ -415,10 +415,13 @@ public class OrganizationService {
   public OrganizationConnection updateConnection(
       String orgId, UpdateConnectionDto request, String requestedBy) {
     log.info("Updating connection:orgId:{}, {},requestedBy:{}", orgId, request, requestedBy);
-    if (request.getStrategy().equals(ConnectionStrategryEnum.OIDC)) {
+    if (request.getStrategy() == ConnectionStrategryEnum.SAML) {
+      return updateSAMLConnection(orgId, request.getId(), request.getSaml());
+    } else if (request.getStrategy() == ConnectionStrategryEnum.OIDC) {
       return updateOidcConnection(orgId, request.getId(), request.getOdic());
+    } else {
+      throw VortexException.badRequest("Invalid connection strategy");
     }
-    return updateSAMLConnection(orgId, request.getId(), request.getSaml());
   }
 
   private OrganizationConnection updateSAMLConnection(
