@@ -38,3 +38,35 @@ export interface User {
   token?: string
   accessRoles?: Role[]
 }
+
+
+export type AuthUser = {
+  email: string
+  email_verified: boolean
+  family_name: string
+  given_name: string
+  name: string
+  nickname: string
+  org_id: string
+  picture: string
+  sub: string
+  updated_at: string
+}
+
+export type AppStore = {
+  appLogo: string
+  setAppLogo: (appLogo: string) => void
+  currentCompany?: {
+    id: string
+    name: string
+  }
+  setCurrentCompany: (c: { id: string; name: string }) => void
+  currentAuth0User: AuthUser | null
+  setCurrentAuth0User: (c: AuthUser | null) => void
+  mainColor: string
+  user: User | null
+  setUser: (c: User | null) => void
+  roleList: Role | null
+  setRoleList: (c: Role | null) => void
+}
+
