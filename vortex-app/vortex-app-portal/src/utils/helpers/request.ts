@@ -28,7 +28,7 @@ request.interceptors.response.use(
     const sessionExpired = status === 401 && invalidToken.includes(message)
     if (pbacErrorEmptyPrincipal || sessionExpired) {
       //TODO To prevent it jump login all the time
-      // window.location.href = `${getOrg}/login`
+      // window.location.href = `${getOrg()}/login`
     }
 
     /**
