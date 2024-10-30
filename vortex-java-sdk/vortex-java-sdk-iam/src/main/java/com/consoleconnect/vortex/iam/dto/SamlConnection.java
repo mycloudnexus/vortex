@@ -5,22 +5,17 @@ import lombok.Data;
 
 @Data
 public class SamlConnection {
-  private ConnectionOptions options;
+  private String signInEndpoint;
+  private String userIdAttribute;
+  private String signingCert;
 
-  @Data
-  public static class ConnectionOptions {
-    private String signInEndpoint;
-    private String userIdAttribute;
-    private String signingCert;
+  private boolean debug;
+  private boolean disableSignout;
+  private String signOutEndpoint;
 
-    private boolean debug;
-    private boolean disableSignout;
-    private String signOutEndpoint;
-
-    private boolean signSAMLRequest;
-    private String digestAlgorithm;
-    private String signatureAlgorithm;
-    private String protocolBinding;
-    private Map<String, Object> fieldsMap;
-  }
+  private boolean signSAMLRequest;
+  private String digestAlgorithm;
+  private String signatureAlgorithm;
+  private String protocolBinding;
+  private Map<String, Object> fieldsMap;
 }

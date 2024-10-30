@@ -371,7 +371,7 @@ public class OrganizationService {
       ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
       Organization organization = managementAPI.organizations().get(orgId).execute().getBody();
       Map<String, Object> metaData =
-          JsonToolkit.createObjectMapper().convertValue(samlConnection.getOptions(), Map.class);
+          JsonToolkit.createObjectMapper().convertValue(samlConnection, Map.class);
 
       OrganizationsEntity organizationsEntity = managementAPI.organizations();
       if (Objects.nonNull(organization.getMetadata())
@@ -426,7 +426,7 @@ public class OrganizationService {
       ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
       Organization organization = managementAPI.organizations().get(orgId).execute().getBody();
       Map<String, Object> metaData =
-          JsonToolkit.createObjectMapper().convertValue(samlConnection.getOptions(), Map.class);
+          JsonToolkit.createObjectMapper().convertValue(samlConnection, Map.class);
 
       if (Objects.nonNull(organization.getMetadata())
           && !LoginTypeEnum.SSO.name().equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
