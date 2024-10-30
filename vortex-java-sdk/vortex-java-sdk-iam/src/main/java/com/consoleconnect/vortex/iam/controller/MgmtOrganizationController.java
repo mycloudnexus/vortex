@@ -143,4 +143,15 @@ public class MgmtOrganizationController {
           int size) {
     return Mono.just(HttpResponse.ok(service.listRoles(orgId, page, size)));
   }
+
+  @Operation(summary = "Update a connection")
+  @PatchMapping("/{orgId}/connections")
+  public Mono<HttpResponse<OrganizationConnection>> updateConnection(
+      @PathVariable String orgId,
+      @RequestBody UpdateConnectionDto updateConnectionDto,
+      JwtAuthenticationToken authenticationToken) {
+    return Mono.just(
+        HttpResponse.ok(
+            service.updateConnection(orgId, updateConnectionDto, authenticationToken.getName())));
+  }
 }
