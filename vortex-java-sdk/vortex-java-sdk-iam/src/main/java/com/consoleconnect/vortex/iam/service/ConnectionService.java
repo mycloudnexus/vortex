@@ -18,7 +18,7 @@ public class ConnectionService {
   public void cleanConnectionAndMembers(
       ManagementAPI managementAPI,
       OrganizationsEntity organizationsEntity,
-      EnabledConnectionsPage enabledConnectionsPage,
+      EnabledConnection oldEnabledConnection,
       String orgId) {
     log.info("cleanConnectionAndMembers, orgId={}", orgId);
     try {
@@ -46,19 +46,13 @@ public class ConnectionService {
       }
 
       // delete connection
-      if (Objects.nonNull(enabledConnectionsPage)
-          && CollectionUtils.isNotEmpty(enabledConnectionsPage.getItems())) {
-        List<EnabledConnection> enabledConnections = enabledConnectionsPage.getItems();
-        for (EnabledConnection enabledConnection : enabledConnections) {
-          managementAPI
-              .connections()
-              .delete(enabledConnection.getConnectionId())
-              .execute()
-              .getStatusCode();
-        }
-      }
+      managementAPI
+          .connections()
+          .delete(oldEnabledConnection.getConnectionId())
+          .execute()
+          .getStatusCode();
     } catch (Exception e) {
-      log.error("cleanMembers.error", e);
+      log.error("clean old members and connection error", e);
     }
   }
 }

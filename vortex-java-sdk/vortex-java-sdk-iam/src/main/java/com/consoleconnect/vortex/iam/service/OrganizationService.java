@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -382,11 +383,18 @@ public class OrganizationService {
             "Failed to create saml connections of organization: " + orgId);
       }
 
-      // 1. check and clean existed members & connection.
+      // 1. check and clean existed members and connection.
       EnabledConnectionsPage enabledConnectionsPage =
           organizationsEntity.getConnections(organization.getId(), null).execute().getBody();
-      connectionService.cleanConnectionAndMembers(
-          managementAPI, organizationsEntity, enabledConnectionsPage, orgId);
+      if (Objects.nonNull(enabledConnectionsPage)
+          && CollectionUtils.isNotEmpty(enabledConnectionsPage.getItems())) {
+        if (enabledConnectionsPage.getItems().size() > 1) {
+          throw VortexException.internalError(
+              "There are more than one connection of organization:" + orgId);
+        }
+        connectionService.cleanConnectionAndMembers(
+            managementAPI, organizationsEntity, enabledConnectionsPage.getItems().get(0), orgId);
+      }
 
       // 2. create new sso connection
       Connection connection =
@@ -516,8 +524,12 @@ public class OrganizationService {
     EnabledConnection createdEnabledConnection =
         organizationsEntity.addConnection(orgId, enabledConnection).execute().getBody();
 
+    Organization organization = organizationsEntity.get(orgId).execute().getBody();
+    Map<String, Object> meta =
+        organization.getMetadata() == null ? new HashMap<>() : organization.getMetadata();
+    meta.put(META_LOGIN_TYPE, loginTypeEnum.name());
     Organization updateMetadata = new Organization();
-    updateMetadata.setMetadata(Map.of(META_LOGIN_TYPE, loginTypeEnum.name()));
+    updateMetadata.setMetadata(meta);
     organizationsEntity.update(orgId, updateMetadata).execute();
 
     return getOrganizationConnection(
