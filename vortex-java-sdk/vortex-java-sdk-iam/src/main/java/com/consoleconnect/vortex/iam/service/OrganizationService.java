@@ -448,13 +448,7 @@ public class OrganizationService {
           managementAPI.organizations().getConnections(orgId, null).execute().getBody();
 
       EnabledConnection enabledConnection = enabledConnectionsPage.getItems().get(0);
-      OrganizationConnection organizationConnection = new OrganizationConnection();
-      organizationConnection.setConnectionId(connection.getId());
-      organizationConnection.setAssignMembershipOnLogin(
-          enabledConnection.isAssignMembershipOnLogin());
-      organizationConnection.setShowAsButton(enabledConnection.getShowAsButton());
-      organizationConnection.setConnection(updatedConnection);
-      return organizationConnection;
+      return getOrganizationConnection(connection.getId(), enabledConnection, updatedConnection);
     } catch (Auth0Exception e) {
       log.error("update saml connection error", e);
       throw VortexException.badRequest("Update saml connection error" + e.getMessage());
@@ -484,18 +478,23 @@ public class OrganizationService {
       EnabledConnectionsPage enabledConnectionsPage =
           managementAPI.organizations().getConnections(orgId, null).execute().getBody();
       EnabledConnection enabledConnection = enabledConnectionsPage.getItems().get(0);
-      OrganizationConnection organizationConnection = new OrganizationConnection();
-      organizationConnection.setConnectionId(connection.getId());
-      organizationConnection.setAssignMembershipOnLogin(
-          enabledConnection.isAssignMembershipOnLogin());
-      organizationConnection.setShowAsButton(enabledConnection.getShowAsButton());
-      organizationConnection.setConnection(updatedConnection);
+      return getOrganizationConnection(connection.getId(), enabledConnection, updatedConnection);
 
-      return organizationConnection;
     } catch (Auth0Exception e) {
       log.error("update oidc connection error", e);
       throw VortexException.badRequest("Update oidc connection error" + e.getMessage());
     }
+  }
+
+  private static OrganizationConnection getOrganizationConnection(
+      String connection, EnabledConnection enabledConnection, Connection updatedConnection) {
+    OrganizationConnection organizationConnection = new OrganizationConnection();
+    organizationConnection.setConnectionId(connection);
+    organizationConnection.setAssignMembershipOnLogin(
+        enabledConnection.isAssignMembershipOnLogin());
+    organizationConnection.setShowAsButton(enabledConnection.getShowAsButton());
+    organizationConnection.setConnection(updatedConnection);
+    return organizationConnection;
   }
 
   private static OrganizationConnection bindOrganizationConnection(
@@ -517,12 +516,7 @@ public class OrganizationService {
     updateMetadata.setMetadata(Map.of(META_LOGIN_TYPE, loginTypeEnum.name()));
     organizationsEntity.update(orgId, updateMetadata).execute();
 
-    OrganizationConnection organizationConnection = new OrganizationConnection();
-    organizationConnection.setConnectionId(createdEnabledConnection.getConnectionId());
-    organizationConnection.setAssignMembershipOnLogin(
-        createdEnabledConnection.isAssignMembershipOnLogin());
-    organizationConnection.setShowAsButton(createdEnabledConnection.getShowAsButton());
-    organizationConnection.setConnection(createdConnection);
-    return organizationConnection;
+    return getOrganizationConnection(
+        createdEnabledConnection.getConnectionId(), createdEnabledConnection, createdConnection);
   }
 }
