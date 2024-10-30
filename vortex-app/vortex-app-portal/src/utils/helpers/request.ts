@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/no-unused-vars */
 import axios, { isCancel } from 'axios'
 import { getToken, getOrg } from '@/utils/helpers/token'
 import _ from 'lodash'
@@ -27,7 +27,8 @@ request.interceptors.response.use(
       status === 401 && message === accessDenied && _.isPlainObject(principalId) && _.isEmpty(principalId)
     const sessionExpired = status === 401 && invalidToken.includes(message)
     if (pbacErrorEmptyPrincipal || sessionExpired) {
-      window.location.href = `${getOrg}/login`
+      //TODO To prevent it jump login all the time
+      // window.location.href = `${getOrg}/login`
     }
 
     /**
