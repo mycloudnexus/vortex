@@ -3,7 +3,6 @@ import React, { useEffect, ReactNode } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { filter, get } from 'lodash'
-
 import { useGetUserAuthDetail, useGetUserRole } from '@/hooks/user'
 import { ENV } from '@/constant'
 import { useAppStore } from '@/stores/app.store'
