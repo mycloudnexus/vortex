@@ -403,10 +403,7 @@ public class OrganizationService {
                   organization.getName(), "-", ConnectionStrategryEnum.SAML.getValue()),
               ConnectionStrategryEnum.SAML.getValue());
       connection.setOptions(metaData);
-      connection.setEnabledClients(
-          List.of(
-              auth0Client.getAuth0Property().getApp().getClientId(),
-              auth0Client.getAuth0Property().getMgmtApi().getClientId()));
+      connection.setEnabledClients(List.of(auth0Client.getAuth0Property().getApp().getClientId()));
 
       Connection createdConnection =
           managementAPI.connections().create(connection).execute().getBody();
