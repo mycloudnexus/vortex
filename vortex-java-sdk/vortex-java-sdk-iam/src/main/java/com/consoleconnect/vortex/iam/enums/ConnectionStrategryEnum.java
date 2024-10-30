@@ -4,7 +4,7 @@ public enum ConnectionStrategryEnum {
   OIDC("oidc"),
   SAML("samlp"),
   OAUTH2("oauth2"),
-  DB("auth0");
+  AUTH0("auth0");
 
   private final String value;
 

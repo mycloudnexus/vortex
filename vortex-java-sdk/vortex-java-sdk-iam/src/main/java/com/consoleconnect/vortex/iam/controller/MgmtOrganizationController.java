@@ -8,7 +8,6 @@ import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.dto.*;
-import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -80,17 +79,6 @@ public class MgmtOrganizationController {
       @PathVariable String orgId,
       @RequestBody CreateConnectionDto request,
       JwtAuthenticationToken authenticationToken) {
-    if (request.getStrategy().equals(ConnectionStrategryEnum.SAML)) {
-      return Mono.just(
-          HttpResponse.ok(
-              service.createSAMLConnection(
-                  orgId, request.getSamlConnection(), authenticationToken.getName())));
-    }
-
-    if (request.getStrategy().equals(ConnectionStrategryEnum.DB)) {
-      return Mono.just(HttpResponse.ok(service.dbConnection(orgId, authenticationToken.getName())));
-    }
-
     return Mono.just(
         HttpResponse.ok(service.createConnection(orgId, request, authenticationToken.getName())));
   }
@@ -164,10 +152,6 @@ public class MgmtOrganizationController {
       JwtAuthenticationToken authenticationToken) {
     return Mono.just(
         HttpResponse.ok(
-            service.updateSAML(
-                orgId,
-                updateConnectionDto.getId(),
-                updateConnectionDto.getSamlConnection(),
-                authenticationToken.getName())));
+            service.updateConnection(orgId, updateConnectionDto, authenticationToken.getName())));
   }
 }

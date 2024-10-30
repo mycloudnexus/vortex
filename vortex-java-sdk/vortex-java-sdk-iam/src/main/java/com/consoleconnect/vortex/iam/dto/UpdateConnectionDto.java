@@ -13,5 +13,5 @@ public class UpdateConnectionDto {
 
   private OidcConnection odic;
 
-  private SamlConnection samlConnection;
+  private SamlConnection saml;
 }

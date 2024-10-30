@@ -9,5 +9,5 @@ public class CreateConnectionDto {
   private String name;
   private ConnectionStrategryEnum strategy = ConnectionStrategryEnum.OIDC;
   private OidcConnection odic;
-  private SamlConnection samlConnection;
+  private SamlConnection saml;
 }

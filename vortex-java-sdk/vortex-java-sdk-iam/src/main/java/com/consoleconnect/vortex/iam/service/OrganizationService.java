@@ -20,9 +20,7 @@ import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
 import com.consoleconnect.vortex.iam.enums.LoginTypeEnum;
-import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
-import com.consoleconnect.vortex.iam.model.AttributeProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.*;
 import java.util.HashMap;
@@ -31,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -116,25 +113,7 @@ public class OrganizationService {
       }
 
       Request<Organization> organizationRequest = organizationsEntity.update(orgId, organization);
-      Organization response = organizationRequest.execute().getBody();
-
-      //
-      if (organization.getMetadata().get(META_STATUS).equals(OrgStatusEnum.ACTIVE.name())
-          && request.getStatus().equals(OrgStatusEnum.INACTIVE)) {
-        EnabledConnectionsPage enabledConnectionsPage =
-            organizationsEntity.getConnections(orgId, null).execute().getBody();
-        if (Objects.nonNull(enabledConnectionsPage)
-            && CollectionUtils.isNotEmpty(enabledConnectionsPage.getItems())) {
-          Organization updateMetadata = new Organization();
-          updateMetadata.setMetadata(Map.of(META_LOGIN_TYPE, LoginTypeEnum.UNDEFINED.name()));
-          organizationsEntity.update(orgId, updateMetadata).execute();
-
-          organizationsEntity
-              .deleteConnection(orgId, enabledConnectionsPage.getItems().get(0).getConnectionId())
-              .execute();
-        }
-      }
-      return response;
+      return organizationRequest.execute().getBody();
     } catch (Auth0Exception e) {
       log.error("update organizations.error", e);
       throw VortexException.badRequest("update organizations.error" + e.getMessage());
@@ -346,8 +325,15 @@ public class OrganizationService {
   public OrganizationConnection createConnection(
       String orgId, CreateConnectionDto request, String requestedBy) {
     log.info("creating connection:orgId:{}, {},requestedBy:{}", orgId, request, requestedBy);
-    try {
+    if (request.getStrategy().equals(ConnectionStrategryEnum.SAML)) {
+      return createSAMLConnection(orgId, request.getSaml());
+    }
 
+    return createOidcConnection(orgId, request);
+  }
+
+  private OrganizationConnection createOidcConnection(String orgId, CreateConnectionDto request) {
+    try {
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
 
       // only one connection is allowed for an organization
@@ -380,55 +366,7 @@ public class OrganizationService {
     }
   }
 
-  public OrganizationConnection dbConnection(String orgId, String requestedBy) {
-    try {
-      ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
-      log.info("creating db connection:orgId:{}, {},requestedBy:{}", orgId, requestedBy);
-
-      OrganizationsEntity organizationsEntity = managementAPI.organizations();
-      Organization organization = organizationsEntity.get(orgId).execute().getBody();
-      if (Objects.nonNull(organization.getMetadata())
-          && organization
-              .getMetadata()
-              .get(META_LOGIN_TYPE)
-              .equals(LoginTypeEnum.USERNAME_PASSWORD.name())) {
-        throw VortexException.internalError(
-            "Failed to create or change db connections of organization: " + orgId);
-      }
-
-      EnabledConnectionsPage enabledConnectionsPage =
-          organizationsEntity.getConnections(organization.getId(), null).execute().getBody();
-      connectionService.cleanConnectionAndMembers(
-          managementAPI, organizationsEntity, enabledConnectionsPage, organization.getId());
-
-      Connection connection =
-          new Connection(
-              StringUtils.join(organization.getName(), "-", ConnectionStrategryEnum.DB.getValue()),
-              ConnectionStrategryEnum.DB.getValue());
-      Map<String, Object> options = new HashMap<>();
-      options.put("disable_signup", false);
-
-      AttributeProperty attribute = new AttributeProperty();
-      options.put("email", attribute);
-      connection.setOptions(options);
-      connection.setEnabledClients(
-          List.of(
-              auth0Client.getAuth0Property().getApp().getClientId(),
-              auth0Client.getAuth0Property().getMgmtApi().getClientId()));
-
-      Connection createdConnection =
-          auth0Client.getMgmtClient().connections().create(connection).execute().getBody();
-      return bindOrganizationConnection(
-          orgId, createdConnection, organizationsEntity, LoginTypeEnum.USERNAME_PASSWORD);
-    } catch (Auth0Exception e) {
-      log.error("create db connections.error", e);
-      throw VortexException.internalError(
-          "Failed to create db connections of organization: " + orgId);
-    }
-  }
-
-  public OrganizationConnection createSAMLConnection(
-      String orgId, SamlConnection samlConnection, String shortName) {
+  private OrganizationConnection createSAMLConnection(String orgId, SamlConnection samlConnection) {
     try {
       ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
       Organization organization = managementAPI.organizations().get(orgId).execute().getBody();
@@ -438,6 +376,7 @@ public class OrganizationService {
       OrganizationsEntity organizationsEntity = managementAPI.organizations();
       if (Objects.nonNull(organization.getMetadata())
           && LoginTypeEnum.SSO.name().equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
+        log.warn("current login type is:{}", organization.getMetadata().get(META_LOGIN_TYPE));
         throw VortexException.internalError(
             "Failed to create saml connections of organization: " + orgId);
       }
@@ -467,13 +406,22 @@ public class OrganizationService {
       return bindOrganizationConnection(
           orgId, createdConnection, organizationsEntity, LoginTypeEnum.SSO);
     } catch (Exception e) {
-      log.error("[module-auth]create.connection error", e);
+      log.error("create.connection error", e);
       throw VortexException.badRequest("Create connection error" + e.getMessage());
     }
   }
 
-  public OrganizationConnection updateSAML(
-      String orgId, String connectionId, SamlConnection samlConnection, String shortName) {
+  public OrganizationConnection updateConnection(
+      String orgId, UpdateConnectionDto request, String requestedBy) {
+    log.info("Updating connection:orgId:{}, {},requestedBy:{}", orgId, request, requestedBy);
+    if (request.getStrategy().equals(ConnectionStrategryEnum.OIDC)) {
+      return updateOidcConnection(orgId, request.getId(), request.getOdic());
+    }
+    return updateSAMLConnection(orgId, request.getId(), request.getSaml());
+  }
+
+  private OrganizationConnection updateSAMLConnection(
+      String orgId, String connectionId, SamlConnection samlConnection) {
     try {
       ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
       Organization organization = managementAPI.organizations().get(orgId).execute().getBody();
@@ -507,9 +455,46 @@ public class OrganizationService {
       organizationConnection.setShowAsButton(enabledConnection.getShowAsButton());
       organizationConnection.setConnection(updatedConnection);
       return organizationConnection;
-    } catch (Exception e) {
-      log.error("[module-auth]create.connection error", e);
-      throw VortexException.badRequest("Create connection error" + e.getMessage());
+    } catch (Auth0Exception e) {
+      log.error("update saml connection error", e);
+      throw VortexException.badRequest("Update saml connection error" + e.getMessage());
+    }
+  }
+
+  private OrganizationConnection updateOidcConnection(
+      String orgId, String connectionId, OidcConnection odic) {
+    try {
+      ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
+      Organization organization = managementAPI.organizations().get(orgId).execute().getBody();
+      if (Objects.nonNull(organization.getMetadata())
+          && !LoginTypeEnum.SSO.name().equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
+        throw VortexException.internalError(
+            "Failed to change oidc connections of organization: " + orgId);
+      }
+
+      // create connection
+      ConnectionsEntity connectionsEntity = managementAPI.connections();
+
+      Connection connection = new Connection();
+      connection.setOptions(odic.toMap());
+
+      Connection updatedConnection =
+          connectionsEntity.update(connectionId, connection).execute().getBody();
+
+      EnabledConnectionsPage enabledConnectionsPage =
+          managementAPI.organizations().getConnections(orgId, null).execute().getBody();
+      EnabledConnection enabledConnection = enabledConnectionsPage.getItems().get(0);
+      OrganizationConnection organizationConnection = new OrganizationConnection();
+      organizationConnection.setConnectionId(connection.getId());
+      organizationConnection.setAssignMembershipOnLogin(
+          enabledConnection.isAssignMembershipOnLogin());
+      organizationConnection.setShowAsButton(enabledConnection.getShowAsButton());
+      organizationConnection.setConnection(updatedConnection);
+
+      return organizationConnection;
+    } catch (Auth0Exception e) {
+      log.error("update oidc connection error", e);
+      throw VortexException.badRequest("Update oidc connection error" + e.getMessage());
     }
   }
 
