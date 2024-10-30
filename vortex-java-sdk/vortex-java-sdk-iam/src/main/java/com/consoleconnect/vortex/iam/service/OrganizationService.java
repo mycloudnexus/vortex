@@ -325,11 +325,13 @@ public class OrganizationService {
   public OrganizationConnection createConnection(
       String orgId, CreateConnectionDto request, String requestedBy) {
     log.info("creating connection:orgId:{}, {},requestedBy:{}", orgId, request, requestedBy);
-    if (request.getStrategy().equals(ConnectionStrategryEnum.SAML)) {
+    if (request.getStrategy() == ConnectionStrategryEnum.SAML) {
       return createSAMLConnection(orgId, request.getSaml());
+    } else if (request.getStrategy() == ConnectionStrategryEnum.OIDC) {
+      return createOidcConnection(orgId, request);
+    } else {
+      throw VortexException.badRequest("Invalid connection strategy");
     }
-
-    return createOidcConnection(orgId, request);
   }
 
   private OrganizationConnection createOidcConnection(String orgId, CreateConnectionDto request) {
@@ -371,8 +373,7 @@ public class OrganizationService {
       ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
       Organization organization = managementAPI.organizations().get(orgId).execute().getBody();
       Map<String, Object> metaData =
-          JsonToolkit.createObjectMapper().convertValue(samlConnection, Map.class);
-
+          JsonToolkit.fromJson(JsonToolkit.toJson(samlConnection), new TypeReference<>() {});
       OrganizationsEntity organizationsEntity = managementAPI.organizations();
       if (Objects.nonNull(organization.getMetadata())
           && LoginTypeEnum.SSO.name().equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
@@ -426,7 +427,7 @@ public class OrganizationService {
       ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
       Organization organization = managementAPI.organizations().get(orgId).execute().getBody();
       Map<String, Object> metaData =
-          JsonToolkit.createObjectMapper().convertValue(samlConnection, Map.class);
+          JsonToolkit.fromJson(JsonToolkit.toJson(samlConnection), new TypeReference<>() {});
 
       if (Objects.nonNull(organization.getMetadata())
           && !LoginTypeEnum.SSO.name().equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
