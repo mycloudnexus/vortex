@@ -143,7 +143,7 @@ app:
             - GET
           roles:
             - PLATFORM_ADMIN
-            - PLATFORM_USER
+            - PLATFORM_MEMBER
         - path: /organization/**
           http-methods:
             - POST
@@ -156,7 +156,7 @@ app:
             - GET
           roles:
             - ORG_ADMIN
-            - ORG_USER
+            - ORG_MEMBER
   gateway:
     downstream:
       base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
