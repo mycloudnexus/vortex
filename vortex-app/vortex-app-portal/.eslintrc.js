@@ -48,6 +48,16 @@ module.exports = {
         printWidth: 120,
         jsxSingleQuote: true
       }
-    ]
+    ],
+    'jsx-a11y/click-events-have-key-events': 'off',
+    "jsx-a11y/no-static-element-interactions": 'off',
+    "@typescript-eslint/no-unused-vars": 'off',
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "varsIgnorePattern": "[iI]gnored",
+        "argsIgnorePattern": "[iI]gnored"
+      }
+    ],
   }
 }
