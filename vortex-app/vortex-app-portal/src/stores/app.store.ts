@@ -15,5 +15,5 @@ export const useAppStore = create<AppStore>()((set) => ({
   user: null,
   setUser: (user) => set({ user }),
   roleList: null,
-  setRoleList: (r) => set({ r }),
+  setRoleList: (roleList) => set({ roleList })
 }))
