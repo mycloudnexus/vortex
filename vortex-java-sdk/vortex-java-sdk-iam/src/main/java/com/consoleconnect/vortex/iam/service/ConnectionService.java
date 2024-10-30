@@ -29,9 +29,10 @@ public class ConnectionService {
           organizationsEntity.getMembers(organization.getId(), null).execute().getBody();
       if (Objects.nonNull(membersPage) && CollectionUtils.isNotEmpty(membersPage.getItems())) {
         List<Member> members = membersPage.getItems();
-        for (Member m : members) {
-          managementAPI.users().delete(m.getUserId()).execute();
-        }
+        managementAPI
+            .organizations()
+            .deleteMembers(orgId, new Members(members.stream().map(Member::getUserId).toList()))
+            .execute();
       }
 
       // delete invitations
@@ -46,11 +47,7 @@ public class ConnectionService {
       }
 
       // delete connection
-      managementAPI
-          .connections()
-          .delete(oldEnabledConnection.getConnectionId())
-          .execute()
-          .getStatusCode();
+      managementAPI.connections().delete(oldEnabledConnection.getConnectionId()).execute();
     } catch (Exception e) {
       log.error("clean old members and connection error", e);
     }
