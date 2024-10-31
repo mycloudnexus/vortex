@@ -117,9 +117,6 @@ app:
     - method: PUT
       route-path: /consoleconnect/api/company/consolecore-poping-company/ports/orders
       adapter-class-name: com.consoleconnect.vortex.gateway.adapter.cc.PortOrderCreateAdapter
-    - method: GET
-      route-path: /consoleconnect/api/company/consolecore-poping-company/ports/orders
-      adapter-class-name: com.consoleconnect.vortex.gateway.adapter.cc.PortOrderListAdapter
   iam:
     jwt:
       issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
