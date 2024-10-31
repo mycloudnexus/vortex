@@ -113,3 +113,10 @@ jobs:
       # some repos don't have unit test now, need to add in future.
       - run: CHROME_BIN=$(which chrome) npm run test:coverage -- -u
         working-directory: ./vortex-app/vortex-app-portal
+
+      - name: SonarCloud Scan
+        if: success() || failure()
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
