@@ -22,7 +22,7 @@ public class OrderEntity extends AbstractEntity {
   @Column(name = "organization_id", nullable = false)
   private String organizationId;
 
-  @Column(name = "order_id", nullable = false, length = 100)
+  @Column(name = "order_id", length = 100)
   private String orderId;
 
   @Enumerated(EnumType.STRING)
