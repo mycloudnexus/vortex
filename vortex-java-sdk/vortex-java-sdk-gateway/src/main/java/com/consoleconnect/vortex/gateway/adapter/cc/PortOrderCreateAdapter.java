@@ -29,15 +29,9 @@ public class PortOrderCreateAdapter extends AbstractAdapter implements RouteAdap
     String response = new String(responseBody, StandardCharsets.UTF_8);
 
     String orderId = JsonPathToolkit.read(response, "$.id");
-    ResourceTypeEnum resourceType = ResourceTypeEnum.PORT;
-    String resourceId = JsonPathToolkit.read(response, "$.createdPortId");
-    log.info(
-        "create vortex order, orderId:{}, resourceType:{}, portId:{}",
-        orderId,
-        resourceType,
-        resourceId);
+    log.info("create vortex order, orderId:{}", orderId);
 
-    context.getOrderService().createOrder(orgId, orderId, resourceType, resourceId);
+    context.getOrderService().createOrder(orgId, orderId, ResourceTypeEnum.PORT, null);
     return responseBody;
   }
 }
