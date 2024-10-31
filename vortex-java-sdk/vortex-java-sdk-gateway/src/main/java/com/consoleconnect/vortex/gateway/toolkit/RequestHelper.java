@@ -7,6 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
 public class RequestHelper {
+
+  private RequestHelper() {}
+
   public static UserContext getUserContext(ServerWebExchange exchange) {
     UserContext userContext = exchange.getAttribute(IamConstants.X_VORTEX_USER_CONTEXT);
     if (userContext == null) {

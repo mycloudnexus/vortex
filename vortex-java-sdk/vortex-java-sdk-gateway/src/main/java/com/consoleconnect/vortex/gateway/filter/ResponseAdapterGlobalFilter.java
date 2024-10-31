@@ -28,7 +28,7 @@ public class ResponseAdapterGlobalFilter implements GlobalFilter, Ordered {
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
     // Step 1: match adapter
-    RouteAdapter<byte[]> adapter = adapterFactory.matchAdapter(exchange);
+    RouteAdapter adapter = adapterFactory.matchAdapter(exchange);
     if (adapter == null) {
       return chain.filter(exchange);
     }

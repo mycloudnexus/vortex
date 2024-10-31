@@ -7,11 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
-public abstract class AbstractAdapter implements RouteAdapter<byte[]> {
+public abstract class AbstractAdapter implements RouteAdapter {
 
   protected RouteAdapterContext context;
 
-  public AbstractAdapter(RouteAdapterContext context) {
+  protected AbstractAdapter(RouteAdapterContext context) {
     this.context = context;
   }
 
@@ -25,9 +25,9 @@ public abstract class AbstractAdapter implements RouteAdapter<byte[]> {
     long start = System.currentTimeMillis();
     try {
       return doProcess(exchange, responseBody);
-    } catch (Throwable t) {
-      log.error("{} process error.", getClass().getSimpleName(), t);
-      throw VortexException.badRequest("Failed to process", t);
+    } catch (Exception e) {
+      log.error("{} process error.", getClass().getSimpleName(), e);
+      throw VortexException.badRequest("Failed to process", e);
     } finally {
       log.info(
           "{} process cost: {} ms.",

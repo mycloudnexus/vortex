@@ -7,6 +7,8 @@ import com.jayway.jsonpath.Option;
 
 public class JsonPathToolkit {
 
+  private JsonPathToolkit() {}
+
   private static final Configuration DEFAULT_CONFIGURATION = Configuration.builder().build();
 
   private static final Configuration CONFIGURATION =

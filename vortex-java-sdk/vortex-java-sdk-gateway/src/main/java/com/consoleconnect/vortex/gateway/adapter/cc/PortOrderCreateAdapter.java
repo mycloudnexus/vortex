@@ -11,7 +11,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 /** PUT /api/company/consolecore-poping-company/ports/orders */
 @Slf4j
-public class PortOrderCreateAdapter extends AbstractAdapter implements RouteAdapter<byte[]> {
+public class PortOrderCreateAdapter extends AbstractAdapter implements RouteAdapter {
 
   public PortOrderCreateAdapter(RouteAdapterContext context) {
     super(context);
