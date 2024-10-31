@@ -176,7 +176,7 @@ app:
             - ORG_MEMBER
   gateway:
     consoleconnect:
-      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:https://api.test.consoleconnect.com}
+      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:https://api.consoleconnect.com}
       admin-api-key: ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
       user-api-key: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
       company-name: consolecore-poping-company
