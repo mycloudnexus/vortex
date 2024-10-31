@@ -8,6 +8,7 @@ import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.dto.*;
+import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -153,5 +154,15 @@ public class MgmtOrganizationController {
     return Mono.just(
         HttpResponse.ok(
             service.updateConnection(orgId, updateConnectionDto, authenticationToken.getName())));
+  }
+
+  @Operation(summary = "Update the status of a organization")
+  @PatchMapping("/{orgId}/status")
+  public Mono<HttpResponse<Organization>> updateStatus(
+      @PathVariable String orgId,
+      @RequestParam OrgStatusEnum status,
+      JwtAuthenticationToken authenticationToken) {
+    return Mono.just(
+        HttpResponse.ok(service.updateStatus(orgId, status, authenticationToken.getName())));
   }
 }

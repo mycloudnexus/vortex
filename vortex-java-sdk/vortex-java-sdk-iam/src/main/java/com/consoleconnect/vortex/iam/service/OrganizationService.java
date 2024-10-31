@@ -7,10 +7,12 @@ import com.auth0.client.mgmt.RolesEntity;
 import com.auth0.client.mgmt.filter.PageFilter;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.mgmt.connections.Connection;
+import com.auth0.json.mgmt.connections.ConnectionsPage;
 import com.auth0.json.mgmt.organizations.*;
 import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Request;
+import com.auth0.net.Response;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.core.toolkit.Paging;
@@ -20,6 +22,7 @@ import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
 import com.consoleconnect.vortex.iam.enums.LoginTypeEnum;
+import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.*;
@@ -30,7 +33,9 @@ import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
@@ -52,12 +57,14 @@ public class OrganizationService {
       Organization organization = new Organization(request.getName());
       organization.setDisplayName(request.getDisplayName());
 
-      if (request.getMetadata() != null) {
-        Map<String, Object> metadata =
-            JsonToolkit.fromJson(
-                JsonToolkit.toJson(request.getMetadata()), new TypeReference<>() {});
-        organization.setMetadata(metadata);
+      // set default metadata values
+      if (request.getMetadata() == null) {
+        request.setMetadata(new OrganizationMetadata());
       }
+
+      Map<String, Object> metadata =
+          JsonToolkit.fromJson(JsonToolkit.toJson(request.getMetadata()), new TypeReference<>() {});
+      organization.setMetadata(metadata);
 
       Request<Organization> organizationRequest = organizationsEntity.create(organization);
       return organizationRequest.execute().getBody();
@@ -104,20 +111,85 @@ public class OrganizationService {
         organization.setDisplayName(request.getDisplayName());
       }
 
-      if (request.getStatus() != null) {
-        Map<String, Object> metadata = organization.getMetadata();
-        if (metadata == null) {
-          metadata = new HashMap<>();
-          organization.setMetadata(metadata);
-        }
-        metadata.put(META_STATUS, request.getStatus());
-      }
-
       Request<Organization> organizationRequest = organizationsEntity.update(orgId, organization);
       return organizationRequest.execute().getBody();
     } catch (Auth0Exception e) {
       log.error("update organizations.error", e);
       throw VortexException.badRequest("update organizations.error" + e.getMessage());
+    }
+  }
+
+  public Organization updateStatus(String orgId, OrgStatusEnum status, String updatedBy) {
+    log.info("updating organization: orgId:{},status:{},updatedBy:{}", orgId, status, updatedBy);
+    try {
+      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
+      Organization oldOrg = findOrganization(orgId, organizationsEntity);
+
+      // checking
+      Map<String, Object> metadata =
+          oldOrg.getMetadata() == null ? new HashMap<>() : oldOrg.getMetadata();
+      String oldStatus = MapUtils.getString(metadata, META_STATUS);
+      if (status.name().equals(oldStatus)) {
+        throw VortexException.badRequest("The status is inv the same, orgId:" + orgId);
+      }
+
+      Organization update = new Organization();
+      metadata.put(META_STATUS, status);
+      update.setMetadata(metadata);
+      Response<Organization> updateResponse = organizationsEntity.update(orgId, update).execute();
+
+      // process the bind connection
+      if (updateResponse.getStatusCode() == HttpStatus.SC_OK && StringUtils.isNotBlank(oldStatus)) {
+        processOrgRelatedConnection(orgId, status, oldStatus, organizationsEntity, oldOrg);
+      }
+
+      return updateResponse.getBody();
+    } catch (Exception e) {
+      log.error("update status of organization.error", e);
+      throw VortexException.badRequest("Update status of organizations.error" + e.getMessage());
+    }
+  }
+
+  private void processOrgRelatedConnection(
+      String orgId,
+      OrgStatusEnum status,
+      String oldStatus,
+      OrganizationsEntity organizationsEntity,
+      Organization oldOrg)
+      throws Auth0Exception {
+    // active -> inactive: release the bind connection
+    if (oldStatus.equals(OrgStatusEnum.ACTIVE.name()) && status == OrgStatusEnum.INACTIVE) {
+      EnabledConnectionsPage enabledConnectionsPage =
+          organizationsEntity.getConnections(orgId, null).execute().getBody();
+
+      if (Objects.isNull(enabledConnectionsPage)
+          || CollectionUtils.isEmpty(enabledConnectionsPage.getItems())) {
+        return;
+      }
+
+      organizationsEntity
+          .deleteConnection(orgId, enabledConnectionsPage.getItems().get(0).getConnectionId())
+          .execute();
+    }
+
+    // inactive -> active: check and bind the existed connection
+    if (oldStatus.equals(OrgStatusEnum.INACTIVE.name()) && status == OrgStatusEnum.ACTIVE) {
+      ConnectionsPage connectionsPage =
+          this.auth0Client.getMgmtClient().connections().listAll(null).execute().getBody();
+      if (Objects.isNull(connectionsPage) || CollectionUtils.isEmpty(connectionsPage.getItems())) {
+        return;
+      }
+
+      Optional<Connection> existedConnection =
+          connectionsPage.getItems().stream()
+              .filter(c -> c.getName().startsWith(StringUtils.join(oldOrg.getName(), "-")))
+              .findFirst();
+
+      if (existedConnection.isPresent()) {
+        organizationsEntity
+            .addConnection(orgId, new EnabledConnection(existedConnection.get().getId()))
+            .execute();
+      }
     }
   }
 
