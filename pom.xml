@@ -57,6 +57,8 @@
         <org.lombok-mapstruct-binding.version>0.2.0</org.lombok-mapstruct-binding.version>
         <org.mapstruct.version>1.6.0</org.mapstruct.version>
 
+        <sonar.organization>mycloudnexus</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.basedir}/vortex-java-sdk/vortex-java-sdk-core/target/site/jacoco-aggregate/jacoco.xml,
             ${project.basedir}/vortex-java-sdk/vortex-java-sdk-iam/target/site/jacoco-aggregate/jacoco.xml,
