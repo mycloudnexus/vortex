@@ -119,16 +119,6 @@ app:
       app:
         client-id: ${IAM_AUTH0_APP_CLIENT_ID:app-client-id}
       mgmt-org-id: ${IAM_AUTH0_MGMT_ORG_ID:}
-      roles:
-        - role-id: ${IAM_AUTH0_ROLES_MGMT_ADMIN_ROLE_ID:}
-          org-ids:
-            - ${IAM_AUTH0_MGMT_ORG_ID:}
-        - role-id: ${IAM_AUTH0_ROLES_MGMT_USER_ROLE_ID:}
-          org-ids:
-            - ${IAM_AUTH0_ORG_MGMT_ID:}
-        - role-id: ${IAM_AUTH0_ROLES_ORG_ADMIN_ROLE_ID:}
-        - role-id: ${IAM_AUTH0_ROLES_ORG_USER_ROLE_ID:}
-
     email:
       enabled: ${IAM_EMAIL_ENABLED:false}
       provider: ${IAM_EMAIL_PROVIDER:sendgrid}
@@ -139,6 +129,34 @@ app:
           email: ${SENDGRID_FROM_EMAIL:}
         templates:
           invite-org-member: ${SENDGRID_TEMPLATE_ID_ORG_INVITE:}
+    resource-server:
+      path-permissions:
+        - path: /mgmt/**
+          http-methods:
+            - POST
+            - DELETE
+            - PATCH
+          roles:
+            - PLATFORM_ADMIN
+        - path: /mgmt/**
+          http-methods:
+            - GET
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+        - path: /organization/**
+          http-methods:
+            - POST
+            - PATCH
+            - DELETE
+          roles:
+            - ORG_ADMIN
+        - path: /organization/**
+          http-methods:
+            - GET
+          roles:
+            - ORG_ADMIN
+            - ORG_MEMBER
   gateway:
     downstream:
       base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}

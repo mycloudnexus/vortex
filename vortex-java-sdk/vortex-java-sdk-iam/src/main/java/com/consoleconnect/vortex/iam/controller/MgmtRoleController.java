@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -24,7 +23,6 @@ public class MgmtRoleController {
 
   private final UserService service;
 
-  @PreAuthorize("hasPermission('mgmt:role', 'list')")
   @Operation(summary = "List all existing roles")
   @GetMapping("")
   public Mono<HttpResponse<Paging<Role>>> search(
@@ -35,7 +33,6 @@ public class MgmtRoleController {
     return Mono.just(HttpResponse.ok(service.listRoles(page, size)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:role', 'read')")
   @Operation(summary = "Retrieve a role by id")
   @GetMapping("/{roleId}")
   public Mono<HttpResponse<RoleInfo>> findOne(@PathVariable String roleId) {

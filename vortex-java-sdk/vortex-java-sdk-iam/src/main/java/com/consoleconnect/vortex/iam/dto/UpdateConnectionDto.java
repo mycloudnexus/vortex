@@ -1,13 +1,17 @@
 package com.consoleconnect.vortex.iam.dto;
 
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class CreateConnectionDto {
+public class UpdateConnectionDto {
 
-  private String name;
-  private ConnectionStrategryEnum strategy = ConnectionStrategryEnum.OIDC;
+  @NotBlank private String id;
+
+  private ConnectionStrategryEnum strategy = ConnectionStrategryEnum.SAML;
+
   private OidcConnection odic;
+
   private SamlConnection saml;
 }

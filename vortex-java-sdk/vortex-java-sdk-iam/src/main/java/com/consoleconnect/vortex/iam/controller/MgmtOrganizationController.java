@@ -11,153 +11,147 @@ import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+@AllArgsConstructor
 @RestController()
 @RequestMapping(value = "/mgmt/organizations", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Mgmt", description = "Mgmt APIs")
-public class MgmtOrganizationController extends BaseOrganizationController {
+@Slf4j
+public class MgmtOrganizationController {
 
-  public MgmtOrganizationController(OrganizationService service) {
-    super(service);
-  }
+  private final OrganizationService service;
 
-  @PreAuthorize("hasPermission('mgmt:org', 'list')")
   @Operation(summary = "List all existing organizations")
   @GetMapping("")
-  @Override
   public Mono<HttpResponse<Paging<Organization>>> search(
       @RequestParam(value = "q", required = false) String q,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return super.search(q, page, size);
+    log.info("search, q:{}, page:{}, size:{}", q, page, size);
+    return Mono.just(HttpResponse.ok(service.search(q, page, size)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'create')")
   @Operation(summary = "Create a new organization")
   @PostMapping("")
-  @Override
   public Mono<HttpResponse<Organization>> create(
       @RequestBody CreateOrganizationDto request, JwtAuthenticationToken authenticationToken) {
-    return super.create(request, authenticationToken);
+    return Mono.just(HttpResponse.ok(service.create(request, authenticationToken.getName())));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'update')")
   @Operation(summary = "update a organization")
   @PatchMapping("/{orgId}")
-  @Override
   public Mono<HttpResponse<Organization>> update(
       @PathVariable String orgId,
       @RequestBody UpdateOrganizationDto request,
       JwtAuthenticationToken authenticationToken) {
-    return super.update(orgId, request, authenticationToken);
+    return Mono.just(
+        HttpResponse.ok(service.update(orgId, request, authenticationToken.getName())));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'read') ")
   @Operation(summary = "Retrieve an organization by id")
   @GetMapping("/{orgId}")
-  @Override
   public Mono<HttpResponse<Organization>> findOne(@PathVariable String orgId) {
-    return super.findOne(orgId);
+    return Mono.just(HttpResponse.ok(service.findOne(orgId)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all existing connections")
   @GetMapping("/{orgId}/connections")
-  @Override
   public Mono<HttpResponse<Paging<OrganizationConnection>>> listConnections(
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return super.listConnections(orgId, page, size);
+    return Mono.just(HttpResponse.ok(service.listConnections(orgId, page, size)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'update')")
   @Operation(summary = "Setup a connection")
   @PostMapping("/{orgId}/connections")
-  @Override
   public Mono<HttpResponse<OrganizationConnection>> createConnection(
       @PathVariable String orgId,
       @RequestBody CreateConnectionDto request,
       JwtAuthenticationToken authenticationToken) {
-    return super.createConnection(orgId, request, authenticationToken);
+    return Mono.just(
+        HttpResponse.ok(service.createConnection(orgId, request, authenticationToken.getName())));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all invitations")
   @GetMapping("/{orgId}/invitations")
-  @Override
-  public Mono<HttpResponse<Paging<Invitation>>> listInvitations(
+  public Mono<HttpResponse<Paging<Invitation>>> listInivitations(
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return super.listInvitations(orgId, page, size);
+    return Mono.just(HttpResponse.ok(service.listInvitations(orgId, page, size)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'update')")
   @Operation(summary = "Create a new invitation")
   @PostMapping("/{orgId}/invitations")
-  @Override
   public Mono<HttpResponse<Invitation>> create(
       @PathVariable String orgId,
       @RequestBody CreateInivitationDto request,
       JwtAuthenticationToken jwtAuthenticationToken) {
-    return super.create(orgId, request, jwtAuthenticationToken);
+    return Mono.just(
+        HttpResponse.ok(
+            service.createInvitation(orgId, request, jwtAuthenticationToken.getName())));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "Retrieve an invitation by id")
   @GetMapping("/{orgId}/invitations/{invitationId}")
-  @Override
   public Mono<HttpResponse<Invitation>> findOne(
       @PathVariable String orgId, @PathVariable String invitationId) {
-    return super.findOne(orgId, invitationId);
+    return Mono.just(HttpResponse.ok(service.getInvitationById(orgId, invitationId)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'update')")
   @Operation(summary = "Delete an invitation by id")
   @DeleteMapping("/{orgId}/invitations/{invitationId}")
-  @Override
   public Mono<HttpResponse<Void>> delete(
       @PathVariable String orgId,
       @PathVariable String invitationId,
       JwtAuthenticationToken jwtAuthenticationToken) {
-    return super.delete(orgId, invitationId, jwtAuthenticationToken);
+    service.deleteInvitation(orgId, invitationId, jwtAuthenticationToken.getName());
+    return Mono.just(HttpResponse.ok(null));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all members")
   @GetMapping("/{orgId}/members")
-  @Override
   public Mono<HttpResponse<Paging<Member>>> listMembers(
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return super.listMembers(orgId, page, size);
+    return Mono.just(HttpResponse.ok(service.listMembers(orgId, page, size)));
   }
 
-  @PreAuthorize("hasPermission('mgmt:org', 'read')")
   @Operation(summary = "List all roles")
   @GetMapping("/{orgId}/roles")
-  @Override
   public Mono<HttpResponse<Paging<Role>>> listRoles(
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    return super.listRoles(orgId, page, size);
+    return Mono.just(HttpResponse.ok(service.listRoles(orgId, page, size)));
+  }
+
+  @Operation(summary = "Update a connection")
+  @PatchMapping("/{orgId}/connections")
+  public Mono<HttpResponse<OrganizationConnection>> updateConnection(
+      @PathVariable String orgId,
+      @RequestBody UpdateConnectionDto updateConnectionDto,
+      JwtAuthenticationToken authenticationToken) {
+    return Mono.just(
+        HttpResponse.ok(
+            service.updateConnection(orgId, updateConnectionDto, authenticationToken.getName())));
   }
 }

@@ -19,6 +19,7 @@ import { ReactComponent as SettingIcon } from '@/assets/icon/setting.svg'
 import useDeviceDetect from '@/hooks/useDeviceDetect'
 import MainMenuMobileDrawer from './MainMenuMobileDrawer'
 import { SliderCustom } from './styled'
+import Authenticate from '../Access/Authenticate'
 
 const Layout = () => {
   const { mainColor } = useAppStore()
@@ -95,68 +96,70 @@ const Layout = () => {
 
   return (
     <div className={styles.appWrapper}>
-      <MainMenuMobileDrawer
-        onClose={falseDrawer}
-        open={mainMobileDrawer}
-        items={items}
-        activeKeys={activeKeys}
-        setActiveKeys={setActiveKeys}
-      />
-      <Headroom disableInlineStyles>
-        <Suspense fallback=''>
-          <NavMain />
-        </Suspense>
-      </Headroom>
-      {/^\/$/.test(location.pathname) || /^\/network/.test(location.pathname) ? (
-        <Flex vertical={isMobile} className={styles.container}>
-          {isMobile ? (
-            <Flex
-              role='none'
-              style={{ background: mainColor, cursor: 'pointer' }}
-              className={styles.network}
-              gap={12}
-              align='center'
-              onClick={toggleDrawer}
-            >
-              <img src={NetIcon} alt='network' />
-              {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
-            </Flex>
-          ) : (
-            <SideCustom collapsible collapsed={collapsed} onCollapse={setCollapsed} className={styles.slider}>
-              <Flex vertical style={{ background: mainColor }} className={styles.network}>
-                <Flex justify='flex-end' className={styles.collapseBtn}>
-                  {!collapsed ? (
-                    <DoubleLeftOutlined onClick={trueCollapse} role='none' />
-                  ) : (
-                    <DoubleRightOutlined onClick={falseCollapse} role='none' />
-                  )}
-                </Flex>
-                <Flex gap={12} align='center' style={{ marginTop: 16 }}>
-                  <img src={NetIcon} alt='network' />
-                  {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
-                </Flex>
+      <Authenticate>
+        <MainMenuMobileDrawer
+          onClose={falseDrawer}
+          open={mainMobileDrawer}
+          items={items}
+          activeKeys={activeKeys}
+          setActiveKeys={setActiveKeys}
+        />
+        <Headroom disableInlineStyles>
+          <Suspense fallback=''>
+            <NavMain />
+          </Suspense>
+        </Headroom>
+        {/^\/$/.test(location.pathname) || /^\/network/.test(location.pathname) ? (
+          <Flex vertical={isMobile} className={styles.container}>
+            {isMobile ? (
+              <Flex
+                role='none'
+                style={{ background: mainColor, cursor: 'pointer' }}
+                className={styles.network}
+                gap={12}
+                align='center'
+                onClick={toggleDrawer}
+              >
+                <img src={NetIcon} alt='network' />
+                {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
               </Flex>
-              <Menu
-                openKeys={openKeys}
-                onOpenChange={(k) => setOpenKeys(k)}
-                onSelect={(e) => {
-                  setActiveKeys(e.selectedKeys)
-                }}
-                className={styles.menu}
-                selectedKeys={activeKeys}
-                mode='inline'
-                items={items}
-                expandIcon={(iconInfo) => (iconInfo.isOpen ? <DownOutlined /> : <RightOutlined />)}
-              />
-            </SideCustom>
-          )}
-          <Outlet />
-        </Flex>
-      ) : (
-        <div style={{ maxHeight: `calc(100vh - 78px)`, overflowY: 'auto' }}>
-          <Outlet />
-        </div>
-      )}
+            ) : (
+              <SideCustom collapsible collapsed={collapsed} onCollapse={setCollapsed} className={styles.slider}>
+                <Flex vertical style={{ background: mainColor }} className={styles.network}>
+                  <Flex justify='flex-end' className={styles.collapseBtn}>
+                    {!collapsed ? (
+                      <DoubleLeftOutlined onClick={trueCollapse} role='none' />
+                    ) : (
+                      <DoubleRightOutlined onClick={falseCollapse} role='none' />
+                    )}
+                  </Flex>
+                  <Flex gap={12} align='center' style={{ marginTop: 16 }}>
+                    <img src={NetIcon} alt='network' />
+                    {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
+                  </Flex>
+                </Flex>
+                <Menu
+                  openKeys={openKeys}
+                  onOpenChange={(k) => setOpenKeys(k)}
+                  onSelect={(e) => {
+                    setActiveKeys(e.selectedKeys)
+                  }}
+                  className={styles.menu}
+                  selectedKeys={activeKeys}
+                  mode='inline'
+                  items={items}
+                  expandIcon={(iconInfo) => (iconInfo.isOpen ? <DownOutlined /> : <RightOutlined />)}
+                />
+              </SideCustom>
+            )}
+            <Outlet />
+          </Flex>
+        ) : (
+          <div style={{ maxHeight: `calc(100vh - 78px)`, overflowY: 'auto' }}>
+            <Outlet />
+          </div>
+        )}
+      </Authenticate>
     </div>
   )
 }
