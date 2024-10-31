@@ -130,7 +130,7 @@ public class OrganizationService {
           oldOrg.getMetadata() == null ? new HashMap<>() : oldOrg.getMetadata();
       String oldStatus = MapUtils.getString(metadata, META_STATUS);
       if (status.name().equals(oldStatus)) {
-        throw VortexException.badRequest("The status is inv the same, orgId:" + orgId);
+        throw VortexException.badRequest("The status is the same, orgId:" + orgId);
       }
 
       Organization update = new Organization();
@@ -138,7 +138,7 @@ public class OrganizationService {
       update.setMetadata(metadata);
       Response<Organization> updateResponse = organizationsEntity.update(orgId, update).execute();
 
-      // process the bind connection
+      // process the related connection
       if (updateResponse.getStatusCode() == HttpStatus.SC_OK && StringUtils.isNotBlank(oldStatus)) {
         processOrgRelatedConnection(orgId, status, oldStatus, organizationsEntity, oldOrg);
       }
@@ -157,7 +157,7 @@ public class OrganizationService {
       OrganizationsEntity organizationsEntity,
       Organization oldOrg)
       throws Auth0Exception {
-    // active -> inactive: release the bind connection
+    // active -> inactive: release the bound connection
     if (oldStatus.equals(OrgStatusEnum.ACTIVE.name()) && status == OrgStatusEnum.INACTIVE) {
       EnabledConnectionsPage enabledConnectionsPage =
           organizationsEntity.getConnections(orgId, null).execute().getBody();
@@ -172,7 +172,7 @@ public class OrganizationService {
           .execute();
     }
 
-    // inactive -> active: check and bind the existed connection
+    // inactive -> active: check and bind the existed connection which has been released.
     if (oldStatus.equals(OrgStatusEnum.INACTIVE.name()) && status == OrgStatusEnum.ACTIVE) {
       ConnectionsPage connectionsPage =
           this.auth0Client.getMgmtClient().connections().listAll(null).execute().getBody();
