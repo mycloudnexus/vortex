@@ -16,17 +16,17 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 public class ResponseAdapterGatewayFilterFactory
-    extends AbstractGatewayFilterFactory<ResponseAdapterGatewayFilterFactory.Config> {
+    extends AbstractGatewayFilterFactory<AbstractGatewayFilterFactory.NameConfig> {
 
   private final RouteAdapterFactory adapterFactory;
 
   public ResponseAdapterGatewayFilterFactory(RouteAdapterFactory adapterFactory) {
-    super(Config.class);
+    super(NameConfig.class);
     this.adapterFactory = adapterFactory;
   }
 
   @Override
-  public GatewayFilter apply(Config config) {
+  public GatewayFilter apply(NameConfig config) {
     return (exchange, chain) -> {
       // Step 1: match adapter
       RouteAdapter adapter = adapterFactory.matchAdapter(exchange);
@@ -60,6 +60,4 @@ public class ResponseAdapterGatewayFilterFactory
       return chain.filter(exchange.mutate().response(responseDecorator).build());
     };
   }
-
-  public static class Config {}
 }
