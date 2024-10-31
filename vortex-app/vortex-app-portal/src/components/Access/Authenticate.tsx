@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { filter, get } from 'lodash'
 import { useGetUserAuthDetail, useGetUserRole } from '@/hooks/user'
+import { getOrg } from '@/utils/helpers/token'
 import { ENV } from '@/constant'
 import { useAppStore } from '@/stores/app.store'
 import type { AuthUser } from '@/stores/type'
@@ -27,13 +28,15 @@ const Authenticate = ({ children }: AuthenticateProps) => {
     const companyId = get(userDetail, 'companies[0].id', '')
     const roleIds = get(userDetail, ['linkUserCompany', companyId, 'roleIds'], [])
     const accessRole = filter(roleList, (r) => roleIds.includes(r.id) || r.systemDefault)
+    window.accessRoles = roleList
+    window.useDetaial = userDetail
     setRoleList(roleList)
     setUser({ ...userDetail, accessRole })
   }, [userData, roleData])
 
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {
-      const { org_id: org = ENV.AUTH0_MGMT_ORG_ID } = currentAuth0User ?? {}
+      const org = getOrg() || ENV.AUTH0_MGMT_ORG_ID
       navigate(`${org}/login`)
     }
     if (isAuthenticated && !currentAuth0User && user) {

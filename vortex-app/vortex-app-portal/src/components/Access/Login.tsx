@@ -7,7 +7,7 @@ import { Spin } from 'antd'
 import { ENV } from '@/constant'
 import { storeOrg, storeToken } from '@/utils/helpers/token'
 import { useAppStore } from '@/stores/app.store'
-import type { AuthUser } from '@/stores/app.store'
+import type { AuthUser } from '@/stores/type'
 
 const Login = () => {
   const { getAccessTokenSilently, isLoading, isAuthenticated, loginWithRedirect, user } = useAuth0()

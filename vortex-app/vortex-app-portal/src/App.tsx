@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { RouterProvider } from 'react-router-dom'
 import { QueryClientProvider } from 'react-query'
-import { router } from './utils/routers'
+import { router } from './routers'
 import { ConfigProvider } from 'antd'
 import { queryClient } from '@/utils/helpers/request-query'
 import { useAppStore } from './stores/app.store'

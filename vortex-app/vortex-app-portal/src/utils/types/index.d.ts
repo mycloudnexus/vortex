@@ -9,3 +9,11 @@ declare module '*.svg' {
 
 declare module '*.module.css'
 declare module '*.module.scss'
+
+
+declare interface Window {
+  vortexEnv: any;
+  useDetaial: any;
+  accessRoles: any;
+}
+

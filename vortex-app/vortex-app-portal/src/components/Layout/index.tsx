@@ -50,6 +50,7 @@ const Layout = () => {
   const location = useLocation()
   const [openKeys, setOpenKeys] = useState<string[]>()
   const navigate = useNavigate()
+
   useEffect(() => {
     if (!isMobile) {
       falseDrawer()
