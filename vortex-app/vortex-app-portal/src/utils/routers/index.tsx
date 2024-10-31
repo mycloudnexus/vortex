@@ -2,6 +2,7 @@ import Layout from '@/components/Layout'
 import Dashboard from '@/pages/Dashboard'
 import EdgeModuleContainer from '@/pages/ExampleMicroModule'
 import NotFound from '@/pages/NotFound'
+import ModulePricingContainer from '@/pages/Pricing'
 import { createBrowserRouter } from 'react-router-dom'
 
 export const router = createBrowserRouter([
@@ -19,7 +20,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '/pricing',
-        element: <EdgeModuleContainer />
+        element: <ModulePricingContainer />
       },
       {
         path: '*',

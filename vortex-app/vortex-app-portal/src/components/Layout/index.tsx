@@ -153,7 +153,9 @@ const Layout = () => {
           <Outlet />
         </Flex>
       ) : (
-        <Outlet />
+        <div style={{ maxHeight: `calc(100vh - 78px)`, overflowY: 'auto' }}>
+          <Outlet />
+        </div>
       )}
     </div>
   )
