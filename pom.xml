@@ -56,6 +56,18 @@
         <lombok.version>1.18.34</lombok.version>
         <org.lombok-mapstruct-binding.version>0.2.0</org.lombok-mapstruct-binding.version>
         <org.mapstruct.version>1.6.0</org.mapstruct.version>
+
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ${project.basedir}/vortex-java-sdk/vortex-java-sdk-core/target/site/jacoco-aggregate/jacoco.xml,
+            ${project.basedir}/vortex-java-sdk/vortex-java-sdk-iam/target/site/jacoco-aggregate/jacoco.xml,
+            ${project.basedir}/vortex-java-sdk/vortex-java-sdk-gateway/target/site/jacoco-aggregate/jacoco.xml,
+            ${project.basedir}/kraken-app/kraken-app-api/target/site/jacoco-aggregate/jacoco.xml,
+        </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.exclusions>
+            ${project.basedir}/vortex-java-sdk/vortex-java-sdk-test/**
+            ${project.basedir}/vortex-e2e/**
+            ${project.basedir}/vortex-app/vortex-app-portal/**
+        </sonar.exclusions>
     </properties>
 
     <build>
