@@ -30,8 +30,6 @@ public class ResponseAdapterGlobalFilter implements GlobalFilter, Ordered {
     // Step 1: match adapter
     RouteAdapter<byte[]> adapter = adapterFactory.matchAdapter(exchange);
     if (adapter == null) {
-      // There may be data loss, or data security issues
-      // ignore
       return chain.filter(exchange);
     }
 
