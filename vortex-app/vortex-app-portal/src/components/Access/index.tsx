@@ -6,6 +6,7 @@ interface AuthProviderProps {
   defaultReturnTo?: string
   children: React.ReactElement
 }
+window.portalConfig = ENV
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   return (
