@@ -1,5 +1,6 @@
 package com.consoleconnect.vortex.gateway;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
@@ -115,10 +116,7 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
     Assertions.assertNull(nullAdapter);
 
     PortOrderCreateAdapter adapter = new PortOrderCreateAdapter(new RouteAdapterContext(null));
-    try {
-      adapter.process(exchange, null);
-      Assertions.fail("error");
-    } catch (VortexException e) {
-    }
+
+    assertThrows(VortexException.class, () -> adapter.process(exchange, null));
   }
 }

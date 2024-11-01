@@ -8,6 +8,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -39,7 +40,8 @@ public class ResponseAdapterGatewayFilterFactory
           new ServerHttpResponseDecorator(exchange.getResponse()) {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-              if (getStatusCode() != null && getStatusCode().is2xxSuccessful()) {
+              HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
+              if (statusCode != null && statusCode.is2xxSuccessful()) {
                 Flux<? extends DataBuffer> fluxBody = Flux.from(body);
                 Flux<DataBuffer> modifiedBody =
                     fluxBody.map(
