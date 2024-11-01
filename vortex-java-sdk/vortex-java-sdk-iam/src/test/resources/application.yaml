@@ -3,6 +3,10 @@ server:
   port: ${port:8000}
 
 spring:
+  main:
+    web-application-type: reactive
+  codec:
+    max-in-memory-size: 500KB
   application:
     name: "@project.artifactId@"
     description: "@project.name@"
@@ -12,18 +16,15 @@ spring:
     default-property-inclusion: NON_NULL
     deserialization:
       fail-on-unknown-properties: false
-  data:
-    rest:
-      detection-strategy: ANNOTATED
   datasource:
     driverClassName: org.postgresql.Driver
-    #    password: ${DB_PASSWORD}
-    #    url: ${DB_URL}
-    #    username: ${DB_USERNAME}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/vortex}
+    username: ${DB_USERNAME:postgresql}
+    password: ${DB_PASSWORD:password}
     hikari:
       pool-name: hikari-platform-service-platform
       connection-test-query: SELECT 1
-      maximum-pool-size: 2
+      maximum-pool-size: 50
       max-lifetime: 600000
       connection-timeout: 60000
   jpa:
@@ -37,11 +38,30 @@ spring:
         jdbc:
           time_zone: UTC
   flyway:
-    # clean-on-validation-error: true
     baseline-on-migrate: true
-    # enabled: false
-  codec:
-    max-in-memory-size: 10MB
+    enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${app.iam.jwt.issuer-uri}
+          jwk-set-uri: ${app.iam.jwt.jwk-set-uri}
+          audiences: ${app.iam.jwt.audience}
+  cloud:
+    gateway:
+      routes:
+        - id: downstream-api
+          uri: ${app.gateway.downstream.base-url}
+          predicates:
+            - Path=/downstream/**
+          filters:
+            - RewritePath=/downstream/(?<path>.*), /$\{path}
+            - RemoveRequestHeader=Authorization
+            - name: SetAPIKey
+              args:
+                keyName: Authorization
+                adminKey: Bearer ${app.gateway.downstream.admin-api-key}
+                userKey: Bearer ${app.gateway.downstream.user-api-key}
 management:
   endpoint:
     health:
@@ -62,7 +82,7 @@ springdoc:
   show-actuator: true
   api-docs:
     enabled: true
-    path: /api-docs
+    path: /v3/api-docs
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
@@ -74,38 +94,71 @@ springdoc:
   servers:
     - url: http://localhost:8000
       description: localhost
-
 logging:
   level:
     com.consoleconnect.vortex: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.cloud.gateway: DEBUG
 
 app:
   iam:
-    resource-server:
-      allowed-paths:
-        - /actuator/**
     jwt:
-      issuer-uri: https://partner.consoleconnect.com
-      audience: https://partner.consoleconnect.com/api
-      jwk-set-uri: http://localhost:8000/.well-known/jwks.json
+      issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
+      audience: ${IAM_JWT_AUDIENCES:https://partner.consoleconnect.com/api}
+      jwk-set-uri: ${IAM_JWT_JWK_SET_URI:http://localhost:8000/.well-known/jwks.json}
       custom-claims:
-        orgId: org_id
-        roles: org_roles
-        permissions: permissions
+        orgId: ${IAM_JWT_CUSTOM_CLAIMS_ORG_ID:org_id}
+        roles: ${IAM_JWT_CUSTOM_CLAIMS_ROLES:org_roles}
+        permissions: ${IAM_JWT_CUSTOM_CLAIMS_PERMISSIONS:permissions}
     auth0:
       mgmt-api:
-        domain: consoleconnect.auth0.com
-        client-id: mgmt-api-client-id
-        client-secret: mgmt-api-client-secret
-        audience: https://partner.consoleconnect.com/api
+        domain: ${IAM_AUTH0_MGMT_API_DOMAIN:consoleconnect.auth0.com}
+        client-id: ${IAM_AUTH0_MGMT_API_CLIENT_ID:mgmt-api-client-id}
+        client-secret: ${IAM_AUTH0_MGMT_API_CLIENT_SECRET:mgmt-api-client-secret}
+        audience: ${IAM_AUTH0_MGMT_API_AUDIENCE:https://partner.consoleconnect.com/api}
       app:
-        client-id: app-client-id
-      roles:
-
+        client-id: ${IAM_AUTH0_APP_CLIENT_ID:app-client-id}
+      mgmt-org-id: ${IAM_AUTH0_MGMT_ORG_ID:}
     email:
-      enabled: false
+      enabled: ${IAM_EMAIL_ENABLED:false}
+      provider: ${IAM_EMAIL_PROVIDER:sendgrid}
+      send-grid:
+        api-key: ${SENDGRID_API_KEY:}
+        from:
+          name: ${SENDGRID_FROM_NAME:}
+          email: ${SENDGRID_FROM_EMAIL:}
+        templates:
+          invite-org-member: ${SENDGRID_TEMPLATE_ID_ORG_INVITE:}
+    resource-server:
+      path-permissions:
+        - path: /mgmt/**
+          http-methods:
+            - POST
+            - DELETE
+            - PATCH
+          roles:
+            - PLATFORM_ADMIN
+        - path: /mgmt/**
+          http-methods:
+            - GET
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+        - path: /organization/**
+          http-methods:
+            - POST
+            - PATCH
+            - DELETE
+          roles:
+            - ORG_ADMIN
+        - path: /organization/**
+          http-methods:
+            - GET
+          roles:
+            - ORG_ADMIN
+            - ORG_MEMBER
   gateway:
     downstream:
-      base-url: http://localhost:3000
-      admin-api-key: api-key-has-admin-role
-      user-api-key: api-key-has-readonly-role
+      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
+      admin-api-key: ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
+      user-api-key: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
