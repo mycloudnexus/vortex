@@ -2,8 +2,11 @@ package com.consoleconnect.vortex.gateway;
 
 import static org.mockito.ArgumentMatchers.any;
 
+import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.gateway.adapter.RouteAdapter;
+import com.consoleconnect.vortex.gateway.adapter.RouteAdapterContext;
 import com.consoleconnect.vortex.gateway.adapter.RouteAdapterFactory;
+import com.consoleconnect.vortex.gateway.adapter.cc.PortOrderCreateAdapter;
 import com.consoleconnect.vortex.gateway.filter.ResponseAdapterGatewayFilterFactory;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.model.UserContext;
@@ -96,5 +99,26 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
     byte[] resBytes = "{\"id\":\"id001\"}".getBytes();
     byte[] ret = adapter.process(exchange, resBytes);
     Assertions.assertNotNull(ret);
+  }
+
+  @Test
+  void testAbnormalCase() {
+    MockServerHttpRequest request = MockServerHttpRequest.get("/abnormal/test").build();
+    ServerWebExchange se =
+        new DefaultServerWebExchange(
+            request,
+            new MockServerHttpResponse(),
+            new DefaultWebSessionManager(),
+            new DefaultServerCodecConfigurer(),
+            new FixedLocaleContextResolver());
+    RouteAdapter nullAdapter = adapterFactory.matchAdapter(se);
+    Assertions.assertNull(nullAdapter);
+
+    PortOrderCreateAdapter adapter = new PortOrderCreateAdapter(new RouteAdapterContext(null));
+    try {
+      adapter.process(exchange, null);
+      Assertions.fail("error");
+    } catch (VortexException e) {
+    }
   }
 }
