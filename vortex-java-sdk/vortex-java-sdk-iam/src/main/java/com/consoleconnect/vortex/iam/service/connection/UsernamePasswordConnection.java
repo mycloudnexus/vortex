@@ -1,0 +1,79 @@
+package com.consoleconnect.vortex.iam.service.connection;
+
+import com.auth0.client.mgmt.ManagementAPI;
+import com.auth0.json.mgmt.connections.Connection;
+import com.auth0.json.mgmt.organizations.Organization;
+import com.consoleconnect.vortex.core.exception.VortexException;
+import com.consoleconnect.vortex.iam.auth0.Auth0Client;
+import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
+import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
+import com.consoleconnect.vortex.iam.enums.LoginTypeEnum;
+import com.consoleconnect.vortex.iam.service.ConnectionService;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+
+@Slf4j
+@Component("auth0")
+public class UsernamePasswordConnection extends AbstractConnection {
+
+  public UsernamePasswordConnection(Auth0Client auth0Client, ConnectionService connectionService) {
+    super(auth0Client, connectionService);
+  }
+
+  @Override
+  Connection buildNewConnection(
+      Organization organization,
+      CreateConnectionDto createConnectionDto,
+      ManagementAPI managementAPI) {
+    Connection connection =
+        new Connection(
+            StringUtils.join(organization.getName(), "-", ConnectionStrategryEnum.AUTH0.getValue()),
+            ConnectionStrategryEnum.AUTH0.getValue());
+
+    Map<String, Object> options = new HashMap<>();
+    options.put("disable_signup", false);
+
+    Map<String, Object> emailAttribute = new HashMap<>();
+    emailAttribute.put("identifier", Map.of("active", true));
+    emailAttribute.put(
+        "signup", Map.of("status", "required", "verification", Map.of("active", true)));
+
+    Map<String, Object> emailAttributes = new HashMap<>();
+    emailAttributes.put("email", emailAttribute);
+
+    options.put("attributes", emailAttributes);
+    connection.setOptions(options);
+    connection.setEnabledClients(
+        List.of(getAuth0Client().getAuth0Property().getApp().getClientId()));
+
+    return connection;
+  }
+
+  @Override
+  public void validateLoginType(Organization organization) {
+    if (Objects.nonNull(organization.getMetadata())
+        && organization
+            .getMetadata()
+            .get(META_LOGIN_TYPE)
+            .equals(LoginTypeEnum.USERNAME_PASSWORD.name())) {
+      throw VortexException.internalError(
+          "Failed to create username-password connection of organization: " + organization.getId());
+    }
+  }
+
+  @Override
+  void canUpateOnLoginType(String orgId, Organization organization) {
+    if (Objects.nonNull(organization.getMetadata())
+        && !LoginTypeEnum.USERNAME_PASSWORD
+            .name()
+            .equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
+      throw VortexException.internalError(
+          "Failed to change saml connections of organization: " + orgId);
+    }
+  }
+}
