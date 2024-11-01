@@ -50,6 +50,19 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: consoleconnect-api
+          uri: ${app.gateway.consoleconnect.base-url}
+          predicates:
+            - Path=/consoleconnect/**
+          filters:
+            - RewritePath=/consoleconnect/(?<path>.*), /$\{path}
+            - RemoveRequestHeader=Authorization
+            - name: SetAPIKey
+              args:
+                keyName: Authorization
+                adminKey: Bearer ${app.gateway.consoleconnect.admin-api-key}
+                userKey: Bearer ${app.gateway.consoleconnect.user-api-key}
+            - ResponseAdapter
         - id: downstream-api
           uri: ${app.gateway.downstream.base-url}
           predicates:
@@ -101,6 +114,10 @@ logging:
     org.springframework.cloud.gateway: DEBUG
 
 app:
+  route-adapters:
+    - method: PUT
+      route-path: /consoleconnect/api/company/{app.gateway.consoleconnect.company-name}/ports/orders
+      adapter-class-name: com.consoleconnect.vortex.gateway.adapter.cc.PortOrderCreateAdapter
   iam:
     jwt:
       issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
@@ -158,6 +175,11 @@ app:
             - ORG_ADMIN
             - ORG_MEMBER
   gateway:
+    consoleconnect:
+      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:https://api.consoleconnect.com}
+      admin-api-key: ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
+      user-api-key: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
+      company-name: consolecore-poping-company
     downstream:
       base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
       admin-api-key: ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
