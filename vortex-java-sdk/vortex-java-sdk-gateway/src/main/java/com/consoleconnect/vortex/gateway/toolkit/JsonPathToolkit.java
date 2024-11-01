@@ -9,9 +9,9 @@ public class JsonPathToolkit {
 
   private JsonPathToolkit() {}
 
-  private static final Configuration DEFAULT_CONFIGURATION = Configuration.builder().build();
+  public static final Configuration DEFAULT_CONFIGURATION = Configuration.builder().build();
 
-  private static final Configuration CONFIGURATION =
+  public static final Configuration CONFIGURATION =
       Configuration.defaultConfiguration().addOptions(Option.DEFAULT_PATH_LEAF_TO_NULL);
 
   public static String read(String json, String path) {
