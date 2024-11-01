@@ -1,0 +1,54 @@
+---
+name: Create tag and release
+on:
+  workflow_dispatch:
+    inputs:
+      branch: 
+        description: 'The branch checkout'
+        required: false
+        type: string
+        default: 'main'
+
+jobs:
+  bump-version:
+    name: Create release in ${{ inputs.branch }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+
+      - name: Get Github App token
+        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69  # v1.11.0
+        id: app-token
+        with:
+          app-id: ${{ vars.GH_APP_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Get the current version
+        id: vars
+        run: |
+          git log -n 5
+          CURRENT_VERSION=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo $CURRENT_VERSION
+          echo "current-version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: initialize git
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - name: Create git tag
+        run: |
+          git tag -a v${{ steps.vars.outputs.current-version }} -m v${{ steps.vars.outputs.current-version }}
+          git push --tags
+
+      - name: Create a PR for the new version
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh release create v${{ steps.vars.outputs.current-version }} --generate-notes
