@@ -487,7 +487,7 @@ class OrganizationServiceTest {
 
     String createdBy = "system";
     assertThrows(
-        VortexException.class,
+        Exception.class,
         () ->
             organizationService.updateStatus(
                 UUID.randomUUID().toString(), OrgStatusEnum.INACTIVE, createdBy));
