@@ -1,5 +1,5 @@
 ---
-name: Snapshot release
+name: Build docker images
 on:
   workflow_dispatch:
 jobs:
@@ -36,9 +36,7 @@ jobs:
           context: .
           file: ./docker/app-api/Dockerfile
           push: true
-          tags: |
-            cloudnexusopsdockerhub/vortex-app-api:${{ steps.vars.outputs.docker-image-tag }}
-            cloudnexusopsdockerhub/vortex-app-api:snapshot-latest
+          tags: cloudnexusopsdockerhub/vortex-app-api:${{ steps.vars.outputs.docker-image-tag }}
 
       - name: Build vortex-app-portal container
         uses: docker/build-push-action@v5
@@ -46,6 +44,4 @@ jobs:
           context: .
           file: ./docker/app-portal/Dockerfile
           push: true
-          tags: |
-            cloudnexusopsdockerhub/vortex-app-portal:${{ steps.vars.outputs.docker-image-tag }}
-            cloudnexusopsdockerhub/vortex-app-portal:snapshot-latest
+          tags: cloudnexusopsdockerhub/vortex-app-portal:${{ steps.vars.outputs.docker-image-tag }}
