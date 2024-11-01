@@ -13,7 +13,9 @@
         <artifactId>vortex-platform</artifactId>
         <version>0.1.0-preview</version>
     </parent>
-
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
     <modules>
         <module>vortex-e2e-app-api</module>
     </modules>
