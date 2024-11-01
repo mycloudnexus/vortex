@@ -12,8 +12,8 @@ declare module '*.module.scss'
 
 
 declare interface Window {
-  vortexEnv: any;
-  userDetail: any;
-  accessRoles: any;
+  portalConfig: any;
+  portalLoggedInUser: any;
+  portalAccessRoles: any;
 }
 

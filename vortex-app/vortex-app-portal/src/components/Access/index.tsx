@@ -6,7 +6,7 @@ interface AuthProviderProps {
   defaultReturnTo?: string
   children: React.ReactElement
 }
-window.vortexEnv = ENV
+window.portalConfig = ENV
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   return (

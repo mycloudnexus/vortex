@@ -33,8 +33,8 @@ const Authenticate = ({ children }: AuthenticateProps) => {
     const companyId = get(userDetail, 'companies[0].id', '')
     const roleIds = get(userDetail, ['linkUserCompany', companyId, 'roleIds'], [])
     const accessRole = filter(roleList, (r) => roleIds.includes(r.id) || r.systemDefault)
-    window.accessRoles = roleList
-    window.userDetail = userDetail
+    window.portalAccessRoles = roleList
+    window.portalLoggedInUser = userDetail
     setRoleList(roleList)
     setUser({ ...userDetail, accessRole })
   }, [userData, roleData])
