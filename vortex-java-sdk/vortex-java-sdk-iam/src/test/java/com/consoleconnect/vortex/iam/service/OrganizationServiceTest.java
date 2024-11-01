@@ -17,6 +17,7 @@ import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.net.Request;
 import com.auth0.net.Response;
 import com.consoleconnect.vortex.config.TestApplication;
+import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
@@ -67,6 +68,55 @@ class OrganizationServiceTest {
     request.setMetadata(new OrganizationMetadata());
     Organization result = organizationService.create(request, createdBy);
     assertEquals(result.getName(), organization.getName());
+  }
+
+  @Test
+  void testCreateNoMetadata() throws Auth0Exception {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    Request<Organization> organizationRequest = mock(Request.class);
+    doReturn(organizationRequest).when(organizationsEntity).create(any());
+
+    Response<Organization> response = mock(Response.class);
+    doReturn(response).when(organizationRequest).execute();
+
+    Organization organization = new Organization("test");
+    doReturn(organization).when(response).getBody();
+
+    CreateOrganizationDto request = new CreateOrganizationDto();
+    String createdBy = "system";
+    request.setName("test");
+    request.setDisplayName("test");
+    Organization result = organizationService.create(request, createdBy);
+    assertEquals(result.getName(), organization.getName());
+  }
+
+  @Test
+  void testCreateLengthException() throws Auth0Exception {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    Request<Organization> organizationRequest = mock(Request.class);
+    doReturn(organizationRequest).when(organizationsEntity).create(any());
+
+    Response<Organization> response = mock(Response.class);
+    doReturn(response).when(organizationRequest).execute();
+
+    Organization organization = new Organization("test");
+    doReturn(organization).when(response).getBody();
+
+    CreateOrganizationDto request = new CreateOrganizationDto();
+    String createdBy = "system";
+    request.setName("testtesttesttesttesttesttesttesttesttesttest");
+    request.setDisplayName("test");
+    assertThrows(VortexException.class, () -> organizationService.create(request, createdBy));
   }
 
   @Test
@@ -260,5 +310,35 @@ class OrganizationServiceTest {
     OrganizationMetadata resultMetadata =
         JsonToolkit.fromJson(JsonToolkit.toJson(result.getMetadata()), OrganizationMetadata.class);
     assertEquals(OrgStatusEnum.ACTIVE, resultMetadata.getStatus());
+  }
+
+  @Test
+  void testUpdateStatusSame() throws Auth0Exception {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    Request<Organization> queryRequest = mock(Request.class);
+    doReturn(queryRequest).when(organizationsEntity).get(anyString());
+
+    Response<Organization> queryResponse = mock(Response.class);
+    doReturn(queryResponse).when(queryRequest).execute();
+
+    Organization queryOrganization = new Organization("test");
+    queryOrganization.setDisplayName("test");
+    OrganizationMetadata metadata = new OrganizationMetadata();
+    metadata.setStatus(OrgStatusEnum.INACTIVE);
+    queryOrganization.setMetadata(
+        JsonToolkit.fromJson(JsonToolkit.toJson(metadata), new TypeReference<>() {}));
+    doReturn(queryOrganization).when(queryResponse).getBody();
+
+    String createdBy = "system";
+    assertThrows(
+        VortexException.class,
+        () ->
+            organizationService.updateStatus(
+                UUID.randomUUID().toString(), OrgStatusEnum.INACTIVE, createdBy));
   }
 }
