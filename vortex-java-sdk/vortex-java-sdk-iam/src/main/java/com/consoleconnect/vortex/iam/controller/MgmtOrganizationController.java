@@ -12,6 +12,7 @@ import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -149,7 +150,7 @@ public class MgmtOrganizationController {
   @PatchMapping("/{orgId}/connections")
   public Mono<HttpResponse<OrganizationConnection>> updateConnection(
       @PathVariable String orgId,
-      @RequestBody UpdateConnectionDto updateConnectionDto,
+      @Valid @RequestBody UpdateConnectionDto updateConnectionDto,
       JwtAuthenticationToken authenticationToken) {
     return Mono.just(
         HttpResponse.ok(

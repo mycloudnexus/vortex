@@ -30,28 +30,29 @@ public class UsernamePasswordConnection extends AbstractConnection {
       Organization organization,
       CreateConnectionDto createConnectionDto,
       ManagementAPI managementAPI) {
+
     Connection connection =
         new Connection(
             StringUtils.join(organization.getName(), "-", ConnectionStrategryEnum.AUTH0.getValue()),
             ConnectionStrategryEnum.AUTH0.getValue());
-
     Map<String, Object> options = new HashMap<>();
+    Map<String, Object> attributes = new HashMap<>();
+    attributes.put("email", getEmailAttribute());
+    options.put("attributes", attributes);
     options.put("disable_signup", false);
 
-    Map<String, Object> emailAttribute = new HashMap<>();
-    emailAttribute.put("identifier", Map.of("active", true));
-    emailAttribute.put(
-        "signup", Map.of("status", "required", "verification", Map.of("active", true)));
-
-    Map<String, Object> emailAttributes = new HashMap<>();
-    emailAttributes.put("email", emailAttribute);
-
-    options.put("attributes", emailAttributes);
     connection.setOptions(options);
     connection.setEnabledClients(
         List.of(getAuth0Client().getAuth0Property().getApp().getClientId()));
 
     return connection;
+  }
+
+  private static Map<String, Object> getEmailAttribute() {
+    Map<String, Object> attribute = new HashMap<>();
+    attribute.put("identifier", Map.of("active", true));
+    attribute.put("signup", Map.of("status", "required", "verification", Map.of("active", true)));
+    return attribute;
   }
 
   @Override
@@ -67,13 +68,17 @@ public class UsernamePasswordConnection extends AbstractConnection {
   }
 
   @Override
-  void canUpateOnLoginType(String orgId, Organization organization) {
+  void canUpdateOnLoginType(String orgId, Organization organization) {
     if (Objects.nonNull(organization.getMetadata())
         && !LoginTypeEnum.USERNAME_PASSWORD
             .name()
             .equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
-      throw VortexException.internalError(
-          "Failed to change saml connections of organization: " + orgId);
+      throw VortexException.internalError("Failed to change connections of organization: " + orgId);
     }
+  }
+
+  boolean assignMembershipOnLogin() {
+    // New users need to be invited.
+    return Boolean.FALSE;
   }
 }

@@ -6,6 +6,7 @@ import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
+import com.consoleconnect.vortex.iam.dto.SamlConnectionDto;
 import com.consoleconnect.vortex.iam.dto.UpdateConnectionDto;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
 import com.consoleconnect.vortex.iam.service.ConnectionService;
@@ -29,9 +30,11 @@ public class SAMLConnection extends AbstractConnection {
       Organization organization,
       CreateConnectionDto createConnectionDto,
       ManagementAPI managementAPI) {
+    SamlConnectionDto samlConnectionDto = createConnectionDto.getSaml();
+    samlConnectionDto.setDebug(Boolean.TRUE);
+    samlConnectionDto.setSignSAMLRequest(Boolean.FALSE);
     Map<String, Object> metaData =
-        JsonToolkit.fromJson(
-            JsonToolkit.toJson(createConnectionDto.getSaml()), new TypeReference<>() {});
+        JsonToolkit.fromJson(JsonToolkit.toJson(samlConnectionDto), new TypeReference<>() {});
     Connection connection =
         new Connection(
             StringUtils.join(organization.getName(), "-", ConnectionStrategryEnum.SAML.getValue()),

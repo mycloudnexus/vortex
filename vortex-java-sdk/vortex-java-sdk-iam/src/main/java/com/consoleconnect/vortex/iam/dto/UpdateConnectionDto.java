@@ -2,6 +2,7 @@ package com.consoleconnect.vortex.iam.dto;
 
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -9,9 +10,9 @@ public class UpdateConnectionDto {
 
   @NotBlank private String id;
 
-  private ConnectionStrategryEnum strategy = ConnectionStrategryEnum.SAML;
+  @NotNull private ConnectionStrategryEnum strategy;
 
-  private OidcConnection odic;
+  private OidcConnectionDto odic;
 
-  private SamlConnection saml;
+  private SamlConnectionDto saml;
 }

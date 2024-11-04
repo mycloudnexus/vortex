@@ -5,7 +5,7 @@ import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
-import com.consoleconnect.vortex.iam.dto.OidcConnection;
+import com.consoleconnect.vortex.iam.dto.OidcConnectionDto;
 import com.consoleconnect.vortex.iam.dto.UpdateConnectionDto;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
 import com.consoleconnect.vortex.iam.service.ConnectionService;
@@ -36,7 +36,7 @@ public class OIDCConnection extends AbstractConnection {
             ConnectionStrategryEnum.OIDC.getValue());
     connection.setEnabledClients(
         List.of(getAuth0Client().getAuth0Property().getApp().getClientId()));
-    connection.setOptions(toMap(createConnectionDto.getOdic()));
+    connection.setOptions(toMap(createConnectionDto.getOidc()));
     return connection;
   }
 
@@ -51,7 +51,7 @@ public class OIDCConnection extends AbstractConnection {
     return update;
   }
 
-  private Map<String, Object> toMap(OidcConnection odic) {
+  private Map<String, Object> toMap(OidcConnectionDto odic) {
     Map<String, Object> map = new HashMap<>();
     map.put("client_id", odic.getClientId());
     map.put("discovery_url", odic.getDiscoveryUrl());

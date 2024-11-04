@@ -13,6 +13,7 @@ import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
 import com.consoleconnect.vortex.iam.dto.UpdateConnectionDto;
+import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
 import com.consoleconnect.vortex.iam.enums.LoginTypeEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.service.ConnectionService;
@@ -47,7 +48,7 @@ public abstract class AbstractConnection {
       OrganizationsEntity organizationsEntity = managementAPI.organizations();
 
       // 1. check organization's status
-      validateStatus(orgId, organization);
+      validateOrgStatus(orgId, organization);
 
       // 2. check login type.
       validateLoginType(organization);
@@ -55,20 +56,28 @@ public abstract class AbstractConnection {
       // 3. check and clean existed members and connection.
       checkExistedConnectionAndClean(orgId, organizationsEntity, organization, managementAPI);
 
-      // 4. build a connection instance
+      // 4. build and create a connection instance
       Connection createdConnection =
-          buildNewConnection(organization, createConnectionDto, managementAPI);
+          managementAPI
+              .connections()
+              .create(buildNewConnection(organization, createConnectionDto, managementAPI))
+              .execute()
+              .getBody();
 
       // 5. bind a connection to an organization
+      LoginTypeEnum loginTypeEnum =
+          createConnectionDto.getStrategy() == ConnectionStrategryEnum.AUTH0
+              ? LoginTypeEnum.USERNAME_PASSWORD
+              : LoginTypeEnum.SSO;
       return bindOrganizationConnection(
-          orgId, createdConnection, organizationsEntity, LoginTypeEnum.SSO);
+          orgId, createdConnection, organizationsEntity, loginTypeEnum);
     } catch (Exception e) {
       log.error("create.connection error", e);
-      throw VortexException.badRequest("Create connection error" + e.getMessage());
+      throw VortexException.badRequest("Create a connection error" + e.getMessage());
     }
   }
 
-  private static void validateStatus(String orgId, Organization organization) {
+  private static void validateOrgStatus(String orgId, Organization organization) {
     Map<String, Object> metadata =
         organization.getMetadata() == null ? new HashMap<>() : organization.getMetadata();
     String status = MapUtils.getString(metadata, META_STATUS);
@@ -85,9 +94,9 @@ public abstract class AbstractConnection {
       OrganizationsEntity organizationsEntity = managementAPI.organizations();
       Organization organization = organizationsEntity.get(orgId).execute().getBody();
 
-      validateStatus(orgId, organization);
+      validateOrgStatus(orgId, organization);
 
-      canUpateOnLoginType(orgId, organization);
+      canUpdateOnLoginType(orgId, organization);
 
       EnabledConnectionsPage enabledConnectionsPage =
           managementAPI.organizations().getConnections(orgId, null).execute().getBody();
@@ -111,12 +120,12 @@ public abstract class AbstractConnection {
 
       return getOrganizationConnection(connection.getId(), enabledConnection, updatedConnection);
     } catch (Auth0Exception e) {
-      log.error("update saml connection error", e);
-      throw VortexException.badRequest("Update saml connection error" + e.getMessage());
+      log.error("update.connection error", e);
+      throw VortexException.badRequest("Update the connection error" + e.getMessage());
     }
   }
 
-  void canUpateOnLoginType(String orgId, Organization organization) {
+  void canUpdateOnLoginType(String orgId, Organization organization) {
     if (Objects.nonNull(organization.getMetadata())
         && !LoginTypeEnum.SSO.name().equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
       throw VortexException.internalError(
@@ -137,7 +146,7 @@ public abstract class AbstractConnection {
     throw VortexException.badRequest("Don't support update.");
   }
 
-  public void validateLoginType(Organization organization) {
+  void validateLoginType(Organization organization) {
     if (Objects.nonNull(organization.getMetadata())
         && LoginTypeEnum.SSO.name().equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
       log.warn("current login type is:{}", organization.getMetadata().get(META_LOGIN_TYPE));
@@ -167,7 +176,7 @@ public abstract class AbstractConnection {
         managementAPI, organizationsEntity, enabledConnectionsPage.getItems().get(0), orgId);
   }
 
-  private static OrganizationConnection bindOrganizationConnection(
+  private OrganizationConnection bindOrganizationConnection(
       String orgId,
       Connection createdConnection,
       OrganizationsEntity organizationsEntity,
@@ -178,7 +187,7 @@ public abstract class AbstractConnection {
     EnabledConnection enabledConnection = new EnabledConnection();
     enabledConnection.setConnectionId(createdConnection.getId());
     enabledConnection.setShowAsButton(true);
-    enabledConnection.setAssignMembershipOnLogin(true);
+    enabledConnection.setAssignMembershipOnLogin(assignMembershipOnLogin());
 
     EnabledConnection createdEnabledConnection =
         organizationsEntity.addConnection(orgId, enabledConnection).execute().getBody();
@@ -204,5 +213,9 @@ public abstract class AbstractConnection {
     organizationConnection.setShowAsButton(enabledConnection.getShowAsButton());
     organizationConnection.setConnection(updatedConnection);
     return organizationConnection;
+  }
+
+  boolean assignMembershipOnLogin() {
+    return Boolean.TRUE;
   }
 }

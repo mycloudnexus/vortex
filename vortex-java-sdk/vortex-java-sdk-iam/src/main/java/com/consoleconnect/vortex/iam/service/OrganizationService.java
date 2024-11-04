@@ -390,7 +390,7 @@ public class OrganizationService {
   public OrganizationConnection createConnection(
       String orgId, CreateConnectionDto request, String requestedBy) {
     log.info("creating connection:orgId:{}, {},requestedBy:{}", orgId, request, requestedBy);
-    AbstractConnection connection = connectionMap.get(request.getStrategy());
+    AbstractConnection connection = connectionMap.get(request.getStrategy().getValue());
     if (Objects.isNull(connection)) {
       throw VortexException.badRequest("Invalid connection strategy");
     }
@@ -400,7 +400,7 @@ public class OrganizationService {
   public OrganizationConnection updateConnection(
       String orgId, UpdateConnectionDto request, String requestedBy) {
     log.info("Updating connection:orgId:{}, {},requestedBy:{}", orgId, request, requestedBy);
-    AbstractConnection abstractConnection = connectionMap.get(request.getStrategy());
+    AbstractConnection abstractConnection = connectionMap.get(request.getStrategy().getValue());
     if (Objects.isNull(abstractConnection)) {
       throw VortexException.badRequest("Invalid connection strategy");
     }
