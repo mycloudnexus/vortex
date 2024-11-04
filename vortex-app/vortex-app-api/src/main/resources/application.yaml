@@ -49,6 +49,19 @@ spring:
           audiences: ${app.iam.jwt.audience}
   cloud:
     gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: ${app.gateway.cors.allowed-origins}
+            allowedHeaders: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - DELETE
+              - PUT
+              - OPTIONS
       routes:
         - id: consoleconnect-api
           uri: ${app.gateway.consoleconnect.base-url}
@@ -163,6 +176,8 @@ app:
             - ORG_ADMIN
             - ORG_MEMBER
   gateway:
+    cors:
+      allowed-origins: ${GATEWAY_CORS_ALLOWED_ORIGINS:*}
     consoleconnect:
       base-url: ${CONSOLECONNECT_BASE_URL:https://api.consoleconnect.com}
       admin-api-key: ${CONSOLECONNECT_ADMIN_API_KEY:api-key-has-admin-role}
