@@ -47,6 +47,7 @@ public class ResponseAdapterGatewayFilterFactory
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+      // Step 1: match adapter
       RouteAdapter adapter = adapterFactory.matchAdapter(exchange);
       if (adapter == null) {
         return chain.filter(exchange);
@@ -68,6 +69,7 @@ public class ResponseAdapterGatewayFilterFactory
                             fluxBody
                                 .buffer()
                                 .map(
+                                    // Step 2: read response body
                                     dataBuffers -> {
                                       ByteArrayOutputStream outputStream =
                                           new ByteArrayOutputStream();
@@ -85,6 +87,7 @@ public class ResponseAdapterGatewayFilterFactory
                                               });
 
                                       byte[] originalBody = outputStream.toByteArray();
+                                      // Step 3: process the response body with the adapter
                                       byte[] resBody = adapter.process(exchange, originalBody);
                                       return bufferFactory().wrap(resBody);
                                     }));
