@@ -144,7 +144,6 @@ public abstract class AbstractConnection implements ApplicationContextAware {
   void validateLoginType(Organization organization) {
     if (Objects.nonNull(organization.getMetadata())
         && LoginTypeEnum.SSO.name().equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
-      log.warn("current login type is:{}", organization.getMetadata().get(META_LOGIN_TYPE));
       throw VortexException.internalError(
           "Failed to create connections of organization: " + organization.getId());
     }
