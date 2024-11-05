@@ -128,8 +128,7 @@ public abstract class AbstractConnection {
   void canUpdateOnLoginType(String orgId, Organization organization) {
     if (Objects.nonNull(organization.getMetadata())
         && !LoginTypeEnum.SSO.name().equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
-      throw VortexException.internalError(
-          "Failed to change connections of organization: " + orgId);
+      throw VortexException.internalError("Failed to change connections of organization: " + orgId);
     }
   }
 
@@ -218,5 +217,4 @@ public abstract class AbstractConnection {
   boolean assignMembershipOnLogin() {
     return Boolean.TRUE;
   }
-
 }

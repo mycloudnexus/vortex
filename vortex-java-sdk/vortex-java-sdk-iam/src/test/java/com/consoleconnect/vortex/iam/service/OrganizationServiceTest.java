@@ -673,6 +673,10 @@ class OrganizationServiceTest {
     doReturn(queryConnectionRequest).when(connectionsEntity).get(anyString(), any());
     doReturn(queryConnectionResponse).when(queryConnectionRequest).execute();
 
+    // mock create a connection
+    doReturn(queryConnectionRequest).when(connectionsEntity).create(any());
+    doReturn(queryConnection).when(queryConnectionResponse).getBody();
+
     // mock update a connection
     doReturn(queryConnectionRequest).when(connectionsEntity).update(anyString(), any());
     doReturn(queryConnection).when(queryConnectionResponse).getBody();
