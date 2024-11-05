@@ -1,13 +1,7 @@
 ---
-name: Dev release
+name: Build docker images
 on:
   workflow_dispatch:
-    inputs:
-      branch: 
-        description: 'The branch checkout'
-        required: false
-        type: string
-        default: 'main'
 jobs:
   container_release:
     name: Build docker images and publish to Docker Hub
@@ -15,16 +9,20 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.branch }}
 
       - name: Get the current version
         id: vars
         run: |
           git log -n 5
+
+          COMMIT_HASH_SHORT=$(git rev-parse --short HEAD)
+          echo $COMMIT_HASH_SHORT
+
           CURRENT_VERSION=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
           echo $CURRENT_VERSION
-          echo "current-version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          
+          DOCKER_IMAGE_TAG=$CURRENT_VERSION-$COMMIT_HASH_SHORT
+          echo "docker-image-tag=$DOCKER_IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -38,7 +36,7 @@ jobs:
           context: .
           file: ./docker/app-api/Dockerfile
           push: true
-          tags: "cloudnexusopsdockerhub/vortex-app-api:${{ steps.vars.outputs.current-version }}"
+          tags: cloudnexusopsdockerhub/vortex-app-api:${{ steps.vars.outputs.docker-image-tag }}
 
       - name: Build vortex-app-portal container
         uses: docker/build-push-action@v5
@@ -46,4 +44,4 @@ jobs:
           context: .
           file: ./docker/app-portal/Dockerfile
           push: true
-          tags: "cloudnexusopsdockerhub/vortex-app-portal:${{ steps.vars.outputs.current-version }}"
+          tags: cloudnexusopsdockerhub/vortex-app-portal:${{ steps.vars.outputs.docker-image-tag }}
