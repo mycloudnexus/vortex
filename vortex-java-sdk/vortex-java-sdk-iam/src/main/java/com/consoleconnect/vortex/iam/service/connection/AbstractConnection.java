@@ -114,9 +114,9 @@ public abstract class AbstractConnection implements ApplicationContextAware {
       Connection update = buildUpdateConnection(organization, connection, request, managementAPI);
 
       Connection updatedConnection =
-          managementAPI.connections().update(connection.getId(), update).execute().getBody();
+          managementAPI.connections().update(request.getId(), update).execute().getBody();
 
-      return getOrganizationConnection(connection.getId(), enabledConnection, updatedConnection);
+      return getOrganizationConnection(request.getId(), enabledConnection, updatedConnection);
     } catch (Auth0Exception e) {
       log.error("update.connection error", e);
       throw VortexException.badRequest("Update the connection error" + e.getMessage());
@@ -199,9 +199,9 @@ public abstract class AbstractConnection implements ApplicationContextAware {
   }
 
   private OrganizationConnection getOrganizationConnection(
-      String connection, EnabledConnection enabledConnection, Connection updatedConnection) {
+      String connectionId, EnabledConnection enabledConnection, Connection updatedConnection) {
     OrganizationConnection organizationConnection = new OrganizationConnection();
-    organizationConnection.setConnectionId(connection);
+    organizationConnection.setConnectionId(connectionId);
     organizationConnection.setAssignMembershipOnLogin(
         enabledConnection.isAssignMembershipOnLogin());
     organizationConnection.setShowAsButton(enabledConnection.getShowAsButton());
