@@ -3,12 +3,10 @@ package com.consoleconnect.vortex.iam.service.connection;
 import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.organizations.Organization;
-import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.OidcConnectionDto;
 import com.consoleconnect.vortex.iam.dto.UpdateConnectionDto;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
-import com.consoleconnect.vortex.iam.service.ConnectionService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +17,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component("oidc")
 public class OIDCConnection extends AbstractConnection {
-
-  public OIDCConnection(Auth0Client auth0Client, ConnectionService connectionService) {
-    super(auth0Client, connectionService);
-  }
 
   @Override
   Connection buildNewConnection(

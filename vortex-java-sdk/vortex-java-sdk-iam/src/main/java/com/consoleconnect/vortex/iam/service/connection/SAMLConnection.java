@@ -4,12 +4,10 @@ import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
-import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.SamlConnectionDto;
 import com.consoleconnect.vortex.iam.dto.UpdateConnectionDto;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
-import com.consoleconnect.vortex.iam.service.ConnectionService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +18,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component("samlp")
 public class SAMLConnection extends AbstractConnection {
-
-  public SAMLConnection(Auth0Client auth0Client, ConnectionService connectionService) {
-    super(auth0Client, connectionService);
-  }
 
   @Override
   Connection buildNewConnection(

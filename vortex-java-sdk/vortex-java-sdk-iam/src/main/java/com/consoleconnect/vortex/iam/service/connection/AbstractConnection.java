@@ -25,19 +25,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 @Slf4j
 @Data
-public abstract class AbstractConnection {
-  private final Auth0Client auth0Client;
+public abstract class AbstractConnection implements ApplicationContextAware {
+  private Auth0Client auth0Client;
+  private ConnectionService connectionService;
   protected static final String META_LOGIN_TYPE = "loginType";
   protected static final String META_STATUS = "status";
-  private final ConnectionService connectionService;
-
-  protected AbstractConnection(Auth0Client auth0Client, ConnectionService connectionService) {
-    this.auth0Client = auth0Client;
-    this.connectionService = connectionService;
-  }
 
   public OrganizationConnection createConnection(
       String orgId, CreateConnectionDto createConnectionDto) {
@@ -216,5 +214,11 @@ public abstract class AbstractConnection {
 
   boolean assignMembershipOnLogin() {
     return Boolean.TRUE;
+  }
+
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    this.auth0Client = applicationContext.getBean(Auth0Client.class);
+    this.connectionService = applicationContext.getBean(ConnectionService.class);
   }
 }
