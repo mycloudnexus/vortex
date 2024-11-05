@@ -5,6 +5,7 @@ import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
+import com.consoleconnect.vortex.iam.dto.UpdateConnectionDto;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
 import com.consoleconnect.vortex.iam.enums.LoginTypeEnum;
 import java.util.HashMap;
@@ -75,5 +76,14 @@ public class UsernamePasswordConnection extends AbstractConnection {
   boolean assignMembershipOnLogin() {
     // New users need to be invited.
     return Boolean.FALSE;
+  }
+
+  @Override
+  Connection buildUpdateConnection(
+      Organization organization,
+      Connection connection,
+      UpdateConnectionDto updateConnectionDto,
+      ManagementAPI managementAPI) {
+    throw VortexException.badRequest("Don't support update.");
   }
 }

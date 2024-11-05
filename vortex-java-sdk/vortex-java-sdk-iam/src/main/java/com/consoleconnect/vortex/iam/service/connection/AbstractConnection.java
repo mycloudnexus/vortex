@@ -32,8 +32,8 @@ import org.springframework.context.ApplicationContextAware;
 @Slf4j
 @Data
 public abstract class AbstractConnection implements ApplicationContextAware {
-  private Auth0Client auth0Client;
-  private ConnectionService connectionService;
+  protected Auth0Client auth0Client;
+  protected ConnectionService connectionService;
   protected static final String META_LOGIN_TYPE = "loginType";
   protected static final String META_STATUS = "status";
 
@@ -135,13 +135,11 @@ public abstract class AbstractConnection implements ApplicationContextAware {
       CreateConnectionDto createConnectionDto,
       ManagementAPI managementAPI);
 
-  Connection buildUpdateConnection(
+  abstract Connection buildUpdateConnection(
       Organization organization,
       Connection connection,
       UpdateConnectionDto updateConnectionDto,
-      ManagementAPI managementAPI) {
-    throw VortexException.badRequest("Don't support update.");
-  }
+      ManagementAPI managementAPI);
 
   void validateLoginType(Organization organization) {
     if (Objects.nonNull(organization.getMetadata())
