@@ -49,9 +49,7 @@ public class SAMLConnection extends AbstractConnection {
         JsonToolkit.fromJson(
             JsonToolkit.toJson(updateConnectionDto.getSaml()), new TypeReference<>() {});
     Connection update = new Connection();
-    Map<String, Object> originalMeta = connection.getOptions();
-    originalMeta.putAll(metaData);
-    update.setOptions(originalMeta);
+    update.setOptions(metaData);
     return update;
   }
 }
