@@ -75,7 +75,7 @@ public abstract class AbstractConnection implements ApplicationContextAware {
     }
   }
 
-  private static void validateOrgStatus(String orgId, Organization organization) {
+  private void validateOrgStatus(String orgId, Organization organization) {
     Map<String, Object> metadata =
         organization.getMetadata() == null ? new HashMap<>() : organization.getMetadata();
     String status = MapUtils.getString(metadata, META_STATUS);
@@ -198,7 +198,7 @@ public abstract class AbstractConnection implements ApplicationContextAware {
         createdEnabledConnection.getConnectionId(), createdEnabledConnection, createdConnection);
   }
 
-  private static OrganizationConnection getOrganizationConnection(
+  private OrganizationConnection getOrganizationConnection(
       String connection, EnabledConnection enabledConnection, Connection updatedConnection) {
     OrganizationConnection organizationConnection = new OrganizationConnection();
     organizationConnection.setConnectionId(connection);
