@@ -14,6 +14,7 @@ import com.consoleconnect.vortex.iam.model.UserContext;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.cloud.gateway.filter.factory.rewrite.MessageBodyDecoder;
+import org.springframework.cloud.gateway.filter.factory.rewrite.MessageBodyEncoder;
 import org.springframework.core.io.buffer.DefaultDataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpStatus;
@@ -43,6 +46,9 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
 
   @Autowired private RouteAdapterFactory adapterFactory;
 
+  @Autowired private Set<MessageBodyDecoder> messageBodyDecoders;
+  @Autowired private Set<MessageBodyEncoder> messageBodyEncoders;
+
   private ServerWebExchange exchange;
   private AbstractGatewayFilterFactory.NameConfig config =
       new AbstractGatewayFilterFactory.NameConfig();
@@ -52,7 +58,9 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
   @BeforeEach
   void setUp() {
     config.setName("name");
-    filterFactory = new ResponseAdapterGatewayFilterFactory(adapterFactory);
+    filterFactory =
+        new ResponseAdapterGatewayFilterFactory(
+            adapterFactory, messageBodyDecoders, messageBodyEncoders);
 
     MockServerHttpRequest request =
         MockServerHttpRequest.put(
