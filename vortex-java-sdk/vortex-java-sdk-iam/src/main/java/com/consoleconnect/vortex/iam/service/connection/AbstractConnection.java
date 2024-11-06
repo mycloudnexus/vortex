@@ -71,7 +71,7 @@ public abstract class AbstractConnection implements ApplicationContextAware {
           orgId, createdConnection, organizationsEntity, loginTypeEnum);
     } catch (Exception e) {
       log.error("create.connection error", e);
-      throw VortexException.badRequest("Create a connection error" + e.getMessage());
+      throw VortexException.badRequest("Create a connection error: " + e.getMessage());
     }
   }
 
@@ -119,7 +119,7 @@ public abstract class AbstractConnection implements ApplicationContextAware {
       return getOrganizationConnection(request.getId(), enabledConnection, updatedConnection);
     } catch (Auth0Exception e) {
       log.error("update.connection error", e);
-      throw VortexException.badRequest("Update the connection error" + e.getMessage());
+      throw VortexException.badRequest("Update the connection error: " + e.getMessage());
     }
   }
 
