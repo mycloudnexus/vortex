@@ -1,10 +1,13 @@
-package com.consoleconnect.vortex.gateway.adapter;
+package com.consoleconnect.vortex.gateway;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.exception.VortexExceptionHandler;
+import com.consoleconnect.vortex.gateway.adapter.RouteAdapter;
+import com.consoleconnect.vortex.gateway.adapter.RouteAdapterContext;
+import com.consoleconnect.vortex.gateway.adapter.RouteAdapterFactory;
 import com.consoleconnect.vortex.gateway.adapter.cc.PortOrderCreateAdapter;
 import com.consoleconnect.vortex.gateway.repo.OrderRepository;
 import com.consoleconnect.vortex.iam.model.IamConstants;
