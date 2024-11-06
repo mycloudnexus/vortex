@@ -1,13 +1,10 @@
-package com.consoleconnect.vortex.gateway;
+package com.consoleconnect.vortex.gateway.adapter;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.exception.VortexExceptionHandler;
-import com.consoleconnect.vortex.gateway.adapter.RouteAdapter;
-import com.consoleconnect.vortex.gateway.adapter.RouteAdapterContext;
-import com.consoleconnect.vortex.gateway.adapter.RouteAdapterFactory;
 import com.consoleconnect.vortex.gateway.adapter.cc.PortOrderCreateAdapter;
 import com.consoleconnect.vortex.gateway.repo.OrderRepository;
 import com.consoleconnect.vortex.iam.model.IamConstants;
@@ -22,10 +19,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.support.DefaultServerCodecConfigurer;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -41,6 +35,7 @@ import org.springframework.web.server.session.DefaultWebSessionManager;
 class ResponseAdapterTest extends AbstractIntegrationTest {
 
   @Autowired private RouteAdapterFactory adapterFactory;
+  @Autowired private VortexExceptionHandler vortexExceptionHandler;
 
   @SpyBean private OrderRepository orderRepository;
 
@@ -89,14 +84,9 @@ class ResponseAdapterTest extends AbstractIntegrationTest {
     RouteAdapter nullAdapter = adapterFactory.matchAdapter(se);
     Assertions.assertNull(nullAdapter);
 
-    VortexExceptionHandler handler =
-        new VortexExceptionHandler(
-            new DefaultErrorAttributes(),
-            new WebProperties.Resources(),
-            new DefaultServerCodecConfigurer(),
-            new AnnotationConfigApplicationContext());
     Object ret =
-        handler.generateBody(HttpStatus.BAD_REQUEST, null, VortexException.badRequest("bad"));
+        vortexExceptionHandler.generateBody(
+            HttpStatus.BAD_REQUEST, null, VortexException.badRequest("bad"));
     assertNotNull(ret);
 
     PortOrderCreateAdapter adapter = new PortOrderCreateAdapter(new RouteAdapterContext(null));
