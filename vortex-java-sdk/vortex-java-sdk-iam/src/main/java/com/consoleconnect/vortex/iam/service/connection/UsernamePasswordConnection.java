@@ -6,12 +6,10 @@ import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.UpdateConnectionDto;
-import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
-import com.consoleconnect.vortex.iam.enums.LoginTypeEnum;
+import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -28,8 +26,8 @@ public class UsernamePasswordConnection extends AbstractConnection {
 
     Connection connection =
         new Connection(
-            StringUtils.join(organization.getName(), "-", ConnectionStrategryEnum.AUTH0.getValue()),
-            ConnectionStrategryEnum.AUTH0.getValue());
+            StringUtils.join(organization.getName(), "-", ConnectionStrategyEnum.AUTH0.getValue()),
+            ConnectionStrategyEnum.AUTH0.getValue());
     Map<String, Object> options = new HashMap<>();
     Map<String, Object> attributes = new HashMap<>();
     attributes.put("email", getEmailAttribute());
@@ -51,28 +49,6 @@ public class UsernamePasswordConnection extends AbstractConnection {
   }
 
   @Override
-  public void validateLoginType(Organization organization) {
-    if (Objects.nonNull(organization.getMetadata())
-        && organization
-            .getMetadata()
-            .get(META_LOGIN_TYPE)
-            .equals(LoginTypeEnum.USERNAME_PASSWORD.name())) {
-      throw VortexException.internalError(
-          "Failed to create username-password connection of organization: " + organization.getId());
-    }
-  }
-
-  @Override
-  void canUpdateOnLoginType(String orgId, Organization organization) {
-    if (Objects.nonNull(organization.getMetadata())
-        && !LoginTypeEnum.USERNAME_PASSWORD
-            .name()
-            .equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
-      throw VortexException.internalError("Failed to change connections of organization: " + orgId);
-    }
-  }
-
-  @Override
   boolean assignMembershipOnLogin() {
     // New users need to be invited.
     return Boolean.FALSE;
@@ -85,5 +61,10 @@ public class UsernamePasswordConnection extends AbstractConnection {
       UpdateConnectionDto updateConnectionDto,
       ManagementAPI managementAPI) {
     throw VortexException.badRequest("Don't support update.");
+  }
+
+  @Override
+  ConnectionStrategyEnum getLoginType() {
+    return ConnectionStrategyEnum.AUTH0;
   }
 }

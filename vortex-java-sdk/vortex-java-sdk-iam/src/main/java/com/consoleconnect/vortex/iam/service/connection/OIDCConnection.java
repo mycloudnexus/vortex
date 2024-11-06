@@ -6,7 +6,7 @@ import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.OidcConnectionDto;
 import com.consoleconnect.vortex.iam.dto.UpdateConnectionDto;
-import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
+import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +26,8 @@ public class OIDCConnection extends AbstractConnection {
 
     Connection connection =
         new Connection(
-            StringUtils.join(organization.getName(), "-", ConnectionStrategryEnum.OIDC.getValue()),
-            ConnectionStrategryEnum.OIDC.getValue());
+            StringUtils.join(organization.getName(), "-", ConnectionStrategyEnum.OIDC.getValue()),
+            ConnectionStrategyEnum.OIDC.getValue());
     connection.setEnabledClients(
         List.of(getAuth0Client().getAuth0Property().getApp().getClientId()));
     connection.setOptions(toMap(createConnectionDto.getOidc()));
@@ -52,5 +52,10 @@ public class OIDCConnection extends AbstractConnection {
     map.put("scope", odic.getScope());
     map.put("type", "front_channel");
     return map;
+  }
+
+  @Override
+  ConnectionStrategyEnum getLoginType() {
+    return ConnectionStrategyEnum.OIDC;
   }
 }
