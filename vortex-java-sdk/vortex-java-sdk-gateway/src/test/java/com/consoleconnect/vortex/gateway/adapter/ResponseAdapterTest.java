@@ -18,7 +18,10 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.support.DefaultServerCodecConfigurer;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -82,7 +85,12 @@ class ResponseAdapterTest extends AbstractIntegrationTest {
     RouteAdapter nullAdapter = adapterFactory.matchAdapter(se);
     Assertions.assertNull(nullAdapter);
 
-    VortexExceptionHandler handler = new VortexExceptionHandler(null, null, null, null);
+    VortexExceptionHandler handler =
+        new VortexExceptionHandler(
+            new DefaultErrorAttributes(),
+            new WebProperties.Resources(),
+            new DefaultServerCodecConfigurer(),
+            new AnnotationConfigApplicationContext());
     handler.generateBody(HttpStatus.BAD_REQUEST, null, VortexException.badRequest("bad"));
 
     PortOrderCreateAdapter adapter = new PortOrderCreateAdapter(new RouteAdapterContext(null));
