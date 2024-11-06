@@ -39,8 +39,6 @@ public class OrganizationService {
 
   private final Auth0Client auth0Client;
   private final EmailService emailService;
-  public static final String META_LOGIN_TYPE = "loginType";
-  public static final String META_STATUS = "status";
   private final Map<String, AbstractConnection> connectionMap;
 
   public Organization create(CreateOrganizationDto request, String createdBy) {
@@ -122,13 +120,13 @@ public class OrganizationService {
       // checking
       Map<String, Object> metadata =
           oldOrg.getMetadata() == null ? new HashMap<>() : oldOrg.getMetadata();
-      String oldStatus = MapUtils.getString(metadata, META_STATUS);
+      String oldStatus = MapUtils.getString(metadata, OrganizationMetadata.META_STATUS);
       if (status.name().equals(oldStatus)) {
         throw VortexException.badRequest("The status is the same, orgId:" + orgId);
       }
 
       Organization update = new Organization();
-      metadata.put(META_STATUS, status);
+      metadata.put(OrganizationMetadata.META_STATUS, status);
       update.setMetadata(metadata);
       Response<Organization> updateResponse = organizationsEntity.update(orgId, update).execute();
 
@@ -173,7 +171,8 @@ public class OrganizationService {
           .execute();
 
       // change login type to undefined
-      metadata.put(META_LOGIN_TYPE, ConnectionStrategyEnum.UNDEFINED.getValue());
+      metadata.put(
+          OrganizationMetadata.META_LOGIN_TYPE, ConnectionStrategyEnum.UNDEFINED.getValue());
       updateOrgLoginType.setMetadata(metadata);
     }
 
@@ -198,7 +197,7 @@ public class OrganizationService {
 
         // set login type.
 
-        metadata.put(META_LOGIN_TYPE, connection.getStrategy());
+        metadata.put(OrganizationMetadata.META_LOGIN_TYPE, connection.getStrategy());
         updateOrgLoginType.setMetadata(metadata);
       }
     }
