@@ -13,7 +13,7 @@ import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.model.UserContext;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
-import java.nio.charset.StandardCharsets;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.cloud.gateway.filter.factory.rewrite.MessageBodyDecoder;
+import org.springframework.cloud.gateway.filter.factory.rewrite.MessageBodyEncoder;
 import org.springframework.core.io.buffer.DefaultDataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.support.DefaultServerCodecConfigurer;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -41,7 +44,15 @@ import reactor.test.StepVerifier;
 @MockIntegrationTest
 class GatewayFilterFactoryTest extends AbstractIntegrationTest {
 
+  byte[] resBytes =
+      new byte[] {
+        31, -117, 8, 0, 0, 0, 0, 0, 0, -1, -85, 86, -54, 76, 81, -78, 82, -54, 76, 49, 48, 48, 4,
+        35, -91, 90, 0, -8, 26, 77, 18, 19, 0, 0, 0
+      };
+
   @Autowired private RouteAdapterFactory adapterFactory;
+  @Autowired private Set<MessageBodyDecoder> messageBodyDecoders;
+  @Autowired private Set<MessageBodyEncoder> messageBodyEncoders;
 
   private ServerWebExchange exchange;
   private AbstractGatewayFilterFactory.NameConfig config =
@@ -52,7 +63,9 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
   @BeforeEach
   void setUp() {
     config.setName("name");
-    filterFactory = new ResponseAdapterGatewayFilterFactory(adapterFactory);
+    filterFactory =
+        new ResponseAdapterGatewayFilterFactory(
+            adapterFactory, messageBodyDecoders, messageBodyEncoders);
 
     MockServerHttpRequest request =
         MockServerHttpRequest.put(
@@ -62,6 +75,7 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
 
     MockServerHttpResponse response = new MockServerHttpResponse();
     response.setStatusCode(HttpStatus.OK);
+    response.getHeaders().add(HttpHeaders.CONTENT_ENCODING, "gzip");
 
     exchange =
         new DefaultServerWebExchange(
@@ -81,8 +95,8 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
         .thenAnswer(
             invocation -> {
               ServerWebExchange ex = invocation.getArgument(0);
-              byte[] bytes = "{\"id\":\"id00100100\"}".getBytes(StandardCharsets.UTF_8);
-              DefaultDataBuffer buffer = new DefaultDataBufferFactory().wrap(bytes);
+
+              DefaultDataBuffer buffer = new DefaultDataBufferFactory().wrap(resBytes);
               return ex.getResponse().writeWith(Flux.just(buffer));
             });
   }
