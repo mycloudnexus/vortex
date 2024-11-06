@@ -404,7 +404,7 @@ public class OrganizationService {
       Connection connection =
           auth0Client.getMgmtClient().connections().get(request.getId(), null).execute().getBody();
       if (Objects.isNull(connection)) {
-        throw VortexException.badRequest("Can find a connection, id:" + request.getId());
+        throw VortexException.badRequest("Can't find a connection, id:" + request.getId());
       }
       AbstractConnection abstractConnection = connectionMap.get(connection.getStrategy());
       return abstractConnection.updateConnection(orgId, request, requestedBy);
