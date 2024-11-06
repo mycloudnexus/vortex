@@ -1,5 +1,6 @@
 package com.consoleconnect.vortex.gateway.adapter;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
@@ -91,7 +92,9 @@ class ResponseAdapterTest extends AbstractIntegrationTest {
             new WebProperties.Resources(),
             new DefaultServerCodecConfigurer(),
             new AnnotationConfigApplicationContext());
-    handler.generateBody(HttpStatus.BAD_REQUEST, null, VortexException.badRequest("bad"));
+    Object ret =
+        handler.generateBody(HttpStatus.BAD_REQUEST, null, VortexException.badRequest("bad"));
+    assertNotNull(ret);
 
     PortOrderCreateAdapter adapter = new PortOrderCreateAdapter(new RouteAdapterContext(null));
 
