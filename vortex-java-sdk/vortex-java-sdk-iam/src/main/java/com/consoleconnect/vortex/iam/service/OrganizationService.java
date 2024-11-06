@@ -18,6 +18,7 @@ import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.core.toolkit.PatternHelper;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.*;
+import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.service.connection.AbstractConnection;
@@ -38,7 +39,8 @@ public class OrganizationService {
 
   private final Auth0Client auth0Client;
   private final EmailService emailService;
-  private static final String META_STATUS = "status";
+  public static final String META_LOGIN_TYPE = "loginType";
+  public static final String META_STATUS = "status";
   private final Map<String, AbstractConnection> connectionMap;
 
   public Organization create(CreateOrganizationDto request, String createdBy) {
@@ -130,25 +132,32 @@ public class OrganizationService {
       update.setMetadata(metadata);
       Response<Organization> updateResponse = organizationsEntity.update(orgId, update).execute();
 
+      Organization organization = updateResponse.getBody();
       // process the related connection
       if (updateResponse.getStatusCode() == HttpStatus.SC_OK && StringUtils.isNotBlank(oldStatus)) {
-        processOrgRelatedConnection(orgId, status, oldStatus, organizationsEntity, oldOrg);
+        organization =
+            processOrgRelatedConnection(
+                orgId, status, oldStatus, organizationsEntity, organization);
       }
 
-      return updateResponse.getBody();
+      return organization;
     } catch (Exception e) {
       log.error("update status of organization.error", e);
       throw VortexException.badRequest("Update status of organizations.error" + e.getMessage());
     }
   }
 
-  private void processOrgRelatedConnection(
+  private Organization processOrgRelatedConnection(
       String orgId,
       OrgStatusEnum status,
       String oldStatus,
       OrganizationsEntity organizationsEntity,
-      Organization oldOrg)
+      Organization newOrg)
       throws Auth0Exception {
+    Organization updateOrgLoginType = new Organization();
+    Map<String, Object> metadata =
+        newOrg.getMetadata() == null ? new HashMap<>() : newOrg.getMetadata();
+
     // active -> inactive: release the bound connection
     if (oldStatus.equals(OrgStatusEnum.ACTIVE.name()) && status == OrgStatusEnum.INACTIVE) {
       EnabledConnectionsPage enabledConnectionsPage =
@@ -156,12 +165,16 @@ public class OrganizationService {
 
       if (Objects.isNull(enabledConnectionsPage)
           || CollectionUtils.isEmpty(enabledConnectionsPage.getItems())) {
-        return;
+        return newOrg;
       }
 
       organizationsEntity
           .deleteConnection(orgId, enabledConnectionsPage.getItems().get(0).getConnectionId())
           .execute();
+
+      // change login type to undefined
+      metadata.put(META_LOGIN_TYPE, ConnectionStrategyEnum.UNDEFINED.getValue());
+      updateOrgLoginType.setMetadata(metadata);
     }
 
     // inactive -> active: check and bind the existed connection which has been released.
@@ -169,20 +182,28 @@ public class OrganizationService {
       ConnectionsPage connectionsPage =
           this.auth0Client.getMgmtClient().connections().listAll(null).execute().getBody();
       if (Objects.isNull(connectionsPage) || CollectionUtils.isEmpty(connectionsPage.getItems())) {
-        return;
+        return newOrg;
       }
 
       Optional<Connection> existedConnection =
           connectionsPage.getItems().stream()
-              .filter(c -> c.getName().startsWith(StringUtils.join(oldOrg.getName(), "-")))
+              .filter(c -> c.getName().startsWith(StringUtils.join(newOrg.getName(), "-")))
               .findFirst();
 
       if (existedConnection.isPresent()) {
+        Connection connection = existedConnection.get();
         organizationsEntity
-            .addConnection(orgId, new EnabledConnection(existedConnection.get().getId()))
+            .addConnection(orgId, new EnabledConnection(connection.getId()))
             .execute();
+
+        // set login type.
+
+        metadata.put(META_LOGIN_TYPE, connection.getStrategy());
+        updateOrgLoginType.setMetadata(metadata);
       }
     }
+
+    return organizationsEntity.update(orgId, updateOrgLoginType).execute().getBody();
   }
 
   public Paging<Organization> search(String q, int page, int size) {
@@ -399,17 +420,20 @@ public class OrganizationService {
 
   public OrganizationConnection updateConnection(
       String orgId, UpdateConnectionDto request, String requestedBy) {
+    String strategy;
     try {
       log.info("Updating connection:orgId:{}, {},requestedBy:{}", orgId, request, requestedBy);
       Connection connection =
           auth0Client.getMgmtClient().connections().get(request.getId(), null).execute().getBody();
+      strategy = connection.getStrategy();
       if (Objects.isNull(connection)) {
         throw VortexException.badRequest("Can't find a connection, id:" + request.getId());
       }
-      AbstractConnection abstractConnection = connectionMap.get(connection.getStrategy());
-      return abstractConnection.updateConnection(orgId, request, requestedBy);
     } catch (Auth0Exception e) {
       throw VortexException.badRequest("Update connection error:" + e.getMessage());
     }
+
+    AbstractConnection abstractConnection = connectionMap.get(strategy);
+    return abstractConnection.updateConnection(orgId, request, requestedBy);
   }
 }

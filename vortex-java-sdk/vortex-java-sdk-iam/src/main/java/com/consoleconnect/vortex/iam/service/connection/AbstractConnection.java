@@ -16,6 +16,7 @@ import com.consoleconnect.vortex.iam.dto.UpdateConnectionDto;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.service.ConnectionService;
+import com.consoleconnect.vortex.iam.service.OrganizationService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -33,8 +34,6 @@ import org.springframework.context.ApplicationContextAware;
 public abstract class AbstractConnection implements ApplicationContextAware {
   protected Auth0Client auth0Client;
   protected ConnectionService connectionService;
-  protected static final String META_LOGIN_TYPE = "loginType";
-  protected static final String META_STATUS = "status";
 
   public OrganizationConnection createConnection(
       String orgId, CreateConnectionDto createConnectionDto) {
@@ -125,7 +124,7 @@ public abstract class AbstractConnection implements ApplicationContextAware {
   private void validateOrgStatus(String orgId, Organization organization) {
     Map<String, Object> metadata =
         organization.getMetadata() == null ? new HashMap<>() : organization.getMetadata();
-    String status = MapUtils.getString(metadata, META_STATUS);
+    String status = MapUtils.getString(metadata, OrganizationService.META_STATUS);
     if (StringUtils.isNotBlank(status) && OrgStatusEnum.INACTIVE.name().equals(status)) {
       throw VortexException.badRequest("This organization is inactive, orgId:" + orgId);
     }
@@ -133,14 +132,18 @@ public abstract class AbstractConnection implements ApplicationContextAware {
 
   private void canUpdateOnLoginType(String orgId, Organization organization) {
     if (Objects.nonNull(organization.getMetadata())
-        && !getLoginType().getValue().equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
+        && !getLoginType()
+            .getValue()
+            .equals(organization.getMetadata().get(OrganizationService.META_LOGIN_TYPE))) {
       throw VortexException.internalError("Failed to change connections of organization: " + orgId);
     }
   }
 
   private void canCreateOnLoginType(Organization organization) {
     if (Objects.nonNull(organization.getMetadata())
-        && getLoginType().getValue().equals(organization.getMetadata().get(META_LOGIN_TYPE))) {
+        && getLoginType()
+            .getValue()
+            .equals(organization.getMetadata().get(OrganizationService.META_LOGIN_TYPE))) {
       throw VortexException.internalError(
           "Failed to create connections of organization: " + organization.getId());
     }
@@ -186,7 +189,7 @@ public abstract class AbstractConnection implements ApplicationContextAware {
     Organization organization = organizationsEntity.get(orgId).execute().getBody();
     Map<String, Object> meta =
         organization.getMetadata() == null ? new HashMap<>() : organization.getMetadata();
-    meta.put(META_LOGIN_TYPE, loginTypeEnum.getValue());
+    meta.put(OrganizationService.META_LOGIN_TYPE, loginTypeEnum.getValue());
     Organization updateMetadata = new Organization();
     updateMetadata.setMetadata(meta);
     organizationsEntity.update(orgId, updateMetadata).execute();
