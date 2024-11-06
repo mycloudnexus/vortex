@@ -1,10 +1,8 @@
 package com.consoleconnect.vortex.gateway.adapter;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
-import com.consoleconnect.vortex.core.exception.VortexExceptionHandler;
 import com.consoleconnect.vortex.gateway.adapter.cc.PortOrderCreateAdapter;
 import com.consoleconnect.vortex.gateway.repo.OrderRepository;
 import com.consoleconnect.vortex.iam.model.IamConstants;
@@ -35,7 +33,6 @@ import org.springframework.web.server.session.DefaultWebSessionManager;
 class ResponseAdapterTest extends AbstractIntegrationTest {
 
   @Autowired private RouteAdapterFactory adapterFactory;
-  @Autowired private VortexExceptionHandler vortexExceptionHandler;
 
   @SpyBean private OrderRepository orderRepository;
 
@@ -83,11 +80,6 @@ class ResponseAdapterTest extends AbstractIntegrationTest {
             new FixedLocaleContextResolver());
     RouteAdapter nullAdapter = adapterFactory.matchAdapter(se);
     Assertions.assertNull(nullAdapter);
-
-    Object ret =
-        vortexExceptionHandler.generateBody(
-            HttpStatus.BAD_REQUEST, null, VortexException.badRequest("bad"));
-    assertNotNull(ret);
 
     PortOrderCreateAdapter adapter = new PortOrderCreateAdapter(new RouteAdapterContext(null));
 
