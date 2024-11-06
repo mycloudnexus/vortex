@@ -517,7 +517,8 @@ class OrganizationServiceTest {
 
   @Test
   void testSAMLConnection() throws Auth0Exception {
-    mockOrgConnectionOperation(LoginTypeEnum.USERNAME_PASSWORD, OrgStatusEnum.ACTIVE);
+    mockOrgConnectionOperation(
+        LoginTypeEnum.USERNAME_PASSWORD, OrgStatusEnum.ACTIVE, ConnectionStrategryEnum.SAML);
 
     // call creating method
     CreateConnectionDto createConnectionDto = new CreateConnectionDto();
@@ -534,7 +535,8 @@ class OrganizationServiceTest {
 
   @Test
   void testOIDCConnection() throws Auth0Exception {
-    mockOrgConnectionOperation(LoginTypeEnum.USERNAME_PASSWORD, OrgStatusEnum.ACTIVE);
+    mockOrgConnectionOperation(
+        LoginTypeEnum.USERNAME_PASSWORD, OrgStatusEnum.ACTIVE, ConnectionStrategryEnum.OIDC);
 
     // call creating method
     CreateConnectionDto createConnectionDto = new CreateConnectionDto();
@@ -552,7 +554,8 @@ class OrganizationServiceTest {
 
   @Test
   void testDBConnection() throws Auth0Exception {
-    mockOrgConnectionOperation(LoginTypeEnum.SSO, OrgStatusEnum.ACTIVE);
+    mockOrgConnectionOperation(
+        LoginTypeEnum.SSO, OrgStatusEnum.ACTIVE, ConnectionStrategryEnum.AUTH0);
 
     // call creating method
     CreateConnectionDto createConnectionDto = new CreateConnectionDto();
@@ -566,7 +569,8 @@ class OrganizationServiceTest {
 
   @Test
   void testDBConnectionOrgInactive() throws Auth0Exception {
-    mockOrgConnectionOperation(LoginTypeEnum.SSO, OrgStatusEnum.INACTIVE);
+    mockOrgConnectionOperation(
+        LoginTypeEnum.SSO, OrgStatusEnum.INACTIVE, ConnectionStrategryEnum.AUTH0);
 
     // call creating method
     CreateConnectionDto createConnectionDto = new CreateConnectionDto();
@@ -581,7 +585,8 @@ class OrganizationServiceTest {
 
   @Test
   void testUpdateSAMLConnection() throws Auth0Exception {
-    mockOrgConnectionOperation(LoginTypeEnum.SSO, OrgStatusEnum.ACTIVE);
+    mockOrgConnectionOperation(
+        LoginTypeEnum.SSO, OrgStatusEnum.ACTIVE, ConnectionStrategryEnum.SAML);
 
     // call creating method
     UpdateConnectionDto request = new UpdateConnectionDto();
@@ -594,7 +599,10 @@ class OrganizationServiceTest {
     assertNotNull(newOrg);
   }
 
-  private void mockOrgConnectionOperation(LoginTypeEnum loginTypeEnum, OrgStatusEnum orgStatusEnum)
+  private void mockOrgConnectionOperation(
+      LoginTypeEnum loginTypeEnum,
+      OrgStatusEnum orgStatusEnum,
+      ConnectionStrategryEnum strategryEnum)
       throws Auth0Exception {
     String connectionId = "con_YNEZH8rgZ8sQz9Fq";
     ManagementAPI managementAPI = mock(ManagementAPI.class);
@@ -681,6 +689,7 @@ class OrganizationServiceTest {
     doReturn(queryConnection).when(queryConnectionResponse).getBody();
 
     doReturn(connectionId).when(queryConnection).getId();
+    doReturn(strategryEnum.getValue()).when(queryConnection).getStrategy();
 
     // mock bind new connection
     Request<Organization> updateRequest = mock(Request.class);
