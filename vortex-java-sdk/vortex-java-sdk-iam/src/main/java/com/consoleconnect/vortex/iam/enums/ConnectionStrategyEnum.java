@@ -19,13 +19,24 @@ public enum ConnectionStrategyEnum {
     this.value = value;
   }
 
-  // The enum type will be converted to value in Swagger and json properties. eg: OIDC -> oidc;
+  /**
+   * @JsonValue The enum type will be converted to value in Swagger and json properties. eg: OIDC ->
+   * oidc;
+   *
+   * @return
+   */
   @JsonValue
   public String getValue() {
     return value;
   }
 
-  // Controller can accept value field as parameter and convert to Enum. eg: oidc ->  OIDC;
+  /**
+   * @JsonCreator Controller can accept value field as parameter and convert to Enum. eg: oidc ->
+   * OIDC;
+   *
+   * @param value
+   * @return
+   */
   @JsonCreator
   public static ConnectionStrategyEnum from(String value) {
     Optional<ConnectionStrategyEnum> enumOptional =
