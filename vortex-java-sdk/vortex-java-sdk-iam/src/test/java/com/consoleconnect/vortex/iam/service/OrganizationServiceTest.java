@@ -585,7 +585,6 @@ class OrganizationServiceTest {
 
     // call creating method
     UpdateConnectionDto request = new UpdateConnectionDto();
-    request.setStrategy(ConnectionStrategryEnum.SAML);
     request.setId("con_YNEZH8rgZ8sQz9Fq");
     SamlConnectionDto saml = new SamlConnectionDto();
 
