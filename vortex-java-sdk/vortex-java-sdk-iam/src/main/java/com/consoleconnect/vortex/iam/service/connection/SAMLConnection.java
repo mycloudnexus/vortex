@@ -7,7 +7,7 @@ import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.SamlConnectionDto;
 import com.consoleconnect.vortex.iam.dto.UpdateConnectionDto;
-import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
+import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +31,8 @@ public class SAMLConnection extends AbstractConnection {
         JsonToolkit.fromJson(JsonToolkit.toJson(samlConnectionDto), new TypeReference<>() {});
     Connection connection =
         new Connection(
-            StringUtils.join(organization.getName(), "-", ConnectionStrategryEnum.SAML.getValue()),
-            ConnectionStrategryEnum.SAML.getValue());
+            StringUtils.join(organization.getName(), "-", ConnectionStrategyEnum.SAML.getValue()),
+            ConnectionStrategyEnum.SAML.getValue());
     connection.setOptions(metaData);
     connection.setEnabledClients(
         List.of(getAuth0Client().getAuth0Property().getApp().getClientId()));
@@ -51,5 +51,10 @@ public class SAMLConnection extends AbstractConnection {
     Connection update = new Connection();
     update.setOptions(metaData);
     return update;
+  }
+
+  @Override
+  ConnectionStrategyEnum getLoginType() {
+    return ConnectionStrategyEnum.SAML;
   }
 }

@@ -19,8 +19,7 @@ import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.*;
-import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
-import com.consoleconnect.vortex.iam.enums.LoginTypeEnum;
+import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
@@ -500,13 +499,13 @@ class OrganizationServiceTest {
     queryOrganization.setDisplayName("test");
     OrganizationMetadata metadata = new OrganizationMetadata();
     metadata.setStatus(OrgStatusEnum.ACTIVE);
-    metadata.setLoginType(LoginTypeEnum.USERNAME_PASSWORD);
+    metadata.setLoginType(ConnectionStrategyEnum.AUTH0);
     queryOrganization.setMetadata(
         JsonToolkit.fromJson(JsonToolkit.toJson(metadata), new TypeReference<>() {}));
     doReturn(queryOrganization).when(queryResponse).getBody();
 
     CreateConnectionDto createConnectionDto = new CreateConnectionDto();
-    createConnectionDto.setStrategy(ConnectionStrategryEnum.AUTH0);
+    createConnectionDto.setStrategy(ConnectionStrategyEnum.AUTH0);
 
     assertThrows(
         Exception.class,
@@ -518,11 +517,11 @@ class OrganizationServiceTest {
   @Test
   void testSAMLConnection() throws Auth0Exception {
     mockOrgConnectionOperation(
-        LoginTypeEnum.USERNAME_PASSWORD, OrgStatusEnum.ACTIVE, ConnectionStrategryEnum.SAML);
+        ConnectionStrategyEnum.AUTH0, OrgStatusEnum.ACTIVE, ConnectionStrategyEnum.SAML);
 
     // call creating method
     CreateConnectionDto createConnectionDto = new CreateConnectionDto();
-    createConnectionDto.setStrategy(ConnectionStrategryEnum.SAML);
+    createConnectionDto.setStrategy(ConnectionStrategyEnum.SAML);
 
     SamlConnectionDto saml = new SamlConnectionDto();
 
@@ -536,11 +535,11 @@ class OrganizationServiceTest {
   @Test
   void testOIDCConnection() throws Auth0Exception {
     mockOrgConnectionOperation(
-        LoginTypeEnum.USERNAME_PASSWORD, OrgStatusEnum.ACTIVE, ConnectionStrategryEnum.OIDC);
+        ConnectionStrategyEnum.AUTH0, OrgStatusEnum.ACTIVE, ConnectionStrategyEnum.OIDC);
 
     // call creating method
     CreateConnectionDto createConnectionDto = new CreateConnectionDto();
-    createConnectionDto.setStrategy(ConnectionStrategryEnum.OIDC);
+    createConnectionDto.setStrategy(ConnectionStrategyEnum.OIDC);
 
     OidcConnectionDto oidc = new OidcConnectionDto();
     oidc.setClientId(UUID.randomUUID().toString());
@@ -555,11 +554,11 @@ class OrganizationServiceTest {
   @Test
   void testDBConnection() throws Auth0Exception {
     mockOrgConnectionOperation(
-        LoginTypeEnum.SSO, OrgStatusEnum.ACTIVE, ConnectionStrategryEnum.AUTH0);
+        ConnectionStrategyEnum.SAML, OrgStatusEnum.ACTIVE, ConnectionStrategyEnum.AUTH0);
 
     // call creating method
     CreateConnectionDto createConnectionDto = new CreateConnectionDto();
-    createConnectionDto.setStrategy(ConnectionStrategryEnum.AUTH0);
+    createConnectionDto.setStrategy(ConnectionStrategyEnum.AUTH0);
 
     OrganizationConnection newOrg =
         organizationService.createConnection(
@@ -570,11 +569,11 @@ class OrganizationServiceTest {
   @Test
   void testDBConnectionOrgInactive() throws Auth0Exception {
     mockOrgConnectionOperation(
-        LoginTypeEnum.SSO, OrgStatusEnum.INACTIVE, ConnectionStrategryEnum.AUTH0);
+        ConnectionStrategyEnum.SAML, OrgStatusEnum.INACTIVE, ConnectionStrategyEnum.AUTH0);
 
     // call creating method
     CreateConnectionDto createConnectionDto = new CreateConnectionDto();
-    createConnectionDto.setStrategy(ConnectionStrategryEnum.AUTH0);
+    createConnectionDto.setStrategy(ConnectionStrategyEnum.AUTH0);
 
     assertThrows(
         Exception.class,
@@ -586,7 +585,7 @@ class OrganizationServiceTest {
   @Test
   void testUpdateSAMLConnection() throws Auth0Exception {
     mockOrgConnectionOperation(
-        LoginTypeEnum.SSO, OrgStatusEnum.ACTIVE, ConnectionStrategryEnum.SAML);
+        ConnectionStrategyEnum.SAML, OrgStatusEnum.ACTIVE, ConnectionStrategyEnum.SAML);
 
     // call creating method
     UpdateConnectionDto request = new UpdateConnectionDto();
@@ -600,9 +599,9 @@ class OrganizationServiceTest {
   }
 
   private void mockOrgConnectionOperation(
-      LoginTypeEnum loginTypeEnum,
+      ConnectionStrategyEnum loginType,
       OrgStatusEnum orgStatusEnum,
-      ConnectionStrategryEnum strategryEnum)
+      ConnectionStrategyEnum strategryEnum)
       throws Auth0Exception {
     String connectionId = "con_YNEZH8rgZ8sQz9Fq";
     ManagementAPI managementAPI = mock(ManagementAPI.class);
@@ -611,20 +610,20 @@ class OrganizationServiceTest {
     OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
     doReturn(organizationsEntity).when(managementAPI).organizations();
 
-    Request<Organization> queryRequest = mock(Request.class);
-    doReturn(queryRequest).when(organizationsEntity).get(anyString());
+    Request<Organization> organizationRequest = mock(Request.class);
+    doReturn(organizationRequest).when(organizationsEntity).get(anyString());
 
-    Response<Organization> queryResponse = mock(Response.class);
-    doReturn(queryResponse).when(queryRequest).execute();
+    Response<Organization> organizationResponse = mock(Response.class);
+    doReturn(organizationResponse).when(organizationRequest).execute();
 
     // mock query organization
     Organization queryOrganization = mock(Organization.class);
-    doReturn(queryOrganization).when(queryResponse).getBody();
+    doReturn(queryOrganization).when(organizationResponse).getBody();
 
     doReturn("test").when(queryOrganization).getDisplayName();
     OrganizationMetadata metadata = new OrganizationMetadata();
     metadata.setStatus(orgStatusEnum);
-    metadata.setLoginType(loginTypeEnum);
+    metadata.setLoginType(loginType);
     doReturn(JsonToolkit.fromJson(JsonToolkit.toJson(metadata), new TypeReference<>() {}))
         .when(queryOrganization)
         .getMetadata();
@@ -696,5 +695,6 @@ class OrganizationServiceTest {
     Response<Void> updateResponse = mock(Response.class);
     doReturn(updateRequest).when(organizationsEntity).update(anyString(), any());
     doReturn(updateResponse).when(updateRequest).execute();
+    doReturn(queryConnection).when(updateResponse).getBody();
   }
 }

@@ -1,11 +1,11 @@
 package com.consoleconnect.vortex.iam.dto;
 
-import com.consoleconnect.vortex.iam.enums.ConnectionStrategryEnum;
+import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import lombok.Data;
 
 @Data
 public class CreateConnectionDto {
-  private ConnectionStrategryEnum strategy = ConnectionStrategryEnum.OIDC;
+  private ConnectionStrategyEnum strategy = ConnectionStrategyEnum.OIDC;
   private OidcConnectionDto oidc;
   private SamlConnectionDto saml;
 }
