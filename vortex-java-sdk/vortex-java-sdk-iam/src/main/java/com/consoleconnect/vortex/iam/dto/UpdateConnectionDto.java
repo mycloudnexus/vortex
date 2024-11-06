@@ -8,7 +8,7 @@ public class UpdateConnectionDto {
 
   @NotBlank private String id;
 
-  private OidcConnectionDto openID;
+  private OidcConnectionDto oidc;
 
   private SamlConnectionDto saml;
 }

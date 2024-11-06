@@ -30,7 +30,7 @@ public class OIDCConnection extends AbstractConnection {
             ConnectionStrategryEnum.OIDC.getValue());
     connection.setEnabledClients(
         List.of(getAuth0Client().getAuth0Property().getApp().getClientId()));
-    connection.setOptions(toMap(createConnectionDto.getOpenID()));
+    connection.setOptions(toMap(createConnectionDto.getOidc()));
     return connection;
   }
 
@@ -41,7 +41,7 @@ public class OIDCConnection extends AbstractConnection {
       UpdateConnectionDto updateConnectionDto,
       ManagementAPI managementAPI) {
     Connection update = new Connection();
-    update.setOptions(toMap(updateConnectionDto.getOpenID()));
+    update.setOptions(toMap(updateConnectionDto.getOidc()));
     return update;
   }
 

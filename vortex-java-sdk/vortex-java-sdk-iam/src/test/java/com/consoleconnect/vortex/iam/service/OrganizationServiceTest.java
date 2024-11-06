@@ -544,7 +544,7 @@ class OrganizationServiceTest {
 
     OidcConnectionDto oidc = new OidcConnectionDto();
     oidc.setClientId(UUID.randomUUID().toString());
-    createConnectionDto.setOpenID(oidc);
+    createConnectionDto.setOidc(oidc);
 
     OrganizationConnection newOrg =
         organizationService.createConnection(
