@@ -5,9 +5,7 @@ import lombok.Data;
 
 @Data
 public class CreateConnectionDto {
-
-  private String name;
   private ConnectionStrategryEnum strategy = ConnectionStrategryEnum.OIDC;
-  private OidcConnection odic;
-  private SamlConnection saml;
+  private OidcConnectionDto oidc;
+  private SamlConnectionDto saml;
 }
