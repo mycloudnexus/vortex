@@ -81,6 +81,8 @@ class ResponseAdapterTest extends AbstractIntegrationTest {
             new DefaultWebSessionManager(),
             new DefaultServerCodecConfigurer(),
             new FixedLocaleContextResolver());
+    exchange.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
+
     RouteAdapter nullAdapter = adapterFactory.matchAdapter(se);
     Assertions.assertNull(nullAdapter);
 
