@@ -121,7 +121,7 @@ public class OrganizationService {
       Map<String, Object> metadata = oldOrg.getMetadata();
       String oldStatusStr = MapUtils.getString(metadata, OrganizationMetadata.META_STATUS);
       OrgStatusEnum oldStatus = OrgStatusEnum.valueOf(oldStatusStr);
-      if (status.name().equals(oldStatus)) {
+      if (status == oldStatus) {
         throw VortexException.badRequest("The status is the same, orgId:" + orgId);
       }
 
