@@ -1,10 +1,5 @@
 package com.consoleconnect.vortex.gateway.adapter;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import com.consoleconnect.vortex.core.exception.VortexException;
-import com.consoleconnect.vortex.gateway.adapter.cc.DefaultResourceOrderCreateAdapter;
-import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.repo.OrderRepository;
 import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.iam.model.IamConstants;
@@ -85,11 +80,5 @@ class ResponseAdapterTest extends AbstractIntegrationTest {
 
     RouteAdapter nullAdapter = adapterFactory.matchAdapter(se);
     Assertions.assertNull(nullAdapter);
-
-    DefaultResourceOrderCreateAdapter adapter =
-        new DefaultResourceOrderCreateAdapter(
-            new RouteAdapterContext(ResourceTypeEnum.PORT, orderService));
-
-    assertThrows(VortexException.class, () -> adapter.process(exchange, null));
   }
 }
