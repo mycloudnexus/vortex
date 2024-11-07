@@ -4,16 +4,16 @@ import java.util.Map;
 import lombok.Data;
 
 @Data
-public class SamlConnection {
+public class SamlConnectionDto {
   private String signInEndpoint;
   private String userIdAttribute;
   private String signingCert;
 
-  private boolean debug;
-  private boolean disableSignout;
+  private Boolean debug;
+  private Boolean disableSignout;
   private String signOutEndpoint;
 
-  private boolean signSAMLRequest;
+  private Boolean signSAMLRequest;
   private String digestAlgorithm;
   private String signatureAlgorithm;
   private String protocolBinding;
