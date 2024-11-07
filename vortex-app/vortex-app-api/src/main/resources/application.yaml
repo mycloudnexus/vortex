@@ -115,6 +115,7 @@ logging:
     org.springframework.cloud.gateway: DEBUG
 
 app:
+  route-adapters:
   iam:
     jwt:
       issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
