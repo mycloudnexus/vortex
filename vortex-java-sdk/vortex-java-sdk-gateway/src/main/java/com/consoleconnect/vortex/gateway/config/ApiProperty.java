@@ -5,8 +5,9 @@ import lombok.Data;
 import org.springframework.http.HttpMethod;
 
 @Data
-public class EndpointProperty {
+public class ApiProperty {
   private HttpMethod method;
   private String routePath;
   private ResourceTypeEnum resourceType;
+  private String responseRootPath = "$";
 }

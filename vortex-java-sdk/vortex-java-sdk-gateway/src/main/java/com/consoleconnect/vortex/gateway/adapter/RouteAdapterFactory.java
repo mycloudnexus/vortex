@@ -1,7 +1,7 @@
 package com.consoleconnect.vortex.gateway.adapter;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
-import com.consoleconnect.vortex.gateway.config.EndpointProperty;
+import com.consoleconnect.vortex.gateway.config.ApiProperty;
 import com.consoleconnect.vortex.gateway.config.RouteAdapterConfig;
 import com.consoleconnect.vortex.gateway.config.RouteAdapterProperty;
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
@@ -27,22 +27,22 @@ public class RouteAdapterFactory {
 
     for (RouteAdapterProperty route : config.getRouteAdapters()) {
       String adapterClassName = route.getAdapterClassName();
-      List<EndpointProperty> endpoints = route.getEndpoints();
+      List<ApiProperty> apis = route.getApis();
 
-      if (adapterClassName == null || endpoints == null || endpoints.isEmpty()) {
+      if (adapterClassName == null || apis == null || apis.isEmpty()) {
         throw VortexException.notImplemented("Route adapter config error");
       }
 
-      for (EndpointProperty endpoint : endpoints) {
-        HttpMethod method = endpoint.getMethod();
-        String routePath = endpoint.getRoutePath();
-        ResourceTypeEnum resourceType = endpoint.getResourceType();
+      for (ApiProperty api : apis) {
+        HttpMethod method = api.getMethod();
+        String routePath = api.getRoutePath();
+        ResourceTypeEnum resourceType = api.getResourceType();
         if (method == null || routePath == null || resourceType == null) {
-          throw VortexException.notImplemented("Route adapter endpoints config error");
+          throw VortexException.notImplemented("Route adapter apis config error");
         }
 
         try {
-          RouteAdapterContext context = new RouteAdapterContext(resourceType, orderService);
+          RouteAdapterContext context = new RouteAdapterContext(api, orderService);
           Class<?> adapterClass = Class.forName(adapterClassName);
           RouteAdapter adapter =
               (RouteAdapter)

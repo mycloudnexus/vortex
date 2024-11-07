@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 public class RouteAdapterProperty {
   private String adapterClassName;
-  private List<EndpointProperty> endpoints;
+  private List<ApiProperty> apis;
 }
