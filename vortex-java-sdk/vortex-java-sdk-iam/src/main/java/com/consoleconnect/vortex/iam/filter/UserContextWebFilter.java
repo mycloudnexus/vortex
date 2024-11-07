@@ -41,12 +41,20 @@ public class UserContextWebFilter implements WebFilter, Ordered {
                       .getClaimAsString(iamProperty.getJwt().getCustomClaims().getOrgId());
               userContext.setOrgId(orgId);
               userContext.setMgmt(iamProperty.getAuth0().getMgmtOrgId().equalsIgnoreCase(orgId));
-              userContext.setCustomerId(
-                  exchange
+              String customerId = orgId;
+              if (userContext.isMgmt()
+                  && exchange
                       .getRequest()
                       .getHeaders()
-                      .getFirst(IamConstants.X_VORTEX_CUSTOMER_ORG_ID));
-
+                      .containsKey(IamConstants.X_VORTEX_CUSTOMER_ORG_ID)) {
+                // customerId can be customized by the client in the header
+                customerId =
+                    exchange
+                        .getRequest()
+                        .getHeaders()
+                        .getFirst(IamConstants.X_VORTEX_CUSTOMER_ORG_ID);
+              }
+              userContext.setCustomerId(customerId);
               log.info("user context:{}", userContext);
               exchange.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
               return Mono.just(jwtAuthenticationToken);
