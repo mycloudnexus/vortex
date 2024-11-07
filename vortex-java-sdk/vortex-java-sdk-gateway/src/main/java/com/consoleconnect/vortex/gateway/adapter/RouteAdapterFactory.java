@@ -1,10 +1,13 @@
 package com.consoleconnect.vortex.gateway.adapter;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
+import com.consoleconnect.vortex.gateway.config.EndpointProperty;
 import com.consoleconnect.vortex.gateway.config.RouteAdapterConfig;
 import com.consoleconnect.vortex.gateway.config.RouteAdapterProperty;
+import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.service.OrderService;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -22,29 +25,38 @@ public class RouteAdapterFactory {
 
   public RouteAdapterFactory(RouteAdapterConfig config, OrderService orderService) {
 
-    RouteAdapterContext context = new RouteAdapterContext(orderService);
-
     for (RouteAdapterProperty route : config.getRouteAdapters()) {
-      HttpMethod method = route.getMethod();
-      String routePath = route.getRoutePath();
       String adapterClassName = route.getAdapterClassName();
+      List<EndpointProperty> endpoints = route.getEndpoints();
 
-      if (method == null || routePath == null || adapterClassName == null) {
+      if (adapterClassName == null || endpoints == null || endpoints.isEmpty()) {
         throw VortexException.notImplemented("Route adapter config error");
       }
 
-      try {
-        Class<?> adapterClass = Class.forName(adapterClassName);
-        RouteAdapter adapter =
-            (RouteAdapter)
-                adapterClass.getDeclaredConstructor(RouteAdapterContext.class).newInstance(context);
+      for (EndpointProperty endpoint : endpoints) {
+        HttpMethod method = endpoint.getMethod();
+        String routePath = endpoint.getRoutePath();
+        ResourceTypeEnum resourceType = endpoint.getResourceType();
+        if (method == null || routePath == null || resourceType == null) {
+          throw VortexException.notImplemented("Route adapter endpoints config error");
+        }
 
-        // register adapter
-        adapterMap.put(buildAdapterKey(method, routePath), adapter);
-      } catch (Exception e) {
-        log.error("Register route adapter class:{} failed.", adapterClassName, e);
-        throw VortexException.notImplemented(
-            "Register route adapter class failed: " + adapterClassName);
+        try {
+          RouteAdapterContext context = new RouteAdapterContext(resourceType, orderService);
+          Class<?> adapterClass = Class.forName(adapterClassName);
+          RouteAdapter adapter =
+              (RouteAdapter)
+                  adapterClass
+                      .getDeclaredConstructor(RouteAdapterContext.class)
+                      .newInstance(context);
+
+          // register adapter
+          adapterMap.put(buildAdapterKey(method, routePath), adapter);
+        } catch (Exception e) {
+          log.error("Register route adapter class:{} failed.", adapterClassName, e);
+          throw VortexException.notImplemented(
+              "Register route adapter class failed: " + adapterClassName);
+        }
       }
     }
   }

@@ -114,9 +114,11 @@ logging:
 
 app:
   route-adapters:
-    - method: PUT
-      route-path: /test/api/do
-      adapter-class-name: com.consoleconnect.vortex.gateway.adapter.cc.PortOrderCreateAdapter
+    - adapter-class-name: com.consoleconnect.vortex.gateway.adapter.cc.DefaultResourceOrderCreateAdapter
+      endpoints:
+        - method: PUT
+          route-path: /test/api/do
+          resourceType: PORT
   iam:
     jwt:
       issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
