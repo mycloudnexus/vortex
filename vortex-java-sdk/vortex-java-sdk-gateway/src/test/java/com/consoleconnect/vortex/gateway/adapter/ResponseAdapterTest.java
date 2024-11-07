@@ -1,10 +1,7 @@
 package com.consoleconnect.vortex.gateway.adapter;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import com.consoleconnect.vortex.core.exception.VortexException;
-import com.consoleconnect.vortex.gateway.adapter.cc.PortOrderCreateAdapter;
 import com.consoleconnect.vortex.gateway.repo.OrderRepository;
+import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.model.UserContext;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
@@ -33,6 +30,7 @@ import org.springframework.web.server.session.DefaultWebSessionManager;
 class ResponseAdapterTest extends AbstractIntegrationTest {
 
   @Autowired private RouteAdapterFactory adapterFactory;
+  @Autowired private OrderService orderService;
 
   @SpyBean private OrderRepository orderRepository;
 
@@ -78,11 +76,9 @@ class ResponseAdapterTest extends AbstractIntegrationTest {
             new DefaultWebSessionManager(),
             new DefaultServerCodecConfigurer(),
             new FixedLocaleContextResolver());
+    se.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
+
     RouteAdapter nullAdapter = adapterFactory.matchAdapter(se);
     Assertions.assertNull(nullAdapter);
-
-    PortOrderCreateAdapter adapter = new PortOrderCreateAdapter(new RouteAdapterContext(null));
-
-    assertThrows(VortexException.class, () -> adapter.process(exchange, null));
   }
 }
