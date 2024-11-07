@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VortexError {
-  private String code;
+  private int code;
   private String reason;
   private String message;
   private String referenceError;

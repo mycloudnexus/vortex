@@ -52,9 +52,9 @@ spring:
         - id: consoleconnect-api
           uri: ${app.gateway.consoleconnect.base-url}
           predicates:
-            - Path=/consoleconnect/**
+            - Path=/test/**
           filters:
-            - RewritePath=/consoleconnect/(?<path>.*), /$\{path}
+            - RewritePath=/test/(?<path>.*), /$\{path}
             - RemoveRequestHeader=Authorization
             - name: SetAPIKey
               args:
@@ -114,9 +114,11 @@ logging:
 
 app:
   route-adapters:
-    - method: PUT
-      route-path: /consoleconnect/api/company/{app.gateway.consoleconnect.company-name}/ports/orders
-      adapter-class-name: com.consoleconnect.vortex.gateway.adapter.cc.PortOrderCreateAdapter
+    - adapter-class-name: com.consoleconnect.vortex.gateway.adapter.cc.DefaultResourceOrderCreateAdapter
+      endpoints:
+        - method: PUT
+          route-path: /test/api/do
+          resourceType: PORT
   iam:
     jwt:
       issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}

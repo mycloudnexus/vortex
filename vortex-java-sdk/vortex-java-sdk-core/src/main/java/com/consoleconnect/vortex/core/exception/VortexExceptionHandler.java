@@ -65,11 +65,15 @@ public class VortexExceptionHandler extends AbstractErrorWebExceptionHandler {
 
   public Object generateBody(HttpStatusCode httpStatus, String message, Throwable throwable) {
     VortexError errorResponse = new VortexError();
-    String code = VortexError.ErrorMapping.defaultMsg(httpStatus.value(), throwable.getMessage());
-    errorResponse.setCode(code);
+    errorResponse.setCode(httpStatus.value());
     // The max length of reason is 255.
     String reason = StringUtils.truncate(throwable.getMessage(), REASON_LENGTH_UPPER_LIMIT);
     errorResponse.setReason(reason);
+
+    message =
+        message == null
+            ? VortexError.ErrorMapping.defaultMsg(httpStatus.value(), throwable.getMessage())
+            : message;
 
     errorResponse.setMessage(
         (Objects.isNull(throwable.getCause()) ? message : throwable.getCause().getMessage()));
