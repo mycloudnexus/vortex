@@ -16,8 +16,14 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
- * route adapters config app: route-adapters: - adapter-class-name: com.***.XyzAdapter endpoints: -
- * method: PUT route-path: /cc/api/do resourceType: PORT
+ * route adapters config
+ *   app:
+ *     route-adapters:
+ *       - adapter-class-name: com.***.XyzAdapter
+ *         endpoints:
+ *           - method: PUT
+ *             route-path: /cc/api/do
+ *             resourceType: PORT
  */
 @Slf4j
 @Component
