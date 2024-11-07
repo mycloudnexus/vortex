@@ -14,7 +14,7 @@ interface AuthenticateProps {
 }
 
 const Authenticate = ({ children }: AuthenticateProps) => {
-  const { isLoading, isAuthenticated, user, getAccessTokenSilently } = useAuth0()
+  const { isLoading, isAuthenticated, user, getAccessTokenSilently, error } = useAuth0()
   const { currentAuth0User, setCurrentAuth0User, setUser, setRoleList } = useAppStore()
   const navigate = useNavigate()
 
@@ -54,6 +54,9 @@ const Authenticate = ({ children }: AuthenticateProps) => {
 
   if (isLoading || !isAuthenticated) {
     return <Spin />
+  }
+  if (error) {
+    return <div>Oops... {error.message}</div>
   }
 
   return children
