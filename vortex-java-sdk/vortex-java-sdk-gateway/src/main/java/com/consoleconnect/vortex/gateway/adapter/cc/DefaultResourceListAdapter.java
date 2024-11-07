@@ -51,12 +51,13 @@ public class DefaultResourceListAdapter extends AbstractAdapter implements Route
     DocumentContext ctx = JsonPathToolkit.createDocCtx(resOrders);
 
     byte[] resBytes = ctx.jsonString().getBytes(StandardCharsets.UTF_8);
+    log.info("process completed, resourceType:{}", resourceType);
     return resBytes;
   }
 
   // default filter
-  protected boolean filterResource(Set<String> resourceIds, Map<String, Object> record) {
-    String oId = (String) record.get("id");
+  protected boolean filterResource(Set<String> resourceIds, Map<String, Object> dto) {
+    String oId = (String) dto.get("id");
     if (resourceIds.contains(oId)) {
       return Boolean.FALSE;
     }
