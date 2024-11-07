@@ -115,9 +115,14 @@ logging:
 
 app:
   route-adapters:
-    - method: PUT
-      route-path: /consoleconnect/api/company/{app.gateway.consoleconnect.company-name}/ports/orders
-      adapter-class-name: com.consoleconnect.vortex.gateway.adapter.cc.PortOrderCreateAdapter
+    - adapter-class-name: com.consoleconnect.vortex.gateway.adapter.cc.DefaultResourceOrderCreateAdapter
+      endpoints:
+        - method: PUT
+          route-path: /consoleconnect/api/company/{app.gateway.consoleconnect.company-name}/ports/orders
+          resourceType: PORT
+        - method: PUT
+          route-path: /consoleconnect/api/company/{app.gateway.consoleconnect.company-name}/connections/directConnectPartner/ALICLOUD/layer2
+          resourceType: L2
   iam:
     jwt:
       issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
