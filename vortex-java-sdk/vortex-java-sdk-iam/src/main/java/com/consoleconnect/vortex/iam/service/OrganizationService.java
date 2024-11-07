@@ -62,7 +62,7 @@ public class OrganizationService {
       return organizationRequest.execute().getBody();
     } catch (Auth0Exception e) {
       log.error("create organizations.error", e);
-      throw VortexException.badRequest("create organizations.error" + e.getMessage());
+      throw VortexException.badRequest("create organizations.error: " + e.getMessage());
     }
   }
 
@@ -107,7 +107,7 @@ public class OrganizationService {
       return organizationRequest.execute().getBody();
     } catch (Auth0Exception e) {
       log.error("update organizations.error", e);
-      throw VortexException.badRequest("update organizations.error" + e.getMessage());
+      throw VortexException.badRequest("update organizations.error: " + e.getMessage());
     }
   }
 
@@ -141,7 +141,7 @@ public class OrganizationService {
       return organization;
     } catch (Exception e) {
       log.error("update status of organization.error", e);
-      throw VortexException.badRequest("Update status of organizations.error" + e.getMessage());
+      throw VortexException.badRequest("Update status of organizations error: " + e.getMessage());
     }
   }
 
