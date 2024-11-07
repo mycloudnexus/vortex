@@ -16,10 +16,8 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
- * route adapters config app: route-adapters: - adapter-class-name:
- * com.consoleconnect.vortex.gateway.adapter.cc.PortOrderCreateAdapter endpoints: - method: PUT
- * route-path: /consoleconnect/api/company/{app.gateway.consoleconnect.company-name}/ports/orders
- * resourceType: PORT
+ * route adapters config app: route-adapters: - adapter-class-name: com.***.XyzAdapter endpoints: -
+ * method: PUT route-path: /cc/api/do resourceType: PORT
  */
 @Slf4j
 @Component
