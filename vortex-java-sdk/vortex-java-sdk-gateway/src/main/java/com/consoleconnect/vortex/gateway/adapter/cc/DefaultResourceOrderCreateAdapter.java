@@ -28,7 +28,8 @@ public class DefaultResourceOrderCreateAdapter extends AbstractAdapter implement
     String response = new String(responseBody, StandardCharsets.UTF_8);
 
     String orderId = null;
-    String resourceId = JsonPathToolkit.read(response, "$.id");
+    String resourceId =
+        JsonPathToolkit.read(response, "$." + context.getApiProperty().getResourceIdKey());
     log.info(
         "create vortex resource order, resourceType:{}, resourceId:{}", resourceType, resourceId);
 

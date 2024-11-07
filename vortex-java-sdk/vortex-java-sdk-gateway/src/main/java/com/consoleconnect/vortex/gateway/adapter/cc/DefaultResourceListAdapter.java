@@ -57,7 +57,7 @@ public class DefaultResourceListAdapter extends AbstractAdapter implements Route
 
   // default filter
   protected boolean filterResource(Set<String> resourceIds, Map<String, Object> dto) {
-    String oId = (String) dto.get("id");
+    String oId = (String) dto.get(context.getApiProperty().getResourceIdKey());
     if (resourceIds.contains(oId)) {
       return Boolean.FALSE;
     }

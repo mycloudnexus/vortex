@@ -9,5 +9,6 @@ public class ApiProperty {
   private HttpMethod method;
   private String routePath;
   private ResourceTypeEnum resourceType;
+  private String resourceIdKey = "id";
   private String responseRootPath = "$";
 }
