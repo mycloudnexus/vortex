@@ -3,15 +3,19 @@ package com.consoleconnect.vortex.gateway.adapter.cc;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.gateway.adapter.RouteAdapter;
 import com.consoleconnect.vortex.gateway.adapter.RouteAdapterContext;
+import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
 public abstract class AbstractAdapter implements RouteAdapter {
 
+  protected ResourceTypeEnum resourceType;
   protected RouteAdapterContext context;
 
   protected AbstractAdapter(RouteAdapterContext context) {
+    Assert.notNull(context.getOrderService(), "orderService must not be null");
     this.context = context;
   }
 
