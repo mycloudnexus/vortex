@@ -17,6 +17,11 @@ public class OrderService {
     return orderRepository.findByOrganizationId(orgId);
   }
 
+  public List<OrderEntity> listResourceByType(String orgId, ResourceTypeEnum resourceType) {
+    return orderRepository.findByOrganizationIdAndResourceTypeAndResourceIdNotNull(
+        orgId, resourceType);
+  }
+
   /**
    * create order
    *

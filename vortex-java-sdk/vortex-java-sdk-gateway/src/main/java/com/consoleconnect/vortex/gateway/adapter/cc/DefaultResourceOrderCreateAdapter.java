@@ -7,7 +7,6 @@ import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.gateway.toolkit.RequestHelper;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
@@ -15,8 +14,6 @@ public class DefaultResourceOrderCreateAdapter extends AbstractAdapter implement
 
   public DefaultResourceOrderCreateAdapter(RouteAdapterContext context) {
     super(context);
-    Assert.notNull(context.getResourceType(), "resourceType must not be null");
-    this.resourceType = context.getResourceType();
   }
 
   /**
@@ -31,7 +28,8 @@ public class DefaultResourceOrderCreateAdapter extends AbstractAdapter implement
     String response = new String(responseBody, StandardCharsets.UTF_8);
 
     String orderId = null;
-    String resourceId = JsonPathToolkit.read(response, "$.id");
+    String resourceId =
+        JsonPathToolkit.read(response, "$." + context.getApiProperty().getResourceIdKey());
     log.info(
         "create vortex resource order, resourceType:{}, resourceId:{}", resourceType, resourceId);
 

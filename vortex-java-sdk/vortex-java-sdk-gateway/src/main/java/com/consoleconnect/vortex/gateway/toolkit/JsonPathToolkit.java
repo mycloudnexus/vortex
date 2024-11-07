@@ -29,4 +29,8 @@ public class JsonPathToolkit {
   public static DocumentContext createDocCtx(String json) {
     return JsonPath.using(DEFAULT_CONFIGURATION).parse(json);
   }
+
+  public static DocumentContext createDocCtx(Object json) {
+    return JsonPath.using(DEFAULT_CONFIGURATION).parse(json);
+  }
 }

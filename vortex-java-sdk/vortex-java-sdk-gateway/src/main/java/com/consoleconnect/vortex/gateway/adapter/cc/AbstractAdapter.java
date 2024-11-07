@@ -15,7 +15,10 @@ public abstract class AbstractAdapter implements RouteAdapter {
   protected RouteAdapterContext context;
 
   protected AbstractAdapter(RouteAdapterContext context) {
+    Assert.notNull(context.getApiProperty(), "apiProperty must not be null");
+    Assert.notNull(context.getApiProperty().getResourceType(), "resourceType must not be null");
     Assert.notNull(context.getOrderService(), "orderService must not be null");
+    this.resourceType = context.getApiProperty().getResourceType();
     this.context = context;
   }
 
