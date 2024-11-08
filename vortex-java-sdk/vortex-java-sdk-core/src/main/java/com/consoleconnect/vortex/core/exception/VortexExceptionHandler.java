@@ -71,8 +71,7 @@ public class VortexExceptionHandler extends AbstractErrorWebExceptionHandler {
     String reasonMsg = throwable.getMessage();
 
     // Handle controller binding exception.
-    if (throwable instanceof WebExchangeBindException) {
-      WebExchangeBindException exchangeBindException = (WebExchangeBindException) throwable;
+    if (throwable instanceof WebExchangeBindException exchangeBindException) {
       reasonMsg =
           StringUtils.truncate(
               exchangeBindException.getFieldErrors().get(0).getDefaultMessage(),
