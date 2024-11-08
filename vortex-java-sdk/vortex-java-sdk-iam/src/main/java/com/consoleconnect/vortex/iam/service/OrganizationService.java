@@ -2,6 +2,7 @@ package com.consoleconnect.vortex.iam.service;
 
 import com.auth0.client.mgmt.OrganizationsEntity;
 import com.auth0.client.mgmt.RolesEntity;
+import com.auth0.client.mgmt.filter.InvitationsFilter;
 import com.auth0.client.mgmt.filter.PageFilter;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.mgmt.connections.Connection;
@@ -40,6 +41,8 @@ public class OrganizationService {
   private final Auth0Client auth0Client;
   private final EmailService emailService;
   private final Map<String, AbstractConnection> connectionMap;
+  private final DownstreamRoleService downstreamRoleService;
+  private static final Integer TOTAL_PAGE_SIZE = -1;
 
   public Organization create(CreateOrganizationDto request, String createdBy) {
     log.info("creating organization: {},requestedBy:{}", request, createdBy);
@@ -183,22 +186,21 @@ public class OrganizationService {
         return newOrg;
       }
 
-      Optional<Connection> existedConnection =
+      Optional<Connection> connectionOptional =
           connectionsPage.getItems().stream()
               .filter(c -> c.getName().startsWith(StringUtils.join(newOrg.getName(), "-")))
               .findFirst();
 
-      if (existedConnection.isPresent()) {
-        Connection connection = existedConnection.get();
-        organizationsEntity
-            .addConnection(orgId, new EnabledConnection(connection.getId()))
-            .execute();
-
-        // set login type.
-
-        metadata.put(OrganizationMetadata.META_LOGIN_TYPE, connection.getStrategy());
-        updateOrgLoginType.setMetadata(metadata);
+      if (connectionOptional.isEmpty()) {
+        return newOrg;
       }
+
+      Connection connection = connectionOptional.get();
+      organizationsEntity.addConnection(orgId, new EnabledConnection(connection.getId())).execute();
+
+      // set login type.
+      metadata.put(OrganizationMetadata.META_LOGIN_TYPE, connection.getStrategy());
+      updateOrgLoginType.setMetadata(metadata);
     }
 
     return organizationsEntity.update(orgId, updateOrgLoginType).execute().getBody();
@@ -208,7 +210,9 @@ public class OrganizationService {
     log.info("search organizations, q:{}, page:{}, size:{}", q, page, size);
     try {
       PageFilter pageFilter = new PageFilter();
-      pageFilter.withTotals(true);
+      if (size == TOTAL_PAGE_SIZE) {
+        pageFilter.withTotals(true);
+      }
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       Request<OrganizationsPage> organizationRequest = organizationsEntity.list(pageFilter);
       OrganizationsPage organizationsPage = organizationRequest.execute().getBody();
@@ -242,7 +246,11 @@ public class OrganizationService {
   public Paging<Member> listMembers(String orgId, int page, int size) {
     try {
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
-      Request<MembersPage> request = organizationsEntity.getMembers(orgId, null);
+      PageFilter pageFilter = new PageFilter();
+      if (size == TOTAL_PAGE_SIZE) {
+        pageFilter.withTotals(true);
+      }
+      Request<MembersPage> request = organizationsEntity.getMembers(orgId, pageFilter);
       List<Member> items = request.execute().getBody().getItems();
       return PagingHelper.toPage(items, page, size);
     } catch (Auth0Exception e) {
@@ -263,25 +271,15 @@ public class OrganizationService {
   }
 
   public Invitation createInvitation(
-      String orgId, CreateInivitationDto request, String requestedBy) {
-
+      String orgId, CreateInvitationDto request, String requestedBy) {
     log.info("creating invitation:orgId:{}, {},requestedBy:{}", orgId, request, requestedBy);
 
-    if (request.getRoles() == null || request.getRoles().isEmpty()) {
-      throw VortexException.badRequest("Roles cannot be empty.");
-    }
-    if (request.getEmail() == null || request.getEmail().isBlank()) {
-      throw VortexException.badRequest("Email cannot be empty.");
-    }
-
     List<String> roleNames = getAvailableRoleNames(orgId);
-
     if (request.getRoles().stream().anyMatch(role -> !roleNames.contains(role))) {
       throw VortexException.badRequest("Role not found for organization: " + orgId);
     }
 
     try {
-
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       Organization organization = organizationsEntity.get(orgId).execute().getBody();
 
@@ -300,14 +298,19 @@ public class OrganizationService {
       Invitation invitation =
           new Invitation(inviter, invitee, auth0Client.getAuth0Property().getApp().getClientId());
       invitation.setConnectionId(enabledConnectionsPage.getItems().get(0).getConnectionId());
-      invitation.setSendInvitationEmail(false);
+      invitation.setSendInvitationEmail(request.isSendEmail());
       invitation.setRoles(
           new Roles(findRolesByName(request.getRoles()).stream().map(Role::getId).toList()));
 
       Request<Invitation> invitationRequest =
           organizationsEntity.createInvitation(orgId, invitation);
 
-      Invitation createdInvitation = invitationRequest.execute().getBody();
+      Response<Invitation> createdInvitationResponse = invitationRequest.execute();
+      if (createdInvitationResponse.getStatusCode() == HttpStatus.SC_CREATED) {
+        downstreamRoleService.syncRole(orgId, request.getUsername(), request.getCompanyName());
+      }
+
+      Invitation createdInvitation = createdInvitationResponse.getBody();
       emailService.sendInvitation(createdInvitation);
       return createdInvitation;
     } catch (Auth0Exception e) {
@@ -319,7 +322,11 @@ public class OrganizationService {
   public Paging<Invitation> listInvitations(String orgId, int page, int size) {
     try {
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
-      Request<InvitationsPage> request = organizationsEntity.getInvitations(orgId, null);
+      InvitationsFilter pageFilter = new InvitationsFilter();
+      if (size == TOTAL_PAGE_SIZE) {
+        pageFilter.withTotals(true);
+      }
+      Request<InvitationsPage> request = organizationsEntity.getInvitations(orgId, pageFilter);
       List<Invitation> items = request.execute().getBody().getItems();
       return PagingHelper.toPage(items, page, size);
     } catch (Auth0Exception e) {

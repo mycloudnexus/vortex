@@ -172,6 +172,12 @@ app:
           roles:
             - ORG_ADMIN
             - ORG_MEMBER
+    downstream:
+      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
+      admin-api-key-name: Authorization
+      admin-api-key: Bearer ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
+      role: ${IAM_VORTEX_ROLE:VORTEX ADMIN}
+      role-endpoint: ${IAM_ROLE_PATH:/api/company/%s/memberships/%s/roles/%s}
   gateway:
     cors:
       allowed-origins: ${GATEWAY_CORS_ALLOWED_ORIGINS:*}

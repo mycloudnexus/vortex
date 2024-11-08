@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -67,8 +68,18 @@ public class VortexExceptionHandler extends AbstractErrorWebExceptionHandler {
     VortexError errorResponse = new VortexError();
     errorResponse.setCode(httpStatus.value());
     // The max length of reason is 255.
-    String reason = StringUtils.truncate(throwable.getMessage(), REASON_LENGTH_UPPER_LIMIT);
-    errorResponse.setReason(reason);
+    String reasonMsg = throwable.getMessage();
+
+    // Handle controller binding exception.
+    if (throwable instanceof WebExchangeBindException) {
+      WebExchangeBindException exchangeBindException = (WebExchangeBindException) throwable;
+      reasonMsg =
+          StringUtils.truncate(
+              exchangeBindException.getFieldErrors().get(0).getDefaultMessage(),
+              REASON_LENGTH_UPPER_LIMIT);
+    }
+    String errMsg = StringUtils.truncate(throwable.getMessage(), REASON_LENGTH_UPPER_LIMIT);
+    errorResponse.setReason(reasonMsg);
 
     message =
         message == null
@@ -77,7 +88,7 @@ public class VortexExceptionHandler extends AbstractErrorWebExceptionHandler {
 
     errorResponse.setMessage(
         (Objects.isNull(throwable.getCause()) ? message : throwable.getCause().getMessage()));
-    errorResponse.setReferenceError(reason);
+    errorResponse.setReferenceError(errMsg);
     if (httpStatus.value() != HttpStatus.UNPROCESSABLE_ENTITY.value()) {
       return errorResponse;
     }
