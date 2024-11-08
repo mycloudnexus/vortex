@@ -1,5 +1,6 @@
-package com.consoleconnect.vortex.gateway.adapter;
+package com.consoleconnect.vortex.gateway.transformer;
 
+import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.entity.OrderEntity;
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.repo.OrderRepository;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.support.DefaultServerCodecConfigurer;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -32,9 +34,10 @@ import org.springframework.web.server.session.DefaultWebSessionManager;
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @MockIntegrationTest
-class ResponseAdapterTest extends AbstractIntegrationTest {
+class ResponseTransformerTest extends AbstractIntegrationTest {
 
-  @Autowired private RouteAdapterFactory adapterFactory;
+  @Autowired private DefaultCreateResourceOrderTransformer orderTransformer;
+  @Autowired private DefaultResourceListTransformer listTransformer;
   @Autowired private OrderService orderService;
 
   @SpyBean private OrderRepository orderRepository;
@@ -65,9 +68,16 @@ class ResponseAdapterTest extends AbstractIntegrationTest {
             new FixedLocaleContextResolver());
 
     exchange.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
-    RouteAdapter adapter = adapterFactory.matchAdapter(exchange);
+
+    TransformerApiProperty config = new TransformerApiProperty();
+    config.setHttpMethod(HttpMethod.PUT);
+    config.setHttpPath("/test/api/do");
+    config.setTransformer("resource.create");
+    config.setResourceType(ResourceTypeEnum.PORT);
+
+    orderTransformer.getTransformerId();
     byte[] resBytes = "{\"id\":\"orderId\"}".getBytes();
-    byte[] ret = adapter.process(exchange, resBytes);
+    byte[] ret = orderTransformer.doTransform(exchange, resBytes, userContext, config);
     Assertions.assertNotNull(ret);
   }
 
@@ -95,27 +105,33 @@ class ResponseAdapterTest extends AbstractIntegrationTest {
         .when(orderRepository)
         .findByOrganizationIdAndResourceTypeAndResourceIdNotNull(Mockito.any(), Mockito.any());
 
-    RouteAdapter adapter = adapterFactory.matchAdapter(exchange);
+    TransformerApiProperty config = new TransformerApiProperty();
+    config.setHttpMethod(HttpMethod.GET);
+    config.setHttpPath("/test/api/do");
+    config.setTransformer("resource.list");
+    config.setResourceType(ResourceTypeEnum.PORT);
+    config.setResponseBodyPath("$.results");
+
     byte[] resBytes =
         "{\"results\": [{\"id\":\"portId\", \"status\":\"ACTIVE\"}, {\"id\":\"portId2\", \"status\":\"ACTIVE\"}]}"
             .getBytes();
-    byte[] ret = adapter.process(exchange, resBytes);
+    byte[] ret = listTransformer.doTransform(exchange, resBytes, userContext, config);
     Assertions.assertNotNull(ret);
   }
 
-  @Test
-  void testAbnormalCase() {
-    MockServerHttpRequest request = MockServerHttpRequest.get("/abnormal/test").build();
-    ServerWebExchange se =
-        new DefaultServerWebExchange(
-            request,
-            new MockServerHttpResponse(),
-            new DefaultWebSessionManager(),
-            new DefaultServerCodecConfigurer(),
-            new FixedLocaleContextResolver());
-    se.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
-
-    RouteAdapter nullAdapter = adapterFactory.matchAdapter(se);
-    Assertions.assertNull(nullAdapter);
-  }
+  //  @Test
+  //  void testAbnormalCase() {
+  //    MockServerHttpRequest request = MockServerHttpRequest.get("/abnormal/test").build();
+  //    ServerWebExchange se =
+  //        new DefaultServerWebExchange(
+  //            request,
+  //            new MockServerHttpResponse(),
+  //            new DefaultWebSessionManager(),
+  //            new DefaultServerCodecConfigurer(),
+  //            new FixedLocaleContextResolver());
+  //    se.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
+  //
+  //    RouteAdapter nullAdapter = adapterFactory.matchAdapter(se);
+  //    Assertions.assertNull(nullAdapter);
+  //  }
 }

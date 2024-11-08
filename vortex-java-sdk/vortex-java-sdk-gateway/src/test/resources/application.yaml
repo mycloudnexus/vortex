@@ -49,8 +49,8 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: consoleconnect-api
-          uri: ${app.gateway.consoleconnect.base-url}
+        - id: test-api
+          uri: ${app.gateway.test.base-url}
           predicates:
             - Path=/test/**
           filters:
@@ -59,9 +59,29 @@ spring:
             - name: SetAPIKey
               args:
                 keyName: Authorization
-                adminKey: Bearer ${app.gateway.consoleconnect.admin-api-key}
-                userKey: Bearer ${app.gateway.consoleconnect.user-api-key}
+                adminKey: Bearer ${app.gateway.test.admin-api-key}
+                userKey: Bearer ${app.gateway.test.user-api-key}
             - ResponseAdapter
+            - name: ResponseBodyTransformer
+              args:
+                apis:
+                  - http-method: PUT
+                    http-path: /test/api/do
+                    transformer: resource.create
+                    resource-type: PORT
+                    resource-body-path: $
+                    resource-instance-id-path: id
+                  - http-method: PUT
+                    http-path: /test/api2/do
+                    transformer: resource.create
+                    resource-type: L2
+                  - http-method: GET
+                    http-path: /test/api/do
+                    transformer: resource.list
+                    resource-type: PORT
+                    resource-body-path: $.results
+                    resource-instance-id-path: id
+
         - id: downstream-api
           uri: ${app.gateway.downstream.base-url}
           predicates:
@@ -113,19 +133,6 @@ logging:
     org.springframework.cloud.gateway: DEBUG
 
 app:
-  route-adapters:
-    - adapter-class-name: com.consoleconnect.vortex.gateway.adapter.cc.DefaultResourceOrderCreateAdapter
-      apis:
-        - method: PUT
-          route-path: /test/api/do
-          resourceType: PORT
-    - adapter-class-name: com.consoleconnect.vortex.gateway.adapter.cc.DefaultResourceListAdapter
-      apis:
-        - method: GET
-          route-path: /test/api/do
-          resource-type: PORT
-          resource-id-key: id
-          response-root-path: $.results
   iam:
     jwt:
       issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
@@ -183,7 +190,7 @@ app:
             - ORG_ADMIN
             - ORG_MEMBER
   gateway:
-    consoleconnect:
+    test:
       base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:https://api.consoleconnect.com}
       admin-api-key: ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
       user-api-key: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}

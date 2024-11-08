@@ -2,13 +2,17 @@ package com.consoleconnect.vortex.gateway;
 
 import static org.mockito.ArgumentMatchers.any;
 
-import com.consoleconnect.vortex.gateway.adapter.RouteAdapterFactory;
+import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
+import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.filter.MefAPIHeaderGatewayFilterFactory;
-import com.consoleconnect.vortex.gateway.filter.ResponseAdapterGatewayFilterFactory;
+import com.consoleconnect.vortex.gateway.filter.ResponseBodyTransformerGatewayFilterFactory;
+import com.consoleconnect.vortex.gateway.transformer.AbstractResourceTransformer;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.model.UserContext;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,12 +21,12 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.rewrite.MessageBodyDecoder;
 import org.springframework.cloud.gateway.filter.factory.rewrite.MessageBodyEncoder;
 import org.springframework.core.io.buffer.DefaultDataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.support.DefaultServerCodecConfigurer;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -45,23 +49,31 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
         35, -91, 90, 0, -8, 26, 77, 18, 19, 0, 0, 0
       };
 
-  @Autowired private RouteAdapterFactory adapterFactory;
   @Autowired private Set<MessageBodyDecoder> messageBodyDecoders;
   @Autowired private Set<MessageBodyEncoder> messageBodyEncoders;
+  @Autowired private List<AbstractResourceTransformer> transformers;
 
   private ServerWebExchange exchange;
-  private AbstractGatewayFilterFactory.NameConfig config =
-      new AbstractGatewayFilterFactory.NameConfig();
-  private ResponseAdapterGatewayFilterFactory responseAdapterFilter;
+  private ResponseBodyTransformerGatewayFilterFactory.Config config;
+  private ResponseBodyTransformerGatewayFilterFactory responseTransformerFilter;
   private MefAPIHeaderGatewayFilterFactory mefAPIHeaderFilter;
   private GatewayFilterChain chain;
 
   @BeforeEach
   void setUp() {
-    config.setName("name");
-    responseAdapterFilter =
-        new ResponseAdapterGatewayFilterFactory(
-            adapterFactory, messageBodyDecoders, messageBodyEncoders);
+    TransformerApiProperty property = new TransformerApiProperty();
+    property.setHttpMethod(HttpMethod.PUT);
+    property.setHttpPath("/test/api/do");
+    property.setTransformer("resource.create");
+    property.setResourceType(ResourceTypeEnum.PORT);
+
+    List<TransformerApiProperty> apis = new ArrayList<>();
+    apis.add(property);
+    config = new ResponseBodyTransformerGatewayFilterFactory.Config(apis);
+
+    responseTransformerFilter =
+        new ResponseBodyTransformerGatewayFilterFactory(
+            messageBodyDecoders, messageBodyEncoders, transformers);
 
     MockServerHttpRequest request =
         MockServerHttpRequest.put("/test/api/do").header("Authorization", "Bearer token").build();
@@ -96,7 +108,7 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
 
   @Test
   void testResponseAdapterGatewayFilterFactory() {
-    GatewayFilter filter = responseAdapterFilter.apply(config);
+    GatewayFilter filter = responseTransformerFilter.apply(config);
     Mono<Void> result = filter.filter(exchange, chain);
     StepVerifier.create(result).expectComplete().verify();
   }
