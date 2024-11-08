@@ -245,11 +245,11 @@ public class OrganizationService {
 
   public Paging<Member> listMembers(String orgId, int page, int size) {
     try {
-      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       PageFilter pageFilter = new PageFilter();
       if (size == TOTAL_PAGE_SIZE) {
         pageFilter.withTotals(true);
       }
+      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       Request<MembersPage> request = organizationsEntity.getMembers(orgId, pageFilter);
       List<Member> items = request.execute().getBody().getItems();
       return PagingHelper.toPage(items, page, size);
@@ -321,11 +321,11 @@ public class OrganizationService {
 
   public Paging<Invitation> listInvitations(String orgId, int page, int size) {
     try {
-      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       InvitationsFilter pageFilter = new InvitationsFilter();
       if (size == TOTAL_PAGE_SIZE) {
         pageFilter.withTotals(true);
       }
+      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       Request<InvitationsPage> request = organizationsEntity.getInvitations(orgId, pageFilter);
       List<Invitation> items = request.execute().getBody().getItems();
       return PagingHelper.toPage(items, page, size);
