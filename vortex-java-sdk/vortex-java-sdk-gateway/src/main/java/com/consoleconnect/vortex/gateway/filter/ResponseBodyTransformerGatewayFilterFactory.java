@@ -180,12 +180,13 @@ public class ResponseBodyTransformerGatewayFilterFactory
     public Config(List<TransformerApiProperty> apis) {
       this.apiTransformers =
           apis.stream()
-              .peek(
+              .filter(
                   t -> {
                     if (check(t)) {
                       throw new IllegalArgumentException(
                           "transformer api properties cannot be empty.");
                     }
+                    return Boolean.TRUE;
                   })
               .collect(
                   Collectors.toMap(t -> buildFullPath(t.getHttpMethod(), t.getHttpPath()), x -> x));
@@ -210,9 +211,9 @@ public class ResponseBodyTransformerGatewayFilterFactory
       }
       return null;
     }
-  }
 
-  private static String buildFullPath(HttpMethod method, String httpPath) {
-    return method.name() + " " + httpPath;
+    private static String buildFullPath(HttpMethod method, String httpPath) {
+      return method.name() + " " + httpPath;
+    }
   }
 }
