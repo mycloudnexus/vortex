@@ -22,6 +22,7 @@ public class DownstreamRoleService {
 
   @Async
   public void syncRole(String orgId, String username, String companyName) {
+    log.info("syncRole, orgId:{}, username:{}, companyName:{}", orgId, username, companyName);
     if (!Objects.equals(orgId, iamProperty.getAuth0().getMgmtOrgId())) {
       return;
     }

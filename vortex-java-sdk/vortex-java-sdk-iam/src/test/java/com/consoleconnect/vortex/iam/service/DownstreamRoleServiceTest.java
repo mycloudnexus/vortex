@@ -29,6 +29,8 @@ class DownstreamRoleServiceTest {
   @SpyBean private VortexServerConnector vortexServerConnector;
   @SpyBean private IamProperty iamProperty;
   @Autowired private DownstreamRoleService downstreamRoleService;
+  private static final String SYSTEM = "system";
+  private static final String TEST_COMPANY = "Test Company";
 
   @Test
   void syncRole() {
@@ -36,7 +38,7 @@ class DownstreamRoleServiceTest {
     mockAuth0Property(uuid);
     mockDownstreamProperty();
     mockRoleResponse();
-    downstreamRoleService.syncRole(uuid, "system", "Test Company");
+    downstreamRoleService.syncRole(uuid, SYSTEM, TEST_COMPANY);
     Assertions.assertThatNoException();
   }
 
@@ -45,7 +47,7 @@ class DownstreamRoleServiceTest {
     mockAuth0Property(UUID.randomUUID().toString());
     mockDownstreamProperty();
     mockRoleResponse();
-    downstreamRoleService.syncRole(UUID.randomUUID().toString(), "system", "Test Company");
+    downstreamRoleService.syncRole(UUID.randomUUID().toString(), SYSTEM, TEST_COMPANY);
     Assertions.assertThatNoException();
   }
 
@@ -55,7 +57,31 @@ class DownstreamRoleServiceTest {
     mockAuth0Property(uuid);
     mockDownstreamProperty();
     mockRoleResponse();
-    downstreamRoleService.syncRole(uuid, null, "Test Company");
+    downstreamRoleService.syncRole(uuid, null, TEST_COMPANY);
+    Assertions.assertThatNoException();
+  }
+
+  @Test
+  void syncCompanyEmpty() {
+    String uuid = UUID.randomUUID().toString();
+    mockAuth0Property(uuid);
+    mockDownstreamProperty();
+    mockRoleResponse();
+    downstreamRoleService.syncRole(uuid, SYSTEM, null);
+    Assertions.assertThatNoException();
+  }
+
+  @Test
+  void syncRoleException() {
+    String uuid = UUID.randomUUID().toString();
+    mockAuth0Property(uuid);
+    DownstreamProperty downstreamProperty = new DownstreamProperty();
+    downstreamProperty.setAdminApiKey(UUID.randomUUID().toString());
+    downstreamProperty.setRoleEndpoint("/");
+    downstreamProperty.setRole("role");
+    doReturn(downstreamProperty).when(iamProperty).getDownStream();
+    mockRoleResponse();
+    downstreamRoleService.syncRole(uuid, "test", "Test Company");
     Assertions.assertThatNoException();
   }
 

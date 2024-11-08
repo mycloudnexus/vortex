@@ -155,6 +155,9 @@ public class OrganizationService {
       OrganizationsEntity organizationsEntity,
       Organization newOrg)
       throws Auth0Exception {
+    log.info(
+        "processOrgRelatedConnection, orgId:{}, status:{}, oldStatus:{}", orgId, status, oldStatus);
+
     Organization updateOrgLoginType = new Organization();
     Map<String, Object> metadata = newOrg.getMetadata();
 
@@ -165,6 +168,7 @@ public class OrganizationService {
 
       if (Objects.isNull(enabledConnectionsPage)
           || CollectionUtils.isEmpty(enabledConnectionsPage.getItems())) {
+        log.info("processOrgRelatedConnection.no related connection, orgId:{}", orgId);
         return newOrg;
       }
 
@@ -192,6 +196,7 @@ public class OrganizationService {
               .findFirst();
 
       if (connectionOptional.isEmpty()) {
+        log.info("processOrgRelatedConnection.no matched connection, orgId:{}", orgId);
         return newOrg;
       }
 
@@ -244,6 +249,7 @@ public class OrganizationService {
   }
 
   public Paging<Member> listMembers(String orgId, int page, int size) {
+    log.info("list members, orgId:{}, size:{}", orgId, size);
     try {
       PageFilter pageFilter = new PageFilter();
       if (size == TOTAL_PAGE_SIZE) {
@@ -320,6 +326,7 @@ public class OrganizationService {
   }
 
   public Paging<Invitation> listInvitations(String orgId, int page, int size) {
+    log.info("list invitations, orgId:{}, size:{}", orgId, size);
     try {
       InvitationsFilter pageFilter = new InvitationsFilter();
       if (size == TOTAL_PAGE_SIZE) {
