@@ -216,6 +216,7 @@ public class OrganizationService {
     try {
       PageFilter pageFilter = new PageFilter();
       if (size == TOTAL_PAGE_SIZE) {
+        size = Integer.MAX_VALUE;
         pageFilter.withTotals(true);
       }
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
@@ -253,6 +254,7 @@ public class OrganizationService {
     try {
       PageFilter pageFilter = new PageFilter();
       if (size == TOTAL_PAGE_SIZE) {
+        size = Integer.MAX_VALUE;
         pageFilter.withTotals(true);
       }
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
@@ -330,6 +332,7 @@ public class OrganizationService {
     try {
       InvitationsFilter pageFilter = new InvitationsFilter();
       if (size == TOTAL_PAGE_SIZE) {
+        size = Integer.MAX_VALUE;
         pageFilter.withTotals(true);
       }
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
