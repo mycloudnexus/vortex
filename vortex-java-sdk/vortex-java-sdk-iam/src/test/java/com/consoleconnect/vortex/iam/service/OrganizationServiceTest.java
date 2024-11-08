@@ -326,6 +326,7 @@ class OrganizationServiceTest {
             updateOrganization.setDisplayName("test");
             OrganizationMetadata updateMetadata = new OrganizationMetadata();
             updateMetadata.setStatus(OrgStatusEnum.ACTIVE);
+            updateMetadata.setLoginType(ConnectionStrategyEnum.AUTH0);
             updateOrganization.setMetadata(
                 JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>() {}));
             return updateOrganization;
@@ -344,13 +345,9 @@ class OrganizationServiceTest {
     Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
     doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPage).execute();
 
-    EnabledConnection enabledConnection = new EnabledConnection("test");
-    EnabledConnectionsPage connectionsPage = new EnabledConnectionsPage(List.of(enabledConnection));
-    doReturn(connectionsPage).when(enabledConnectionsPageResponse).getBody();
-
-    Request<Void> delRequest = mock(Request.class);
-    doReturn(delRequest).when(organizationsEntity).deleteConnection(anyString(), anyString());
-    doReturn(mock(Response.class)).when(delRequest).execute();
+    Request<Void> addRequest = mock(Request.class);
+    doReturn(addRequest).when(organizationsEntity).addConnection(anyString(), any());
+    doReturn(mock(Response.class)).when(addRequest).execute();
 
     ConnectionsEntity connectionsEntity = mock(ConnectionsEntity.class);
     doReturn(connectionsEntity).when(managementAPI).connections();
@@ -361,7 +358,8 @@ class OrganizationServiceTest {
     Response<ConnectionsPage> connectionResponse = mock(Response.class);
     doReturn(connectionResponse).when(connectionsPageRequest).execute();
 
-    ConnectionsPage existConnection = new ConnectionsPage(List.of(new Connection("test", "auth0")));
+    ConnectionsPage existConnection =
+        new ConnectionsPage(List.of(new Connection("test-auth0", "auth0")));
     doReturn(existConnection).when(connectionResponse).getBody();
 
     Organization result =
@@ -499,10 +497,6 @@ class OrganizationServiceTest {
           }
         };
     doReturn(updateResponse).when(organizationRequest).execute();
-
-    Request<Void> delRequest = mock(Request.class);
-    doReturn(delRequest).when(organizationsEntity).deleteConnection(anyString(), anyString());
-    doReturn(mock(Response.class)).when(delRequest).execute();
 
     ConnectionsEntity connectionsEntity = mock(ConnectionsEntity.class);
     doReturn(connectionsEntity).when(managementAPI).connections();
