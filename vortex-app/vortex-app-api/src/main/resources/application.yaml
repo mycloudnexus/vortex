@@ -75,7 +75,6 @@ spring:
                 keyName: Authorization
                 adminKey: Bearer ${app.gateway.downstream.admin-api-key}
                 userKey: Bearer ${app.gateway.downstream.user-api-key}
-            - ResponseAdapter
 management:
   endpoint:
     health:
