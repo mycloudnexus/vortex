@@ -1,13 +1,21 @@
-import { FC } from 'react'
+import { FC, useEffect } from 'react'
 import { RouterProvider } from 'react-router-dom'
 import { QueryClientProvider } from 'react-query'
 import { router } from './routers'
 import { ConfigProvider } from 'antd'
 import { queryClient } from '@/utils/helpers/request-query'
 import { useAppStore } from './stores/app.store'
+import { getToken } from './utils/helpers/token'
 
 const App: FC = () => {
   const { mainColor } = useAppStore()
+
+  useEffect(() => {
+    if (window) {
+      window.portalToken = getToken() ?? ''
+    }
+  }, [])
+
   return (
     <QueryClientProvider client={queryClient}>
       <ConfigProvider

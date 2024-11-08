@@ -7,7 +7,7 @@
     "build": "webpack --mode production",
     "build:analyze": "webpack --mode production --env analyze",
     "preview": "serve dist/ -s",
-    "lint": "eslint --ext js,jsx,ts,tsx src/",
+    "lint": "eslint src/",
     "lint:fix": "eslint --fix --ext js,jsx,ts,tsx src/",
     "prettier": "prettier --check \"src/**/(*.tsx|*.ts|*.jsx|*.js|*.scss|*.css)\"",
     "prettier:fix": "prettier --write \"src/**/(*.tsx|*.ts|*.jsx|*.js|*.scss|*.css)\"",
@@ -38,6 +38,9 @@
     "@babel/preset-env": "^7.25.8",
     "@babel/preset-react": "^7.25.7",
     "@babel/preset-typescript": "^7.25.7",
+    "@eslint/compat": "^1.2.2",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.13.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^16.0.1",
@@ -67,6 +70,7 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-webpack-plugin": "^4.2.0",
     "file-loader": "^6.2.0",
+    "globals": "^15.11.0",
     "html-webpack-plugin": "^5.6.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
@@ -83,6 +87,10 @@
     "webpack-dev-server": "^5.1.0"
   },
   "jest": {
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/src/test/*",
+      "<rootDir>/eslint.config.mjs"
+    ],
     "setupFilesAfterEnv": [
       "<rootDir>/src/test/setupTest.tsx"
     ],
@@ -90,7 +98,15 @@
       "\\.(css|less|scss|sass)$": "identity-obj-proxy",
       "^@/(.*)$": "<rootDir>/src/$1"
     },
-    "testEnvironment": "jsdom"
+    "testEnvironment": "jsdom",
+    "testPathIgnorePatterns": [
+      "<rootDir>/src/test/*",
+      "<rootDir>/eslint.config.mjs"
+    ],
+    "transform": {
+      "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "babel-jest",
+      "^.+\\.svg$": "<rootDir>/src/test/svgTransform.js"
+    }
   },
   "overrides": {
     "path-to-regexp": "3.3.0",

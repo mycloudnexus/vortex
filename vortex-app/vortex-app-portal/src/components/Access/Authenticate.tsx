@@ -32,11 +32,13 @@ const Authenticate = ({ children }: AuthenticateProps) => {
     if (!userDetail) return
     const companyId = get(userDetail, 'companies[0].id', '')
     const roleIds = get(userDetail, ['linkUserCompany', companyId, 'roleIds'], [])
-    const accessRole = filter(roleList, (r) => roleIds.includes(r.id) || r.systemDefault)
+    const accessRoles = filter(roleList, (r) => roleIds.includes(r.id) || r.systemDefault)
+    const allUserDetail = { ...userDetail, accessRoles }
     window.portalAccessRoles = roleList
-    window.portalLoggedInUser = userDetail
+    window.portalLoggedInUser = allUserDetail
+
     setRoleList(roleList)
-    setUser({ ...userDetail, accessRole })
+    setUser(allUserDetail)
   }, [userData, roleData])
 
   useEffect(() => {
