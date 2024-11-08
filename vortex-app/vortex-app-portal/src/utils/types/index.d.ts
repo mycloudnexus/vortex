@@ -10,10 +10,9 @@ declare module '*.svg' {
 declare module '*.module.css'
 declare module '*.module.scss'
 
-
 declare interface Window {
-  portalConfig: any;
-  portalLoggedInUser: any;
-  portalAccessRoles: any;
+  portalConfig: Record<string, unknown>
+  portalLoggedInUser: Record<string, unknown>
+  portalAccessRoles: Record<string, unknown>
+  portalToken: string
 }
-

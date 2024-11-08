@@ -39,7 +39,6 @@ export interface User {
   accessRoles?: Role[]
 }
 
-
 export type AuthUser = {
   email: string
   email_verified: boolean
@@ -69,4 +68,3 @@ export type AppStore = {
   roleList: Role | null
   setRoleList: (c: Role | null) => void
 }
-
