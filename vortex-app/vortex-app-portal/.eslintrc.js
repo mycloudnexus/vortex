@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path')
 module.exports = {
+  parser: '@typescript-eslint/parser',
   extends: [
     'eslint:recommended',
     'plugin:react/recommended',
@@ -11,7 +12,7 @@ module.exports = {
     'eslint-config-prettier',
     'prettier'
   ],
-  plugins: ['prettier'],
+  plugins: ['prettier', '@typescript-eslint'],
   settings: {
     react: {
       version: 'detect'
@@ -27,7 +28,9 @@ module.exports = {
     }
   },
   env: {
-    node: true
+    node: true,
+    browser: true,
+    es2020: true
   },
   rules: {
     'react/react-in-jsx-scope': 'off',
@@ -50,14 +53,15 @@ module.exports = {
       }
     ],
     'jsx-a11y/click-events-have-key-events': 'off',
-    "jsx-a11y/no-static-element-interactions": 'off',
-    "@typescript-eslint/no-unused-vars": 'off',
-    "@typescript-eslint/no-unused-vars": [
-      "warn",
+    'jsx-a11y/no-static-element-interactions': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
       {
-        "varsIgnorePattern": "[iI]gnored",
-        "argsIgnorePattern": "[iI]gnored"
+        varsIgnorePattern: '[iI]gnored',
+        argsIgnorePattern: '[iI]gnored'
       }
     ],
+    'import/named': 'off'
   }
 }
