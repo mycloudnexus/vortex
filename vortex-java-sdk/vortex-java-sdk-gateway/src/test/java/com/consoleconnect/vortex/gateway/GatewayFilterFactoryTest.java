@@ -107,7 +107,7 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void testResponseAdapterGatewayFilterFactory() {
+  void testResponseBodyTransformerGatewayFilterFactory() {
     GatewayFilter filter = responseTransformerFilter.apply(config);
     Mono<Void> result = filter.filter(exchange, chain);
     StepVerifier.create(result).expectComplete().verify();

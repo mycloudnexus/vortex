@@ -118,20 +118,4 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
     byte[] ret = listTransformer.doTransform(exchange, resBytes, userContext, config);
     Assertions.assertNotNull(ret);
   }
-
-  //  @Test
-  //  void testAbnormalCase() {
-  //    MockServerHttpRequest request = MockServerHttpRequest.get("/abnormal/test").build();
-  //    ServerWebExchange se =
-  //        new DefaultServerWebExchange(
-  //            request,
-  //            new MockServerHttpResponse(),
-  //            new DefaultWebSessionManager(),
-  //            new DefaultServerCodecConfigurer(),
-  //            new FixedLocaleContextResolver());
-  //    se.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
-  //
-  //    RouteAdapter nullAdapter = adapterFactory.matchAdapter(se);
-  //    Assertions.assertNull(nullAdapter);
-  //  }
 }
