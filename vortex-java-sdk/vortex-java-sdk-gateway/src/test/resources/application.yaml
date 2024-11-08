@@ -61,7 +61,6 @@ spring:
                 keyName: Authorization
                 adminKey: Bearer ${app.gateway.test.admin-api-key}
                 userKey: Bearer ${app.gateway.test.user-api-key}
-            - ResponseAdapter
             - name: ResponseBodyTransformer
               args:
                 apis:
