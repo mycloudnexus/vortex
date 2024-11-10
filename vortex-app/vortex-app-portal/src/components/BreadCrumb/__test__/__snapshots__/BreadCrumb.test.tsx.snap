@@ -12,7 +12,9 @@ exports[`BreadCrumb Component BreadCrumb Component should handle missing breadcr
           <a
             class="sc-blHHSb emlGen"
             href="/contact"
-          />
+          >
+            /contact
+          </a>
         </li>
       </ol>
     </nav>

@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react'
 import type { BreadcrumbItemType, BreadcrumbSeparatorType } from 'antd/es/breadcrumb/Breadcrumb'
 
-import { Link, useLocation } from 'react-router-dom'
+import { Link, matchPath, useLocation } from 'react-router-dom'
 import { IRouteObject, routes } from '@/routers'
 
 import { Breadcrumb as AntBreadcrumb } from 'antd'
@@ -44,9 +44,16 @@ const renderBreadCrumbItems = (
 
 const getBreadCrumbName = (path: string, routes: IRouteObject[]): string => {
   for (const route of routes) {
-    if (route.path && path === route.path) {
-      return route.breadCrumbName || ''
+    if (route.path) {
+      const match = matchPath({ path: route.path, end: true }, path)
+
+      if (match) {
+        if (route.breadCrumbName) return route.breadCrumbName
+        const dynamicSegment = Object.values(match.params)[0]
+        return dynamicSegment ? `${dynamicSegment}` : path
+      }
     }
+
     if (route.children) {
       const childBreadCrumb = getBreadCrumbName(path, route.children)
       if (childBreadCrumb) {
