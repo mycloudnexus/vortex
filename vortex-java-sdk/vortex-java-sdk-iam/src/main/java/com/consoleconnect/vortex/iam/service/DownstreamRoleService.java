@@ -30,7 +30,7 @@ public class DownstreamRoleService {
     String url =
         String.format(
             downStreamProperty.getRoleEndpoint(),
-            downStreamProperty.getCompanyName(),
+            downStreamProperty.getCompanyUsername(),
             username,
             downStreamProperty.getRole());
 

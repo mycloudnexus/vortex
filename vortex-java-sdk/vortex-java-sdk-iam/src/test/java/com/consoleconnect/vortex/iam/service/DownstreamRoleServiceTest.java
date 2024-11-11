@@ -93,7 +93,7 @@ class DownstreamRoleServiceTest {
     downstreamProperty.setRole("role");
     downstreamProperty.setAdminApiKeyName("Authorization");
     downstreamProperty.setAdminApiKey("Bearer ");
-    downstreamProperty.setCompanyName(TEST_COMPANY);
+    downstreamProperty.setCompanyUsername(TEST_COMPANY);
     downstreamProperty.setBaseUrl("http://localhost");
     doReturn(downstreamProperty).when(iamProperty).getDownStream();
   }
