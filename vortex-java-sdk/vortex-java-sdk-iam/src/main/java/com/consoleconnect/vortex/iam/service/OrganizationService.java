@@ -287,8 +287,7 @@ public class OrganizationService {
       throw VortexException.badRequest("Role not found for organization: " + orgId);
     }
 
-    if ((request.getRoles().contains(RoleEnum.PLATFORM_ADMIN.name())
-            || request.getRoles().contains(RoleEnum.PLATFORM_MEMBER.name()))
+    if (auth0Client.getAuth0Property().getMgmtOrgId().equalsIgnoreCase(orgId)
         && (StringUtils.isBlank(request.getUsername())
             || StringUtils.isBlank(request.getCompanyName()))) {
       throw VortexException.badRequest("Username or companyName cannot be empty.");
@@ -321,7 +320,8 @@ public class OrganizationService {
           organizationsEntity.createInvitation(orgId, invitation);
 
       Response<Invitation> createdInvitationResponse = invitationRequest.execute();
-      if (createdInvitationResponse.getStatusCode() == HttpStatus.SC_CREATED) {
+      if (auth0Client.getAuth0Property().getMgmtOrgId().equalsIgnoreCase(orgId)
+          && createdInvitationResponse.getStatusCode() == HttpStatus.SC_CREATED) {
         downstreamRoleService.syncRole(orgId, request.getUsername(), request.getCompanyName());
       }
 
