@@ -69,7 +69,8 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
 
     List<TransformerApiProperty> apis = new ArrayList<>();
     apis.add(property);
-    config = new ResponseBodyTransformerGatewayFilterFactory.Config(apis);
+    config = new ResponseBodyTransformerGatewayFilterFactory.Config();
+    config.setApis(apis);
 
     responseTransformerFilter =
         new ResponseBodyTransformerGatewayFilterFactory(

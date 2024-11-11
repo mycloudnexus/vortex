@@ -93,26 +93,6 @@ public class ResponseBodyTransformerGatewayFilterFactory
                   Collectors.toMap(t -> buildFullPath(t.getHttpMethod(), t.getHttpPath()), x -> x));
     }
 
-    private boolean check(TransformerApiProperty t) {
-      return t.getHttpMethod() == null
-          || t.getHttpPath() == null
-          || t.getTransformer() == null
-          || t.getResourceType() == null;
-    }
-
-    public TransformerApiProperty match(ServerWebExchange exchange) {
-      String key =
-          buildFullPath(
-              exchange.getRequest().getMethod(), exchange.getRequest().getURI().getPath());
-
-      for (Map.Entry<String, TransformerApiProperty> entry : apiTransformers.entrySet()) {
-        if (pathMatcher.match(entry.getKey(), key)) {
-          return entry.getValue();
-        }
-      }
-      return null;
-    }
-
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
       // Step 1: match transformer
@@ -203,6 +183,26 @@ public class ResponseBodyTransformerGatewayFilterFactory
     @Override
     public int getOrder() {
       return NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1;
+    }
+
+    private boolean check(TransformerApiProperty t) {
+      return t.getHttpMethod() == null
+          || t.getHttpPath() == null
+          || t.getTransformer() == null
+          || t.getResourceType() == null;
+    }
+
+    public TransformerApiProperty match(ServerWebExchange exchange) {
+      String key =
+          buildFullPath(
+              exchange.getRequest().getMethod(), exchange.getRequest().getURI().getPath());
+
+      for (Map.Entry<String, TransformerApiProperty> entry : apiTransformers.entrySet()) {
+        if (pathMatcher.match(entry.getKey(), key)) {
+          return entry.getValue();
+        }
+      }
+      return null;
     }
   }
 
