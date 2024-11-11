@@ -1,10 +1,8 @@
 import Layout from '@/components/Layout'
 import Dashboard from '@/pages/Dashboard'
 import EdgeModuleContainer from '@/pages/ExampleMicroModule'
-import { createBrowserRouter, Outlet, RouteObject } from 'react-router-dom'
+import { createBrowserRouter, RouteObject } from 'react-router-dom'
 import Login from '@/components/Access/Login'
-import CustomerCompany from '@/pages/Settings/CustomerCompany'
-import Users from '@/pages/Settings/Users'
 
 type CustomRoute = {
   breadCrumbName?: string
@@ -25,24 +23,6 @@ export const routes: IRouteObject[] = [
         path: '/',
         element: <Dashboard />,
         breadCrumbName: 'Dashboard'
-      },
-      {
-        path: '/settings',
-        element: <Outlet />,
-        breadCrumbName: 'Settings',
-        children: [
-          {
-            index: true,
-            path: '/settings/users',
-            element: <Users />,
-            breadCrumbName: 'Users'
-          },
-          {
-            path: '/settings/customer-company',
-            element: <CustomerCompany />,
-            breadCrumbName: 'Customer Company'
-          }
-        ]
       },
       {
         path: 'example/*',
