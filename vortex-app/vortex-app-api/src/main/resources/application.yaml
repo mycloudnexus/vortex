@@ -176,7 +176,7 @@ app:
       admin-api-key-name: Authorization
       admin-api-key: Bearer ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
       role: ${IAM_VORTEX_ROLE:VORTEX ADMIN}
-      companyName: ${COMPANY_NAME:test}
+      company-name: ${COMPANY_NAME:test}
       role-endpoint: ${IAM_ROLE_PATH:/api/company/%s/memberships/%s/roles/%s}
   gateway:
     cors:
