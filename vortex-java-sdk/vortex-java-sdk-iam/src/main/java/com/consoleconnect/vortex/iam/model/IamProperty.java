@@ -7,8 +7,8 @@ public class IamProperty {
   private Auth0Property auth0;
   private ResourceServerProperty resourceServer;
   private JwtProperty jwt;
-
   private EmailProperty email;
+  private DownstreamProperty downStream;
 
   @Data
   public static class JwtProperty {
