@@ -16,7 +16,10 @@ import lombok.Setter;
 @Setter
 @Table(
     name = "vortex_order",
-    indexes = {@Index(columnList = "organization_id,resource_type,order_id", unique = true)})
+    indexes = {
+      @Index(columnList = "organization_id,resource_type,order_id", unique = true),
+      @Index(columnList = "organization_id,resource_type,resource_id", unique = true)
+    })
 public class OrderEntity extends AbstractEntity {
 
   @Column(name = "organization_id", nullable = false)

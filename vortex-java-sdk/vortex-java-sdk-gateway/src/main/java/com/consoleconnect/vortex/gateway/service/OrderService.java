@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 public class OrderService {
   private OrderRepository orderRepository;
 
-  public List<OrderEntity> listOrders(String orgId) {
-    return orderRepository.findByOrganizationId(orgId);
+  public List<OrderEntity> listOrders(String orgId, ResourceTypeEnum resourceType) {
+    return orderRepository.findByOrganizationIdAndResourceType(orgId, resourceType);
   }
 
   public List<OrderEntity> listResourceByType(String orgId, ResourceTypeEnum resourceType) {
