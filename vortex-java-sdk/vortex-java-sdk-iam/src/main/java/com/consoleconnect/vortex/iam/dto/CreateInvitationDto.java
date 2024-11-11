@@ -17,8 +17,5 @@ public class CreateInvitationDto {
   @Parameter(description = "Only for platform user.")
   private String username;
 
-  @Parameter(description = "Only for platform user.")
-  private String companyName;
-
   private boolean sendEmail = true;
 }

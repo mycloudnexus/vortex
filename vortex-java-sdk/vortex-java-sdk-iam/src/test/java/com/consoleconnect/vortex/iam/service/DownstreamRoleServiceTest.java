@@ -38,7 +38,7 @@ class DownstreamRoleServiceTest {
     mockAuth0Property(uuid);
     mockDownstreamProperty();
     mockRoleResponse();
-    downstreamRoleService.syncRole(uuid, SYSTEM, TEST_COMPANY);
+    downstreamRoleService.syncRole(uuid, SYSTEM);
     Assertions.assertThatNoException();
   }
 
@@ -47,7 +47,7 @@ class DownstreamRoleServiceTest {
     mockAuth0Property(UUID.randomUUID().toString());
     mockDownstreamProperty();
     mockRoleResponse();
-    downstreamRoleService.syncRole(UUID.randomUUID().toString(), SYSTEM, TEST_COMPANY);
+    downstreamRoleService.syncRole(UUID.randomUUID().toString(), SYSTEM);
     Assertions.assertThatNoException();
   }
 
@@ -57,17 +57,7 @@ class DownstreamRoleServiceTest {
     mockAuth0Property(uuid);
     mockDownstreamProperty();
     mockRoleResponse();
-    downstreamRoleService.syncRole(uuid, null, TEST_COMPANY);
-    Assertions.assertThatNoException();
-  }
-
-  @Test
-  void syncCompanyEmpty() {
-    String uuid = UUID.randomUUID().toString();
-    mockAuth0Property(uuid);
-    mockDownstreamProperty();
-    mockRoleResponse();
-    downstreamRoleService.syncRole(uuid, SYSTEM, null);
+    downstreamRoleService.syncRole(uuid, null);
     Assertions.assertThatNoException();
   }
 
@@ -81,7 +71,7 @@ class DownstreamRoleServiceTest {
     downstreamProperty.setRole("role");
     doReturn(downstreamProperty).when(iamProperty).getDownStream();
     mockRoleResponse();
-    downstreamRoleService.syncRole(uuid, "test", "Test Company");
+    downstreamRoleService.syncRole(uuid, "test");
     Assertions.assertThatNoException();
   }
 
@@ -103,6 +93,7 @@ class DownstreamRoleServiceTest {
     downstreamProperty.setRole("role");
     downstreamProperty.setAdminApiKeyName("Authorization");
     downstreamProperty.setAdminApiKey("Bearer ");
+    downstreamProperty.setCompanyName(TEST_COMPANY);
     downstreamProperty.setBaseUrl("http://localhost");
     doReturn(downstreamProperty).when(iamProperty).getDownStream();
   }

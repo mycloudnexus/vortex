@@ -288,8 +288,7 @@ public class OrganizationService {
     }
 
     if (auth0Client.getAuth0Property().getMgmtOrgId().equalsIgnoreCase(orgId)
-        && (StringUtils.isBlank(request.getUsername())
-            || StringUtils.isBlank(request.getCompanyName()))) {
+        && StringUtils.isBlank(request.getUsername())) {
       throw VortexException.badRequest("Username or companyName cannot be empty.");
     }
 
@@ -322,7 +321,7 @@ public class OrganizationService {
       Response<Invitation> createdInvitationResponse = invitationRequest.execute();
       if (auth0Client.getAuth0Property().getMgmtOrgId().equalsIgnoreCase(orgId)
           && createdInvitationResponse.getStatusCode() == HttpStatus.SC_CREATED) {
-        downstreamRoleService.syncRole(orgId, request.getUsername(), request.getCompanyName());
+        downstreamRoleService.syncRole(orgId, request.getUsername());
       }
 
       Invitation createdInvitation = createdInvitationResponse.getBody();

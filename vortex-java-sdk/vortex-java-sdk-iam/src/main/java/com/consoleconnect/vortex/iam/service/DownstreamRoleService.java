@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -21,13 +20,9 @@ public class DownstreamRoleService {
   private IamProperty iamProperty;
 
   @Async
-  public void syncRole(String orgId, String username, String companyName) {
-    log.info("syncRole, orgId:{}, username:{}, companyName:{}", orgId, username, companyName);
+  public void syncRole(String orgId, String username) {
+    log.info("syncRole, orgId:{}, username:{}", orgId, username);
     if (!Objects.equals(orgId, iamProperty.getAuth0().getMgmtOrgId())) {
-      return;
-    }
-
-    if (StringUtils.isBlank(username) || StringUtils.isBlank(companyName)) {
       return;
     }
 
@@ -35,7 +30,7 @@ public class DownstreamRoleService {
     String url =
         String.format(
             downStreamProperty.getRoleEndpoint(),
-            companyName,
+            downStreamProperty.getCompanyName(),
             username,
             downStreamProperty.getRole());
 

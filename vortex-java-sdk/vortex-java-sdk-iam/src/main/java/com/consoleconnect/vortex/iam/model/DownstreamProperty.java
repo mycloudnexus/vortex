@@ -9,4 +9,5 @@ public class DownstreamProperty {
   private String adminApiKey;
   private String role;
   private String roleEndpoint;
+  private String companyName;
 }

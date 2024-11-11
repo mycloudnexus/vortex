@@ -739,25 +739,6 @@ class OrganizationServiceTest {
   }
 
   @Test
-  void testCreateInvitationUsername() {
-    CreateInvitationDto request = new CreateInvitationDto();
-    request.setEmail("test@example.com");
-    request.setRoles(List.of("PLATFORM_ADMIN"));
-    request.setCompanyName("Test Company");
-
-    Auth0Property.Config config = new Auth0Property.Config();
-    config.setClientId(UUID.randomUUID().toString());
-
-    String orgId = UUID.randomUUID().toString();
-    Auth0Property auth0 = new Auth0Property();
-    auth0.setApp(config);
-    auth0.setMgmtOrgId(orgId);
-    doReturn(auth0).when(auth0Client).getAuth0Property();
-    assertThrows(
-        Exception.class, () -> organizationService.createInvitation(orgId, request, SYSTEM));
-  }
-
-  @Test
   void testCreateInvitationCompanyName() {
     CreateInvitationDto request = new CreateInvitationDto();
     request.setEmail("test@example.com");
