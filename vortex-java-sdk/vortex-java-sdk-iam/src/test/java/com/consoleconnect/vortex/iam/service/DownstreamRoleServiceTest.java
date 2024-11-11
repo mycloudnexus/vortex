@@ -26,7 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 @ContextConfiguration(classes = TestApplication.class)
 class DownstreamRoleServiceTest {
-  @SpyBean private VortexServerConnector vortexServerConnector;
+  @SpyBean private GenericHttpClient vortexServerConnector;
   @SpyBean private IamProperty iamProperty;
   @Autowired private DownstreamRoleService downstreamRoleService;
   private static final String SYSTEM = "system";

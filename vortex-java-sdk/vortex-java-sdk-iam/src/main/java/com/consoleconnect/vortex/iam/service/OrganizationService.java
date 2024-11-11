@@ -287,6 +287,13 @@ public class OrganizationService {
       throw VortexException.badRequest("Role not found for organization: " + orgId);
     }
 
+    if ((request.getRoles().contains(RoleEnum.PLATFORM_ADMIN.name())
+            || request.getRoles().contains(RoleEnum.PLATFORM_MEMBER.name()))
+        && (StringUtils.isBlank(request.getUsername())
+            || StringUtils.isBlank(request.getCompanyName()))) {
+      throw VortexException.badRequest("Username or companyName cannot be empty.");
+    }
+
     try {
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       Organization organization = organizationsEntity.get(orgId).execute().getBody();

@@ -27,7 +27,7 @@ class VortexServerConnectorTest {
 
   @Test
   void curl() {
-    VortexServerConnector vortexServerConnector = new VortexServerConnector(webClient);
+    GenericHttpClient vortexServerConnector = new GenericHttpClient(webClient);
 
     WebClient.RequestBodyUriSpec requestBodyUriSpec = mock(WebClient.RequestBodyUriSpec.class);
     doReturn(requestBodyUriSpec).when(webClient).method(HttpMethod.PUT);

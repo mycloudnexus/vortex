@@ -17,7 +17,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @Service
 @AllArgsConstructor
 public class DownstreamRoleService {
-  private VortexServerConnector vortexServerConnector;
+  private GenericHttpClient vortexServerConnector;
   private IamProperty iamProperty;
 
   @Async
@@ -28,7 +28,7 @@ public class DownstreamRoleService {
     }
 
     if (StringUtils.isBlank(username) || StringUtils.isBlank(companyName)) {
-      throw VortexException.badRequest("Username or companyName cannot be empty.");
+      return;
     }
 
     DownstreamProperty downStreamProperty = iamProperty.getDownStream();

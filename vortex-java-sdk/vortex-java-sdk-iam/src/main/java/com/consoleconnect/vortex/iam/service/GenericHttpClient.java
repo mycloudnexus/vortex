@@ -14,7 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Slf4j
 @Component
 @AllArgsConstructor
-public class VortexServerConnector {
+public class GenericHttpClient {
   private WebClient client;
 
   public WebClient.ResponseSpec curl(
