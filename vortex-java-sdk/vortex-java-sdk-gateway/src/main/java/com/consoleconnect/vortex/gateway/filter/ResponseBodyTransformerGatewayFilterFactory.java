@@ -136,7 +136,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
                                       // Step 3: decode
                                       content = extractBody(exchange, content);
 
-                                      // Step 4: process the response body with the adapter
+                                      // Step 4: process the response body with the transformer
                                       byte[] resBody =
                                           transformer
                                               .get()
