@@ -5,13 +5,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-import com.auth0.client.mgmt.ConnectionsEntity;
-import com.auth0.client.mgmt.ManagementAPI;
-import com.auth0.client.mgmt.OrganizationsEntity;
+import com.auth0.client.mgmt.*;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.connections.ConnectionsPage;
 import com.auth0.json.mgmt.organizations.*;
+import com.auth0.json.mgmt.roles.RolesPage;
+import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Request;
 import com.auth0.net.Response;
 import com.consoleconnect.vortex.config.TestApplication;
@@ -21,10 +21,12 @@ import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
+import com.consoleconnect.vortex.iam.model.Auth0Property;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 class OrganizationServiceTest {
   @Autowired OrganizationService organizationService;
   @SpyBean Auth0Client auth0Client;
+  @SpyBean EmailService emailService;
   private static final String SYSTEM = "system";
 
   @Test
@@ -323,6 +326,7 @@ class OrganizationServiceTest {
             updateOrganization.setDisplayName("test");
             OrganizationMetadata updateMetadata = new OrganizationMetadata();
             updateMetadata.setStatus(OrgStatusEnum.ACTIVE);
+            updateMetadata.setLoginType(ConnectionStrategyEnum.AUTH0);
             updateOrganization.setMetadata(
                 JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>() {}));
             return updateOrganization;
@@ -341,13 +345,9 @@ class OrganizationServiceTest {
     Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
     doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPage).execute();
 
-    EnabledConnection enabledConnection = new EnabledConnection("test");
-    EnabledConnectionsPage connectionsPage = new EnabledConnectionsPage(List.of(enabledConnection));
-    doReturn(connectionsPage).when(enabledConnectionsPageResponse).getBody();
-
-    Request<Void> delRequest = mock(Request.class);
-    doReturn(delRequest).when(organizationsEntity).deleteConnection(anyString(), anyString());
-    doReturn(mock(Response.class)).when(delRequest).execute();
+    Request<Void> addRequest = mock(Request.class);
+    doReturn(addRequest).when(organizationsEntity).addConnection(anyString(), any());
+    doReturn(mock(Response.class)).when(addRequest).execute();
 
     ConnectionsEntity connectionsEntity = mock(ConnectionsEntity.class);
     doReturn(connectionsEntity).when(managementAPI).connections();
@@ -358,7 +358,8 @@ class OrganizationServiceTest {
     Response<ConnectionsPage> connectionResponse = mock(Response.class);
     doReturn(connectionResponse).when(connectionsPageRequest).execute();
 
-    ConnectionsPage existConnection = new ConnectionsPage(List.of(new Connection("test", "auth0")));
+    ConnectionsPage existConnection =
+        new ConnectionsPage(List.of(new Connection("test-auth0", "auth0")));
     doReturn(existConnection).when(connectionResponse).getBody();
 
     Organization result =
@@ -424,10 +425,6 @@ class OrganizationServiceTest {
     Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
     doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPage).execute();
 
-    EnabledConnection enabledConnection = new EnabledConnection("test");
-    EnabledConnectionsPage connectionsPage = new EnabledConnectionsPage(List.of(enabledConnection));
-    doReturn(connectionsPage).when(enabledConnectionsPageResponse).getBody();
-
     Request<Void> delRequest = mock(Request.class);
     doReturn(delRequest).when(organizationsEntity).deleteConnection(anyString(), anyString());
     doReturn(mock(Response.class)).when(delRequest).execute();
@@ -442,6 +439,75 @@ class OrganizationServiceTest {
     doReturn(connectionResponse).when(connectionsPageRequest).execute();
 
     ConnectionsPage existConnection = new ConnectionsPage(List.of());
+    doReturn(existConnection).when(connectionResponse).getBody();
+
+    Organization result =
+        organizationService.updateStatus(
+            UUID.randomUUID().toString(), OrgStatusEnum.ACTIVE, SYSTEM);
+    OrganizationMetadata resultMetadata =
+        JsonToolkit.fromJson(JsonToolkit.toJson(result.getMetadata()), OrganizationMetadata.class);
+    assertEquals(OrgStatusEnum.ACTIVE, resultMetadata.getStatus());
+  }
+
+  @Test
+  void testUpdateStatusActiveBranchNotExist() throws Auth0Exception {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    Request<Organization> queryRequest = mock(Request.class);
+    doReturn(queryRequest).when(organizationsEntity).get(anyString());
+
+    Response<Organization> queryResponse = mock(Response.class);
+    doReturn(queryResponse).when(queryRequest).execute();
+
+    Organization queryOrganization = new Organization("test");
+    queryOrganization.setDisplayName("test");
+    OrganizationMetadata metadata = new OrganizationMetadata();
+    metadata.setStatus(OrgStatusEnum.INACTIVE);
+    queryOrganization.setMetadata(
+        JsonToolkit.fromJson(JsonToolkit.toJson(metadata), new TypeReference<>() {}));
+    doReturn(queryOrganization).when(queryResponse).getBody();
+
+    Request<Organization> organizationRequest = mock(Request.class);
+    doReturn(organizationRequest).when(organizationsEntity).update(anyString(), any());
+    Response<Organization> updateResponse =
+        new Response<Organization>() {
+          @Override
+          public Map<String, String> getHeaders() {
+            return Map.of();
+          }
+
+          @Override
+          public Organization getBody() {
+            Organization updateOrganization = new Organization("test");
+            updateOrganization.setDisplayName("test");
+            OrganizationMetadata updateMetadata = new OrganizationMetadata();
+            updateMetadata.setStatus(OrgStatusEnum.ACTIVE);
+            updateOrganization.setMetadata(
+                JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>() {}));
+            return updateOrganization;
+          }
+
+          @Override
+          public int getStatusCode() {
+            return HttpStatus.OK.value();
+          }
+        };
+    doReturn(updateResponse).when(organizationRequest).execute();
+
+    ConnectionsEntity connectionsEntity = mock(ConnectionsEntity.class);
+    doReturn(connectionsEntity).when(managementAPI).connections();
+
+    Request<ConnectionsPage> connectionsPageRequest = mock(Request.class);
+    doReturn(connectionsPageRequest).when(connectionsEntity).listAll(any());
+
+    Response<ConnectionsPage> connectionResponse = mock(Response.class);
+    doReturn(connectionResponse).when(connectionsPageRequest).execute();
+
+    ConnectionsPage existConnection = new ConnectionsPage(List.of(new Connection("abc", "samlp")));
     doReturn(existConnection).when(connectionResponse).getBody();
 
     Organization result =
@@ -596,6 +662,154 @@ class OrganizationServiceTest {
     OrganizationConnection newOrg =
         organizationService.updateConnection(UUID.randomUUID().toString(), request, SYSTEM);
     assertNotNull(newOrg);
+  }
+
+  @Test
+  void testCreateInvitation() throws Auth0Exception {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+    Request<Organization> organizationRequest = mock(Request.class);
+    doReturn(organizationRequest).when(organizationsEntity).get(anyString());
+
+    Response<Organization> organizationResponse = mock(Response.class);
+    doReturn(organizationResponse).when(organizationRequest).execute();
+
+    // mock query organization
+    Organization queryOrganization = mock(Organization.class);
+    doReturn(queryOrganization).when(organizationResponse).getBody();
+    doReturn(UUID.randomUUID().toString()).when(queryOrganization).getId();
+
+    Request<EnabledConnectionsPage> enabledConnectionsPageRequest = mock(Request.class);
+    Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
+    EnabledConnection enabledConnection = new EnabledConnection(UUID.randomUUID().toString());
+    EnabledConnectionsPage enabledConnectionsPage =
+        new EnabledConnectionsPage(List.of(enabledConnection));
+    doReturn(enabledConnectionsPageRequest)
+        .when(organizationsEntity)
+        .getConnections(anyString(), any());
+    doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPageRequest).execute();
+    doReturn(enabledConnectionsPage).when(enabledConnectionsPageResponse).getBody();
+
+    RolesEntity rolesEntity = mock(RolesEntity.class);
+    RolesPage rolesPage = mock(RolesPage.class);
+    Request<RolesPage> roleRequest = mock(Request.class);
+    Response<RolesPage> roleResponse = mock(Response.class);
+    doReturn(rolesEntity).when(managementAPI).roles();
+    doReturn(roleRequest).when(rolesEntity).list(any());
+    doReturn(roleResponse).when(roleRequest).execute();
+    doReturn(rolesPage).when(roleResponse).getBody();
+
+    User user = new User("test");
+    user.setName("user-name");
+
+    Request<User> userRequest = mock(Request.class);
+    Response<User> userResponse = mock(Response.class);
+    UsersEntity usersEntity = mock(UsersEntity.class);
+    doReturn(usersEntity).when(managementAPI).users();
+    doReturn(userRequest).when(usersEntity).get(anyString(), any());
+    doReturn(userResponse).when(userRequest).execute();
+    doReturn(user).when(userResponse).getBody();
+
+    Request<Invitation> invitationRequest = mock(Request.class);
+    Response<Invitation> invitationResponse = mock(Response.class);
+    Invitation createdInvitation = mock(Invitation.class);
+    doReturn(invitationRequest).when(organizationsEntity).createInvitation(anyString(), any());
+    doReturn(invitationResponse).when(invitationRequest).execute();
+    doReturn(createdInvitation).when(invitationResponse).getBody();
+
+    doNothing().when(emailService).sendInvitation(any());
+
+    CreateInvitationDto request = new CreateInvitationDto();
+    request.setEmail("test@example.com");
+    request.setRoles(List.of("ORG_ADMIN"));
+    request.setUsername("username");
+
+    Auth0Property.Config config = new Auth0Property.Config();
+    config.setClientId(UUID.randomUUID().toString());
+
+    String orgId = UUID.randomUUID().toString();
+    Auth0Property auth0 = new Auth0Property();
+    auth0.setApp(config);
+    auth0.setMgmtOrgId(orgId);
+    doReturn(auth0).when(auth0Client).getAuth0Property();
+
+    organizationService.createInvitation(orgId, request, SYSTEM);
+    Assertions.assertThatNoException();
+  }
+
+  @Test
+  void testCreateInvitationUsername() {
+    CreateInvitationDto request = new CreateInvitationDto();
+    request.setEmail("test@example.com");
+    request.setRoles(List.of("PLATFORM_ADMIN"));
+
+    Auth0Property.Config config = new Auth0Property.Config();
+    config.setClientId(UUID.randomUUID().toString());
+
+    String orgId = UUID.randomUUID().toString();
+    Auth0Property auth0 = new Auth0Property();
+    auth0.setApp(config);
+    auth0.setMgmtOrgId(orgId);
+    doReturn(auth0).when(auth0Client).getAuth0Property();
+    assertThrows(
+        Exception.class, () -> organizationService.createInvitation(orgId, request, SYSTEM));
+  }
+
+  @Test
+  void testListMembers() throws Auth0Exception {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    MembersPage membersPage = mock(MembersPage.class);
+    Request<MembersPage> membersPageRequest = mock(Request.class);
+    Response<MembersPage> membersPageResponse = mock(Response.class);
+    doReturn(membersPageRequest).when(organizationsEntity).getMembers(anyString(), any());
+    doReturn(membersPageResponse).when(membersPageRequest).execute();
+    doReturn(membersPage).when(membersPageResponse).getBody();
+    organizationService.listMembers(UUID.randomUUID().toString(), 1, -1);
+    Assertions.assertThatNoException();
+  }
+
+  @Test
+  void testListInvitations() throws Auth0Exception {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    InvitationsPage membersPage = mock(InvitationsPage.class);
+    Request<InvitationsPage> membersPageRequest = mock(Request.class);
+    Response<InvitationsPage> membersPageResponse = mock(Response.class);
+    doReturn(membersPageRequest).when(organizationsEntity).getInvitations(anyString(), any());
+    doReturn(membersPageResponse).when(membersPageRequest).execute();
+    doReturn(membersPage).when(membersPageResponse).getBody();
+    organizationService.listInvitations(UUID.randomUUID().toString(), 1, -1);
+    Assertions.assertThatNoException();
+  }
+
+  @Test
+  void testSearch() throws Auth0Exception {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    OrganizationsPage membersPage = mock(OrganizationsPage.class);
+    Request<OrganizationsPage> membersPageRequest = mock(Request.class);
+    Response<OrganizationsPage> membersPageResponse = mock(Response.class);
+    doReturn(membersPageRequest).when(organizationsEntity).list(any());
+    doReturn(membersPageResponse).when(membersPageRequest).execute();
+    doReturn(membersPage).when(membersPageResponse).getBody();
+    organizationService.search(UUID.randomUUID().toString(), 1, -1);
+    Assertions.assertThatNoException();
   }
 
   private void mockOrgConnectionOperation(

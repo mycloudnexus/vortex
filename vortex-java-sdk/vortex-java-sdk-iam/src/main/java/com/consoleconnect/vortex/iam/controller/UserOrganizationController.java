@@ -8,7 +8,7 @@ import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
-import com.consoleconnect.vortex.iam.dto.CreateInivitationDto;
+import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
 import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.iam.service.UserContextService;
@@ -76,7 +76,7 @@ public class UserOrganizationController {
   @Operation(summary = "Create a new invitation")
   @PostMapping("/invitations")
   public Mono<HttpResponse<Invitation>> create(
-      @RequestBody CreateInivitationDto request, JwtAuthenticationToken jwtAuthenticationToken) {
+      @RequestBody CreateInvitationDto request, JwtAuthenticationToken jwtAuthenticationToken) {
     return userContextService
         .getOrgId()
         .map(
