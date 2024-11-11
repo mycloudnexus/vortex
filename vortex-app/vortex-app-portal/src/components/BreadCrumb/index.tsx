@@ -36,33 +36,35 @@ const renderBreadCrumbItems = (
 ): ReactNode => {
   const last = routes.indexOf(route) === routes.length - 1
   return (
-    <StyledLink to={route.path || ''} isLast={last} mainColor={mainColor}>
+    <StyledLink to={route.path ?? ''} isLast={last} mainColor={mainColor}>
       {route.breadcrumbName}
     </StyledLink>
   )
 }
 
-const getBreadCrumbName = (path: string, routes: IRouteObject[]): string => {
+const findMatchingRoute = (path: string, routes: IRouteObject[]): IRouteObject | null => {
   for (const route of routes) {
-    if (route.path) {
-      const match = matchPath({ path: route.path, end: true }, path)
-
-      if (match) {
-        if (route.breadCrumbName) return route.breadCrumbName
-        const dynamicSegment = Object.values(match.params)[0]
-        return dynamicSegment ? `${dynamicSegment}` : path
-      }
+    if (route.path && matchPath({ path: route.path, end: true }, path)) {
+      return route
     }
 
     if (route.children) {
-      const childBreadCrumb = getBreadCrumbName(path, route.children)
-      if (childBreadCrumb) {
-        return childBreadCrumb
+      const matchingChild = findMatchingRoute(path, route.children)
+      if (matchingChild) {
+        return matchingChild
       }
     }
   }
+  return null
+}
 
-  return ''
+const getBreadCrumbName = (path: string, routes: IRouteObject[]): string => {
+  const route = findMatchingRoute(path, routes)
+  if (!route) return ''
+  if (route.breadCrumbName) return route.breadCrumbName
+  const match = matchPath({ path: route.path!, end: true }, path)
+  const dynamicSegment = match && Object.values(match.params)[0]
+  return dynamicSegment ? `${dynamicSegment}` : path
 }
 
 const BreadCrumb = (): ReactElement => {
