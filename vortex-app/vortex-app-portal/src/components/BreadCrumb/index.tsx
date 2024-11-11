@@ -76,7 +76,7 @@ const BreadCrumb = (): ReactElement => {
       : pathSegments.map((_, index) => {
           const url = `/${pathSegments.slice(0, index + 1).join('/')}`
           return {
-            breadcrumbName: getBreadCrumbName(url, routes),
+            breadcrumbName: decodeURIComponent(getBreadCrumbName(url, routes)),
             path: url
           }
         })
