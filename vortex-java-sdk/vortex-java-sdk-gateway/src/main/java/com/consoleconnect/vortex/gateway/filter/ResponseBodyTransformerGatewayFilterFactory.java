@@ -41,6 +41,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
   private final Map<String, MessageBodyDecoder> messageBodyDecoders;
   private final Map<String, MessageBodyEncoder> messageBodyEncoders;
 
+  private final AntPathMatcher pathMatcher = new AntPathMatcher();
   private final List<AbstractResourceTransformer> transformers;
 
   public ResponseBodyTransformerGatewayFilterFactory(
@@ -64,6 +65,10 @@ public class ResponseBodyTransformerGatewayFilterFactory
     return transformers.stream().filter(t -> t.getTransformerId().equals(transformer)).findFirst();
   }
 
+  private static String buildFullPath(HttpMethod method, String httpPath) {
+    return method.name() + " " + httpPath;
+  }
+
   @Override
   public GatewayFilter apply(Config config) {
     return new ResponseBodyTransformerGatewayFilter(config);
@@ -71,16 +76,47 @@ public class ResponseBodyTransformerGatewayFilterFactory
 
   public class ResponseBodyTransformerGatewayFilter implements GatewayFilter, Ordered {
 
-    private final Config config;
+    private Map<String, TransformerApiProperty> apiTransformers;
 
     public ResponseBodyTransformerGatewayFilter(Config config) {
-      this.config = config;
+      this.apiTransformers =
+          config.getApis().stream()
+              .filter(
+                  t -> {
+                    if (check(t)) {
+                      throw new IllegalArgumentException(
+                          "transformer api properties cannot be empty.");
+                    }
+                    return Boolean.TRUE;
+                  })
+              .collect(
+                  Collectors.toMap(t -> buildFullPath(t.getHttpMethod(), t.getHttpPath()), x -> x));
+    }
+
+    private boolean check(TransformerApiProperty t) {
+      return t.getHttpMethod() == null
+          || t.getHttpPath() == null
+          || t.getTransformer() == null
+          || t.getResourceType() == null;
+    }
+
+    public TransformerApiProperty match(ServerWebExchange exchange) {
+      String key =
+          buildFullPath(
+              exchange.getRequest().getMethod(), exchange.getRequest().getURI().getPath());
+
+      for (Map.Entry<String, TransformerApiProperty> entry : apiTransformers.entrySet()) {
+        if (pathMatcher.match(entry.getKey(), key)) {
+          return entry.getValue();
+        }
+      }
+      return null;
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
       // Step 1: match transformer
-      TransformerApiProperty apiProperty = config.match(exchange);
+      TransformerApiProperty apiProperty = match(exchange);
       if (apiProperty == null) {
         return chain.filter(exchange);
       }
@@ -173,47 +209,6 @@ public class ResponseBodyTransformerGatewayFilterFactory
   @Data
   public static class Config {
 
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
-
-    private Map<String, TransformerApiProperty> apiTransformers;
-
-    public Config(List<TransformerApiProperty> apis) {
-      this.apiTransformers =
-          apis.stream()
-              .filter(
-                  t -> {
-                    if (check(t)) {
-                      throw new IllegalArgumentException(
-                          "transformer api properties cannot be empty.");
-                    }
-                    return Boolean.TRUE;
-                  })
-              .collect(
-                  Collectors.toMap(t -> buildFullPath(t.getHttpMethod(), t.getHttpPath()), x -> x));
-    }
-
-    private boolean check(TransformerApiProperty t) {
-      return t.getHttpMethod() == null
-          || t.getHttpPath() == null
-          || t.getTransformer() == null
-          || t.getResourceType() == null;
-    }
-
-    public TransformerApiProperty match(ServerWebExchange exchange) {
-      String key =
-          buildFullPath(
-              exchange.getRequest().getMethod(), exchange.getRequest().getURI().getPath());
-
-      for (Map.Entry<String, TransformerApiProperty> entry : apiTransformers.entrySet()) {
-        if (pathMatcher.match(entry.getKey(), key)) {
-          return entry.getValue();
-        }
-      }
-      return null;
-    }
-
-    private static String buildFullPath(HttpMethod method, String httpPath) {
-      return method.name() + " " + httpPath;
-    }
+    private List<TransformerApiProperty> apis;
   }
 }
