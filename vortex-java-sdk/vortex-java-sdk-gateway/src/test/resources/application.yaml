@@ -68,8 +68,8 @@ spring:
                     http-path: /test/api/do
                     transformer: resource.create
                     resource-type: PORT
-                    resource-body-path: $
                     resource-instance-id-path: id
+                    response-body-path: $
                   - http-method: PUT
                     http-path: /test/api2/do
                     transformer: resource.create
@@ -78,8 +78,8 @@ spring:
                     http-path: /test/api/do
                     transformer: resource.list
                     resource-type: PORT
-                    resource-body-path: $.results
                     resource-instance-id-path: id
+                    response-body-path: $.results
 
         - id: downstream-api
           uri: ${app.gateway.downstream.base-url}
