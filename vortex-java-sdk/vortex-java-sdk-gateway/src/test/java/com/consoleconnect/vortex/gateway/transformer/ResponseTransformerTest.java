@@ -102,7 +102,9 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
     config.setResponseBodyPath("$.results");
 
     byte[] resBytes =
-        "{\"results\": [{\"id\":\"orderId\", \"createdPortId\":\"portId\"}]}".getBytes();
+        "{\"results\": [{\"id\":\"orderId\", \"createdPortId\":\"portId\"},{\"id\":\"orderId2\"}]}"
+            .getBytes();
+    orderTransformer.getTransformerId();
     byte[] ret = portOrderListTransformer.doTransform(exchange, resBytes, userContext, config);
     Assertions.assertNotNull(ret);
   }
