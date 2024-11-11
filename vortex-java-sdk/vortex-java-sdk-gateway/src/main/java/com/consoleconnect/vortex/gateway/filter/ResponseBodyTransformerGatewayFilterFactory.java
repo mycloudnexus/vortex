@@ -65,10 +65,6 @@ public class ResponseBodyTransformerGatewayFilterFactory
     return transformers.stream().filter(t -> t.getTransformerId().equals(transformer)).findFirst();
   }
 
-  private static String buildFullPath(HttpMethod method, String httpPath) {
-    return method.name() + " " + httpPath;
-  }
-
   @Override
   public GatewayFilter apply(Config config) {
     return new ResponseBodyTransformerGatewayFilter(config);
@@ -203,6 +199,10 @@ public class ResponseBodyTransformerGatewayFilterFactory
         }
       }
       return null;
+    }
+
+    private String buildFullPath(HttpMethod method, String httpPath) {
+      return method.name() + " " + httpPath;
     }
   }
 
