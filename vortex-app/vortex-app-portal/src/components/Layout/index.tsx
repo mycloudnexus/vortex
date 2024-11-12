@@ -20,6 +20,7 @@ import { styled } from 'styled-components'
 import useDeviceDetect from '@/hooks/useDeviceDetect'
 import MainMenuMobileDrawer from './MainMenuMobileDrawer'
 import Authenticate from '../Access/Authenticate'
+import BreadCrumb from '../BreadCrumb'
 
 const Layout = () => {
   const { mainColor } = useAppStore()
@@ -171,7 +172,10 @@ const Layout = () => {
               />
             </SliderCustom>
           )}
-          <Outlet />
+          <Flex vertical justify='start' align='start' style={{ width: '100%' }}>
+            <BreadCrumb />
+            <Outlet />
+          </Flex>
         </Flex>
       </Authenticate>
     </div>
