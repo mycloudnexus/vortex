@@ -1,0 +1,192 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CutomerCompany Page should render the page 1`] = `
+<body>
+  <div>
+    <div
+      class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center ant-flex-justify-start ant-flex-vertical"
+      style="width: 70%; margin: 0px auto; gap: 20px;"
+    >
+      <div
+        class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center ant-flex-justify-space-between"
+        style="width: 100%;"
+      >
+        <div
+          class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center"
+          style="gap: 15px;"
+        >
+          <div
+            class="sc-fAUdSK cBpvOS"
+          >
+            <svg />
+          </div>
+          <h2
+            class="ant-typography css-dev-only-do-not-override-ni1kz0"
+            style="margin: 0px;"
+          >
+            Customer Company
+          </h2>
+        </div>
+        <button
+          class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-default ant-btn-color-default ant-btn-variant-outlined sc-egkSDF gEXRkt"
+          data-testid="add-button"
+          type="button"
+        >
+          <span>
+            Add customer company
+          </span>
+        </button>
+      </div>
+      <div
+        class="ant-table-wrapper sc-dntaoT jPeUFk css-dev-only-do-not-override-ni1kz0"
+        style="width: 100%;"
+      >
+        <div
+          class="ant-spin-nested-loading css-dev-only-do-not-override-ni1kz0"
+        >
+          <div
+            class="ant-spin-container"
+          >
+            <div
+              class="ant-table css-dev-only-do-not-override-ni1kz0"
+            >
+              <div
+                class="ant-table-container"
+              >
+                <div
+                  class="ant-table-content"
+                >
+                  <table
+                    style="table-layout: auto;"
+                  >
+                    <colgroup />
+                    <thead
+                      class="ant-table-thead"
+                    >
+                      <tr>
+                        <th
+                          class="ant-table-cell"
+                          scope="col"
+                        >
+                          Name
+                        </th>
+                        <th
+                          class="ant-table-cell"
+                          scope="col"
+                        >
+                          ID
+                        </th>
+                        <th
+                          class="ant-table-cell"
+                          scope="col"
+                        >
+                          Short name & URL
+                        </th>
+                        <th
+                          class="ant-table-cell"
+                          scope="col"
+                        >
+                          Status
+                        </th>
+                        <th
+                          class="ant-table-cell"
+                          scope="col"
+                        >
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      class="ant-table-tbody"
+                    >
+                      <tr
+                        class="ant-table-row ant-table-row-level-0"
+                        data-row-key="1"
+                      >
+                        <td
+                          class="ant-table-cell"
+                        >
+                          Test Company
+                        </td>
+                        <td
+                          class="ant-table-cell"
+                        >
+                          1
+                        </td>
+                        <td
+                          class="ant-table-cell"
+                        >
+                          <div
+                            class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center"
+                            style="gap: 5px;"
+                          >
+                            TC
+                            <span
+                              data-testid="mocked-svg"
+                            >
+                              <svg />
+                            </span>
+                          </div>
+                        </td>
+                        <td
+                          class="ant-table-cell"
+                        >
+                          <div
+                            class="ant-flex css-dev-only-do-not-override-ni1kz0"
+                            style="gap: 2px;"
+                          >
+                            <svg />
+                            <span
+                              class="ant-typography css-dev-only-do-not-override-ni1kz0"
+                            >
+                              Active
+                            </span>
+                          </div>
+                        </td>
+                        <td
+                          class="ant-table-cell"
+                        >
+                          <div
+                            class="ant-space css-dev-only-do-not-override-ni1kz0 ant-space-horizontal ant-space-align-center ant-space-gap-row-small ant-space-gap-col-small"
+                          >
+                            <div
+                              class="ant-space-item"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-link ant-btn-color-dangerous ant-btn-variant-link"
+                                style="padding: 4px 0px;"
+                                type="button"
+                              >
+                                <span>
+                                  Modify
+                                </span>
+                              </button>
+                            </div>
+                            <div
+                              class="ant-space-item"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-link ant-btn-color-dangerous ant-btn-variant-link"
+                                style="padding: 4px 0px;"
+                                type="button"
+                              >
+                                <span>
+                                  Deactivate
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;
