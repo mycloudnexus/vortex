@@ -2,11 +2,13 @@ package com.consoleconnect.vortex.gateway.transformer;
 
 import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.entity.OrderEntity;
+import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.iam.model.UserContext;
 import com.jayway.jsonpath.DocumentContext;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,7 +21,7 @@ import org.springframework.web.server.ServerWebExchange;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class DefaultResourceListTransformer extends AbstractResourceTransformer {
+public class PortOrderListTransformer extends AbstractResourceTransformer {
 
   protected final OrderService orderService;
 
@@ -38,45 +40,51 @@ public class DefaultResourceListTransformer extends AbstractResourceTransformer 
 
     String orgId = userContext.getCustomerId();
 
-    // filter resource by organization
-    Map<String, OrderEntity> resources =
-        orderService.listResourceByType(orgId, config.getResourceType()).stream()
-            .collect(Collectors.toMap(OrderEntity::getResourceId, x -> x));
+    List<OrderEntity> fillOrders = new ArrayList<>();
+    Map<String, OrderEntity> orders =
+        orderService.listOrders(orgId, config.getResourceType()).stream()
+            .collect(Collectors.toMap(OrderEntity::getOrderId, x -> x));
 
-    Set<String> resourceIds = resources.keySet();
+    Set<String> orderIds = orders.keySet();
 
     String responseJson = new String(responseBody, StandardCharsets.UTF_8);
 
     DocumentContext ctx = JsonPathToolkit.createDocCtx(responseJson);
     List<Map<String, Object>> resOrders = ctx.read(config.getResponseBodyPath());
-
-    // filter resources
-    resOrders.removeIf(o -> filterResource(resourceIds, o, config));
+    // filter the orders of the reseller/customer organization
+    resOrders.removeIf(
+        o -> {
+          String orderId = (String) o.get(config.getResourceInstanceId());
+          if (orderIds.contains(orderId)) {
+            // try filling the port id when list port orders
+            OrderEntity order = orders.get(orderId);
+            String resourceId = (String) o.get("createdPortId");
+            if (order.getResourceId() == null && resourceId != null) {
+              order.setResourceType(ResourceTypeEnum.PORT);
+              order.setResourceId(resourceId);
+              fillOrders.add(order);
+            }
+            return Boolean.FALSE;
+          }
+          return Boolean.TRUE;
+        });
 
     if (TransformerApiProperty.DEFAULT_BODY_PATH.equals(config.getResponseBodyPath())) {
       // override ctx
       ctx = JsonPathToolkit.createDocCtx(resOrders);
     } else {
+      // ctx.set("$.results", resOrders)
       ctx.set(config.getResponseBodyPath(), resOrders);
     }
-
     byte[] resBytes = ctx.jsonString().getBytes(StandardCharsets.UTF_8);
-    log.info("process completed, resourceType:{}", config.getResourceType());
-    return resBytes;
-  }
 
-  // default filter
-  protected boolean filterResource(
-      Set<String> resourceIds, Map<String, Object> dto, TransformerApiProperty config) {
-    String oId = (String) dto.get(config.getResourceInstanceId());
-    if (resourceIds.contains(oId)) {
-      return Boolean.FALSE;
-    }
-    return Boolean.TRUE;
+    orderService.fillOrdersPortId(fillOrders);
+
+    return resBytes;
   }
 
   @Override
   public String getTransformerId() {
-    return "resource.list";
+    return "port.order.list";
   }
 }
