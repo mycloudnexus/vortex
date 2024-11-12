@@ -114,6 +114,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                           >
                             <input
                               class="ant-input css-dev-only-do-not-override-ni1kz0 ant-input-outlined sc-gtLWhw jtrSU"
+                              data-testid="customer-name"
                               id="modify_customer_company_title"
                               placeholder="Please enter"
                               type="text"

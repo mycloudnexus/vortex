@@ -44,8 +44,7 @@ const CustomerCompanyModal = <T extends object>({
           name='title'
           label={
             <Flex align='center' gap={5}>
-              Customer company name
-              <span style={{ color: 'red' }}>*</span>
+              Customer company name<span style={{ color: 'red' }}>*</span>
             </Flex>
           }
           required={false}
@@ -62,7 +61,7 @@ const CustomerCompanyModal = <T extends object>({
             }
           ]}
         >
-          <CustomInput placeholder='Please enter' />
+          <CustomInput placeholder='Please enter' data-testid='customer-name' />
         </Form.Item>
 
         <Form.Item

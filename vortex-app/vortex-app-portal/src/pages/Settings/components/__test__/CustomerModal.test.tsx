@@ -1,4 +1,4 @@
-import { render, fireEvent } from '@testing-library/react'
+import { render, fireEvent, waitFor } from '@testing-library/react'
 import { Form } from 'antd'
 import CustomerCompanyModal from '../CustomerModal'
 import { Company } from '@/stores/company.store'
@@ -74,5 +74,33 @@ describe('CustomerCompanyModal', () => {
   it('should disable the short name input when type is "update"', () => {
     const { getByLabelText } = render(<FormWrapper handleOk={jest.fn()} handleCancel={jest.fn()} type='update' />)
     expect(getByLabelText(/Customer company URL short name/)).toBeDisabled()
+  })
+
+  it('should show an error message if the customer name is unique', async () => {
+    const { getByLabelText, getByText, getByTestId } = render(
+      <FormWrapper handleOk={jest.fn()} handleCancel={jest.fn()} />
+    )
+
+    fireEvent.change(getByTestId('customer-name'), { target: { value: 'Company B' } })
+    expect(getByLabelText(/Customer company name/)).toBeInTheDocument()
+    fireEvent.click(getByText('OK'))
+
+    await waitFor(() => {
+      expect(getByText(/Customer name cannot be duplicated/i)).toBeInTheDocument()
+    })
+  })
+
+  it('should not show an error message if the customer name is unique', async () => {
+    const { getByLabelText, getByText, getByTestId, queryByText } = render(
+      <FormWrapper handleOk={jest.fn()} handleCancel={jest.fn()} />
+    )
+
+    fireEvent.change(getByTestId('customer-name'), { target: { value: 'Company C' } })
+    expect(getByLabelText(/Customer company name/)).toBeInTheDocument()
+    fireEvent.click(getByText('OK'))
+
+    await waitFor(() => {
+      expect(queryByText(/Customer name cannot be duplicated/i)).toBeNull()
+    })
   })
 })
