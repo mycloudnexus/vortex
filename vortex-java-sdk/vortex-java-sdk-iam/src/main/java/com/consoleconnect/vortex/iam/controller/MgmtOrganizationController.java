@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -87,7 +88,7 @@ public class MgmtOrganizationController {
 
   @Operation(summary = "List all invitations")
   @GetMapping("/{orgId}/invitations")
-  public Mono<HttpResponse<Paging<Invitation>>> listInivitations(
+  public Mono<HttpResponse<Paging<Invitation>>> listInvitations(
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
@@ -100,7 +101,7 @@ public class MgmtOrganizationController {
   @PostMapping("/{orgId}/invitations")
   public Mono<HttpResponse<Invitation>> create(
       @PathVariable String orgId,
-      @RequestBody CreateInivitationDto request,
+      @Validated @RequestBody CreateInvitationDto request,
       JwtAuthenticationToken jwtAuthenticationToken) {
     return Mono.just(
         HttpResponse.ok(

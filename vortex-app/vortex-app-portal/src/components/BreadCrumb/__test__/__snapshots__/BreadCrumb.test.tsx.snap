@@ -1,0 +1,151 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BreadCrumb Component BreadCrumb Component should handle missing breadcrumb name gracefully 1`] = `
+<body>
+  <div>
+    <nav
+      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-ni1kz0"
+      style="font-size: 18px;"
+    >
+      <ol>
+        <li>
+          <a
+            class="sc-blHHSb emlGen"
+            href="/contact"
+          >
+            /contact
+          </a>
+        </li>
+      </ol>
+    </nav>
+  </div>
+</body>
+`;
+
+exports[`BreadCrumb Component should render breadcrumb for root path 1`] = `
+<body>
+  <div>
+    <nav
+      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-ni1kz0"
+      style="font-size: 18px;"
+    >
+      <ol>
+        <li>
+          <a
+            class="sc-blHHSb emlGen"
+            href="/"
+          >
+            Root
+          </a>
+        </li>
+      </ol>
+    </nav>
+  </div>
+</body>
+`;
+
+exports[`BreadCrumb Component should render multiple breadcrumb levels 1`] = `
+<body>
+  <div>
+    <nav
+      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-ni1kz0"
+      style="font-size: 18px;"
+    >
+      <ol>
+        <li>
+          <a
+            class="sc-blHHSb cVxirP"
+            href="/home"
+          >
+            Home
+          </a>
+        </li>
+        <li
+          aria-hidden="true"
+          class="ant-breadcrumb-separator"
+        >
+          &gt;
+        </li>
+        <li>
+          <a
+            class="sc-blHHSb cVxirP"
+            href="/home/profile"
+          >
+            Profile
+          </a>
+        </li>
+        <li
+          aria-hidden="true"
+          class="ant-breadcrumb-separator"
+        >
+          &gt;
+        </li>
+        <li>
+          <a
+            class="sc-blHHSb emlGen"
+            href="/home/profile/details"
+          >
+            Details
+          </a>
+        </li>
+      </ol>
+    </nav>
+  </div>
+</body>
+`;
+
+exports[`BreadCrumb Component should render nothing for a path with no matching routes 1`] = `
+<body>
+  <div>
+    <nav
+      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-ni1kz0"
+      style="font-size: 18px;"
+    >
+      <ol>
+        <li>
+          <a
+            class="sc-blHHSb emlGen"
+            href="/nonexistent"
+          />
+        </li>
+      </ol>
+    </nav>
+  </div>
+</body>
+`;
+
+exports[`BreadCrumb Component should render the breadcrumb correctly for a given path 1`] = `
+<body>
+  <div>
+    <nav
+      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-ni1kz0"
+      style="font-size: 18px;"
+    >
+      <ol>
+        <li>
+          <a
+            class="sc-blHHSb cVxirP"
+            href="/home"
+          >
+            Home
+          </a>
+        </li>
+        <li
+          aria-hidden="true"
+          class="ant-breadcrumb-separator"
+        >
+          &gt;
+        </li>
+        <li>
+          <a
+            class="sc-blHHSb emlGen"
+            href="/home/about"
+          >
+            About
+          </a>
+        </li>
+      </ol>
+    </nav>
+  </div>
+</body>
+`;
