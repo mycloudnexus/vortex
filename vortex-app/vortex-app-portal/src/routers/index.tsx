@@ -1,10 +1,16 @@
 import Layout from '@/components/Layout'
 import Dashboard from '@/pages/Dashboard'
 import EdgeModuleContainer from '@/pages/ExampleMicroModule'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, RouteObject } from 'react-router-dom'
 import Login from '@/components/Access/Login'
 
-export const router = createBrowserRouter([
+type CustomRoute = {
+  breadCrumbName?: string
+  children?: IRouteObject[]
+}
+export type IRouteObject = RouteObject & CustomRoute
+
+export const routes: IRouteObject[] = [
   {
     path: '/:organization/login',
     element: <Login />
@@ -14,8 +20,9 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        path: '',
-        element: <Dashboard />
+        path: '/',
+        element: <Dashboard />,
+        breadCrumbName: 'Dashboard'
       },
       {
         path: 'example/*',
@@ -23,4 +30,5 @@ export const router = createBrowserRouter([
       }
     ]
   }
-])
+]
+export const router = createBrowserRouter(routes)
