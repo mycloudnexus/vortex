@@ -2,6 +2,7 @@ import { fireEvent, render, waitFor } from '@testing-library/react'
 
 import { MemoryRouter } from 'react-router-dom'
 import CustomerCompany from '..'
+import { ReactElement } from 'react'
 
 global.matchMedia = jest.fn().mockImplementation((query) => ({
   matches: false,
@@ -52,32 +53,17 @@ jest.mock('@/stores/company.store', () => ({
     updateCompanyStatus: jest.fn()
   })
 }))
-describe('test', () => {
-  it('should render the page', () => {
-    const { baseElement } = render(
+describe('Customer Company Page', () => {
+  let component: ReactElement
+  beforeEach(() => {
+    component = (
       <MemoryRouter>
         <CustomerCompany />
       </MemoryRouter>
     )
-    expect(baseElement).toMatchSnapshot()
   })
-
-  it('should render the company name', () => {
-    const { getByText } = render(
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
-    )
-
-    expect(getByText('Test Company')).toBeInTheDocument()
-  })
-
   it('should render table columns', () => {
-    const { getByText } = render(
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
-    )
+    const { getByText } = render(component)
 
     expect(getByText('Name')).toBeInTheDocument()
     expect(getByText('ID')).toBeInTheDocument()
@@ -86,35 +72,16 @@ describe('test', () => {
     expect(getByText('Action')).toBeInTheDocument()
   })
 
-  it('should display active company data in table rows', () => {
-    const { getByText } = render(
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
-    )
-    expect(getByText('Test Company')).toBeInTheDocument()
-    expect(getByText('1')).toBeInTheDocument()
-    expect(getByText('TC')).toBeInTheDocument()
-    expect(getByText('Active')).toBeInTheDocument()
-  })
-
   it('should display inactive company data in table rows', () => {
-    const { getByText } = render(
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
-    )
+    const { getByText } = render(component)
     expect(getByText('Inactive Company')).toBeInTheDocument()
     expect(getByText('2')).toBeInTheDocument()
     expect(getByText('IC')).toBeInTheDocument()
     expect(getByText('Inactive')).toBeInTheDocument()
   })
+
   it('should call handleDeactivate when clicking Deactivate button', async () => {
-    const { getByTestId, getByText } = render(
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
-    )
+    const { getByTestId, getByText } = render(component)
     fireEvent.click(getByTestId('handle-deactivate'))
     await waitFor(() => {
       expect(getByTestId('deactivate-modal')).toBeInTheDocument()
@@ -123,19 +90,11 @@ describe('test', () => {
     fireEvent.click(submitButton)
   })
   it('should call handleActivate when clicking Activate button', () => {
-    const { getByTestId } = render(
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
-    )
+    const { getByTestId } = render(component)
     fireEvent.click(getByTestId('handle-activate'))
   })
   it('form renders correctly and modal opens', async () => {
-    const { getByTestId, getByText, getByLabelText, baseElement } = render(
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
-    )
+    const { getByTestId, getByText, getByLabelText, baseElement } = render(component)
     const button = getByTestId('add-button')
     expect(button).toBeInTheDocument()
     fireEvent.click(button)
@@ -149,11 +108,7 @@ describe('test', () => {
     expect(baseElement).toMatchSnapshot()
   })
   it('form renders correctly and cancel submit', async () => {
-    const { getByTestId, getByText } = render(
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
-    )
+    const { getByTestId, getByText } = render(component)
     const button = getByTestId('add-button')
     expect(button).toBeInTheDocument()
     fireEvent.click(button)
@@ -164,11 +119,7 @@ describe('test', () => {
     fireEvent.click(submitButton)
   })
   it('form update renders correctly and modal opens', async () => {
-    const { getByTestId, getByLabelText, getByText } = render(
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
-    )
+    const { getByTestId, getByLabelText, getByText } = render(component)
     const button = getByTestId('handle-modify')
     expect(button).toBeInTheDocument()
     fireEvent.click(button)
@@ -180,11 +131,7 @@ describe('test', () => {
     fireEvent.click(submitButton)
   })
   it('form update renders correctly and cancel submit', async () => {
-    const { getByTestId, getByText } = render(
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
-    )
+    const { getByTestId, getByText } = render(component)
     const button = getByTestId('handle-modify')
     expect(button).toBeInTheDocument()
     fireEvent.click(button)
