@@ -129,7 +129,7 @@ public class UserService {
 
       boolean mgmt = false;
       if (auth0Client.getAuth0Property().getMgmtOrgId().equalsIgnoreCase(organization.getId())
-          || (resourceRoles.contains(RoleEnum.PLATFORM_ADMIN.name())
+          && (resourceRoles.contains(RoleEnum.PLATFORM_ADMIN.name())
               || resourceRoles.contains(RoleEnum.PLATFORM_MEMBER.name()))) {
         mgmt = true;
       }

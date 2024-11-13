@@ -44,12 +44,27 @@ class UserServiceTest {
   private static final String ORG_ID = "org_xxxx";
 
   @Test
-  void downstreamUserInfo() throws Auth0Exception {
+  void downstreamUserInfoPlatformAdmin() throws Auth0Exception {
     Jwt jwt = Mockito.mock(Jwt.class);
     List<String> roles = List.of(RoleEnum.PLATFORM_ADMIN.name());
     doReturn(roles).when(jwt).getClaimAsStringList(anyString());
 
-    mockDownstreamUserInfo();
+    mockDownstreamUserInfo(true);
+
+    Map<String, Object> userInfo = new HashMap<>();
+    doReturn(userInfo).when(downstreamRoleService).getUserInfo(anyString(), anyBoolean());
+
+    Map<String, Object> result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
+    assertEquals(userInfo, result);
+  }
+
+  @Test
+  void downstreamUserInfoPlatformMember() throws Auth0Exception {
+    Jwt jwt = Mockito.mock(Jwt.class);
+    List<String> roles = List.of(RoleEnum.PLATFORM_MEMBER.name());
+    doReturn(roles).when(jwt).getClaimAsStringList(anyString());
+
+    mockDownstreamUserInfo(true);
 
     Map<String, Object> userInfo = new HashMap<>();
     doReturn(userInfo).when(downstreamRoleService).getUserInfo(anyString(), anyBoolean());
@@ -64,7 +79,7 @@ class UserServiceTest {
     List<String> roles = List.of(RoleEnum.ORG_ADMIN.name());
     doReturn(roles).when(jwt).getClaimAsStringList(anyString());
 
-    mockDownstreamUserInfo();
+    mockDownstreamUserInfo(false);
 
     Map<String, Object> userInfo = new HashMap<>();
     doReturn(userInfo).when(downstreamRoleService).getUserInfo(anyString(), anyBoolean());
@@ -87,7 +102,7 @@ class UserServiceTest {
         Exception.class, () -> userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt));
   }
 
-  private void mockDownstreamUserInfo() throws Auth0Exception {
+  private void mockDownstreamUserInfo(boolean fixOrgId) throws Auth0Exception {
     ManagementAPI managementAPI = mock(ManagementAPI.class);
     Auth0Property auth0Property = mock(Auth0Property.class);
     doReturn(managementAPI).when(auth0Client).getMgmtClient();
@@ -123,5 +138,8 @@ class UserServiceTest {
     List<Organization> organizations = mock(List.class);
     doReturn(organizations).when(organizationsPage).getItems();
     doReturn(organization).when(organizations).get(0);
+    if (fixOrgId) {
+      doReturn(ORG_ID).when(organization).getId();
+    }
   }
 }
