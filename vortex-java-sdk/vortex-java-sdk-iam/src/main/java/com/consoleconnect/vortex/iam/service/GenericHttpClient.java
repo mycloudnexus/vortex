@@ -1,5 +1,6 @@
 package com.consoleconnect.vortex.iam.service;
 
+import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -39,11 +40,23 @@ public class GenericHttpClient {
     }
   }
 
-  public <T> T put(
+  public <T> T blockPut(
       String url,
       Map<String, String> headers,
       Object body,
       ParameterizedTypeReference<T> responseType) {
     return curl(url, HttpMethod.PUT, headers, body).bodyToMono(responseType).block();
+  }
+
+  public <T> T unblockGet(
+      String url,
+      Map<String, String> headers,
+      Object body,
+      ParameterizedTypeReference<T> responseType) {
+    try {
+      return curl(url, HttpMethod.GET, headers, body).bodyToMono(responseType).toFuture().get();
+    } catch (Exception e) {
+      throw VortexException.badRequest("get error, " + e.getMessage());
+    }
   }
 }

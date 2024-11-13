@@ -14,10 +14,14 @@ import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.RoleInfo;
 import com.consoleconnect.vortex.iam.dto.UserInfo;
+import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.mapper.UserMapper;
+import com.consoleconnect.vortex.iam.model.IamProperty;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
@@ -26,6 +30,8 @@ import org.springframework.stereotype.Service;
 public class UserService {
   private final Auth0Client auth0Client;
   private final PermissionService permissionService;
+  private final IamProperty iamProperty;
+  private final DownstreamRoleService downstreamRoleService;
 
   public Paging<Role> listRoles(int page, int size) {
     try {
@@ -105,6 +111,32 @@ public class UserService {
     } catch (Auth0Exception ex) {
       log.error("Failed to search users", ex);
       throw VortexException.internalError("Failed to search users");
+    }
+  }
+
+  public Map<String, Object> downstreamUserInfo(String userId, Jwt jwt) {
+    try {
+
+      UsersEntity userEntity = auth0Client.getMgmtClient().users();
+      User user = userEntity.get(userId, null).execute().getBody();
+      List<Organization> organizations =
+          userEntity.getOrganizations(userId, null).execute().getBody().getItems();
+      Organization organization = organizations.get(0);
+      List<String> resourceRoles =
+          jwt.getClaimAsStringList(iamProperty.getJwt().getCustomClaims().getRoles());
+      log.info(
+          "downstream userinfo, user.email:{} orgId:{}", user.getEmail(), organization.getId());
+
+      if (auth0Client.getAuth0Property().getMgmtOrgId().equalsIgnoreCase(organization.getId())
+          || (resourceRoles.contains(RoleEnum.PLATFORM_ADMIN.name())
+              || resourceRoles.contains(RoleEnum.PLATFORM_MEMBER.name()))) {
+        return downstreamRoleService.getUserInfo(user.getEmail(), true);
+      }
+
+      return downstreamRoleService.getUserInfo(user.getEmail(), false);
+    } catch (Exception e) {
+      log.error("downstream userinfo error", e);
+      throw VortexException.badRequest("Retrieve downstream userinfo error.");
     }
   }
 }
