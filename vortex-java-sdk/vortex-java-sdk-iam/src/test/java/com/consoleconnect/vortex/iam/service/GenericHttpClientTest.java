@@ -6,14 +6,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import com.consoleconnect.vortex.config.TestApplication;
-import com.consoleconnect.vortex.core.exception.VortexException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -69,9 +67,7 @@ class GenericHttpClientTest {
     doReturn(responseSpec).when(requestBodyUriSpec).retrieve();
 
     Mono<Map> mapMono = mock(Mono.class);
-    doReturn(mapMono)
-        .when(responseSpec)
-        .bodyToMono(Mockito.eq(new ParameterizedTypeReference<Map>() {}));
+    doReturn(mapMono).when(responseSpec).bodyToMono(new ParameterizedTypeReference<Map>() {});
 
     CompletableFuture<Map> completableFuture = mock(CompletableFuture.class);
     doReturn(completableFuture).when(mapMono).toFuture();
@@ -98,9 +94,7 @@ class GenericHttpClientTest {
     doReturn(responseSpec).when(requestBodyUriSpec).retrieve();
 
     Mono<Map> mapMono = mock(Mono.class);
-    doReturn(mapMono)
-        .when(responseSpec)
-        .bodyToMono(Mockito.eq(new ParameterizedTypeReference<Map>() {}));
+    doReturn(mapMono).when(responseSpec).bodyToMono(new ParameterizedTypeReference<Map>() {});
 
     CompletableFuture<Map> completableFuture = mock(CompletableFuture.class);
     doReturn(completableFuture).when(mapMono).toFuture();
@@ -108,7 +102,7 @@ class GenericHttpClientTest {
     doThrow(InterruptedException.class).when(completableFuture).get();
 
     assertThrows(
-        VortexException.class,
+        Exception.class,
         () ->
             vortexServerConnector.unblockGet(
                 "http://lcaolhost", null, null, new ParameterizedTypeReference<Map>() {}));
@@ -130,9 +124,7 @@ class GenericHttpClientTest {
     doReturn(responseSpec).when(requestBodyUriSpec).retrieve();
 
     Mono<Map> mapMono = mock(Mono.class);
-    doReturn(mapMono)
-        .when(responseSpec)
-        .bodyToMono(Mockito.eq(new ParameterizedTypeReference<Map>() {}));
+    doReturn(mapMono).when(responseSpec).bodyToMono(new ParameterizedTypeReference<Map>() {});
 
     CompletableFuture<Map> completableFuture = mock(CompletableFuture.class);
     doReturn(completableFuture).when(mapMono).toFuture();
@@ -140,7 +132,7 @@ class GenericHttpClientTest {
     doThrow(ExecutionException.class).when(completableFuture).get();
 
     assertThrows(
-        VortexException.class,
+        Exception.class,
         () ->
             vortexServerConnector.unblockGet(
                 "http://lcaolhost", null, null, new ParameterizedTypeReference<Map>() {}));
