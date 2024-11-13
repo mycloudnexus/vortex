@@ -7,7 +7,7 @@ Feature: Invitation API
 
   @P0
   Scenario: Invite a user into reseller, then delete the invitation
-    * def data = read('classpath:data/create_invitation.json')
+    * def data = read('classpath:data/organization/create_invitation.json')
     * set data.email = randomWord(10) + '+' + randomWord(6) + '@wltest.com'
     * set data.roles = ["PLATFORM_MEMBER"]
 

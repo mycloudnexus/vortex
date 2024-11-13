@@ -34,7 +34,7 @@ Feature: Mgmt Connection API
   Scenario: Create SAML connection
     * def update_data = karate.get('update_data') || {}
     * def signingCert = karate.exec(['node', 'src/main/java/com/consoleconnect/vortext/toolkit/generate-cert.js'])
-    * def data = read('classpath:data/create_connection_saml.json')
+    * def data = read('classpath:data/organization/create_connection_saml.json')
     * set data.saml.debug = true
     * def deepMerge =
       """

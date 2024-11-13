@@ -7,7 +7,7 @@ Feature: Organization API
 
   @P0
   Scenario: Create an organization with valid payload, check status and response schema
-    * def data = read('classpath:data/create_organization.json')
+    * def data = read('classpath:data/organization/create_organization.json')
     * def name =  'wl-autotest-' + randomWord(6)
     * def displayName =  name + '-' + 'testing'
     * set data.name = name
@@ -199,7 +199,7 @@ Feature: Organization API
   @ignore
   @create-one-organization-ignore-status
   Scenario: Create an organization
-    * def data = karate.get('data') || read('classpath:data/create_organization.json')
+    * def data = karate.get('data') || read('classpath:data/organization/create_organization.json')
     * def name =  karate.get('name') || 'wl-autotest-' + randomWord(6)
     * def displayName =  karate.get('displayName') || name + '-' + 'testing'
     * set data.name = name
