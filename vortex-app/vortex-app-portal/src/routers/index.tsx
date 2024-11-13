@@ -4,8 +4,8 @@ import EdgeModuleContainer from '@/pages/ExampleMicroModule'
 import { createBrowserRouter, Outlet, RouteObject } from 'react-router-dom'
 import Login from '@/components/Access/Login'
 import Users from '@/pages/Settings/Users'
-import CustomerCompany from '@/pages/Settings/CustomerCompany'
 import CompanyPage from '@/pages/Settings/CompanyPage'
+import CustomerCompany from '@/pages/Settings/CustomerCompany'
 
 type CustomRoute = {
   breadCrumbName?: string

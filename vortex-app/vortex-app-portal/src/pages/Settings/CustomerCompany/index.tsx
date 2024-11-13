@@ -1,22 +1,22 @@
 import type { ReactElement } from 'react'
-import type { TableProps } from 'antd'
 
 import { Fragment, useState } from 'react'
 
-import { ReactComponent as CCIcon } from '@/assets/icon/customer-company.svg'
-import { ReactComponent as CCEmpty } from '@/assets/icon/customer-company-empty.svg'
-import { ReactComponent as CCStatus } from '@/assets/icon/status.svg'
-import { ReactComponent as CCClose } from '@/assets/icon/close-circle.svg'
-import { ReactComponent as CCWarning } from '@/assets/icon/warning-circle.svg'
 import { useAppStore } from '@/stores/app.store'
+import { useNavigate } from 'react-router-dom'
+
+import { Company, useCompanyStore } from '@/stores/company.store'
+import { ReactComponent as CCIcon } from '@/assets/icon/customer-company.svg'
+import { ReactComponent as CCClose } from '@/assets/icon/close-circle.svg'
+import { ReactComponent as CCStatus } from '@/assets/icon/status.svg'
+import { ReactComponent as CCEmpty } from '@/assets/icon/customer-company-empty.svg'
+import { ReactComponent as CCWarning } from '@/assets/icon/warning-circle.svg'
 import Text from '@/components/Text'
 
-import { Button, Flex, Typography, Space, notification } from 'antd'
-import { useNavigate } from 'react-router-dom'
-import { Company, useCompanyStore } from '@/stores/company.store'
-import { useForm } from 'antd/es/form/Form'
-import CustomerCompanyModal from '../components/CustomerModal'
+import { Button, Flex, Form, notification, Space, TableProps, Typography } from 'antd'
+
 import { StyledButton, StyledModal, StyledTable, StyledWrapper } from '../components/styled'
+import CustomerCompanyModal from '../components/CustomerModal'
 import Tooltip from '../components/Tooltip'
 
 const createColumns = (
@@ -91,6 +91,7 @@ const createColumns = (
                 type='link'
                 color='danger'
                 style={{ padding: '4px 0' }}
+                data-testid='handle-modify'
               >
                 Modify
               </Button>
@@ -100,6 +101,7 @@ const createColumns = (
                 type='link'
                 color='danger'
                 style={{ padding: '4px 0' }}
+                data-testid='handle-deactivate'
               >
                 Deactivate
               </Button>
@@ -112,6 +114,7 @@ const createColumns = (
                 type='link'
                 color='danger'
                 style={{ padding: '4px 0' }}
+                data-testid='handle-activate'
               >
                 Activate
               </Button>
@@ -124,15 +127,15 @@ const createColumns = (
 ]
 
 const CustomerCompany = (): ReactElement => {
-  const { mainColor } = useAppStore()
-  const { companies, addCompany, updateCompanyRecord, updateCompanyStatus } = useCompanyStore()
-  const [form] = useForm()
+  const [form] = Form.useForm()
   const [api, contextHolder] = notification.useNotification({ top: 80 })
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false)
+  const { companies, addCompany, updateCompanyStatus, updateCompanyRecord } = useCompanyStore()
+  const { mainColor } = useAppStore()
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isWarning, setIsWarning] = useState<boolean>(false)
   const [isConfigLogin, setIsConfigLogin] = useState<boolean>(false)
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false)
   const [isDeactivate, setIsDeactivate] = useState<boolean>(false)
   const [updateValue, setUpdateValue] = useState<Company>({
     key: '',
@@ -142,75 +145,18 @@ const CustomerCompany = (): ReactElement => {
     status: 'active'
   })
   const [key, setKey] = useState<string>('')
-
-  const handleSuccessDeactivate = (): void => {
-    api.success({
-      message: 'Customer company name deactivated',
-      placement: 'top',
-      showProgress: true,
-      pauseOnHover: true,
-      closeIcon: false,
-      duration: 2
-    })
-  }
-
-  const handleCloseDeactivate = (): void => setIsDeactivate(false)
-  const handleOpenDeactivate = (): void => setIsDeactivate(true)
-  const handleDeactivateSubmit = (): void => {
-    try {
-      updateCompanyStatus(key, 'inactive')
-      handleCloseDeactivate()
-      handleSuccessDeactivate()
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const handleActivate = (key: string): void => {
-    setKey(key)
-  }
-  const handleDeactivate = (key: string): void => {
-    setKey(key)
-    handleOpenDeactivate()
-  }
-
-  const openUpdateModal = (record: Company): void => {
-    form.setFieldsValue(record)
-    setUpdateValue(record)
-    setIsUpdateModalOpen(true)
-  }
-  const closeUpdateModal = (): void => {
-    form.resetFields()
-    setIsUpdateModalOpen(false)
-  }
-  const handleUpdate = async (): Promise<void> => {
-    try {
-      const values = await form.validateFields()
-      updateCompanyRecord({
-        ...updateValue,
-        title: values.title
-      })
-      closeUpdateModal()
-    } catch (error) {
-      console.log('Form validation failed:', error)
-    }
-  }
+  const handleOpenWarning = (): void => setIsWarning(true)
+  const handleCloseWarning = (): void => setIsWarning(false)
 
   const handleSubmitConfigLogin = (): void => {
     setIsConfigLogin(false)
     navigate(`/settings/customer-company/${updateValue.title}`, { state: { record: updateValue } })
   }
+  const handleCloseConfigModal = (): void => setIsConfigLogin(false)
+
   const handleOpenModal = (record: Company): void => {
     setUpdateValue(record)
     setIsConfigLogin(true)
-  }
-  const handleCloseConfigModal = (): void => setIsConfigLogin(false)
-
-  const handleOpenWarning = (): void => setIsWarning(true)
-  const handleCloseWarning = (): void => setIsWarning(false)
-
-  const showModal = () => {
-    setIsModalOpen(true)
   }
 
   const handleOk = async (): Promise<void> => {
@@ -230,17 +176,70 @@ const CustomerCompany = (): ReactElement => {
       console.log('Form validation failed:', error)
     }
   }
-
   const handleCancel = () => {
     form.resetFields()
     setIsModalOpen(false)
   }
-
+  const showModal = () => setIsModalOpen(true)
+  const openUpdateModal = (record: Company): void => {
+    form.setFieldsValue({
+      title: record.title ?? '',
+      shortName: record.shortName ?? ''
+    })
+    setUpdateValue(record)
+    setIsUpdateModalOpen(true)
+  }
+  const handleUpdate = async (): Promise<void> => {
+    try {
+      const values = await form.validateFields()
+      updateCompanyRecord({
+        ...updateValue,
+        title: values.title
+      })
+      closeUpdateModal()
+    } catch (error) {
+      console.log('Form validation failed:', error)
+    }
+  }
+  const closeUpdateModal = (): void => {
+    form.resetFields()
+    setIsUpdateModalOpen(false)
+  }
+  const handleActivate = (key: string): void => {
+    setKey(key)
+  }
+  const handleDeactivate = (key: string): void => {
+    setKey(key)
+    handleOpenDeactivate()
+  }
   const handleClick = (): void => {
     if (companies.length > 200) {
       return handleOpenWarning()
     }
     showModal()
+  }
+  const handleSuccessDeactivate = (): void => {
+    api.success({
+      message: 'Customer company name deactivated',
+      placement: 'top',
+      showProgress: true,
+      pauseOnHover: true,
+      closeIcon: false,
+      duration: 2
+    })
+  }
+
+  const handleCloseDeactivate = (): void => setIsDeactivate(false)
+  const handleOpenDeactivate = (): void => setIsDeactivate(true)
+
+  const handleDeactivateSubmit = (): void => {
+    try {
+      updateCompanyStatus(key, 'inactive')
+      handleCloseDeactivate()
+      handleSuccessDeactivate()
+    } catch (error) {
+      console.log(error)
+    }
   }
   const handleOnRowClick = (record: Company): void => {
     navigate(`/settings/customer-company/${record.title}`, { state: { record: record } })
@@ -292,8 +291,9 @@ const CustomerCompany = (): ReactElement => {
         form={form}
         handleCancel={handleCancel}
         handleOk={handleOk}
-        initialValues={{ name: '', shortName: '' }}
+        initialValues={{ title: '', shortName: '' }}
         isModalOpen={isModalOpen}
+        data-testid='add-modal'
       />
 
       <CustomerCompanyModal
@@ -303,11 +303,11 @@ const CustomerCompany = (): ReactElement => {
         form={form}
         handleCancel={closeUpdateModal}
         handleOk={handleUpdate}
-        initialValues={{ name: '', shortName: '' }}
+        initialValues={{ title: '', shortName: '' }}
         isModalOpen={isUpdateModalOpen}
         type='update'
+        data-testid='update-modal'
       />
-
       <StyledModal
         centered
         title={
@@ -330,7 +330,6 @@ const CustomerCompany = (): ReactElement => {
           <Text.NormalMedium>Any problem, please contact with Console Connect support team</Text.NormalMedium>
         </Flex>
       </StyledModal>
-
       <StyledModal
         centered
         title={
@@ -347,6 +346,7 @@ const CustomerCompany = (): ReactElement => {
         closable={false}
         cancelText='Not now'
         $containerWidth='25rem'
+        data-testid='confirm-user'
       >
         <Flex gap={10} vertical>
           <Text.NormalMedium>
@@ -374,6 +374,7 @@ const CustomerCompany = (): ReactElement => {
         cancelText='Cancel'
         $containerWidth='30rem'
         okButtonProps={{ style: { backgroundColor: '#FF4D4F' } }}
+        data-testid='deactivate-modal'
       >
         <Flex gap={10} vertical style={{ marginLeft: '30px' }}>
           <Text.NormalMedium>
