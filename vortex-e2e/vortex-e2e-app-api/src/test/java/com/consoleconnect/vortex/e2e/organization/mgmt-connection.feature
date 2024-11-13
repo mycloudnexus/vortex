@@ -33,7 +33,7 @@ Feature: Mgmt Connection API
   @create-connection-for-organization-ignore-status
   Scenario: Create SAML connection
     * def update_data = karate.get('update_data') || {}
-    * def signingCert = read('classpath:data/fake_signing_cert.txt')
+    * def signingCert = karate.exec(['node', 'src/main/java/com/consoleconnect/vortext/toolkit/generate-cert.js'])
     * def data = read('classpath:data/create_connection_saml.json')
     * set data.saml.debug = true
     * def deepMerge =
