@@ -55,7 +55,12 @@ public class GenericHttpClient {
       ParameterizedTypeReference<T> responseType) {
     try {
       return curl(url, HttpMethod.GET, headers, body).bodyToMono(responseType).toFuture().get();
+    } catch (InterruptedException e) {
+      log.warn("unblockGet.interrupted", e);
+      Thread.currentThread().interrupt(); // Suggested by SonarCloud.
+      throw VortexException.badRequest("interrupted error, " + e.getMessage());
     } catch (Exception e) {
+      log.error("unknown.error", e);
       throw VortexException.badRequest("get error, " + e.getMessage());
     }
   }

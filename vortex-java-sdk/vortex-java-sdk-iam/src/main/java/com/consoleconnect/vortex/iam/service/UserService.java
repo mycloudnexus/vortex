@@ -127,13 +127,14 @@ public class UserService {
       log.info(
           "downstream userinfo, user.email:{} orgId:{}", user.getEmail(), organization.getId());
 
+      boolean mgmt = false;
       if (auth0Client.getAuth0Property().getMgmtOrgId().equalsIgnoreCase(organization.getId())
           || (resourceRoles.contains(RoleEnum.PLATFORM_ADMIN.name())
               || resourceRoles.contains(RoleEnum.PLATFORM_MEMBER.name()))) {
-        return downstreamRoleService.getUserInfo(user.getEmail(), true);
+        mgmt = true;
       }
 
-      return downstreamRoleService.getUserInfo(user.getEmail(), false);
+      return downstreamRoleService.getUserInfo(user.getEmail(), mgmt);
     } catch (Exception e) {
       log.error("downstream userinfo error", e);
       throw VortexException.badRequest("Retrieve downstream userinfo error.");

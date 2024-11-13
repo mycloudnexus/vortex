@@ -146,6 +146,6 @@ class DownstreamRoleServiceTest {
             Mockito.eq(new ParameterizedTypeReference<Map<String, Object>>() {}));
 
     Map<String, Object> result = downstreamRoleService.getUserInfo(email, true);
-    Assertions.assertThat(!result.isEmpty());
+    Assertions.assertThat(result).isNotEmpty();
   }
 }
