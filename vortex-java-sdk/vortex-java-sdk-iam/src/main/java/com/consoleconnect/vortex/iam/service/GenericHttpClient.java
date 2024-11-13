@@ -54,7 +54,8 @@ public class GenericHttpClient {
       Object body,
       ParameterizedTypeReference<T> responseType) {
     try {
-      return curl(url, HttpMethod.GET, headers, body).bodyToMono(responseType).toFuture().get();
+      WebClient.ResponseSpec responseSpec = curl(url, HttpMethod.GET, headers, body);
+      return responseSpec.bodyToMono(responseType).toFuture().get();
     } catch (InterruptedException e) {
       log.warn("unblockGet.interrupted", e);
       Thread.currentThread().interrupt(); // Suggested by SonarCloud.
