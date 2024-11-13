@@ -9,6 +9,17 @@ global.matchMedia = jest.fn().mockImplementation((query) => ({
   addListener: jest.fn(),
   removeListener: jest.fn()
 }))
+const mockSvg = (path: string) => {
+  jest.mock(path, () => ({
+    ReactComponent: () => <svg />
+  }))
+}
+mockSvg('@/assets/icon/customer-company.svg')
+mockSvg('@/assets/icon/customer-company-empty.svg')
+mockSvg('@/assets/icon/status.svg')
+mockSvg('@/assets/icon/close-circle.svg')
+mockSvg('@/assets/icon/warning-circle.svg')
+mockSvg('@/assets/icon/info.svg')
 jest.mock('@/assets/icon/customer-company.svg', () => ({
   ReactComponent: () => <svg />
 }))
@@ -70,16 +81,6 @@ describe('test', () => {
     expect(getByText('Test Company')).toBeInTheDocument()
   })
 
-  it('should render the company status', () => {
-    const { getByText } = render(
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
-    )
-
-    expect(getByText('Active')).toBeInTheDocument()
-  })
-
   it('should render table columns', () => {
     const { getByText } = render(
       <MemoryRouter>
@@ -94,19 +95,7 @@ describe('test', () => {
     expect(getByText('Action')).toBeInTheDocument()
   })
 
-  it('should display company data in table rows', () => {
-    const { getByText } = render(
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
-    )
-    expect(getByText('Test Company')).toBeInTheDocument()
-    expect(getByText('1')).toBeInTheDocument()
-    expect(getByText('TC')).toBeInTheDocument()
-    expect(getByText('Active')).toBeInTheDocument()
-  })
-
-  it('should display company data in table rows', () => {
+  it('should display active company data in table rows', () => {
     const { getByText } = render(
       <MemoryRouter>
         <CustomerCompany />
