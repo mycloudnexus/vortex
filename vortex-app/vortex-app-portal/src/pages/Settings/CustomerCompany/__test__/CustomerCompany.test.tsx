@@ -9,35 +9,26 @@ global.matchMedia = jest.fn().mockImplementation((query) => ({
   addListener: jest.fn(),
   removeListener: jest.fn()
 }))
-const mockSvg = (path: string) => {
-  jest.mock(path, () => ({
-    ReactComponent: () => <svg />
-  }))
-}
-mockSvg('@/assets/icon/customer-company.svg')
-mockSvg('@/assets/icon/customer-company-empty.svg')
-mockSvg('@/assets/icon/status.svg')
-mockSvg('@/assets/icon/close-circle.svg')
-mockSvg('@/assets/icon/warning-circle.svg')
-mockSvg('@/assets/icon/info.svg')
+
 jest.mock('@/assets/icon/customer-company.svg', () => ({
-  ReactComponent: () => <svg />
+  ReactComponent: () => <svg data-testid='customer-company' />
 }))
 jest.mock('@/assets/icon/customer-company-empty.svg', () => ({
-  ReactComponent: () => <svg />
+  ReactComponent: () => <svg data-testid='customer-company-empty' />
 }))
 jest.mock('@/assets/icon/status.svg', () => ({
-  ReactComponent: () => <svg />
+  ReactComponent: () => <svg data-testid='status' />
 }))
 jest.mock('@/assets/icon/close-circle.svg', () => ({
-  ReactComponent: () => <svg />
+  ReactComponent: () => <svg data-testid='close-circle' />
 }))
 jest.mock('@/assets/icon/warning-circle.svg', () => ({
-  ReactComponent: () => <svg />
+  ReactComponent: () => <svg data-testid='warning-circle' />
 }))
 jest.mock('@/assets/icon/info.svg', () => ({
-  ReactComponent: () => <svg />
+  ReactComponent: () => <svg data-testid='info' />
 }))
+
 jest.mock('@/stores/company.store', () => ({
   useCompanyStore: jest.fn().mockReturnValue({
     companies: [
