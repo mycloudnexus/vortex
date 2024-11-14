@@ -2,10 +2,10 @@ package com.consoleconnect.vortex.iam.controller;
 
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.iam.dto.UserInfo;
+import com.consoleconnect.vortex.iam.dto.downstream.DownstreamUserInfo;
 import com.consoleconnect.vortex.iam.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -38,7 +38,7 @@ public class UserController {
 
   @Operation(summary = "Retrieve current user's information from downstream.")
   @GetMapping("/downstream/userinfo")
-  public Mono<HttpResponse<Map<String, Object>>> downstreamUserInfo(JwtAuthenticationToken jwt) {
+  public Mono<HttpResponse<DownstreamUserInfo>> downstreamUserInfo(JwtAuthenticationToken jwt) {
     return Mono.just(
         HttpResponse.ok(userService.downstreamUserInfo(jwt.getName(), jwt.getToken())));
   }

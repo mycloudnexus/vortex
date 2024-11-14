@@ -15,13 +15,12 @@ import com.auth0.net.Response;
 import com.consoleconnect.vortex.config.TestApplication;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
+import com.consoleconnect.vortex.iam.dto.downstream.DownstreamUserInfo;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.model.Auth0Property;
 import com.consoleconnect.vortex.iam.model.DownstreamProperty;
 import com.consoleconnect.vortex.iam.model.IamProperty;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -51,10 +50,10 @@ class UserServiceTest {
 
     mockDownstreamUserInfo(true);
 
-    Map<String, Object> userInfo = new HashMap<>();
+    DownstreamUserInfo userInfo = new DownstreamUserInfo();
     doReturn(userInfo).when(downstreamRoleService).getUserInfo(anyString(), anyBoolean());
 
-    Map<String, Object> result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
+    DownstreamUserInfo result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
     assertEquals(userInfo, result);
   }
 
@@ -66,10 +65,10 @@ class UserServiceTest {
 
     mockDownstreamUserInfo(true);
 
-    Map<String, Object> userInfo = new HashMap<>();
+    DownstreamUserInfo userInfo = new DownstreamUserInfo();
     doReturn(userInfo).when(downstreamRoleService).getUserInfo(anyString(), anyBoolean());
 
-    Map<String, Object> result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
+    DownstreamUserInfo result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
     assertEquals(userInfo, result);
   }
 
@@ -81,10 +80,10 @@ class UserServiceTest {
 
     mockDownstreamUserInfo(false);
 
-    Map<String, Object> userInfo = new HashMap<>();
+    DownstreamUserInfo userInfo = new DownstreamUserInfo();
     doReturn(userInfo).when(downstreamRoleService).getUserInfo(anyString(), anyBoolean());
 
-    Map<String, Object> result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
+    DownstreamUserInfo result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
     assertEquals(userInfo, result);
   }
 

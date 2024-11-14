@@ -14,11 +14,11 @@ import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.RoleInfo;
 import com.consoleconnect.vortex.iam.dto.UserInfo;
+import com.consoleconnect.vortex.iam.dto.downstream.DownstreamUserInfo;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.mapper.UserMapper;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import java.util.List;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -114,7 +114,7 @@ public class UserService {
     }
   }
 
-  public Map<String, Object> downstreamUserInfo(String userId, Jwt jwt) {
+  public DownstreamUserInfo downstreamUserInfo(String userId, Jwt jwt) {
     try {
 
       UsersEntity userEntity = auth0Client.getMgmtClient().users();

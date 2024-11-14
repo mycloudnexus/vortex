@@ -5,8 +5,9 @@ import static org.mockito.Mockito.doReturn;
 
 import com.consoleconnect.vortex.config.SyncTaskTestConfig;
 import com.consoleconnect.vortex.config.TestApplication;
-import com.consoleconnect.vortex.iam.dto.DownstreamMember;
-import com.consoleconnect.vortex.iam.dto.DownstreamRole;
+import com.consoleconnect.vortex.iam.dto.downstream.DownstreamMember;
+import com.consoleconnect.vortex.iam.dto.downstream.DownstreamRole;
+import com.consoleconnect.vortex.iam.dto.downstream.DownstreamUserInfo;
 import com.consoleconnect.vortex.iam.model.Auth0Property;
 import com.consoleconnect.vortex.iam.model.DownstreamProperty;
 import com.consoleconnect.vortex.iam.model.IamProperty;
@@ -124,7 +125,22 @@ class DownstreamRoleServiceTest {
     role.setId(UUID.randomUUID().toString());
     role.setName("ADMIN");
     role.setDescription("ADMIN");
-    role.setPolicies(List.of(Map.of("name", "test-policy")));
+
+    DownstreamRole.PolicyStatement statement = new DownstreamRole.PolicyStatement();
+    statement.setResource(List.of("*"));
+    statement.setSid("Sid");
+    statement.setEffect("Allow");
+    statement.setAction(List.of("Create"));
+
+    DownstreamRole.PolicyDefinition policyDefinition = new DownstreamRole.PolicyDefinition();
+    policyDefinition.setStatement(List.of(statement));
+
+    DownstreamRole.DownstreamPolicy downstreamPolicy = new DownstreamRole.DownstreamPolicy();
+    downstreamPolicy.setName("test-policy");
+    downstreamPolicy.setId(UUID.randomUUID().toString());
+    downstreamPolicy.setDefinition(policyDefinition);
+
+    role.setPolicies(List.of(downstreamPolicy));
     role.setPermissions(Map.of("create-actions", true));
     downstreamMember.setRoles(List.of(role));
     doReturn(List.of(downstreamMember))
@@ -145,7 +161,7 @@ class DownstreamRoleServiceTest {
             any(),
             Mockito.eq(new ParameterizedTypeReference<Map<String, Object>>() {}));
 
-    Map<String, Object> result = downstreamRoleService.getUserInfo(email, true);
-    Assertions.assertThat(result).isNotEmpty();
+    DownstreamUserInfo result = downstreamRoleService.getUserInfo(email, true);
+    Assertions.assertThat(result).isNotNull();
   }
 }

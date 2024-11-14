@@ -1,8 +1,9 @@
 package com.consoleconnect.vortex.iam.service;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
-import com.consoleconnect.vortex.iam.dto.DownstreamMember;
-import com.consoleconnect.vortex.iam.dto.DownstreamRole;
+import com.consoleconnect.vortex.iam.dto.downstream.DownstreamMember;
+import com.consoleconnect.vortex.iam.dto.downstream.DownstreamRole;
+import com.consoleconnect.vortex.iam.dto.downstream.DownstreamUserInfo;
 import com.consoleconnect.vortex.iam.model.DownstreamProperty;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.google.common.cache.Cache;
@@ -100,7 +101,7 @@ public class DownstreamRoleService {
     }
   }
 
-  public Map<String, Object> getUserInfo(String email, boolean mgmt) {
+  public DownstreamUserInfo getUserInfo(String email, boolean mgmt) {
     DownstreamProperty downStreamProperty = iamProperty.getDownStream();
 
     if (!mgmt) {
@@ -108,39 +109,45 @@ public class DownstreamRoleService {
           downStreamProperty.getBaseUrl() + downStreamProperty.getUserAuthEndpoint(),
           Map.of(downStreamProperty.getApiKeyName(), downStreamProperty.getUserApiKey()),
           null,
-          new ParameterizedTypeReference<Map<String, Object>>() {});
+          new ParameterizedTypeReference<DownstreamUserInfo>() {});
     }
 
     DownstreamMember downstreamMember = getMemberByEmail(email);
     String url =
         String.format(downStreamProperty.getUserInfoEndpoint(), downstreamMember.getUsername());
-    Map<String, Object> userInfo =
+    DownstreamUserInfo userInfo =
         genericHttpClient.unblockGet(
             downStreamProperty.getBaseUrl() + url,
             Map.of(downStreamProperty.getApiKeyName(), downStreamProperty.getAdminApiKey()),
             null,
-            new ParameterizedTypeReference<Map<String, Object>>() {});
-    Map<String, Object> linkUserCompany =
-        (Map<String, Object>) MapUtils.getMap(userInfo, "linkUserCompany");
+            new ParameterizedTypeReference<DownstreamUserInfo>() {});
 
-    if (MapUtils.isNotEmpty(linkUserCompany)) {
-      Map<String, Object> userCompany =
-          (Map<String, Object>) MapUtils.getMap(linkUserCompany, downStreamProperty.getCompanyId());
-      List<DownstreamRole> downstreamRoles = downstreamMember.getRoles();
+    Map<String, DownstreamUserInfo.LinkUserCompany> linkUserCompany =
+        MapUtils.isEmpty(userInfo.getLinkUserCompany())
+            ? new HashMap<>()
+            : userInfo.getLinkUserCompany();
+    DownstreamUserInfo.LinkUserCompany userCompany =
+        linkUserCompany.getOrDefault(
+            downStreamProperty.getCompanyId(), new DownstreamUserInfo.LinkUserCompany());
+    List<DownstreamRole> downstreamRoles = downstreamMember.getRoles();
 
-      List<String> roleIds = new ArrayList<>(downstreamRoles.size());
-      List<String> roleNames = new ArrayList<>(downstreamRoles.size());
-      Map<String, Map<String, Boolean>> groups = new HashMap<>();
-      for (DownstreamRole role : downstreamRoles) {
-        roleIds.add(role.getId());
-        roleNames.add(role.getName());
-        groups.put(role.getName(), role.getPermissions());
-      }
-
-      userCompany.put("permissions", Map.of("roles", downstreamRoles, "groups", groups));
-      userCompany.put("roleIds", roleIds);
-      userCompany.put("roles", roleNames);
+    List<String> roleIds = new ArrayList<>(downstreamRoles.size());
+    List<String> roleNames = new ArrayList<>(downstreamRoles.size());
+    Map<String, Map<String, Boolean>> groups = new HashMap<>();
+    for (DownstreamRole role : downstreamRoles) {
+      roleIds.add(role.getId());
+      roleNames.add(role.getName());
+      groups.put(role.getName(), role.getPermissions());
     }
+
+    DownstreamUserInfo.LinkUserCompanyPermission linkUserCompanyPermission =
+        new DownstreamUserInfo.LinkUserCompanyPermission();
+    linkUserCompanyPermission.setGroups(groups);
+    linkUserCompanyPermission.setRoles(downstreamRoles);
+
+    userCompany.setPermissions(linkUserCompanyPermission);
+    userCompany.setRoleIds(roleIds);
+    userCompany.setRoles(roleNames);
     return userInfo;
   }
 }
