@@ -12,7 +12,6 @@ import com.consoleconnect.vortex.iam.model.Auth0Property;
 import com.consoleconnect.vortex.iam.model.DownstreamProperty;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import io.micrometer.common.util.StringUtils;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -151,15 +150,16 @@ class DownstreamRoleServiceTest {
             any(),
             Mockito.eq(new ParameterizedTypeReference<List<DownstreamMember>>() {}));
 
-    Map<String, Object> userInfo = new HashMap<>();
-    userInfo.put("linkUserCompany", Map.of(downstreamCompanyId, new HashMap<>()));
+    DownstreamUserInfo userInfo = new DownstreamUserInfo();
+    userInfo.setLinkUserCompany(
+        Map.of(downstreamCompanyId, new DownstreamUserInfo.LinkUserCompany()));
     doReturn(userInfo)
         .when(genericHttpClient)
         .unblockGet(
             anyString(),
             any(),
             any(),
-            Mockito.eq(new ParameterizedTypeReference<Map<String, Object>>() {}));
+            Mockito.eq(new ParameterizedTypeReference<DownstreamUserInfo>() {}));
 
     DownstreamUserInfo result = downstreamRoleService.getUserInfo(email, true);
     Assertions.assertThat(result).isNotNull();
