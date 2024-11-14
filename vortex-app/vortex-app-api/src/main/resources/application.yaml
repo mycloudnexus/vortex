@@ -75,6 +75,50 @@ spring:
                 keyName: Authorization
                 adminKey: Bearer ${app.gateway.downstream.admin-api-key}
                 userKey: Bearer ${app.gateway.downstream.user-api-key}
+            - name: ResponseBodyTransformer
+              args:
+                apis:
+                  - http-method: PUT
+                    http-path: ${app.gateway.downstream.path-prefix}/api/company/${app.gateway.downstream.company-username}/ports/orders
+                    transformer: resource.create
+                    resource-type: ORDER_PORT
+                    response-body-path: $
+                    metadata:
+                      orderId: id
+
+                  - http-method: PUT
+                    http-path: ${app.gateway.downstream.path-prefix}/api/v2/company/${app.gateway.downstream.company-username}/connections/layer2
+                    transformer: resource.create
+                    resource-type: L2
+                    response-body-path: $
+                    metadata:
+                      orderId: id
+                      resourceId: id
+
+                  - http-method: GET
+                    http-path: ${app.gateway.downstream.path-prefix}/api/company/${app.gateway.downstream.company-username}/ports/orders
+                    transformer: resources.filter
+                    resource-type: ORDER_PORT
+                    response-body-path: $.results
+                    metadata:
+                      filter: #data.?[#orderIds.contains(id)]
+
+                  - http-method: GET
+                    http-path: ${app.gateway.downstream.path-prefix}/api/company/${app.gateway.downstream.company-username}/ports
+                    transformer: resources.filter
+                    resource-type: ORDER_PORT
+                    response-body-path: $.results
+                    metadata:
+                      filter: #data.?[#resourceIds.contains(id)]
+
+                  - http-method: GET
+                    http-path: ${app.gateway.downstream.path-prefix}/api/v2/company/${app.gateway.downstream.company-username}/connections
+                    transformer: resources.filter
+                    resource-type: L2
+                    response-body-path: $.results
+                    metadata:
+                      filter: #data.?[#resourceIds.contains(id)]
+
 management:
   endpoint:
     health:
@@ -186,3 +230,4 @@ app:
       path-prefix: ${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}
       admin-api-key: ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
       user-api-key: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
+      company-username: ${GATEWAY_DOWN_STREAM_COMPANY_USERNAME:cbc}
