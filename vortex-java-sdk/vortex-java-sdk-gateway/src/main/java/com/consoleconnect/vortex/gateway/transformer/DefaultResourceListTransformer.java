@@ -6,22 +6,24 @@ import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.iam.model.UserContext;
 import com.jayway.jsonpath.DocumentContext;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
 @Service
-@AllArgsConstructor
-public class DefaultResourceListTransformer extends AbstractResourceTransformer {
+public class DefaultResourceListTransformer extends AbstractResourceTransformer<Object> {
 
   protected final OrderService orderService;
+
+  public DefaultResourceListTransformer(OrderService orderService) {
+    super(Object.class);
+    this.orderService = orderService;
+  }
 
   /**
    * process result and error code
@@ -30,11 +32,12 @@ public class DefaultResourceListTransformer extends AbstractResourceTransformer 
    * @return
    */
   @Override
-  public byte[] doTransform(
+  public String doTransform(
       ServerWebExchange exchange,
-      byte[] responseBody,
+      String responseBody,
       UserContext userContext,
-      TransformerApiProperty config) {
+      TransformerApiProperty config,
+      Object metadata) {
 
     String orgId = userContext.getCustomerId();
 
@@ -45,9 +48,7 @@ public class DefaultResourceListTransformer extends AbstractResourceTransformer 
 
     Set<String> resourceIds = resources.keySet();
 
-    String responseJson = new String(responseBody, StandardCharsets.UTF_8);
-
-    DocumentContext ctx = JsonPathToolkit.createDocCtx(responseJson);
+    DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
     List<Map<String, Object>> resOrders = ctx.read(config.getResponseBodyPath());
 
     // filter resources
@@ -60,9 +61,8 @@ public class DefaultResourceListTransformer extends AbstractResourceTransformer 
       ctx.set(config.getResponseBodyPath(), resOrders);
     }
 
-    byte[] resBytes = ctx.jsonString().getBytes(StandardCharsets.UTF_8);
     log.info("process completed, resourceType:{}", config.getResourceType());
-    return resBytes;
+    return ctx.jsonString();
   }
 
   // default filter

@@ -2,6 +2,7 @@ package com.consoleconnect.vortex.gateway.toolkit;
 
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import java.util.*;
+import lombok.Data;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -42,22 +43,51 @@ class SpELEngineTest {
 
   @Test
   void testIt3() {
-    Map<String, Object> data = new HashMap<>();
-    data.put("id", "5");
 
-    Map<String, Object> resource1 = new HashMap<>();
-    resource1.put("id", "1");
+    Resource resource1 = new Resource();
+    resource1.setId("1");
 
-    Map<String, Object> resource2 = new HashMap<>();
-    resource2.put("id", "2");
+    Resource resource2 = new Resource();
+    resource2.setId("2");
+
+    Map<String, Object> context1 = new HashMap<>();
+    //    ExpressionParser parser = new SpelExpressionParser();
+
+    context1.put("orderIds", Arrays.asList("1", "4", "3"));
+    context1.put("resources", Arrays.asList(resource1, resource2));
+    Object result1 =
+        SpELEngine.evaluate("#resources.?[#orderIds.contains(id)]", context1, Object.class);
+    System.out.println(JsonToolkit.toJson(result1));
+  }
+
+  @Data
+  public static class Resource {
+    private String id;
+  }
+
+  @Test
+  void testSpELFiltering() {
+
+    TestResource resource1 = new TestResource("1");
+
+    TestResource resource2 = new TestResource("2");
 
     Map<String, Object> context = new HashMap<>();
     context.put("orderIds", Arrays.asList("1", "2", "3"));
     context.put("resources", Arrays.asList(resource1, resource2));
 
     SpELEngine spELEngine = new SpELEngine(context);
-    Object result = spELEngine.evaluate("${resources.?[#orderIds.contains(id)]}", Object.class);
+    Object result = spELEngine.evaluate("${resources.?[id in orderIds]}", Object.class);
 
     System.out.println(JsonToolkit.toJson(result));
+  }
+
+  @Data
+  static class TestResource {
+    private String id;
+
+    public TestResource(String id) {
+      this.id = id;
+    }
   }
 }

@@ -1,6 +1,8 @@
 package com.consoleconnect.vortex.gateway.config;
 
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.http.HttpMethod;
@@ -17,4 +19,6 @@ public class TransformerApiProperty {
   private ResourceTypeEnum resourceType;
   private String resourceInstanceId = "id";
   private String responseBodyPath = DEFAULT_BODY_PATH;
+
+  private Map<String, Object> metadata = new HashMap<>();
 }

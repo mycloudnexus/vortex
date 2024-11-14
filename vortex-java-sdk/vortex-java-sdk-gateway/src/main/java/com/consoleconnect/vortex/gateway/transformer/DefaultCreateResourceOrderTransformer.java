@@ -5,34 +5,35 @@ import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.iam.model.UserContext;
-import java.nio.charset.StandardCharsets;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
 @Service
-@AllArgsConstructor
-public class DefaultCreateResourceOrderTransformer extends AbstractResourceTransformer {
+public class DefaultCreateResourceOrderTransformer extends AbstractResourceTransformer<Object> {
 
   protected final OrderService orderService;
 
+  public DefaultCreateResourceOrderTransformer(OrderService orderService) {
+    super(Object.class);
+    this.orderService = orderService;
+  }
+
   @Override
-  public byte[] doTransform(
+  public String doTransform(
       ServerWebExchange exchange,
-      byte[] responseBody,
+      String responseBody,
       UserContext userContext,
-      TransformerApiProperty config) {
+      TransformerApiProperty config,
+      Object metadata) {
 
     String orgId = userContext.getCustomerId();
-
-    String response = new String(responseBody, StandardCharsets.UTF_8);
 
     String orderId = null;
 
     String resourceInstanceId =
-        JsonPathToolkit.read(response, "$." + config.getResourceInstanceId());
+        JsonPathToolkit.read(responseBody, "$." + config.getResourceInstanceId());
 
     log.info("create vortex resource order, api property:{}", config);
 
@@ -48,6 +49,6 @@ public class DefaultCreateResourceOrderTransformer extends AbstractResourceTrans
 
   @Override
   public String getTransformerId() {
-    return "resource.create";
+    return "resource.create.legacy";
   }
 }

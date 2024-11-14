@@ -21,24 +21,6 @@ public class SpELEngine {
 
   private final StandardEvaluationContext evaluationContext;
 
-  private final ParserContext parserContext =
-      new ParserContext() {
-        @Override
-        public boolean isTemplate() {
-          return true;
-        }
-
-        @Override
-        public String getExpressionPrefix() {
-          return "${";
-        }
-
-        @Override
-        public String getExpressionSuffix() {
-          return "}";
-        }
-      };
-
   public SpELEngine(Map<String, Object> variables) {
     evaluationContext = new StandardEvaluationContext(variables);
     evaluationContext.addPropertyAccessor(new JsonPropertyAccessor());
@@ -60,9 +42,7 @@ public class SpELEngine {
   public <T> T evaluate(String expression, Class<T> clazz) {
     log.info("Evaluating expression: {}", expression);
     try {
-      return expressionParser
-          .parseExpression(expression, parserContext)
-          .getValue(evaluationContext, clazz);
+      return expressionParser.parseExpression(expression).getValue(evaluationContext, clazz);
     } catch (Exception ex) {
       log.error("Error evaluating expression: {}", expression, ex);
       return null;

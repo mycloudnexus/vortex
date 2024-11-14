@@ -1,21 +1,33 @@
 package com.consoleconnect.vortex.gateway.transformer;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
+import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
+import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.model.UserContext;
+import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
-public abstract class AbstractResourceTransformer {
+public abstract class AbstractResourceTransformer<T> {
+
+  private final Class<T> cls;
+
+  protected AbstractResourceTransformer(Class<T> cls) {
+    this.cls = cls;
+  }
 
   public final byte[] transform(
       ServerWebExchange exchange, byte[] responseBody, TransformerApiProperty config) {
     long start = System.currentTimeMillis();
     try {
       UserContext userContext = exchange.getAttribute(IamConstants.X_VORTEX_USER_CONTEXT);
-      return doTransform(exchange, responseBody, userContext, config);
+      T metadata = JsonToolkit.fromJson(JsonToolkit.toJson(config.getMetadata()), cls);
+      String responseBodyJsonStr = new String(responseBody, StandardCharsets.UTF_8);
+      return doTransform(exchange, responseBodyJsonStr, userContext, config, metadata)
+          .getBytes(StandardCharsets.UTF_8);
     } catch (Exception e) {
       log.error("{} transform error.", getClass().getSimpleName(), e);
       throw VortexException.badRequest("Failed to transform", e);
@@ -27,11 +39,17 @@ public abstract class AbstractResourceTransformer {
     }
   }
 
-  protected abstract byte[] doTransform(
+  protected abstract String doTransform(
       ServerWebExchange exchange,
-      byte[] responseBody,
+      String responseBody,
       UserContext userContext,
-      TransformerApiProperty config);
+      TransformerApiProperty config,
+      T metadata);
+
+  public String readJsonPath(String responseBody, String jsonPath, TransformerApiProperty config) {
+    String fullPath = String.format("%s.%s", config.getResponseBodyPath(), jsonPath);
+    return JsonPathToolkit.read(responseBody, fullPath);
+  }
 
   public abstract String getTransformerId();
 }
