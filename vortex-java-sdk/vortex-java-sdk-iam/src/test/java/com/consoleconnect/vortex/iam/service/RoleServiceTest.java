@@ -1,14 +1,16 @@
 package com.consoleconnect.vortex.iam.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import com.consoleconnect.vortex.cc.CCHttpClient;
+import com.consoleconnect.vortex.cc.model.CCClientProperty;
 import com.consoleconnect.vortex.cc.model.Member;
 import com.consoleconnect.vortex.cc.model.Role;
 import com.consoleconnect.vortex.cc.model.UserInfo;
-import com.consoleconnect.vortex.config.SyncTaskTestConfig;
-import com.consoleconnect.vortex.config.TestApplication;
 import com.consoleconnect.vortex.core.toolkit.GenericHttpClient;
 import com.consoleconnect.vortex.iam.model.Auth0Property;
 import com.consoleconnect.vortex.iam.model.DownstreamProperty;
@@ -17,30 +19,30 @@ import io.micrometer.common.util.StringUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.assertj.core.api.Assertions;
+import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
-@Import({SyncTaskTestConfig.class})
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@ContextConfiguration(classes = TestApplication.class)
 class RoleServiceTest {
-  @SpyBean private GenericHttpClient genericHttpClient;
-  @SpyBean private IamProperty iamProperty;
-  @Autowired private DownstreamRoleService downstreamRoleService;
-  @Autowired private CCHttpClient ccHttpClient;
-
+  private WebClient webClient = mock(WebClient.class);
+  private GenericHttpClient genericHttpClient = new GenericHttpClient(webClient);
+  private IamProperty iamProperty = mock(IamProperty.class);
+  private CCClientProperty ccClientProperty = mock(CCClientProperty.class);
+  private CCHttpClient ccHttpClient = new CCHttpClient(ccClientProperty, genericHttpClient);
+  private DownstreamRoleService downstreamRoleService =
+      new DownstreamRoleService(ccHttpClient, iamProperty);
   private static final String SYSTEM = "system";
-  private static final String TEST_COMPANY = "Test Company";
+  private static final String TEST_COMPANY = "test-company";
+
+  private void mockAuth0Property(String uuid) {
+    Auth0Property auth0 = new Auth0Property();
+    auth0.setMgmtOrgId(uuid);
+    doReturn(auth0).when(iamProperty).getAuth0();
+  }
 
   @Test
   void syncRole() {
@@ -49,7 +51,7 @@ class RoleServiceTest {
     mockDownstreamProperty(null);
     mockRoleResponse();
     downstreamRoleService.syncRole(uuid, SYSTEM);
-    Assertions.assertThatNoException();
+    assertThatNoException();
   }
 
   @Test
@@ -58,7 +60,7 @@ class RoleServiceTest {
     mockDownstreamProperty(null);
     mockRoleResponse();
     downstreamRoleService.syncRole(UUID.randomUUID().toString(), SYSTEM);
-    Assertions.assertThatNoException();
+    assertThatNoException();
   }
 
   @Test
@@ -68,31 +70,40 @@ class RoleServiceTest {
     mockDownstreamProperty(null);
     mockRoleResponse();
     downstreamRoleService.syncRole(uuid, null);
-    Assertions.assertThatNoException();
+    assertThatNoException();
   }
 
   @Test
   void syncRoleException() {
     String uuid = UUID.randomUUID().toString();
     mockAuth0Property(uuid);
+    mockDownstreamProperty(null);
     DownstreamProperty downstreamProperty = new DownstreamProperty();
     downstreamProperty.setAdminApiKey(UUID.randomUUID().toString());
     downstreamProperty.setRole("role");
     doReturn(downstreamProperty).when(iamProperty).getDownStream();
     mockRoleResponse();
     downstreamRoleService.syncRole(uuid, "test");
-    Assertions.assertThatNoException();
+    assertThatNoException();
   }
 
   private void mockRoleResponse() {
     Role role = new Role();
-    doReturn(role).when(genericHttpClient).blockPut(anyString(), any(), any(), any());
-  }
+    WebClient.RequestBodyUriSpec requestBodyUriSpec = mock(WebClient.RequestBodyUriSpec.class);
+    doReturn(requestBodyUriSpec).when(webClient).method(HttpMethod.PUT);
 
-  private void mockAuth0Property(String uuid) {
-    Auth0Property auth0 = new Auth0Property();
-    auth0.setMgmtOrgId(uuid);
-    doReturn(auth0).when(iamProperty).getAuth0();
+    doReturn(requestBodyUriSpec).when(requestBodyUriSpec).uri(anyString());
+
+    doReturn(requestBodyUriSpec).when(requestBodyUriSpec).accept(MediaType.APPLICATION_JSON);
+    doReturn(requestBodyUriSpec).when(requestBodyUriSpec).contentType(any());
+
+    WebClient.ResponseSpec responseSpec = mock(WebClient.ResponseSpec.class);
+    doReturn(responseSpec).when(requestBodyUriSpec).retrieve();
+
+    Mono memerMono = mock(Mono.class);
+    doReturn(memerMono).when(responseSpec).bodyToMono(new ParameterizedTypeReference<>() {});
+
+    doReturn(role).when(memerMono).block();
   }
 
   private void mockDownstreamProperty(String companyId) {
@@ -106,10 +117,16 @@ class RoleServiceTest {
     downstreamProperty.setCompanyId(
         StringUtils.isEmpty(companyId) ? UUID.randomUUID().toString() : companyId);
     doReturn(downstreamProperty).when(iamProperty).getDownStream();
+
+    doReturn(UUID.randomUUID().toString()).when(ccClientProperty).getApiKeyName();
+    doReturn(UUID.randomUUID().toString()).when(ccClientProperty).getAdminApiKey();
+    doReturn("http://localhost").when(ccClientProperty).getBaseUrl();
+    doReturn(UUID.randomUUID().toString()).when(ccClientProperty).getCompanyId();
+    doReturn(TEST_COMPANY).when(ccClientProperty).getCompanyUsername();
   }
 
   @Test
-  void testGetMemberByEmail() {
+  void testGetMemberByEmail() throws Exception {
     String downstreamCompanyId = UUID.randomUUID().toString();
     mockDownstreamProperty(downstreamCompanyId);
 
@@ -142,22 +159,40 @@ class RoleServiceTest {
     role.setPolicies(List.of(downstreamPolicy));
     role.setPermissions(Map.of("create-actions", true));
     downstreamMember.setRoles(List.of(role));
-    doReturn(List.of(downstreamMember))
-        .when(genericHttpClient)
-        .unblockGet(
-            anyString(),
-            anyMap(),
-            any(),
-            Mockito.eq(new ParameterizedTypeReference<List<Member>>() {}));
+
+    WebClient.RequestBodyUriSpec requestBodyUriSpec = mock(WebClient.RequestBodyUriSpec.class);
+    doReturn(requestBodyUriSpec).when(webClient).method(HttpMethod.GET);
+
+    doReturn(requestBodyUriSpec).when(requestBodyUriSpec).uri(anyString());
+
+    doReturn(requestBodyUriSpec).when(requestBodyUriSpec).accept(MediaType.APPLICATION_JSON);
+    doReturn(requestBodyUriSpec).when(requestBodyUriSpec).contentType(any());
+
+    WebClient.ResponseSpec responseSpec = mock(WebClient.ResponseSpec.class);
+    doReturn(responseSpec).when(requestBodyUriSpec).retrieve();
+
+    Mono<List<Member>> memerMono = mock(Mono.class);
+    doReturn(memerMono)
+        .when(responseSpec)
+        .bodyToMono(new ParameterizedTypeReference<List<Member>>() {});
+
+    CompletableFuture<List<Member>> completableFuture = mock(CompletableFuture.class);
+    doReturn(completableFuture).when(memerMono).toFuture();
+    doReturn(List.of(downstreamMember)).when(completableFuture).get();
 
     UserInfo userInfo = new UserInfo();
     userInfo.setLinkUserCompany(Map.of(downstreamCompanyId, new UserInfo.LinkUserCompany()));
-    doReturn(userInfo)
-        .when(genericHttpClient)
-        .unblockGet(
-            anyString(), any(), any(), Mockito.eq(new ParameterizedTypeReference<UserInfo>() {}));
+
+    Mono<UserInfo> userInfoMono = mock(Mono.class);
+    doReturn(userInfoMono)
+        .when(responseSpec)
+        .bodyToMono(new ParameterizedTypeReference<UserInfo>() {});
+
+    CompletableFuture<UserInfo> userInfoFuture = mock(CompletableFuture.class);
+    doReturn(userInfoFuture).when(userInfoMono).toFuture();
+    doReturn(userInfo).when(userInfoFuture).get();
 
     UserInfo result = ccHttpClient.getUserInfo(email, true);
-    Assertions.assertThat(result).isNotNull();
+    assertThat(result).isNotNull();
   }
 }
