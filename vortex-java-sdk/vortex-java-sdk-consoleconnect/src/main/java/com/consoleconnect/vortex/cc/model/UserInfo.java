@@ -1,11 +1,11 @@
-package com.consoleconnect.vortex.iam.dto.downstream;
+package com.consoleconnect.vortex.cc.model;
 
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
 
 @Data
-public class DownstreamUserInfo extends BaseUserInfo {
+public class UserInfo extends BaseUserInfo {
   private String type;
   private String status;
   private List<DownstreamCompany> companies;
@@ -25,7 +25,7 @@ public class DownstreamUserInfo extends BaseUserInfo {
   public static class LinkUserCompanyPermission {
     // <ADMIN,{company-update:false}>
     private Map<String, Map<String, Boolean>> groups;
-    private List<DownstreamRole> roles;
+    private List<Role> roles;
   }
 
   @Data

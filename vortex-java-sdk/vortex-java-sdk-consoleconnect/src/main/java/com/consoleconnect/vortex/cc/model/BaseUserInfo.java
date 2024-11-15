@@ -1,4 +1,4 @@
-package com.consoleconnect.vortex.iam.dto.downstream;
+package com.consoleconnect.vortex.cc.model;
 
 import lombok.Data;
 

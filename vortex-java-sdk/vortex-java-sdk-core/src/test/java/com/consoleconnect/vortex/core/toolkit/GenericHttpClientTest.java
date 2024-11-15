@@ -1,11 +1,11 @@
-package com.consoleconnect.vortex.iam.service;
+package com.consoleconnect.vortex.core.toolkit;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-import com.consoleconnect.vortex.config.TestApplication;
+import com.consoleconnect.vortex.core.TestApplication;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;

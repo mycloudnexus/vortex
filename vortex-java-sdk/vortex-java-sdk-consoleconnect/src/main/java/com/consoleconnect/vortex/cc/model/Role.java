@@ -1,4 +1,4 @@
-package com.consoleconnect.vortex.iam.dto.downstream;
+package com.consoleconnect.vortex.cc.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Map;
 import lombok.Data;
 
 @Data
-public class DownstreamRole {
+public class Role {
   private String id;
   private String name;
   private String displayName;

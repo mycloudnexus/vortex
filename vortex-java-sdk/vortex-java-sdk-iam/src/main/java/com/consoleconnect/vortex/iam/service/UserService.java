@@ -7,14 +7,14 @@ import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.permissions.Permission;
 import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
+import com.consoleconnect.vortex.cc.CCHttpClient;
+import com.consoleconnect.vortex.cc.model.UserInfo;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.RoleInfo;
-import com.consoleconnect.vortex.iam.dto.UserInfo;
-import com.consoleconnect.vortex.iam.dto.downstream.DownstreamUserInfo;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.mapper.UserMapper;
 import com.consoleconnect.vortex.iam.model.IamProperty;
@@ -31,7 +31,7 @@ public class UserService {
   private final Auth0Client auth0Client;
   private final PermissionService permissionService;
   private final IamProperty iamProperty;
-  private final DownstreamRoleService downstreamRoleService;
+  private final CCHttpClient downstreamRoleService;
 
   public Paging<Role> listRoles(int page, int size) {
     try {
@@ -57,13 +57,13 @@ public class UserService {
     }
   }
 
-  public UserInfo getInfo(String userId) {
+  public com.consoleconnect.vortex.iam.dto.UserInfo getInfo(String userId) {
     try {
       UsersEntity userEntity = auth0Client.getMgmtClient().users();
       User user = userEntity.get(userId, null).execute().getBody();
       List<Organization> organizations =
           userEntity.getOrganizations(userId, null).execute().getBody().getItems();
-      UserInfo userInfo = UserMapper.INSTANCE.toUserInfo(user);
+      com.consoleconnect.vortex.iam.dto.UserInfo userInfo = UserMapper.INSTANCE.toUserInfo(user);
       if (organizations != null && !organizations.isEmpty()) {
         if (organizations.size() > 1) {
           log.warn("User {} belongs to multiple organizations", userId);
@@ -79,8 +79,10 @@ public class UserService {
                 .getBody()
                 .getItems();
 
-        UserInfo.UserOrganization userOrganization =
-            JsonToolkit.fromJson(JsonToolkit.toJson(org), UserInfo.UserOrganization.class);
+        com.consoleconnect.vortex.iam.dto.UserInfo.UserOrganization userOrganization =
+            JsonToolkit.fromJson(
+                JsonToolkit.toJson(org),
+                com.consoleconnect.vortex.iam.dto.UserInfo.UserOrganization.class);
 
         userOrganization.setRoles(roles);
         userInfo.setOrganization(userOrganization);
@@ -114,7 +116,7 @@ public class UserService {
     }
   }
 
-  public DownstreamUserInfo downstreamUserInfo(String userId, Jwt jwt) {
+  public UserInfo downstreamUserInfo(String userId, Jwt jwt) {
     try {
 
       UsersEntity userEntity = auth0Client.getMgmtClient().users();

@@ -1,7 +1,6 @@
-package com.consoleconnect.vortex.iam.service;
+package com.consoleconnect.vortex.core.toolkit;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
-import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,14 +8,12 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Slf4j
-@Component
 @AllArgsConstructor
 public class GenericHttpClient {
-  private WebClient client;
+  private final WebClient client;
 
   public WebClient.ResponseSpec curl(
       String url, HttpMethod method, Map<String, String> httpHeaders, Object body) {

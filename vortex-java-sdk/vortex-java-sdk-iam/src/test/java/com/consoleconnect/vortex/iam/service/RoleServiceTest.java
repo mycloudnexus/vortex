@@ -3,11 +3,13 @@ package com.consoleconnect.vortex.iam.service;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 
+import com.consoleconnect.vortex.cc.CCHttpClient;
+import com.consoleconnect.vortex.cc.model.Member;
+import com.consoleconnect.vortex.cc.model.Role;
+import com.consoleconnect.vortex.cc.model.UserInfo;
 import com.consoleconnect.vortex.config.SyncTaskTestConfig;
 import com.consoleconnect.vortex.config.TestApplication;
-import com.consoleconnect.vortex.iam.dto.downstream.DownstreamMember;
-import com.consoleconnect.vortex.iam.dto.downstream.DownstreamRole;
-import com.consoleconnect.vortex.iam.dto.downstream.DownstreamUserInfo;
+import com.consoleconnect.vortex.core.toolkit.GenericHttpClient;
 import com.consoleconnect.vortex.iam.model.Auth0Property;
 import com.consoleconnect.vortex.iam.model.DownstreamProperty;
 import com.consoleconnect.vortex.iam.model.IamProperty;
@@ -31,10 +33,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = TestApplication.class)
-class DownstreamRoleServiceTest {
+class RoleServiceTest {
   @SpyBean private GenericHttpClient genericHttpClient;
   @SpyBean private IamProperty iamProperty;
   @Autowired private DownstreamRoleService downstreamRoleService;
+  @Autowired private CCHttpClient ccHttpClient;
+
   private static final String SYSTEM = "system";
   private static final String TEST_COMPANY = "Test Company";
 
@@ -73,7 +77,6 @@ class DownstreamRoleServiceTest {
     mockAuth0Property(uuid);
     DownstreamProperty downstreamProperty = new DownstreamProperty();
     downstreamProperty.setAdminApiKey(UUID.randomUUID().toString());
-    downstreamProperty.setRoleEndpoint("/");
     downstreamProperty.setRole("role");
     doReturn(downstreamProperty).when(iamProperty).getDownStream();
     mockRoleResponse();
@@ -82,7 +85,7 @@ class DownstreamRoleServiceTest {
   }
 
   private void mockRoleResponse() {
-    DownstreamRole role = new DownstreamRole();
+    Role role = new Role();
     doReturn(role).when(genericHttpClient).blockPut(anyString(), any(), any(), any());
   }
 
@@ -95,7 +98,6 @@ class DownstreamRoleServiceTest {
   private void mockDownstreamProperty(String companyId) {
     DownstreamProperty downstreamProperty = new DownstreamProperty();
     downstreamProperty.setAdminApiKey(UUID.randomUUID().toString());
-    downstreamProperty.setRoleEndpoint("/");
     downstreamProperty.setRole("role");
     downstreamProperty.setApiKeyName("Authorization");
     downstreamProperty.setAdminApiKey("Bearer ");
@@ -103,8 +105,6 @@ class DownstreamRoleServiceTest {
     downstreamProperty.setBaseUrl("http://localhost");
     downstreamProperty.setCompanyId(
         StringUtils.isEmpty(companyId) ? UUID.randomUUID().toString() : companyId);
-    downstreamProperty.setMembersEndpoint("/v2/companies/%s/m?pageSize=%s");
-    downstreamProperty.setUserInfoEndpoint("/api/user/info");
     doReturn(downstreamProperty).when(iamProperty).getDownStream();
   }
 
@@ -114,27 +114,27 @@ class DownstreamRoleServiceTest {
     mockDownstreamProperty(downstreamCompanyId);
 
     String email = "test@example.com";
-    DownstreamMember downstreamMember = new DownstreamMember();
+    Member downstreamMember = new Member();
 
     downstreamMember.setId(UUID.randomUUID().toString());
     downstreamMember.setUsername("test-user");
     downstreamMember.setEmail(email);
 
-    DownstreamRole role = new DownstreamRole();
+    Role role = new Role();
     role.setId(UUID.randomUUID().toString());
     role.setName("ADMIN");
     role.setDescription("ADMIN");
 
-    DownstreamRole.PolicyStatement statement = new DownstreamRole.PolicyStatement();
+    Role.PolicyStatement statement = new Role.PolicyStatement();
     statement.setResource(List.of("*"));
     statement.setSid("Sid");
     statement.setEffect("Allow");
     statement.setAction(List.of("Create"));
 
-    DownstreamRole.PolicyDefinition policyDefinition = new DownstreamRole.PolicyDefinition();
+    Role.PolicyDefinition policyDefinition = new Role.PolicyDefinition();
     policyDefinition.setStatement(List.of(statement));
 
-    DownstreamRole.DownstreamPolicy downstreamPolicy = new DownstreamRole.DownstreamPolicy();
+    Role.DownstreamPolicy downstreamPolicy = new Role.DownstreamPolicy();
     downstreamPolicy.setName("test-policy");
     downstreamPolicy.setId(UUID.randomUUID().toString());
     downstreamPolicy.setDefinition(policyDefinition);
@@ -148,20 +148,16 @@ class DownstreamRoleServiceTest {
             anyString(),
             anyMap(),
             any(),
-            Mockito.eq(new ParameterizedTypeReference<List<DownstreamMember>>() {}));
+            Mockito.eq(new ParameterizedTypeReference<List<Member>>() {}));
 
-    DownstreamUserInfo userInfo = new DownstreamUserInfo();
-    userInfo.setLinkUserCompany(
-        Map.of(downstreamCompanyId, new DownstreamUserInfo.LinkUserCompany()));
+    UserInfo userInfo = new UserInfo();
+    userInfo.setLinkUserCompany(Map.of(downstreamCompanyId, new UserInfo.LinkUserCompany()));
     doReturn(userInfo)
         .when(genericHttpClient)
         .unblockGet(
-            anyString(),
-            any(),
-            any(),
-            Mockito.eq(new ParameterizedTypeReference<DownstreamUserInfo>() {}));
+            anyString(), any(), any(), Mockito.eq(new ParameterizedTypeReference<UserInfo>() {}));
 
-    DownstreamUserInfo result = downstreamRoleService.getUserInfo(email, true);
+    UserInfo result = ccHttpClient.getUserInfo(email, true);
     Assertions.assertThat(result).isNotNull();
   }
 }

@@ -12,10 +12,11 @@ import com.auth0.json.mgmt.organizations.OrganizationsPage;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Request;
 import com.auth0.net.Response;
+import com.consoleconnect.vortex.cc.CCHttpClient;
+import com.consoleconnect.vortex.cc.model.UserInfo;
 import com.consoleconnect.vortex.config.TestApplication;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
-import com.consoleconnect.vortex.iam.dto.downstream.DownstreamUserInfo;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.model.Auth0Property;
 import com.consoleconnect.vortex.iam.model.DownstreamProperty;
@@ -38,7 +39,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 class UserServiceTest {
   @Autowired UserService userService;
   @SpyBean Auth0Client auth0Client;
-  @SpyBean DownstreamRoleService downstreamRoleService;
+  @SpyBean CCHttpClient ccHttpClient;
   @SpyBean IamProperty iamProperty;
   private static final String ORG_ID = "org_xxxx";
 
@@ -50,10 +51,10 @@ class UserServiceTest {
 
     mockDownstreamUserInfo(true);
 
-    DownstreamUserInfo userInfo = new DownstreamUserInfo();
-    doReturn(userInfo).when(downstreamRoleService).getUserInfo(anyString(), anyBoolean());
+    UserInfo userInfo = new UserInfo();
+    doReturn(userInfo).when(ccHttpClient).getUserInfo(anyString(), anyBoolean());
 
-    DownstreamUserInfo result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
+    UserInfo result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
     assertEquals(userInfo, result);
   }
 
@@ -65,10 +66,10 @@ class UserServiceTest {
 
     mockDownstreamUserInfo(true);
 
-    DownstreamUserInfo userInfo = new DownstreamUserInfo();
-    doReturn(userInfo).when(downstreamRoleService).getUserInfo(anyString(), anyBoolean());
+    UserInfo userInfo = new UserInfo();
+    doReturn(userInfo).when(ccHttpClient).getUserInfo(anyString(), anyBoolean());
 
-    DownstreamUserInfo result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
+    UserInfo result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
     assertEquals(userInfo, result);
   }
 
@@ -80,10 +81,10 @@ class UserServiceTest {
 
     mockDownstreamUserInfo(false);
 
-    DownstreamUserInfo userInfo = new DownstreamUserInfo();
-    doReturn(userInfo).when(downstreamRoleService).getUserInfo(anyString(), anyBoolean());
+    UserInfo userInfo = new UserInfo();
+    doReturn(userInfo).when(ccHttpClient).getUserInfo(anyString(), anyBoolean());
 
-    DownstreamUserInfo result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
+    UserInfo result = userService.downstreamUserInfo(UUID.randomUUID().toString(), jwt);
     assertEquals(userInfo, result);
   }
 
@@ -94,7 +95,7 @@ class UserServiceTest {
     doReturn(roles).when(jwt).getClaimAsStringList(anyString());
 
     doThrow(VortexException.badRequest("error"))
-        .when(downstreamRoleService)
+        .when(ccHttpClient)
         .getUserInfo(anyString(), anyBoolean());
 
     assertThrows(
