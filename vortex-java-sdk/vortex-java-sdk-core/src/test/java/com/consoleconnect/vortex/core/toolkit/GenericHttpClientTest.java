@@ -1,5 +1,6 @@
 package com.consoleconnect.vortex.core.toolkit;
 
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -9,7 +10,6 @@ import com.consoleconnect.vortex.core.TestApplication;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -48,7 +48,32 @@ class GenericHttpClientTest {
     doReturn(Map.of()).when(mapMono).block();
 
     vortexServerConnector.curl("http://lcaolhost", HttpMethod.PUT, null, null);
-    Assertions.assertThatNoException();
+    assertThatNoException();
+  }
+
+  @Test
+  void curlHasHeaders() {
+    GenericHttpClient vortexServerConnector = new GenericHttpClient(webClient);
+
+    WebClient.RequestBodyUriSpec requestBodyUriSpec = mock(WebClient.RequestBodyUriSpec.class);
+    doReturn(requestBodyUriSpec).when(webClient).method(HttpMethod.PUT);
+
+    doReturn(requestBodyUriSpec).when(requestBodyUriSpec).uri(anyString());
+
+    doReturn(requestBodyUriSpec).when(requestBodyUriSpec).accept(MediaType.APPLICATION_JSON);
+    doReturn(requestBodyUriSpec).when(requestBodyUriSpec).contentType(any());
+
+    WebClient.RequestBodyUriSpec resSpec = mock(WebClient.RequestBodyUriSpec.class);
+    WebClient.ResponseSpec responseSpec = mock(WebClient.ResponseSpec.class);
+    doReturn(responseSpec).when(resSpec).retrieve();
+
+    Mono<Map> mapMono = mock(Mono.class);
+    doReturn(mapMono).when(responseSpec).bodyToMono(any(ParameterizedTypeReference.class));
+    doReturn(Map.of()).when(mapMono).block();
+
+    vortexServerConnector.curl(
+        "http://lcaolhost", HttpMethod.PUT, Map.of("Authorization", "test"), null);
+    assertThatNoException();
   }
 
   @Test
@@ -75,7 +100,7 @@ class GenericHttpClientTest {
 
     vortexServerConnector.unblockGet(
         "http://lcaolhost", null, null, new ParameterizedTypeReference<Map>() {});
-    Assertions.assertThatNoException();
+    assertThatNoException();
   }
 
   @Test
