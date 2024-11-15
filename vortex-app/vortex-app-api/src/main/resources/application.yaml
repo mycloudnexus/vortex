@@ -179,10 +179,6 @@ app:
       role: ${IAM_DOWN_STREAM_VORTEX_ROLE:VORTEX_ADMIN}
       company-username: ${IAM_DOWN_STREAM_COMPANY_USERNAME:test}
       company-id: ${IAM_DOWN_STREAM_COMPANY_ID:65a4f18aec61ae42ae9606dfx0000}
-      role-endpoint: ${IAM_DOWN_STREAM_ROLE_PATH:/api/company/%s/memberships/%s/roles/%s}
-      members-endpoint: ${IAM_DOWN_STREAM_COMPANY_MEMBERS_PATH:/v2/companies/%s/members?pageSize=%s}
-      user-info-endpoint: ${IAM_DOWN_STREAM_USER_INFO_PATH:/api/user/%s}
-      user-auth-endpoint: ${IAM_DOWN_STREAM_USER_AUTH_PATH:/api/auth/token}
   gateway:
     cors:
       allowed-origins: ${GATEWAY_CORS_ALLOWED_ORIGINS:*}
