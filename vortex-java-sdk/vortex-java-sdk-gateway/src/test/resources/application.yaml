@@ -188,6 +188,18 @@ app:
           roles:
             - ORG_ADMIN
             - ORG_MEMBER
+    downstream:
+      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
+      api-key-name: Authorization
+      admin-api-key: Bearer ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
+      user-api-key: Bearer ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
+      role: ${IAM_DOWN_STREAM_VORTEX_ROLE:VORTEX_ADMIN}
+      company-username: ${IAM_DOWN_STREAM_COMPANY_USERNAME:test}
+      company-id: ${IAM_DOWN_STREAM_COMPANY_ID:65a4f18aec61ae42ae9606dfx0000}
+      role-endpoint: ${IAM_DOWN_STREAM_ROLE_PATH:/api/company/%s/memberships/%s/roles/%s}
+      members-endpoint: ${IAM_DOWN_STREAM_COMPANY_MEMBERS_PATH:/v2/companies/%s/members?pageSize=%s}
+      user-info-endpoint: ${IAM_DOWN_STREAM_USER_INFO_PATH:/api/user/%s}
+      user-auth-endpoint: ${IAM_DOWN_STREAM_USER_AUTH_PATH:/api/auth/token}
   gateway:
     test:
       base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:https://api.consoleconnect.com}
