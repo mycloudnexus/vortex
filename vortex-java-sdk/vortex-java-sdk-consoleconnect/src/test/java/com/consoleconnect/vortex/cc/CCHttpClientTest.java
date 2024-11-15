@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -89,7 +90,9 @@ class CCHttpClientTest {
     doReturn(UUID.randomUUID().toString()).when(ccClientProperty).getApiKeyName();
     doReturn(UUID.randomUUID().toString()).when(ccClientProperty).getAdminApiKey();
     doReturn("http://localhost").when(ccClientProperty).getBaseUrl();
-    doReturn(UUID.randomUUID().toString()).when(ccClientProperty).getCompanyId();
+    doReturn(StringUtils.isBlank(companyId) ? SYSTEM : companyId)
+        .when(ccClientProperty)
+        .getCompanyId();
     doReturn(TEST_COMPANY).when(ccClientProperty).getCompanyUsername();
   }
 

@@ -30,7 +30,6 @@ public class GenericHttpClient {
     }
 
     if (body != null) {
-      log.debug("object-request-body:{}", JsonToolkit.toJson(body));
       return resSpec.bodyValue(body).retrieve();
     } else {
       return resSpec.retrieve();
