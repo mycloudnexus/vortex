@@ -3,6 +3,10 @@ server:
   port: ${port:8000}
 
 spring:
+  main:
+    web-application-type: reactive
+  codec:
+    max-in-memory-size: 500KB
   application:
     name: "@project.artifactId@"
     description: "@project.name@"
@@ -12,18 +16,15 @@ spring:
     default-property-inclusion: NON_NULL
     deserialization:
       fail-on-unknown-properties: false
-  data:
-    rest:
-      detection-strategy: ANNOTATED
   datasource:
     driverClassName: org.postgresql.Driver
-    #    password: ${DB_PASSWORD}
-    #    url: ${DB_URL}
-    #    username: ${DB_USERNAME}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/vortex}
+    username: ${DB_USERNAME:postgresql}
+    password: ${DB_PASSWORD:password}
     hikari:
       pool-name: hikari-platform-service-platform
       connection-test-query: SELECT 1
-      maximum-pool-size: 2
+      maximum-pool-size: 50
       max-lifetime: 600000
       connection-timeout: 60000
   jpa:
@@ -37,11 +38,9 @@ spring:
         jdbc:
           time_zone: UTC
   flyway:
-    # clean-on-validation-error: true
     baseline-on-migrate: true
-    # enabled: false
-  codec:
-    max-in-memory-size: 10MB
+    enabled: false
+
 management:
   endpoint:
     health:
@@ -62,7 +61,7 @@ springdoc:
   show-actuator: true
   api-docs:
     enabled: true
-    path: /api-docs
+    path: /v3/api-docs
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
@@ -74,7 +73,6 @@ springdoc:
   servers:
     - url: http://localhost:8000
       description: localhost
-
 logging:
   level:
     com.consoleconnect.vortex: DEBUG
