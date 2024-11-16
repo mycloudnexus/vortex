@@ -1,8 +1,8 @@
 package com.consoleconnect.vortex.iam.filter;
 
 import com.consoleconnect.vortex.iam.model.IamConstants;
-import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.model.UserContext;
+import com.consoleconnect.vortex.iam.service.UserContextService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class UserContextWebFilter implements WebFilter, Ordered {
 
-  private final IamProperty iamProperty;
+  private final UserContextService userContextService;
 
   @Override
   public int getOrder() {
@@ -33,15 +33,10 @@ public class UserContextWebFilter implements WebFilter, Ordered {
               JwtAuthenticationToken jwtAuthenticationToken =
                   (JwtAuthenticationToken) securityContext.getAuthentication();
 
-              UserContext userContext = new UserContext();
-              userContext.setUserId(jwtAuthenticationToken.getName());
-              String orgId =
-                  jwtAuthenticationToken
-                      .getToken()
-                      .getClaimAsString(iamProperty.getJwt().getCustomClaims().getOrgId());
-              userContext.setOrgId(orgId);
-              userContext.setMgmt(iamProperty.getAuth0().getMgmtOrgId().equalsIgnoreCase(orgId));
-              String customerId = orgId;
+              UserContext userContext =
+                  userContextService.createUserContext(jwtAuthenticationToken);
+
+              String customerId = userContext.getOrgId();
               if (userContext.isMgmt()
                   && exchange
                       .getRequest()

@@ -30,6 +30,8 @@ public class ResourceServerProperty {
   private List<String> allowedPaths = List.of();
   private List<PathPermission> pathPermissions = List.of();
 
+  private List<TrustedIssuer> trustedIssuers = List.of();
+
   @NoArgsConstructor
   @AllArgsConstructor
   @Data
@@ -37,5 +39,20 @@ public class ResourceServerProperty {
     private List<HttpMethod> httpMethods;
     private String path;
     private List<String> roles;
+  }
+
+  @Data
+  public static class TrustedIssuer {
+    private String issuer;
+    private CustomClaims customClaims = new CustomClaims();
+    private List<String> defaultRoles = List.of();
+    private boolean mgmt = false;
+  }
+
+  @Data
+  public static class CustomClaims {
+    private String permissions = "permissions";
+    private String roles = "org_roles";
+    private String orgId = "org_id";
   }
 }
