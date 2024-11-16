@@ -1,6 +1,6 @@
-package com.consoleconnect.vortex.iam.service;
+package com.consoleconnect.vortex.core.toolkit;
 
-import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
+import com.consoleconnect.vortex.core.exception.VortexException;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,14 +8,12 @@ import org.apache.commons.collections4.MapUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Slf4j
-@Component
 @AllArgsConstructor
 public class GenericHttpClient {
-  private WebClient client;
+  private final WebClient client;
 
   public WebClient.ResponseSpec curl(
       String url, HttpMethod method, Map<String, String> httpHeaders, Object body) {
@@ -32,18 +30,35 @@ public class GenericHttpClient {
     }
 
     if (body != null) {
-      log.debug("object-request-body:{}", JsonToolkit.toJson(body));
       return resSpec.bodyValue(body).retrieve();
     } else {
       return resSpec.retrieve();
     }
   }
 
-  public <T> T put(
+  public <T> T blockPut(
       String url,
       Map<String, String> headers,
       Object body,
       ParameterizedTypeReference<T> responseType) {
     return curl(url, HttpMethod.PUT, headers, body).bodyToMono(responseType).block();
+  }
+
+  public <T> T unblockGet(
+      String url,
+      Map<String, String> headers,
+      Object body,
+      ParameterizedTypeReference<T> responseType) {
+    try {
+      WebClient.ResponseSpec responseSpec = curl(url, HttpMethod.GET, headers, body);
+      return responseSpec.bodyToMono(responseType).toFuture().get();
+    } catch (InterruptedException e) {
+      log.warn("unblockGet.interrupted", e);
+      Thread.currentThread().interrupt(); // Suggested by SonarCloud.
+      throw VortexException.badRequest("interrupted error, " + e.getMessage());
+    } catch (Exception e) {
+      log.error("unknown.error", e);
+      throw VortexException.badRequest("get error, " + e.getMessage());
+    }
   }
 }

@@ -12,6 +12,7 @@ import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Request;
 import com.auth0.net.Response;
+import com.consoleconnect.vortex.cc.CCHttpClient;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.core.toolkit.Paging;
@@ -41,8 +42,9 @@ public class OrganizationService {
   private final Auth0Client auth0Client;
   private final EmailService emailService;
   private final Map<String, AbstractConnection> connectionMap;
-  private final DownstreamRoleService downstreamRoleService;
+  private final CCHttpClient ccHttpClient;
   private static final Integer TOTAL_PAGE_SIZE = -1;
+  private final DownstreamRoleService downstreamRoleService;
 
   public Organization create(CreateOrganizationDto request, String createdBy) {
     log.info("creating organization: {},requestedBy:{}", request, createdBy);
