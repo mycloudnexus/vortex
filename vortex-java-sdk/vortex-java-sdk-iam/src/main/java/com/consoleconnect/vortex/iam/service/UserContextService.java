@@ -6,6 +6,7 @@ import com.consoleconnect.vortex.iam.model.UserContext;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.jwt.JwtClaimAccessor;
@@ -30,13 +31,21 @@ public class UserContextService {
             .filter(trustedIssuer -> issuer.contains(trustedIssuer.getIssuer()))
             .findFirst();
     if (trustedIssuerOptional.isPresent()) {
+      userContext.setMgmt(trustedIssuerOptional.get().isMgmt());
       String orgId =
           jwtAuthenticationToken
               .getToken()
               .getClaimAsString(trustedIssuerOptional.get().getCustomClaims().getOrgId());
+      if (orgId == null) {
+        orgId = trustedIssuerOptional.get().getDefaultOrgId();
+      }
+      if (StringUtils.isBlank(orgId)) {
+        log.warn("orgId is null for user:{}", userContext.getUserId());
+      }
       userContext.setOrgId(orgId);
-      userContext.setMgmt(trustedIssuerOptional.get().isMgmt());
       return userContext;
+    } else {
+      log.warn("No trusted issuer found for issuer:{}", issuer);
     }
     return userContext;
   }

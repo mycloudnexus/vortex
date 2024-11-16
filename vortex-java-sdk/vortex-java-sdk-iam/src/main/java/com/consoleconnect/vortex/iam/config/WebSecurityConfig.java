@@ -4,6 +4,7 @@ import com.consoleconnect.vortex.iam.acl.MultiTenancyAuthenticationManagerResolv
 import com.consoleconnect.vortex.iam.filter.UserContextWebFilter;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.model.ResourceServerProperty;
+import com.consoleconnect.vortex.iam.repo.UserRepository;
 import com.consoleconnect.vortex.iam.service.UserContextService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ public class WebSecurityConfig {
       ServerHttpSecurity http,
       ResourceServerProperty resourceServer,
       UserContextService userContextService,
+      UserRepository userRepository,
       IamProperty iamProperty) {
 
     ServerHttpSecurity serverHttpSecurity =
@@ -79,7 +81,8 @@ public class WebSecurityConfig {
             oauth2 ->
                 oauth2.authenticationManagerResolver(
                     new JwtIssuerReactiveAuthenticationManagerResolver(
-                        new MultiTenancyAuthenticationManagerResolver(iamProperty))));
+                        new MultiTenancyAuthenticationManagerResolver(
+                            iamProperty, userRepository))));
 
     return serverHttpSecurity
         .addFilterAfter(

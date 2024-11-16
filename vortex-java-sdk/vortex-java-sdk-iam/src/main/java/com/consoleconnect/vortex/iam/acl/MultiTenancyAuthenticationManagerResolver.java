@@ -2,6 +2,7 @@ package com.consoleconnect.vortex.iam.acl;
 
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.model.ResourceServerProperty;
+import com.consoleconnect.vortex.iam.repo.UserRepository;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ public class MultiTenancyAuthenticationManagerResolver
     implements ReactiveAuthenticationManagerResolver<String> {
 
   private final IamProperty iamProperty;
+  private final UserRepository userRepository;
 
   @Override
   public Mono<ReactiveAuthenticationManager> resolve(String issuer) {
@@ -33,6 +35,8 @@ public class MultiTenancyAuthenticationManagerResolver
     log.info("found trusted token issuer for issuer:{}", issuer);
     return Mono.just(
         new JwtAuthenticationManager(
-            NimbusJwtDecoder.withIssuerLocation(issuer).build(), trustedTokenIssuer.get()));
+            NimbusJwtDecoder.withIssuerLocation(issuer).build(),
+            trustedTokenIssuer.get(),
+            userRepository));
   }
 }

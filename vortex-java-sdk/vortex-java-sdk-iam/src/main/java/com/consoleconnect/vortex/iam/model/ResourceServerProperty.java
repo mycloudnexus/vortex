@@ -45,8 +45,9 @@ public class ResourceServerProperty {
   public static class TrustedIssuer {
     private String issuer;
     private CustomClaims customClaims = new CustomClaims();
-    private List<String> defaultRoles = List.of();
     private boolean mgmt = false;
+    private List<String> defaultRoles = List.of();
+    private String defaultOrgId;
   }
 
   @Data

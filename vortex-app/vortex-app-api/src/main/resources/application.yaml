@@ -137,7 +137,11 @@ app:
           invite-org-member: ${SENDGRID_TEMPLATE_ID_ORG_INVITE:}
     resource-server:
       trusted-issuers:
-        - issuer: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
+        - issuer: ${IAM_RESOURCE_SERVER_TRUSTED_ISSUER_MGMT:https://login.consoleconnect.com/}
+          mgmt: true
+          default-roles:
+            - PLATFORM_ADMIN
+        - issuer: ${IAM_RESOURCE_SERVER_TRUSTED_ISSUER_CUSTOMER:https://vortex.au.auth0.com/}
           default-roles:
             - ORG_MEMBER
       path-permissions:
@@ -174,6 +178,8 @@ app:
       role: ${IAM_DOWN_STREAM_VORTEX_ROLE:VORTEX_ADMIN}
       company-username: ${IAM_DOWN_STREAM_COMPANY_USERNAME:test}
       role-endpoint: ${IAM_DOWN_STREAM_ROLE_PATH:/api/company/%s/memberships/%s/roles/%s}
+    platform-admins:
+      - 5ec4d3765cf0a1001486b95d
   gateway:
     cors:
       allowed-origins: ${GATEWAY_CORS_ALLOWED_ORIGINS:*}

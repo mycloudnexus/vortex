@@ -2,9 +2,13 @@ package com.consoleconnect.vortex.iam.acl;
 
 import static java.util.stream.Collectors.toSet;
 
+import com.consoleconnect.vortex.iam.entity.UserEntity;
+import com.consoleconnect.vortex.iam.enums.UserStatusEnum;
 import com.consoleconnect.vortex.iam.model.ResourceServerProperty;
+import com.consoleconnect.vortex.iam.repo.UserRepository;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -22,6 +26,7 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
 
   private final NimbusJwtDecoder jwtDecoder;
   private final ResourceServerProperty.TrustedIssuer trustedIssuer;
+  private final UserRepository userRepository;
 
   @Override
   public Mono<Authentication> authenticate(Authentication authentication) {
@@ -38,14 +43,32 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
 
     List<String> resourceRoles =
         jwt.getClaimAsStringList(trustedIssuer.getCustomClaims().getRoles());
+
+    if (trustedIssuer.isMgmt()) {
+      // Extract userId from the subject, which is in the format of "auth0|<userId>"
+      String userId = jwt.getSubject().substring(jwt.getSubject().lastIndexOf("|") + 1);
+      log.info("userId:{}", userId);
+
+      Optional<UserEntity> userEntity = userRepository.findOneByUserId(userId);
+      if (userEntity.isEmpty() || userEntity.get().getStatus() != UserStatusEnum.ACTIVE) {
+        log.error("User is not allowed to access this service {}", userId);
+        authentication.setAuthenticated(false);
+        return Mono.just(authentication);
+      }
+      if (resourceRoles == null || resourceRoles.isEmpty()) {
+        resourceRoles = userEntity.get().getRoles();
+      }
+    }
+
+    if (resourceRoles == null || resourceRoles.isEmpty()) {
+      resourceRoles = trustedIssuer.getDefaultRoles();
+    }
+
     Collection<GrantedAuthority> grantedAuthorities =
-        resourceRoles == null || resourceRoles.isEmpty()
-            ? trustedIssuer.getDefaultRoles().stream()
-                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
-                .collect(toSet())
-            : resourceRoles.stream()
-                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
-                .collect(toSet());
+        resourceRoles.stream()
+            .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
+            .collect(toSet());
+
     log.info("grantedAuthorities:{}", grantedAuthorities);
     return Mono.just(new JwtAuthenticationToken(jwt, grantedAuthorities));
   }

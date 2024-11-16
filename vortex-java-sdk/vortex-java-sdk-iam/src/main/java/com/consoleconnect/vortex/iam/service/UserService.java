@@ -14,7 +14,14 @@ import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.RoleInfo;
 import com.consoleconnect.vortex.iam.dto.UserInfo;
+import com.consoleconnect.vortex.iam.entity.UserEntity;
+import com.consoleconnect.vortex.iam.enums.RoleEnum;
+import com.consoleconnect.vortex.iam.enums.UserStatusEnum;
 import com.consoleconnect.vortex.iam.mapper.UserMapper;
+import com.consoleconnect.vortex.iam.model.IamProperty;
+import com.consoleconnect.vortex.iam.repo.UserRepository;
+import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +33,30 @@ import org.springframework.stereotype.Service;
 public class UserService {
   private final Auth0Client auth0Client;
   private final PermissionService permissionService;
+  private final UserRepository userRepository;
+  private final IamProperty iamProperty;
+
+  @Transactional
+  @PostConstruct
+  public void initialize() {
+    log.info("UserService initialized");
+
+    if (userRepository.count() > 0) {
+      log.info("UserRepository already initialized");
+      return;
+    }
+
+    if (iamProperty.getPlatformAdmins() != null) {
+      for (String userId : iamProperty.getPlatformAdmins()) {
+        log.info("platform Admin: {}", userId);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUserId(userId);
+        userEntity.setStatus(UserStatusEnum.ACTIVE);
+        userEntity.setRoles(List.of(RoleEnum.PLATFORM_ADMIN.toString()));
+        userRepository.save(userEntity);
+      }
+    }
+  }
 
   public Paging<Role> listRoles(int page, int size) {
     try {
