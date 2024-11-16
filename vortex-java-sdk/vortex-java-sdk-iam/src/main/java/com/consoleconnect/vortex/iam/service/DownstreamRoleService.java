@@ -4,7 +4,6 @@ import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.iam.model.DownstreamProperty;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import java.util.Map;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -22,9 +21,6 @@ public class DownstreamRoleService {
   @Async
   public void syncRole(String orgId, String username) {
     log.info("syncRole, orgId:{}, username:{}", orgId, username);
-    if (!Objects.equals(orgId, iamProperty.getAuth0().getMgmtOrgId())) {
-      return;
-    }
 
     DownstreamProperty downStreamProperty = iamProperty.getDownStream();
     String url =

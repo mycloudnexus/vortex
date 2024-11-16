@@ -82,7 +82,6 @@ class DownstreamRoleServiceTest {
 
   private void mockAuth0Property(String uuid) {
     Auth0Property auth0 = new Auth0Property();
-    auth0.setMgmtOrgId(uuid);
     doReturn(auth0).when(iamProperty).getAuth0();
   }
 

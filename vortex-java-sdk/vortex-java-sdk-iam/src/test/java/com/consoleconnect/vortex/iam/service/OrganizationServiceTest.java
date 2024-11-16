@@ -725,7 +725,6 @@ class OrganizationServiceTest {
     CreateInvitationDto request = new CreateInvitationDto();
     request.setEmail("test@example.com");
     request.setRoles(List.of("ORG_ADMIN"));
-    request.setUsername("username");
 
     Auth0Property.Config config = new Auth0Property.Config();
     config.setClientId(UUID.randomUUID().toString());
@@ -733,7 +732,6 @@ class OrganizationServiceTest {
     String orgId = UUID.randomUUID().toString();
     Auth0Property auth0 = new Auth0Property();
     auth0.setApp(config);
-    auth0.setMgmtOrgId(orgId);
     doReturn(auth0).when(auth0Client).getAuth0Property();
 
     organizationService.createInvitation(orgId, request, SYSTEM);
@@ -752,7 +750,6 @@ class OrganizationServiceTest {
     String orgId = UUID.randomUUID().toString();
     Auth0Property auth0 = new Auth0Property();
     auth0.setApp(config);
-    auth0.setMgmtOrgId(orgId);
     doReturn(auth0).when(auth0Client).getAuth0Property();
     assertThrows(
         Exception.class, () -> organizationService.createInvitation(orgId, request, SYSTEM));

@@ -1,13 +1,10 @@
 package com.consoleconnect.vortex.iam.controller;
 
-import com.auth0.json.mgmt.roles.Role;
 import com.consoleconnect.vortex.core.model.HttpResponse;
-import com.consoleconnect.vortex.core.toolkit.Paging;
-import com.consoleconnect.vortex.core.toolkit.PagingHelper;
-import com.consoleconnect.vortex.iam.dto.RoleInfo;
-import com.consoleconnect.vortex.iam.service.UserService;
+import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -21,21 +18,9 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class MgmtRoleController {
 
-  private final UserService service;
-
   @Operation(summary = "List all existing roles")
   @GetMapping("")
-  public Mono<HttpResponse<Paging<Role>>> search(
-      @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
-          int page,
-      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
-          int size) {
-    return Mono.just(HttpResponse.ok(service.listRoles(page, size)));
-  }
-
-  @Operation(summary = "Retrieve a role by id")
-  @GetMapping("/{roleId}")
-  public Mono<HttpResponse<RoleInfo>> findOne(@PathVariable String roleId) {
-    return Mono.just(HttpResponse.ok(service.getRoleById(roleId)));
+  public Mono<HttpResponse<List<RoleEnum>>> search() {
+    return Mono.just(HttpResponse.ok(List.of(RoleEnum.PLATFORM_ADMIN, RoleEnum.PLATFORM_MEMBER)));
   }
 }

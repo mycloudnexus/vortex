@@ -1,19 +1,17 @@
 package com.consoleconnect.vortex.iam.service;
 
 import com.auth0.client.mgmt.UsersEntity;
-import com.auth0.client.mgmt.filter.UserFilter;
 import com.auth0.exception.Auth0Exception;
+import com.auth0.json.mgmt.organizations.Invitation;
 import com.auth0.json.mgmt.organizations.Organization;
-import com.auth0.json.mgmt.permissions.Permission;
 import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.exception.VortexException;
+import com.consoleconnect.vortex.core.toolkit.DateTime;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.core.toolkit.Paging;
-import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
-import com.consoleconnect.vortex.iam.dto.RoleInfo;
-import com.consoleconnect.vortex.iam.dto.UserInfo;
+import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.entity.UserEntity;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.enums.UserStatusEnum;
@@ -35,6 +33,7 @@ public class UserService {
   private final PermissionService permissionService;
   private final UserRepository userRepository;
   private final IamProperty iamProperty;
+  private final EmailService emailService;
 
   @Transactional
   @PostConstruct
@@ -58,28 +57,52 @@ public class UserService {
     }
   }
 
-  public Paging<Role> listRoles(int page, int size) {
-    try {
-      List<Role> items =
-          auth0Client.getMgmtClient().roles().list(null).execute().getBody().getItems();
-      return PagingHelper.toPage(items, page, size);
-    } catch (Auth0Exception ex) {
-      log.error("Failed to list roles", ex);
-      throw VortexException.internalError("Failed to list roles");
+  public UserEntity create(CreateUserDto dto, String createdBy) {
+    log.info("Creating user: {},createdBy:{}", dto, createdBy);
+    // check if the user already in the organization
+    // list all members of the organization
+    // find userId based on the email
+    String userId = "";
+    // check if the userId has been in the organization
+    UserEntity userEntity = userRepository.findOneByUserId(userId).orElseGet(UserEntity::new);
+    userEntity.setStatus(UserStatusEnum.ACTIVE);
+    userEntity.setRoles(dto.getRoles());
+    userEntity.setCreatedBy(createdBy);
+
+    userEntity = userRepository.save(userEntity);
+    if (dto.isSendEmail()) {
+      // send email
+      Invitation invitation = new Invitation(null, null, null);
+      emailService.sendInvitation(invitation);
     }
+    return userEntity;
   }
 
-  public RoleInfo getRoleById(String roleId) {
-    try {
-      Role role = auth0Client.getMgmtClient().roles().get(roleId).execute().getBody();
-      List<Permission> permissions = permissionService.listPermissions(roleId);
-      RoleInfo roleInfo = UserMapper.INSTANCE.toRoleInfo(role);
-      roleInfo.setPermissions(permissions);
-      return roleInfo;
-    } catch (Auth0Exception ex) {
-      log.error("Failed to get role", ex);
-      throw VortexException.internalError("Failed to get role");
+  public UserEntity update(String userId, UpdateUserDto request, String updatedBy) {
+    log.info("Updating user: {},request:{},updatedBy:{}", userId, request, updatedBy);
+    UserEntity userEntity =
+        userRepository
+            .findOneByUserId(userId)
+            .orElseThrow(() -> VortexException.notFound("User not found"));
+    if (request.getStatus() != null) userEntity.setStatus(request.getStatus());
+    if (request.getRoles() != null) userEntity.setRoles(request.getRoles());
+    userEntity.setUpdatedBy(updatedBy);
+    return userRepository.save(userEntity);
+  }
+
+  public UserEntity delete(String userId, String deletedBy) {
+    log.info("Deleting user: {},deletedBy:{}", userId, deletedBy);
+    UserEntity userEntity =
+        userRepository
+            .findOneByUserId(userId)
+            .orElseThrow(() -> VortexException.notFound("User not found"));
+    if (userEntity.getStatus() == UserStatusEnum.DELETED) {
+      throw VortexException.badRequest("User already deleted");
     }
+    userEntity.setStatus(UserStatusEnum.DELETED);
+    userEntity.setDeletedBy(deletedBy);
+    userEntity.setDeletedAt(DateTime.nowInUTC());
+    return userRepository.save(userEntity);
   }
 
   public UserInfo getInfo(String userId) {
@@ -119,23 +142,7 @@ public class UserService {
     }
   }
 
-  public Paging<User> searchUsers(String q, String email, int page, int size) {
-    try {
-      UsersEntity userEntity = auth0Client.getMgmtClient().users();
-      List<User> items = null;
-      if (email != null) {
-        items = userEntity.listByEmail(email, null).execute().getBody();
-      } else {
-        UserFilter userFilter = new UserFilter();
-        if (q != null) userFilter.withQuery(q);
-        userFilter.withTotals(true);
-        userFilter.withSearchEngine("v2");
-        items = userEntity.list(userFilter).execute().getBody().getItems();
-      }
-      return PagingHelper.toPage(items, page, size);
-    } catch (Auth0Exception ex) {
-      log.error("Failed to search users", ex);
-      throw VortexException.internalError("Failed to search users");
-    }
+  public Paging<User> searchUsers(int page, int size) {
+    return null;
   }
 }
