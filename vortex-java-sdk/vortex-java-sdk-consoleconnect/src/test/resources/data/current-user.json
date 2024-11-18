@@ -1,0 +1,117 @@
+{
+  "id": "65baf904238b845564aa2acc",
+  "username": "user-unique-name",
+  "name": "First Last",
+  "email": "first.last@email.com",
+  "type": "PERSON",
+  "status": "ACTIVE",
+  "companies": [
+    {
+      "id": "65a4f18aec61ae42ae9606df",
+      "name": "Company Full Name",
+      "type": "COMPANY",
+      "username": "company-unique-name",
+      "overviewImage": "671751e9a06936b128f4015b",
+      "categories": [
+        "Enterprise"
+      ]
+    }
+  ],
+  "linkUserCompany": {
+    "65a4f18aec61ae42ae9606df": {
+      "id": "65bafbc1c14cfe27ee4ed36e",
+      "state": "ACTIVE",
+      "userId": "65baf904238b845564aa2acc",
+      "roleIds": [
+        "55e7ed48e7616b96063bdc66",
+        "55e7ed48e7616b9606300004"
+      ],
+      "roles": [
+        "NETWORKVIEW",
+        "USER"
+      ],
+      "permissions": {
+        "groups": {
+          "NETWORKVIEW": {
+            "company-actions": false,
+            "company-update": false,
+            "connection-create": false,
+            "connection-delete": false,
+            "connection-modify": false,
+            "connection-read": true,
+            "order-create": false,
+            "order-delete": false,
+            "order-modify": false,
+            "order-query": true,
+            "ports-edit": false,
+            "ports-read": true,
+            "user-moderation": false
+          },
+          "USER": {
+            "order-delete": false,
+            "order-modify": false,
+            "order-create": false,
+            "order-query": false,
+            "connection-delete": false,
+            "connection-read": false,
+            "connection-modify": false,
+            "connection-create": false,
+            "ports-read": false,
+            "ports-edit": false,
+            "company-update": false,
+            "company-actions": false,
+            "user-moderation": false
+          }
+        },
+        "roles": [
+          {
+            "id": "55e7ed48e7616b9606300004",
+            "name": "NETWORKVIEW",
+            "description": "A Network Viewer has read-only access to the status of ports, connections and virtual routers",
+            "permissions": {
+              "company-actions": false,
+              "company-update": false,
+              "connection-create": false,
+              "connection-delete": false,
+              "connection-modify": false,
+              "connection-read": true,
+              "order-create": false,
+              "order-delete": false,
+              "order-modify": false,
+              "order-query": true,
+              "ports-edit": false,
+              "ports-read": true,
+              "user-moderation": false
+            },
+            "policies": [],
+            "policyIds": [
+            ]
+          },
+          {
+            "id": "55e7ed48e7616b96063bdc66",
+            "name": "USER",
+            "description": "A Member is associated with your company but may not edit company profile information or view company network information",
+            "permissions": {
+              "order-delete": false,
+              "order-modify": false,
+              "order-create": false,
+              "order-query": false,
+              "connection-delete": false,
+              "connection-read": false,
+              "connection-modify": false,
+              "connection-create": false,
+              "ports-read": false,
+              "ports-edit": false,
+              "company-update": false,
+              "company-actions": false,
+              "user-moderation": false
+            },
+            "policies": [],
+            "policyIds": [
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

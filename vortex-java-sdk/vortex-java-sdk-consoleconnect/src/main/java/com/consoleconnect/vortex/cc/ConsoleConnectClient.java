@@ -19,7 +19,4 @@ public interface ConsoleConnectClient {
 
   @GetMapping(value = "/v2/companies/{companyId}/members?pageSize=0")
   List<Member> listMembers(@PathVariable("companyId") String companyId);
-
-  @GetMapping(value = "/api/company/{companyUsername}/ports/orders")
-  Results<Order> listOrders(@PathVariable("companyUsername") String companyUsername);
 }

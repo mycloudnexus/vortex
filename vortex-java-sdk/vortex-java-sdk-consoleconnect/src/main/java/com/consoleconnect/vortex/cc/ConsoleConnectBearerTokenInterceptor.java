@@ -15,6 +15,6 @@ public class ConsoleConnectBearerTokenInterceptor implements RequestInterceptor 
 
   @Override
   public void apply(RequestTemplate template) {
-    template.header("Authorization", token);
+    if (token != null) template.header("Authorization", "Bearer " + token);
   }
 }
