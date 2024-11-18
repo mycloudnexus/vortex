@@ -4,6 +4,7 @@ import com.auth0.json.mgmt.organizations.Invitation;
 import com.auth0.json.mgmt.organizations.Member;
 import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.roles.Role;
+import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
@@ -166,5 +167,48 @@ public class MgmtOrganizationController {
       JwtAuthenticationToken authenticationToken) {
     return Mono.just(
         HttpResponse.ok(service.updateStatus(orgId, status, authenticationToken.getName())));
+  }
+
+  @Operation(summary = "Re-invite an invitation by id")
+  @PutMapping("/{orgId}/invitations/re-invitation/{invitationId}")
+  public Mono<HttpResponse<Invitation>> reInvitation(
+      @PathVariable String orgId,
+      @PathVariable String invitationId,
+      JwtAuthenticationToken jwtAuthenticationToken) {
+    return Mono.just(
+        HttpResponse.ok(
+            service.reInvitation(orgId, invitationId, jwtAuthenticationToken.getName())));
+  }
+
+  @Operation(summary = "Re-invite an invitation by id")
+  @DeleteMapping("/{orgId}/invitations/revoke/{invitationId}")
+  public Mono<HttpResponse<Void>> revokeInvitation(
+      @PathVariable String orgId,
+      @PathVariable String invitationId,
+      JwtAuthenticationToken jwtAuthenticationToken) {
+    return Mono.just(
+        HttpResponse.ok(
+            service.revokeInvitation(orgId, invitationId, jwtAuthenticationToken.getName())));
+  }
+
+  @Operation(summary = "Trigger resetting a user's password")
+  @PostMapping("/{orgId}/reset-password/{userId}")
+  public Mono<HttpResponse<Void>> reset(
+      @PathVariable String orgId,
+      @PathVariable String userId,
+      JwtAuthenticationToken jwtAuthenticationToken) {
+    return Mono.just(
+        HttpResponse.ok(service.reset(orgId, userId, jwtAuthenticationToken.getName())));
+  }
+
+  @Operation(summary = "Block(Unblock) an invitation by id")
+  @PatchMapping("/{orgId}/user/{userId}/block")
+  public Mono<HttpResponse<User>> block(
+      @PathVariable String orgId,
+      @PathVariable String userId,
+      @PathVariable boolean block,
+      JwtAuthenticationToken jwtAuthenticationToken) {
+    return Mono.just(
+        HttpResponse.ok(service.blockUser(orgId, userId, block, jwtAuthenticationToken.getName())));
   }
 }
