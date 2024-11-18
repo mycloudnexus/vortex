@@ -206,7 +206,7 @@ public class MgmtOrganizationController {
   public Mono<HttpResponse<User>> block(
       @PathVariable String orgId,
       @PathVariable String userId,
-      @PathVariable boolean block,
+      @RequestParam boolean block,
       JwtAuthenticationToken jwtAuthenticationToken) {
     return Mono.just(
         HttpResponse.ok(service.blockUser(orgId, userId, block, jwtAuthenticationToken.getName())));
