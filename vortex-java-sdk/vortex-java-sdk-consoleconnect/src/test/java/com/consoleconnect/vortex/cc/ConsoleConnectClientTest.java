@@ -2,6 +2,8 @@ package com.consoleconnect.vortex.cc;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import com.consoleconnect.vortex.cc.model.Heartbeat;
 import com.consoleconnect.vortex.cc.model.Member;
 import com.consoleconnect.vortex.cc.model.UserInfo;
@@ -9,14 +11,15 @@ import com.consoleconnect.vortex.core.exception.VortexException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import feign.Logger;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -32,9 +35,14 @@ public class ConsoleConnectClientTest {
     return IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
   }
 
+  @BeforeAll
+  public static void setUp() {
+    Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    rootLogger.setLevel(Level.DEBUG);
+  }
+
   @Test
   void test_getHeartbeat_returnOk(WireMockRuntimeInfo wireMockRuntimeInfo) throws IOException {
-
     String jsonData = readFileToString("data/heartbeat.json");
     WireMock.stubFor(
         WireMock.get(urlEqualTo("/heartbeat"))
@@ -69,7 +77,7 @@ public class ConsoleConnectClientTest {
     // access-token is required to query current user
     UserInfo res =
         ConsoleConnectClientFactory.create(
-                wireMockRuntimeInfo.getHttpBaseUrl(), ACCESS_TOKEN, Logger.Level.FULL)
+                wireMockRuntimeInfo.getHttpBaseUrl(), ACCESS_TOKEN, feign.Logger.Level.FULL)
             .getCurrentUser();
     Assertions.assertNotNull(res);
     Assertions.assertNotNull(res.getName());
@@ -216,5 +224,29 @@ public class ConsoleConnectClientTest {
     Assertions.assertNotNull(exception);
     Assertions.assertEquals(401, exception.getCode());
     verify(1, getRequestedFor(urlEqualTo(url)).withHeader("Authorization", absent()));
+  }
+
+  @Test
+  void test_getHeartbeat_return500(WireMockRuntimeInfo wireMockRuntimeInfo) {
+
+    WireMock.stubFor(
+        WireMock.get(urlEqualTo("/heartbeat"))
+            .willReturn(
+                WireMock.aResponse()
+                    .withStatus(500)
+                    .withStatusMessage("Service Unavailable")
+                    .withBody("Internal Server Error")));
+
+    // access via wrong token
+    VortexException exception =
+        Assertions.assertThrowsExactly(
+            VortexException.class,
+            () -> {
+              ConsoleConnectClientFactory.create(wireMockRuntimeInfo.getHttpBaseUrl(), null)
+                  .getHeartbeat();
+            });
+    verify(1, getRequestedFor(urlEqualTo("/heartbeat")));
+    Assertions.assertNotNull(exception);
+    Assertions.assertEquals(500, exception.getCode());
   }
 }
