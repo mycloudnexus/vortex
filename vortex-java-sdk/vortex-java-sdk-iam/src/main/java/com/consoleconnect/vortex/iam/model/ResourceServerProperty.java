@@ -48,6 +48,7 @@ public class ResourceServerProperty {
     private boolean mgmt = false;
     private List<String> defaultRoles = List.of();
     private String defaultOrgId;
+    private String userIdPrefix = "auth0|";
   }
 
   @Data

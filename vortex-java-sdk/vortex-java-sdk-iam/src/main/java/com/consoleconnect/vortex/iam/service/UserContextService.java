@@ -1,5 +1,6 @@
 package com.consoleconnect.vortex.iam.service;
 
+import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.model.ResourceServerProperty;
 import com.consoleconnect.vortex.iam.model.UserContext;
@@ -23,29 +24,46 @@ public class UserContextService {
 
   public UserContext createUserContext(JwtAuthenticationToken jwtAuthenticationToken) {
     UserContext userContext = new UserContext();
+    userContext.setSubject(jwtAuthenticationToken.getToken().getSubject());
     userContext.setUserId(jwtAuthenticationToken.getName());
+
     String issuer = jwtAuthenticationToken.getToken().getIssuer().toString();
 
     Optional<ResourceServerProperty.TrustedIssuer> trustedIssuerOptional =
         iamProperty.getResourceServer().getTrustedIssuers().stream()
             .filter(trustedIssuer -> issuer.contains(trustedIssuer.getIssuer()))
             .findFirst();
-    if (trustedIssuerOptional.isPresent()) {
-      userContext.setMgmt(trustedIssuerOptional.get().isMgmt());
-      String orgId =
-          jwtAuthenticationToken
-              .getToken()
-              .getClaimAsString(trustedIssuerOptional.get().getCustomClaims().getOrgId());
-      if (orgId == null) {
-        orgId = trustedIssuerOptional.get().getDefaultOrgId();
-      }
-      if (StringUtils.isBlank(orgId)) {
-        log.warn("orgId is null for user:{}", userContext.getUserId());
-      }
-      userContext.setOrgId(orgId);
-      return userContext;
+    if (trustedIssuerOptional.isEmpty()) {
+      String errorMsg =
+          String.format(
+              "No trusted issuer found for issuer:%s",
+              jwtAuthenticationToken.getToken().getIssuer().toString());
+      throw VortexException.badRequest(errorMsg);
+    }
+    ResourceServerProperty.TrustedIssuer trustedIssuer = trustedIssuerOptional.get();
+    userContext.setTrustedIssuer(trustedIssuer);
+    userContext.setMgmt(trustedIssuer.isMgmt());
+    String orgId =
+        jwtAuthenticationToken
+            .getToken()
+            .getClaimAsString(trustedIssuer.getCustomClaims().getOrgId());
+    if (orgId == null) {
+      orgId = trustedIssuer.getDefaultOrgId();
+    }
+    if (StringUtils.isBlank(orgId)) {
+      log.warn("orgId is null for user:{}", userContext.getUserId());
+    }
+    userContext.setOrgId(orgId);
+
+    if (trustedIssuer.getUserIdPrefix() != null) {
+      userContext.setUserId(userContext.getUserId().replace(trustedIssuer.getUserIdPrefix(), ""));
+    }
+
+    userContext.setApiServer(iamProperty.getDownStream().getBaseUrl());
+    if (trustedIssuer.isMgmt()) {
+      userContext.setApiAccessToken(jwtAuthenticationToken.getToken().getTokenValue());
     } else {
-      log.warn("No trusted issuer found for issuer:{}", issuer);
+      userContext.setApiAccessToken(iamProperty.getDownStream().getUserApiKey());
     }
     return userContext;
   }

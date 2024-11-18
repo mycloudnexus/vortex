@@ -26,7 +26,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping(value = "/organization", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Organization", description = "Organization APIs")
 @Slf4j
-public class UserOrganizationController {
+public class OrganizationController {
 
   private final OrganizationService service;
   private final UserContextService userContextService;

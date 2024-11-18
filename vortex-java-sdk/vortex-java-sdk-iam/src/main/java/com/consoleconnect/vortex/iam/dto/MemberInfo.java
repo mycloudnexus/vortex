@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class UserInfo extends User {
+public class MemberInfo extends User {
   private UserOrganization organization;
 
   @Data

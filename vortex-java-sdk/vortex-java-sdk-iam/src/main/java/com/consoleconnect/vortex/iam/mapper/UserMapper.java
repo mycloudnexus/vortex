@@ -1,9 +1,8 @@
 package com.consoleconnect.vortex.iam.mapper;
 
-import com.auth0.json.mgmt.roles.Role;
-import com.auth0.json.mgmt.users.User;
-import com.consoleconnect.vortex.iam.dto.RoleInfo;
-import com.consoleconnect.vortex.iam.dto.UserInfo;
+import com.consoleconnect.vortex.iam.dto.MemberInfo;
+import com.consoleconnect.vortex.iam.dto.User;
+import com.consoleconnect.vortex.iam.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -11,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 public interface UserMapper {
   UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-  UserInfo toUserInfo(User user);
+  MemberInfo toMemberInfo(com.auth0.json.mgmt.users.User user);
 
-  RoleInfo toRoleInfo(Role role);
+  User toUser(UserEntity userEntity);
 }
