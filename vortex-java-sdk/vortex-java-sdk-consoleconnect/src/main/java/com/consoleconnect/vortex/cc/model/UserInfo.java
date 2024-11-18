@@ -3,8 +3,10 @@ package com.consoleconnect.vortex.cc.model;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class UserInfo extends BaseUserInfo {
   private String type;
   private String status;
