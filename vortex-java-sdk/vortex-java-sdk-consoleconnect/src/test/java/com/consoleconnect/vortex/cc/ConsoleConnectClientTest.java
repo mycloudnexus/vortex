@@ -9,6 +9,7 @@ import com.consoleconnect.vortex.core.exception.VortexException;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import feign.Logger;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -67,7 +68,8 @@ public class ConsoleConnectClientTest {
 
     // access-token is required to query current user
     UserInfo res =
-        ConsoleConnectClientFactory.create(wireMockRuntimeInfo.getHttpBaseUrl(), ACCESS_TOKEN)
+        ConsoleConnectClientFactory.create(
+                wireMockRuntimeInfo.getHttpBaseUrl(), ACCESS_TOKEN, Logger.Level.FULL)
             .getCurrentUser();
     Assertions.assertNotNull(res);
     Assertions.assertNotNull(res.getName());
