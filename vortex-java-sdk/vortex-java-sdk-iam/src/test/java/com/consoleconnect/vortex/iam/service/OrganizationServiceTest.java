@@ -992,6 +992,67 @@ class OrganizationServiceTest {
   }
 
   @Test
+  void testResetException_emptyMember() throws Auth0Exception {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    Request<MembersPage> membersPageRequest = mock(Request.class);
+    doReturn(membersPageRequest).when(organizationsEntity).getMembers(anyString(), any());
+
+    Response<MembersPage> membersPageResponse = mock(Response.class);
+    doReturn(membersPageResponse).when(membersPageRequest).execute();
+
+    MembersPage membersPage = mock(MembersPage.class);
+    doReturn(membersPage).when(membersPageResponse).getBody();
+
+    doReturn(List.of()).when(membersPage).getItems();
+
+    assertThrows(
+        Exception.class,
+        () -> organizationService.reset(SYSTEM, UUID.randomUUID().toString(), SYSTEM));
+  }
+
+  @Test
+  void testResetException_emptyMember2() throws Auth0Exception {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    Request<MembersPage> membersPageRequest = mock(Request.class);
+    doReturn(membersPageRequest).when(organizationsEntity).getMembers(anyString(), any());
+
+    Response<MembersPage> membersPageResponse = mock(Response.class);
+    doReturn(membersPageResponse).when(membersPageRequest).execute();
+
+    assertThrows(
+        Exception.class,
+        () -> organizationService.reset(SYSTEM, UUID.randomUUID().toString(), SYSTEM));
+  }
+
+  @Test
+  void testResetException_Auth0Exception() throws Auth0Exception {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    Request<MembersPage> membersPageRequest = mock(Request.class);
+    doReturn(membersPageRequest).when(organizationsEntity).getMembers(anyString(), any());
+
+    doThrow(Auth0Exception.class).when(membersPageRequest).execute();
+
+    assertThrows(
+        Exception.class,
+        () -> organizationService.reset(SYSTEM, UUID.randomUUID().toString(), SYSTEM));
+  }
+
+  @Test
   void testReInvite() throws Auth0Exception {
     String userId = UUID.randomUUID().toString();
     ManagementAPI managementAPI = mock(ManagementAPI.class);
