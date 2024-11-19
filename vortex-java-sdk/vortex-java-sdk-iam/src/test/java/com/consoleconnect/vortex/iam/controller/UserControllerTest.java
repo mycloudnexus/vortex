@@ -1,6 +1,5 @@
 package com.consoleconnect.vortex.iam.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 import com.consoleconnect.vortex.core.model.HttpResponse;

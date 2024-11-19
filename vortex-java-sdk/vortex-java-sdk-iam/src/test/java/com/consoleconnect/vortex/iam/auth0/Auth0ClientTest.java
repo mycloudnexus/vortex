@@ -1,7 +1,5 @@
 package com.consoleconnect.vortex.iam.auth0;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.auth0.client.auth.AuthAPI;
 import com.consoleconnect.vortex.config.TestApplication;
 import com.consoleconnect.vortex.iam.model.Auth0Property;
