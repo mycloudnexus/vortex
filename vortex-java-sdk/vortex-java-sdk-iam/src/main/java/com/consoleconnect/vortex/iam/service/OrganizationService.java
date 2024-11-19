@@ -500,10 +500,7 @@ public class OrganizationService {
 
   public Invitation reInvitation(String orgId, String invitationId, String requestedBy) {
     log.info(
-        "Re-invite, orgId:{}, invitationId:{}, requestedBy:{}",
-        orgId,
-        invitationId,
-        requestedBy);
+        "Re-invite, orgId:{}, invitationId:{}, requestedBy:{}", orgId, invitationId, requestedBy);
     try {
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       Request<Invitation> request = organizationsEntity.getInvitation(orgId, invitationId, null);
