@@ -8,6 +8,7 @@ public class AuthToken {
   private String userId;
   private String orgId;
   private List<String> roles;
+  private boolean mgmt;
 
   private Object userInfo;
 }

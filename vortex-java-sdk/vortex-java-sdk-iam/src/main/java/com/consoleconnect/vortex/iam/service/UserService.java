@@ -136,6 +136,10 @@ public class UserService {
     return toUser(userRepository.save(userEntity), null, userContext.getOrgId());
   }
 
+  public User getUserInfo(JwtAuthenticationToken token) {
+    return getUserInfo(null, token);
+  }
+
   public User getUserInfo(String userId, JwtAuthenticationToken token) {
     UserContext userContext = userContextService.createUserContext(token);
     if (userId == null) {

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 public class MemberService {
   private final Auth0Client auth0Client;
 
-  public MemberInfo getInfo(String userId) {
+  public MemberInfo getUserInfo(String userId) {
     try {
       UsersEntity userEntity = auth0Client.getMgmtClient().users();
       User user = userEntity.get(userId, null).execute().getBody();

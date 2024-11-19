@@ -19,12 +19,13 @@ public class AuthTokenService {
     AuthToken authToken = new AuthToken();
     authToken.setUserId(userContext.getUserId());
     authToken.setOrgId(userContext.getOrgId());
+    authToken.setMgmt(userContext.isMgmt());
     authToken.setRoles(jwt.getAuthorities().stream().map(Object::toString).toList());
 
     if (userContext.isMgmt()) {
-      authToken.setUserInfo(memberService.getInfo(authToken.getUserId()));
+      authToken.setUserInfo(memberService.getUserInfo(authToken.getUserId()));
     } else {
-      authToken.setUserInfo(userService.getUserInfo(authToken.getUserId(), jwt));
+      authToken.setUserInfo(userService.getUserInfo(jwt));
     }
     return authToken;
   }

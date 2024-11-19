@@ -64,16 +64,4 @@ public class MgmtUserController {
       @RequestBody CreateUserDto request, JwtAuthenticationToken jwtAuthenticationToken) {
     return Mono.just(HttpResponse.ok(service.create(request, jwtAuthenticationToken)));
   }
-
-  @Operation(summary = "Retrieve current user's information")
-  @GetMapping("/userinfo")
-  public Mono<HttpResponse<User>> getUserInfo(JwtAuthenticationToken jwt) {
-    return Mono.just(HttpResponse.ok(service.getUserInfo(null, jwt)));
-  }
-
-  @Operation(summary = "Retrieve current user's authentication token")
-  @GetMapping("/auth/token")
-  public Mono<HttpResponse<JwtAuthenticationToken>> getAuthToken(JwtAuthenticationToken jwt) {
-    return Mono.just(HttpResponse.ok(jwt));
-  }
 }
