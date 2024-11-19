@@ -54,7 +54,7 @@ class MgmtOrganizationControllerTest {
   }
 
   @Test
-  void test_reset() {
+  void test_resetPassword() {
     Mono<HttpResponse<Void>> responseMono =
         mgmtOrganizationController.resetPassword(
             UUID.randomUUID().toString(), UUID.randomUUID().toString(), getAuthenticationToken());
