@@ -53,6 +53,14 @@ class MgmtOrganizationControllerTest {
     Assertions.assertThat(responseMono).isNotNull();
   }
 
+  @Test
+  void test_reset() {
+    Mono<HttpResponse<Void>> responseMono =
+        mgmtOrganizationController.reset(
+            UUID.randomUUID().toString(), UUID.randomUUID().toString(), getAuthenticationToken());
+    Assertions.assertThat(responseMono).isNotNull();
+  }
+
   private JwtAuthenticationToken getAuthenticationToken() {
     Jwt jwt =
         Jwt.withTokenValue("token").subject("test").header("Authorization", "Bearer ").build();
