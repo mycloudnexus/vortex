@@ -1,20 +1,19 @@
 package com.consoleconnect.vortex.iam.controller;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 import com.auth0.json.mgmt.organizations.Invitation;
 import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
+import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import reactor.core.publisher.Mono;
-
-import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 
 class MgmtOrganizationControllerTest {
   private OrganizationService organizationService = mock(OrganizationService.class);
@@ -35,23 +34,28 @@ class MgmtOrganizationControllerTest {
   @Test
   void test_revokeInvitation() {
     Mono<HttpResponse<Void>> responseMono =
-            mgmtOrganizationController.revokeInvitation(
-                    UUID.randomUUID().toString(), UUID.randomUUID().toString(),     getAuthenticationToken());
+        mgmtOrganizationController.revokeInvitation(
+            UUID.randomUUID().toString(), UUID.randomUUID().toString(), getAuthenticationToken());
     Assertions.assertThat(responseMono).isNotNull();
   }
 
   @Test
   void test_block() {
-    doReturn(mock(User.class)).when(organizationService).blockUser(anyString(), anyString(), anyBoolean(), any());
+    doReturn(mock(User.class))
+        .when(organizationService)
+        .blockUser(anyString(), anyString(), anyBoolean(), any());
     Mono<HttpResponse<User>> responseMono =
-            mgmtOrganizationController.block(
-                    UUID.randomUUID().toString(), UUID.randomUUID().toString(),false,     getAuthenticationToken());
+        mgmtOrganizationController.block(
+            UUID.randomUUID().toString(),
+            UUID.randomUUID().toString(),
+            false,
+            getAuthenticationToken());
     Assertions.assertThat(responseMono).isNotNull();
   }
 
   private JwtAuthenticationToken getAuthenticationToken() {
     Jwt jwt =
-            Jwt.withTokenValue("token").subject("test").header("Authorization", "Bearer ").build();
+        Jwt.withTokenValue("token").subject("test").header("Authorization", "Bearer ").build();
     return new JwtAuthenticationToken(jwt);
   }
 }
