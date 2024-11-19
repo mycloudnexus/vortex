@@ -92,6 +92,8 @@
     "testEnvironment": "jsdom"
   },
   "overrides": {
-    "path-to-regexp": "3.3.0"
-  }
+    "path-to-regexp": "3.3.0",
+    "@eslint/plugin-kit"	:"0.2.3" ,
+    "cross-spawn":"7.0.5"
+   }
 }
