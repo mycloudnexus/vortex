@@ -500,7 +500,7 @@ public class OrganizationService {
 
   public Invitation reInvitation(String orgId, String invitationId, String requestedBy) {
     log.info(
-        "reInvitation, orgId:{}, invitationId:{}, requestedBy:{}",
+        "Re-invite, orgId:{}, invitationId:{}, requestedBy:{}",
         orgId,
         invitationId,
         requestedBy);
@@ -564,7 +564,7 @@ public class OrganizationService {
       user.setBlocked(block);
       return managementAPI.users().update(member.getUserId(), user).execute().getBody();
     } catch (Auth0Exception e) {
-      throw VortexException.badRequest("Change user status error:" + e.getMessage());
+      throw VortexException.badRequest("Block/Unblock a user error:" + e.getMessage());
     }
   }
 }

@@ -169,7 +169,7 @@ public class MgmtOrganizationController {
         HttpResponse.ok(service.updateStatus(orgId, status, authenticationToken.getName())));
   }
 
-  @Operation(summary = "Re-invite an invitation by id")
+  @Operation(summary = "Re-invite an user by id")
   @PutMapping("/{orgId}/invitations/re-invitation/{invitationId}")
   public Mono<HttpResponse<Invitation>> reInvitation(
       @PathVariable String orgId,
@@ -180,7 +180,7 @@ public class MgmtOrganizationController {
             service.reInvitation(orgId, invitationId, jwtAuthenticationToken.getName())));
   }
 
-  @Operation(summary = "Re-invite an invitation by id")
+  @Operation(summary = "Revoke an invitation by id")
   @DeleteMapping("/{orgId}/invitations/revoke/{invitationId}")
   public Mono<HttpResponse<Void>> revokeInvitation(
       @PathVariable String orgId,
@@ -201,7 +201,7 @@ public class MgmtOrganizationController {
         HttpResponse.ok(service.reset(orgId, userId, jwtAuthenticationToken.getName())));
   }
 
-  @Operation(summary = "Block(Unblock) an invitation by id")
+  @Operation(summary = "Block/Unblock a user by id")
   @PatchMapping("/{orgId}/user/{userId}/block")
   public Mono<HttpResponse<User>> block(
       @PathVariable String orgId,
