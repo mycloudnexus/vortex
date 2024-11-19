@@ -114,7 +114,6 @@ logging:
     org.springframework.cloud.gateway: DEBUG
 
 app:
-  route-adapters:
   iam:
     jwt:
       issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
@@ -173,11 +172,12 @@ app:
             - ORG_MEMBER
     downstream:
       base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
-      admin-api-key-name: Authorization
+      api-key-name: Authorization
       admin-api-key: Bearer ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
+      user-api-key: Bearer ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
       role: ${IAM_DOWN_STREAM_VORTEX_ROLE:VORTEX_ADMIN}
       company-username: ${IAM_DOWN_STREAM_COMPANY_USERNAME:test}
-      role-endpoint: ${IAM_DOWN_STREAM_ROLE_PATH:/api/company/%s/memberships/%s/roles/%s}
+      company-id: ${IAM_DOWN_STREAM_COMPANY_ID:65a4f18aec61ae42ae9606dfx0000}
   gateway:
     cors:
       allowed-origins: ${GATEWAY_CORS_ALLOWED_ORIGINS:*}
