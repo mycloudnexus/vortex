@@ -116,16 +116,6 @@ public class MgmtOrganizationController {
     return Mono.just(HttpResponse.ok(service.getInvitationById(orgId, invitationId)));
   }
 
-  @Operation(summary = "Delete an invitation by id")
-  @DeleteMapping("/{orgId}/invitations/{invitationId}")
-  public Mono<HttpResponse<Void>> delete(
-      @PathVariable String orgId,
-      @PathVariable String invitationId,
-      JwtAuthenticationToken jwtAuthenticationToken) {
-    service.deleteInvitation(orgId, invitationId, jwtAuthenticationToken.getName());
-    return Mono.just(HttpResponse.ok(null));
-  }
-
   @Operation(summary = "List all members")
   @GetMapping("/{orgId}/members")
   public Mono<HttpResponse<Paging<Member>>> listMembers(
@@ -181,7 +171,7 @@ public class MgmtOrganizationController {
   }
 
   @Operation(summary = "Revoke an invitation by id")
-  @DeleteMapping("/{orgId}/invitations/revoke/{invitationId}")
+  @DeleteMapping("/{orgId}/invitations/{invitationId}")
   public Mono<HttpResponse<Void>> revokeInvitation(
       @PathVariable String orgId,
       @PathVariable String invitationId,
@@ -193,22 +183,23 @@ public class MgmtOrganizationController {
 
   @Operation(summary = "Trigger resetting a user's password")
   @PostMapping("/{orgId}/reset-password/{userId}")
-  public Mono<HttpResponse<Void>> reset(
+  public Mono<HttpResponse<Void>> resetPassword(
       @PathVariable String orgId,
       @PathVariable String userId,
       JwtAuthenticationToken jwtAuthenticationToken) {
     return Mono.just(
-        HttpResponse.ok(service.reset(orgId, userId, jwtAuthenticationToken.getName())));
+        HttpResponse.ok(service.resetPassword(orgId, userId, jwtAuthenticationToken.getName())));
   }
 
   @Operation(summary = "Block/Unblock a user by id")
-  @PatchMapping("/{orgId}/user/{userId}/block")
-  public Mono<HttpResponse<User>> block(
+  @PatchMapping("/{orgId}/user/{userId}/change-status")
+  public Mono<HttpResponse<User>> changeStatus(
       @PathVariable String orgId,
       @PathVariable String userId,
       @RequestParam boolean block,
       JwtAuthenticationToken jwtAuthenticationToken) {
     return Mono.just(
-        HttpResponse.ok(service.blockUser(orgId, userId, block, jwtAuthenticationToken.getName())));
+        HttpResponse.ok(
+            service.changeStatus(orgId, userId, block, jwtAuthenticationToken.getName())));
   }
 }

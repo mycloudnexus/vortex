@@ -960,7 +960,7 @@ class OrganizationServiceTest {
     doReturn(resetPasswordRequest).when(authAPI).resetPassword(anyString(), any());
     doReturn(resetPasswordResponse).when(resetPasswordRequest).execute();
 
-    assertDoesNotThrow(() -> organizationService.reset(SYSTEM, userId, SYSTEM));
+    assertDoesNotThrow(() -> organizationService.resetPassword(SYSTEM, userId, SYSTEM));
   }
 
   @Test
@@ -988,7 +988,7 @@ class OrganizationServiceTest {
 
     assertThrows(
         Exception.class,
-        () -> organizationService.reset(SYSTEM, UUID.randomUUID().toString(), SYSTEM));
+        () -> organizationService.resetPassword(SYSTEM, UUID.randomUUID().toString(), SYSTEM));
   }
 
   @Test
@@ -1012,7 +1012,7 @@ class OrganizationServiceTest {
 
     assertThrows(
         Exception.class,
-        () -> organizationService.reset(SYSTEM, UUID.randomUUID().toString(), SYSTEM));
+        () -> organizationService.resetPassword(SYSTEM, UUID.randomUUID().toString(), SYSTEM));
   }
 
   @Test
@@ -1031,7 +1031,7 @@ class OrganizationServiceTest {
 
     assertThrows(
         Exception.class,
-        () -> organizationService.reset(SYSTEM, UUID.randomUUID().toString(), SYSTEM));
+        () -> organizationService.resetPassword(SYSTEM, UUID.randomUUID().toString(), SYSTEM));
   }
 
   @Test
@@ -1049,7 +1049,7 @@ class OrganizationServiceTest {
 
     assertThrows(
         Exception.class,
-        () -> organizationService.reset(SYSTEM, UUID.randomUUID().toString(), SYSTEM));
+        () -> organizationService.resetPassword(SYSTEM, UUID.randomUUID().toString(), SYSTEM));
   }
 
   @Test
@@ -1176,6 +1176,6 @@ class OrganizationServiceTest {
     doReturn(userResponse).when(userRequest).execute();
     doReturn(user).when(userResponse).getBody();
 
-    assertDoesNotThrow(() -> organizationService.blockUser(SYSTEM, userId, true, SYSTEM));
+    assertDoesNotThrow(() -> organizationService.changeStatus(SYSTEM, userId, true, SYSTEM));
   }
 }

@@ -363,21 +363,6 @@ public class OrganizationService {
     }
   }
 
-  public void deleteInvitation(String orgId, String invitationId, String requestedBy) {
-    log.info(
-        "deleting invitation:orgId:{}, invitationId:{},requestedBy:{}",
-        orgId,
-        invitationId,
-        requestedBy);
-    try {
-      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
-      Request<Void> request = organizationsEntity.deleteInvitation(orgId, invitationId);
-      request.execute().getBody();
-    } catch (Auth0Exception e) {
-      throw VortexException.internalError("Failed to delete invitation: " + invitationId);
-    }
-  }
-
   private List<String> getAvailableRoleNames(String orgId) {
     List<String> roleNames = new ArrayList<>();
     roleNames.add(RoleEnum.ORG_ADMIN.name());
@@ -461,7 +446,7 @@ public class OrganizationService {
     return abstractConnection.updateConnection(orgId, request, requestedBy);
   }
 
-  public Void reset(String orgId, String userId, String requestedBy) {
+  public Void resetPassword(String orgId, String userId, String requestedBy) {
     log.info("orgId:{}, userId:{}, name:{}", orgId, userId, requestedBy);
     try {
       ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
@@ -541,11 +526,11 @@ public class OrganizationService {
       }
       return organizationsEntity.deleteInvitation(orgId, invitationId).execute().getBody();
     } catch (Auth0Exception e) {
-      throw VortexException.badRequest("Revoke invitation error:" + e.getMessage());
+      throw VortexException.badRequest("Failed to revoke invitation:" + e.getMessage());
     }
   }
 
-  public User blockUser(String orgId, String userId, boolean block, String requestedBy) {
+  public User changeStatus(String orgId, String userId, boolean block, String requestedBy) {
     log.info(
         "blockUser, orgId:{}, userId:{},block:{}, requestedBy:{}",
         orgId,

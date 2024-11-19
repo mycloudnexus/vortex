@@ -43,9 +43,9 @@ class MgmtOrganizationControllerTest {
   void test_block() {
     doReturn(mock(User.class))
         .when(organizationService)
-        .blockUser(anyString(), anyString(), anyBoolean(), any());
+        .changeStatus(anyString(), anyString(), anyBoolean(), any());
     Mono<HttpResponse<User>> responseMono =
-        mgmtOrganizationController.block(
+        mgmtOrganizationController.changeStatus(
             UUID.randomUUID().toString(),
             UUID.randomUUID().toString(),
             false,
@@ -56,7 +56,7 @@ class MgmtOrganizationControllerTest {
   @Test
   void test_reset() {
     Mono<HttpResponse<Void>> responseMono =
-        mgmtOrganizationController.reset(
+        mgmtOrganizationController.resetPassword(
             UUID.randomUUID().toString(), UUID.randomUUID().toString(), getAuthenticationToken());
     Assertions.assertThat(responseMono).isNotNull();
   }

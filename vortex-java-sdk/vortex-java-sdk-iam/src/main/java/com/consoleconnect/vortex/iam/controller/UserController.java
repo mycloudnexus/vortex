@@ -2,7 +2,6 @@ package com.consoleconnect.vortex.iam.controller;
 
 import com.consoleconnect.vortex.cc.model.UserInfo;
 import com.consoleconnect.vortex.core.model.HttpResponse;
-import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.iam.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +20,6 @@ import reactor.core.publisher.Mono;
 public class UserController {
 
   private final UserService userService;
-  private final OrganizationService organizationService;
 
   @Operation(summary = "Retrieve current user's information")
   @GetMapping("/userinfo")
@@ -41,15 +39,5 @@ public class UserController {
   public Mono<HttpResponse<UserInfo>> downstreamUserInfo(JwtAuthenticationToken jwt) {
     return Mono.just(
         HttpResponse.ok(userService.downstreamUserInfo(jwt.getName(), jwt.getToken())));
-  }
-
-  @Operation(summary = "Trigger resetting a user's password")
-  @PostMapping("/{orgId}/reset-password")
-  public Mono<HttpResponse<Void>> reset(
-      @PathVariable String orgId, JwtAuthenticationToken jwtAuthenticationToken) {
-    return Mono.just(
-        HttpResponse.ok(
-            organizationService.reset(
-                orgId, jwtAuthenticationToken.getName(), jwtAuthenticationToken.getName())));
   }
 }
