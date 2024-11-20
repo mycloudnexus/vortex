@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react'
+import type { ICompany, CreateOrganizationRequestBody } from '@/services/types'
 
 import { Fragment, useState } from 'react'
 
 import { useAppStore } from '@/stores/app.store'
 import { useNavigate } from 'react-router-dom'
 
-import { Company, useCompanyStore } from '@/stores/company.store'
+import { useCompanyStore } from '@/stores/company.store'
 import { ReactComponent as CCIcon } from '@/assets/icon/customer-company.svg'
 import { ReactComponent as CCClose } from '@/assets/icon/close-circle.svg'
 import { ReactComponent as CCStatus } from '@/assets/icon/status.svg'
@@ -18,16 +19,18 @@ import { Button, Flex, Form, notification, Space, TableProps, Typography } from 
 import { StyledButton, StyledModal, StyledTable, StyledWrapper } from '../components/styled'
 import CustomerCompanyModal from '../components/CustomerModal'
 import Tooltip from '../components/Tooltip'
+import { useAddOrganization, useGetCompanyList } from '@/hooks/company'
+import { useQueryClient } from 'react-query'
 
 const createColumns = (
-  handleOpenModify: (record: Company) => void,
+  handleOpenModify: (record: ICompany) => void,
   handleOpenActivate: (key: string) => void,
   handleOpenDeactivate: (key: string) => void
-): TableProps<Company>['columns'] => [
+): TableProps<ICompany>['columns'] => [
   {
     title: 'Name',
-    dataIndex: 'title',
-    key: 'title'
+    dataIndex: 'display_name',
+    key: 'display_name'
   },
   {
     title: 'ID',
@@ -36,40 +39,45 @@ const createColumns = (
   },
   {
     title: 'Short name & URL',
-    dataIndex: 'shortName',
-    key: 'shortName',
-    render: (_, { shortName }) => (
+    dataIndex: 'name',
+    key: 'name',
+    render: (_, { name }) => (
       <Flex gap={5} align='center'>
-        {shortName}
-        <Tooltip shortName={shortName} color='#FFF' placement='topLeft' />
+        {name}
+        <Tooltip shortName={name} color='#FFF' placement='topLeft' />
       </Flex>
     )
   },
   {
     title: 'Status',
-    key: 'status',
-    dataIndex: 'status',
-    render: (_, { status }) => (
-      <>
-        {status === 'active' ? (
-          <Flex gap={2}>
-            <CCStatus style={{ fill: '#00B284' }} />
-            <Typography.Text>Active</Typography.Text>
-          </Flex>
-        ) : (
-          <Flex gap={2}>
-            <CCStatus style={{ fill: '#668B97' }} />
-            <Typography.Text>Inactive</Typography.Text>
-          </Flex>
-        )}
-      </>
-    )
+    key: 'metadata.status',
+    dataIndex: 'metadata.status',
+    render: (_, record) => {
+      const status = record?.metadata?.status
+      return (
+        <>
+          {status === 'ACTIVE' ? (
+            <Flex gap={2}>
+              <CCStatus style={{ fill: '#00B284' }} />
+              <Typography.Text>Active</Typography.Text>
+            </Flex>
+          ) : (
+            <Flex gap={2}>
+              <CCStatus style={{ fill: '#668B97' }} />
+              <Typography.Text>Inactive</Typography.Text>
+            </Flex>
+          )}
+        </>
+      )
+    }
   },
   {
     title: 'Action',
     key: 'action',
     render: (_, record) => {
-      const handleModify = (e: React.MouseEvent<HTMLElement, MouseEvent>, record: Company): void => {
+      const { id } = record
+      const status = record?.metadata?.status
+      const handleModify = (e: React.MouseEvent<HTMLElement, MouseEvent>, record: ICompany): void => {
         e.stopPropagation()
         handleOpenModify(record)
       }
@@ -83,7 +91,7 @@ const createColumns = (
       }
       return (
         <Space size='small'>
-          {record.status === 'active' ? (
+          {status === 'ACTIVE' ? (
             <Fragment>
               <Button
                 onClick={(e) => handleModify(e, record)}
@@ -96,7 +104,7 @@ const createColumns = (
                 Modify
               </Button>
               <Button
-                onClick={(e) => handleDeactivate(e, record.key)}
+                onClick={(e) => handleDeactivate(e, id)}
                 variant='link'
                 type='link'
                 color='danger'
@@ -107,18 +115,16 @@ const createColumns = (
               </Button>
             </Fragment>
           ) : (
-            <Fragment>
-              <Button
-                onClick={(e) => handleActivate(e, record.key)}
-                variant='link'
-                type='link'
-                color='danger'
-                style={{ padding: '4px 0' }}
-                data-testid='handle-activate'
-              >
-                Activate
-              </Button>
-            </Fragment>
+            <Button
+              onClick={(e) => handleActivate(e, id)}
+              variant='link'
+              type='link'
+              color='danger'
+              style={{ padding: '4px 0' }}
+              data-testid='handle-activate'
+            >
+              Activate
+            </Button>
           )}
         </Space>
       )
@@ -127,9 +133,15 @@ const createColumns = (
 ]
 
 const CustomerCompany = (): ReactElement => {
-  const [form] = Form.useForm()
+  const queryClient = useQueryClient()
+  const [addForm] = Form.useForm<CreateOrganizationRequestBody>()
+  const [editForm] = Form.useForm()
   const [api, contextHolder] = notification.useNotification({ top: 80 })
-  const { companies, addCompany, updateCompanyStatus, updateCompanyRecord } = useCompanyStore()
+  const { data, isLoading } = useGetCompanyList()
+  const companies = data?.data?.data ?? []
+  const { mutate } = useAddOrganization()
+  console.log(data, isLoading)
+  const { updateCompanyStatus } = useCompanyStore()
   const { mainColor } = useAppStore()
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
@@ -137,12 +149,19 @@ const CustomerCompany = (): ReactElement => {
   const [isConfigLogin, setIsConfigLogin] = useState<boolean>(false)
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false)
   const [isDeactivate, setIsDeactivate] = useState<boolean>(false)
-  const [updateValue, setUpdateValue] = useState<Company>({
-    key: '',
+  const [updateValue, setUpdateValue] = useState<ICompany>({
+    branding: {
+      colors: { page_background: '', primary: '' },
+      logo_url: ''
+    },
+    display_name: '',
     id: '',
-    title: '',
-    shortName: '',
-    status: 'active'
+    metadata: {
+      loginType: '',
+      status: '',
+      type: ''
+    },
+    name: ''
   })
   const [key, setKey] = useState<string>('')
   const handleOpenWarning = (): void => setIsWarning(true)
@@ -150,59 +169,72 @@ const CustomerCompany = (): ReactElement => {
 
   const handleSubmitConfigLogin = (): void => {
     setIsConfigLogin(false)
-    navigate(`/settings/customer-company/${updateValue.title}`, { state: { record: updateValue } })
+    navigate(`/settings/customer-company/${updateValue.display_name}`, { state: { record: updateValue } })
   }
   const handleCloseConfigModal = (): void => setIsConfigLogin(false)
 
-  const handleOpenModal = (record: Company): void => {
-    setUpdateValue(record)
+  const handleOpenModal = (record: CreateOrganizationRequestBody): void => {
+    // setUpdateValue(record)
+    console.log(record)
     setIsConfigLogin(true)
   }
 
   const handleOk = async (): Promise<void> => {
     try {
-      const values = await form.validateFields()
-      const valuesToAdd: Company = {
-        id: 'IDEO2333',
-        key: (companies.length + 1).toString(),
-        title: values.title,
-        shortName: values.shortName,
-        status: 'active'
-      }
-      addCompany(valuesToAdd)
+      const values = await addForm.validateFields()
+      mutate(
+        {
+          ...values,
+          display_name: values.display_name,
+          name: values.name
+        },
+        {
+          onSuccess: (data) => {
+            queryClient.setQueryData('getCompanyList', (oldData: any) => {
+              return {
+                ...oldData,
+                data: {
+                  ...oldData.data,
+                  data: [...oldData.data.data, data.data]
+                }
+              }
+            })
+            setUpdateValue(data.data)
+          },
+          onError: (error) => {
+            console.log(error, 'error adding')
+          }
+        }
+      )
       handleCancel()
-      handleOpenModal(valuesToAdd)
+      handleOpenModal(values)
     } catch (error) {
       console.log('Form validation failed:', error)
     }
   }
   const handleCancel = () => {
-    form.resetFields()
+    addForm.resetFields()
     setIsModalOpen(false)
   }
   const showModal = () => setIsModalOpen(true)
-  const openUpdateModal = (record: Company): void => {
-    form.setFieldsValue({
-      title: record.title ?? '',
-      shortName: record.shortName ?? ''
-    })
+  const openUpdateModal = (record: ICompany): void => {
+    console.log(record)
+    editForm.setFieldsValue(record)
     setUpdateValue(record)
     setIsUpdateModalOpen(true)
   }
   const handleUpdate = async (): Promise<void> => {
     try {
-      const values = await form.validateFields()
-      updateCompanyRecord({
-        ...updateValue,
-        title: values.title
-      })
+      const values = await editForm.validateFields()
+      console.log(values)
+
       closeUpdateModal()
     } catch (error) {
       console.log('Form validation failed:', error)
     }
   }
   const closeUpdateModal = (): void => {
-    form.resetFields()
+    editForm.resetFields()
     setIsUpdateModalOpen(false)
   }
   const handleActivate = (key: string): void => {
@@ -241,8 +273,9 @@ const CustomerCompany = (): ReactElement => {
       console.log(error)
     }
   }
-  const handleOnRowClick = (record: Company): void => {
-    navigate(`/settings/customer-company/${record.title}`, { state: { record: record } })
+  const handleOnRowClick = (record: ICompany): void => {
+    const { display_name } = record
+    navigate(`/settings/customer-company/${display_name}`, { state: { record: record } })
   }
   return (
     <Flex style={{ width: '70%', margin: '0 auto' }} vertical justify='start' align='center' gap={20}>
@@ -251,7 +284,7 @@ const CustomerCompany = (): ReactElement => {
           <StyledWrapper $backgroundColor={mainColor}>
             <CCIcon />
           </StyledWrapper>
-          <Typography.Title level={2} style={{ margin: 0 }}>
+          <Typography.Title level={3} style={{ margin: 0 }}>
             Customer Company
           </Typography.Title>
         </Flex>
@@ -261,6 +294,7 @@ const CustomerCompany = (): ReactElement => {
       </Flex>
 
       <StyledTable
+        loading={isLoading}
         columns={createColumns(
           (record) => openUpdateModal(record),
           (key) => handleActivate(key),
@@ -273,6 +307,7 @@ const CustomerCompany = (): ReactElement => {
             onClick: () => handleOnRowClick(record)
           }
         }}
+        rowKey='id'
         style={{ width: '100%' }}
         locale={{
           emptyText: (
@@ -282,13 +317,14 @@ const CustomerCompany = (): ReactElement => {
             </Flex>
           )
         }}
+        scroll={{ y: 560 }}
       />
 
       <CustomerCompanyModal
         title='Add customer company'
         name='add_customer_company'
         companies={companies}
-        form={form}
+        form={addForm}
         handleCancel={handleCancel}
         handleOk={handleOk}
         initialValues={{ title: '', shortName: '' }}
@@ -300,7 +336,7 @@ const CustomerCompany = (): ReactElement => {
         title='Modify Customer company'
         name='modify_customer_company'
         companies={companies}
-        form={form}
+        form={editForm}
         handleCancel={closeUpdateModal}
         handleOk={handleUpdate}
         initialValues={{ title: '', shortName: '' }}

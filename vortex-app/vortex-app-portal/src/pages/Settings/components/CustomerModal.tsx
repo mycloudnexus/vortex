@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react'
-import type { Company } from '@/stores/company.store'
 import { Flex, Form, FormInstance, ModalProps } from 'antd'
 
 import { CustomInput, StyledModal } from './styled'
 import Tooltip from './Tooltip'
+import { ICompany } from '@/services/types'
 
 export interface CustomerCompanyModalProps<T> extends ModalProps {
   title: string
@@ -12,7 +12,7 @@ export interface CustomerCompanyModalProps<T> extends ModalProps {
   handleCancel: () => void
   form: FormInstance
   initialValues: T
-  companies: Company[]
+  companies: ICompany[]
   name: string
   type?: 'add' | 'update'
 }
@@ -41,7 +41,7 @@ const CustomerCompanyModal = <T extends object>({
     >
       <Form form={form} name={name} initialValues={initialValues} layout='vertical' style={{ padding: '20px' }}>
         <Form.Item
-          name='title'
+          name='display_name'
           label={
             <Flex align='center' gap={5}>
               Customer company name<span style={{ color: 'red' }}>*</span>
@@ -52,7 +52,7 @@ const CustomerCompanyModal = <T extends object>({
             { required: true, message: 'Customer name cannot be empty' },
             {
               validator: async (_, value) => {
-                const exist = companies.find((company) => company.title === value)
+                const exist = companies.find((company) => company.display_name === value)
                 if (exist) {
                   return Promise.reject(new Error('Customer name cannot be duplicated'))
                 }
@@ -65,7 +65,7 @@ const CustomerCompanyModal = <T extends object>({
         </Form.Item>
 
         <Form.Item
-          name='shortName'
+          name='name'
           label={
             <Flex gap={5} align='center'>
               Customer company URL short name

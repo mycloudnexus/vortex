@@ -1,6 +1,6 @@
 import { styled } from 'styled-components'
 import { Button, Input, Modal, Table, TableProps } from 'antd'
-import { Company } from '@/stores/company.store'
+import { ICompany } from '@/services/types'
 
 export const StyledModal = styled(Modal).withConfig({
   shouldForwardProp: (props) => !props.startsWith('$')
@@ -51,7 +51,7 @@ export const StyledWrapper = styled('div').withConfig({
   justify-content: center;
 `
 
-export const StyledTable = styled(Table)<TableProps<Company>>`
+export const StyledTable = styled(Table)<TableProps<ICompany>>`
   .ant-table-thead > tr > th {
     border-top: 1px #f0f0f0 solid !important;
     border-bottom: 1px #f0f0f0 solid !important;
