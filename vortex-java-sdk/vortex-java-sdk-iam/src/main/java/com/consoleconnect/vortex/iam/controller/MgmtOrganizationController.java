@@ -174,21 +174,21 @@ public class MgmtOrganizationController {
   @PostMapping("/{orgId}/members/{memberId}/reset-password")
   public Mono<HttpResponse<Void>> resetPassword(
       @PathVariable String orgId,
-      @PathVariable String userId,
+      @PathVariable String memberId,
       JwtAuthenticationToken jwtAuthenticationToken) {
     return Mono.just(
-        HttpResponse.ok(service.resetPassword(orgId, userId, jwtAuthenticationToken.getName())));
+        HttpResponse.ok(service.resetPassword(orgId, memberId, jwtAuthenticationToken.getName())));
   }
 
   @Operation(summary = "Block/Unblock a user by id")
   @PatchMapping("/{orgId}/members/{memberId}/change-status")
   public Mono<HttpResponse<User>> changeStatus(
       @PathVariable String orgId,
-      @PathVariable String userId,
+      @PathVariable String memberId,
       @RequestParam boolean block,
       JwtAuthenticationToken jwtAuthenticationToken) {
     return Mono.just(
         HttpResponse.ok(
-            service.changeStatus(orgId, userId, block, jwtAuthenticationToken.getName())));
+            service.changeStatus(orgId, memberId, block, jwtAuthenticationToken.getName())));
   }
 }
