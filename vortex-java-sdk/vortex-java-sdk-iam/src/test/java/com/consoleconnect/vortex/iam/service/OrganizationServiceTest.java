@@ -943,6 +943,7 @@ class OrganizationServiceTest {
     com.auth0.json.mgmt.organizations.Connection connection =
         new com.auth0.json.mgmt.organizations.Connection();
     connection.setName("test");
+    connection.setStrategy(ConnectionStrategyEnum.AUTH0.getValue());
     enabledConnection.setConnection(connection);
     EnabledConnectionsPage enabledConnectionsPage =
         new EnabledConnectionsPage(List.of(enabledConnection));
@@ -961,6 +962,57 @@ class OrganizationServiceTest {
     doReturn(resetPasswordResponse).when(resetPasswordRequest).execute();
 
     assertDoesNotThrow(() -> organizationService.resetPassword(SYSTEM, userId, SYSTEM));
+  }
+
+  @Test
+  void test_reset_password_exception() throws Auth0Exception {
+    String userId = UUID.randomUUID().toString();
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    Request<MembersPage> membersPageRequest = mock(Request.class);
+    doReturn(membersPageRequest).when(organizationsEntity).getMembers(anyString(), any());
+
+    Response<MembersPage> membersPageResponse = mock(Response.class);
+    doReturn(membersPageResponse).when(membersPageRequest).execute();
+
+    MembersPage membersPage = mock(MembersPage.class);
+    doReturn(membersPage).when(membersPageResponse).getBody();
+
+    Member member = mock(Member.class);
+    doReturn(List.of(member)).when(membersPage).getItems();
+    doReturn(userId).when(member).getUserId();
+    doReturn("test@example.com").when(member).getEmail();
+
+    // mock query connection
+    Request<EnabledConnectionsPage> enabledConnectionsPageRequest = mock(Request.class);
+    Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
+    EnabledConnection enabledConnection = new EnabledConnection("test-connection-xxx");
+    com.auth0.json.mgmt.organizations.Connection connection =
+        new com.auth0.json.mgmt.organizations.Connection();
+    connection.setName("test");
+    connection.setStrategy(ConnectionStrategyEnum.SAML.getValue());
+    enabledConnection.setConnection(connection);
+    EnabledConnectionsPage enabledConnectionsPage =
+        new EnabledConnectionsPage(List.of(enabledConnection));
+    doReturn(enabledConnectionsPageRequest)
+        .when(organizationsEntity)
+        .getConnections(anyString(), any());
+    doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPageRequest).execute();
+    doReturn(enabledConnectionsPage).when(enabledConnectionsPageResponse).getBody();
+
+    AuthAPI authAPI = mock(AuthAPI.class);
+    doReturn(authAPI).when(auth0Client).getAuthClient();
+
+    Request<Void> resetPasswordRequest = mock(Request.class);
+    Response<Void> resetPasswordResponse = mock(Response.class);
+    doReturn(resetPasswordRequest).when(authAPI).resetPassword(anyString(), any());
+    doReturn(resetPasswordResponse).when(resetPasswordRequest).execute();
+
+    assertThrows(Exception.class, () -> organizationService.resetPassword(SYSTEM, userId, SYSTEM));
   }
 
   @Test

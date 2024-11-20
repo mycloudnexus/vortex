@@ -462,7 +462,7 @@ public class OrganizationService {
 
       com.auth0.json.mgmt.organizations.Connection connection =
           enabledConnectionsPage.getItems().get(0).getConnection();
-      if (connection.getStrategy().equals(ConnectionStrategyEnum.AUTH0.getValue())) {
+      if (!connection.getStrategy().equals(ConnectionStrategyEnum.AUTH0.getValue())) {
         throw VortexException.badRequest("Don't support reset password orgId:" + orgId);
       }
 
