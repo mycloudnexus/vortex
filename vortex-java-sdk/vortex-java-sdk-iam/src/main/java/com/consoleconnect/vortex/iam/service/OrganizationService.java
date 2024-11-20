@@ -521,7 +521,7 @@ public class OrganizationService {
     }
   }
 
-  public User changeStatus(String orgId, String memberId, boolean block, String requestedBy) {
+  public User changeMemberStatus(String orgId, String memberId, boolean block, String requestedBy) {
     log.info(
         "blockUser, orgId:{}, memberId:{},block:{}, requestedBy:{}",
         orgId,
@@ -529,7 +529,7 @@ public class OrganizationService {
         block,
         requestedBy);
     try {
-      return updateMember(orgId, memberId, block, null);
+      return doUpdateMember(orgId, memberId, block, null);
     } catch (Auth0Exception e) {
       throw VortexException.badRequest("Block/Unblock a user error:" + e.getMessage());
     }
@@ -544,13 +544,13 @@ public class OrganizationService {
         memberInfoUpdateDto,
         requestedBy);
     try {
-      return updateMember(orgId, memberId, null, memberInfoUpdateDto);
+      return doUpdateMember(orgId, memberId, null, memberInfoUpdateDto);
     } catch (Auth0Exception e) {
       throw VortexException.badRequest("Update name error:" + e.getMessage());
     }
   }
 
-  private User updateMember(
+  private User doUpdateMember(
       String orgId, String memberId, Boolean block, MemberInfoUpdateDto memberInfoUpdateDto)
       throws Auth0Exception {
     ManagementAPI managementAPI = this.auth0Client.getMgmtClient();

@@ -32,9 +32,9 @@ class MgmtOrganizationControllerTest {
   void test_block() {
     doReturn(mock(User.class))
         .when(organizationService)
-        .changeStatus(anyString(), anyString(), anyBoolean(), any());
+        .changeMemberStatus(anyString(), anyString(), anyBoolean(), any());
     Mono<HttpResponse<User>> responseMono =
-        mgmtOrganizationController.changeStatus(
+        mgmtOrganizationController.changeMemberStatus(
             UUID.randomUUID().toString(),
             UUID.randomUUID().toString(),
             false,
@@ -54,7 +54,7 @@ class MgmtOrganizationControllerTest {
   void test_updateMemberInfo() {
     doReturn(mock(User.class))
         .when(organizationService)
-        .changeStatus(anyString(), anyString(), anyBoolean(), any());
+        .changeMemberStatus(anyString(), anyString(), anyBoolean(), any());
     MemberInfoUpdateDto memberInfoUpdateDto = new MemberInfoUpdateDto();
     memberInfoUpdateDto.setFamilyName("familyName");
     memberInfoUpdateDto.setGivenName("givenName");

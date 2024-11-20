@@ -1136,7 +1136,7 @@ class OrganizationServiceTest {
   @Test
   void test_changeStatus() throws Auth0Exception {
     String userId = mockExistedOrgUser(null);
-    assertDoesNotThrow(() -> organizationService.changeStatus(SYSTEM, userId, true, SYSTEM));
+    assertDoesNotThrow(() -> organizationService.changeMemberStatus(SYSTEM, userId, true, SYSTEM));
   }
 
   @Test

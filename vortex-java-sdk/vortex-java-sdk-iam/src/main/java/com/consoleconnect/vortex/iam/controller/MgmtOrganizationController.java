@@ -182,14 +182,14 @@ public class MgmtOrganizationController {
 
   @Operation(summary = "Block/Unblock a user by id")
   @PatchMapping("/{orgId}/members/{memberId}/change-status")
-  public Mono<HttpResponse<User>> changeStatus(
+  public Mono<HttpResponse<User>> changeMemberStatus(
       @PathVariable String orgId,
       @PathVariable String memberId,
       @RequestParam boolean block,
       JwtAuthenticationToken jwtAuthenticationToken) {
     return Mono.just(
         HttpResponse.ok(
-            service.changeStatus(orgId, memberId, block, jwtAuthenticationToken.getName())));
+            service.changeMemberStatus(orgId, memberId, block, jwtAuthenticationToken.getName())));
   }
 
   @Operation(summary = "Update the member info.")
