@@ -1,4 +1,4 @@
-package com.consoleconnect.vortex.config;
+package com.consoleconnect.vortex.iam.config;
 
 public class AuthContextConstants {
   public static final String MGMT_COMPANY_ID = "65a4f18aec61ae42ae9606dfx0000";

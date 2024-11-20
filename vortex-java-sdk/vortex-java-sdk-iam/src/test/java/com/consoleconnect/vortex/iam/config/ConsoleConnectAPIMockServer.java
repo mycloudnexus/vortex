@@ -1,4 +1,4 @@
-package com.consoleconnect.vortex.config;
+package com.consoleconnect.vortex.iam.config;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 

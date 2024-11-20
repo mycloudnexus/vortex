@@ -2,9 +2,9 @@ package com.consoleconnect.vortex.iam.controller;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import com.consoleconnect.vortex.config.Auth0MgmtAPIMockServer;
-import com.consoleconnect.vortex.config.AuthContextConstants;
-import com.consoleconnect.vortex.config.TestApplication;
+import com.consoleconnect.vortex.iam.config.Auth0MgmtAPIMockServer;
+import com.consoleconnect.vortex.iam.config.AuthContextConstants;
+import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
@@ -152,6 +152,18 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
         Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
         createInvitationDto,
         200,
+        Assertions::assertNotNull);
+  }
+
+  @Test
+  @Order(2)
+  void givenOrganizationInitialized_whenResetPassword_thenReturn400() {
+    webTestClient.requestAndVerify(
+        HttpMethod.POST,
+        uriBuilder -> uriBuilder.path("/organization/reset-password").build(),
+        Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
+        null,
+        400,
         Assertions::assertNotNull);
   }
 }

@@ -2,11 +2,11 @@ package com.consoleconnect.vortex.iam.controller;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import com.consoleconnect.vortex.config.AuthContextConstants;
-import com.consoleconnect.vortex.config.ConsoleConnectAPIMockServer;
-import com.consoleconnect.vortex.config.TestApplication;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
+import com.consoleconnect.vortex.iam.config.AuthContextConstants;
+import com.consoleconnect.vortex.iam.config.ConsoleConnectAPIMockServer;
+import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.AuthToken;
 import com.consoleconnect.vortex.iam.dto.MemberInfo;
 import com.consoleconnect.vortex.iam.service.MemberService;

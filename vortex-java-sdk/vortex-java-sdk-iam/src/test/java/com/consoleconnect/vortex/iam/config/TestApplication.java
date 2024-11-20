@@ -1,4 +1,4 @@
-package com.consoleconnect.vortex.config;
+package com.consoleconnect.vortex.iam.config;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

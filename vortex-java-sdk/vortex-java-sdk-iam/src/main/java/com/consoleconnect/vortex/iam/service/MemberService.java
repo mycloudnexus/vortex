@@ -9,7 +9,7 @@ import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.*;
-import com.consoleconnect.vortex.iam.mapper.UserMapper;
+import com.consoleconnect.vortex.iam.mapper.MemberMapper;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class MemberService {
       User user = userEntity.get(userId, null).execute().getBody();
       List<Organization> organizations =
           userEntity.getOrganizations(userId, null).execute().getBody().getItems();
-      MemberInfo memberInfo = UserMapper.INSTANCE.toMemberInfo(user);
+      MemberInfo memberInfo = MemberMapper.INSTANCE.toMemberInfo(user);
       if (organizations != null && !organizations.isEmpty()) {
         if (organizations.size() > 1) {
           log.warn("User {} belongs to multiple organizations", userId);
