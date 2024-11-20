@@ -81,7 +81,7 @@ app:
   iam:
     auth0:
       mgmt-api:
-        domain: consoleconnect.auth0.com
+        domain: http://localhost:3032
         client-id: :mgmt-api-client-id
         client-secret: :mgmt-api-client-secret
         audience: https://partner.consoleconnect.com/api

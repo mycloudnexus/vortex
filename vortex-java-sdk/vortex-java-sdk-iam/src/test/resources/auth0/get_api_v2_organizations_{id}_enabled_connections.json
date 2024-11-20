@@ -1,0 +1,11 @@
+[
+  {
+    "connection_id": "con_YNEZH8rgZ8sQz9Fq",
+    "assign_membership_on_login": false,
+    "show_as_button": true,
+    "connection": {
+      "name": "xxxx",
+      "strategy": "oidc"
+    }
+  }
+]
