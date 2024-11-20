@@ -1053,43 +1053,6 @@ class OrganizationServiceTest {
   }
 
   @Test
-  void testReInvite() throws Auth0Exception {
-    String userId = UUID.randomUUID().toString();
-    ManagementAPI managementAPI = mock(ManagementAPI.class);
-    doReturn(managementAPI).when(auth0Client).getMgmtClient();
-
-    Auth0Property auth0Property = new Auth0Property();
-    Auth0Property.Config app = new Auth0Property.Config();
-    app.setClientId(UUID.randomUUID().toString());
-    auth0Property.setApp(app);
-    doReturn(auth0Property).when(auth0Client).getAuth0Property();
-
-    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
-    doReturn(organizationsEntity).when(managementAPI).organizations();
-
-    Invitation invitation = mock(Invitation.class);
-    doReturn(mock(Inviter.class)).when(invitation).getInviter();
-    doReturn(mock(Invitee.class)).when(invitation).getInvitee();
-    doReturn(mock(Roles.class)).when(invitation).getRoles();
-
-    Request<Invitation> invitationRequest = mock(Request.class);
-    Response<Invitation> invitationResponse = mock(Response.class);
-    doReturn(invitationRequest)
-        .when(organizationsEntity)
-        .getInvitation(anyString(), anyString(), any());
-    doReturn(invitationResponse).when(invitationRequest).execute();
-    doReturn(invitation).when(invitationResponse).getBody();
-
-    Request<Invitation> existInvitationRequest = mock(Request.class);
-    Response<Invitation> existInvitationResponse = mock(Response.class);
-    doReturn(invitationRequest).when(organizationsEntity).createInvitation(anyString(), any());
-    doReturn(existInvitationResponse).when(existInvitationRequest).execute();
-    doReturn(invitation).when(existInvitationResponse).getBody();
-
-    assertDoesNotThrow(() -> organizationService.reInvitation(SYSTEM, userId, SYSTEM));
-  }
-
-  @Test
   void test_revokeInvitation() throws Auth0Exception {
     String userId = UUID.randomUUID().toString();
     ManagementAPI managementAPI = mock(ManagementAPI.class);
@@ -1123,24 +1086,6 @@ class OrganizationServiceTest {
     doReturn(existInvitationResponse).when(existInvitationRequest).execute();
 
     assertDoesNotThrow(() -> organizationService.revokeInvitation(SYSTEM, userId, SYSTEM));
-  }
-
-  @Test
-  void testReInviteException() {
-    String userId = UUID.randomUUID().toString();
-    ManagementAPI managementAPI = mock(ManagementAPI.class);
-    doReturn(managementAPI).when(auth0Client).getMgmtClient();
-
-    Auth0Property auth0Property = new Auth0Property();
-    Auth0Property.Config app = new Auth0Property.Config();
-    app.setClientId(UUID.randomUUID().toString());
-    auth0Property.setApp(app);
-    doReturn(auth0Property).when(auth0Client).getAuth0Property();
-
-    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
-    doReturn(organizationsEntity).when(managementAPI).organizations();
-
-    assertThrows(Exception.class, () -> organizationService.reInvitation(SYSTEM, userId, SYSTEM));
   }
 
   @Test

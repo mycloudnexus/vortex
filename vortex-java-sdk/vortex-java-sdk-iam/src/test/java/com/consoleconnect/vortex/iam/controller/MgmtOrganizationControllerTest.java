@@ -4,7 +4,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.auth0.json.mgmt.organizations.Invitation;
 import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
@@ -19,17 +18,6 @@ class MgmtOrganizationControllerTest {
   private OrganizationService organizationService = mock(OrganizationService.class);
   private MgmtOrganizationController mgmtOrganizationController =
       new MgmtOrganizationController(organizationService);
-
-  @Test
-  void test_reInvitation() {
-    Invitation invitation = mock(Invitation.class);
-    doReturn(invitation).when(organizationService).reInvitation(anyString(), anyString(), any());
-
-    Mono<HttpResponse<Invitation>> responseMono =
-        mgmtOrganizationController.reInvitation(
-            UUID.randomUUID().toString(), UUID.randomUUID().toString(), getAuthenticationToken());
-    Assertions.assertThat(responseMono).isNotNull();
-  }
 
   @Test
   void test_revokeInvitation() {

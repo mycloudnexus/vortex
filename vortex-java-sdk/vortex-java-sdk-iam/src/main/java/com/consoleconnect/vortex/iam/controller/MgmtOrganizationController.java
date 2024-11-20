@@ -159,17 +159,6 @@ public class MgmtOrganizationController {
         HttpResponse.ok(service.updateStatus(orgId, status, authenticationToken.getName())));
   }
 
-  @Operation(summary = "Re-invite an user by id")
-  @PutMapping("/{orgId}/invitations/re-invitation/{invitationId}")
-  public Mono<HttpResponse<Invitation>> reInvitation(
-      @PathVariable String orgId,
-      @PathVariable String invitationId,
-      JwtAuthenticationToken jwtAuthenticationToken) {
-    return Mono.just(
-        HttpResponse.ok(
-            service.reInvitation(orgId, invitationId, jwtAuthenticationToken.getName())));
-  }
-
   @Operation(summary = "Revoke an invitation by id")
   @DeleteMapping("/{orgId}/invitations/{invitationId}")
   public Mono<HttpResponse<Void>> revokeInvitation(

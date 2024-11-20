@@ -483,32 +483,6 @@ public class OrganizationService {
     return memberOptional.get();
   }
 
-  public Invitation reInvitation(String orgId, String invitationId, String requestedBy) {
-    log.info(
-        "Re-invite, orgId:{}, invitationId:{}, requestedBy:{}", orgId, invitationId, requestedBy);
-    try {
-      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
-      Request<Invitation> request = organizationsEntity.getInvitation(orgId, invitationId, null);
-      Invitation invitation = request.execute().getBody();
-      if (Objects.isNull(invitation)) {
-        throw VortexException.badRequest(
-            "This user hasn't been invited. invitationId:" + invitationId);
-      }
-
-      Invitation newInvitation =
-          new Invitation(
-              invitation.getInviter(),
-              invitation.getInvitee(),
-              auth0Client.getAuth0Property().getApp().getClientId());
-      newInvitation.setRoles(invitation.getRoles());
-      newInvitation.setConnectionId(invitation.getConnectionId());
-      newInvitation.setSendInvitationEmail(invitation.isSendInvitationEmail());
-      return organizationsEntity.createInvitation(orgId, newInvitation).execute().getBody();
-    } catch (Auth0Exception e) {
-      throw VortexException.badRequest("Re-invite a user error:" + e.getMessage());
-    }
-  }
-
   public Void revokeInvitation(String orgId, String invitationId, String requestedBy) {
     log.info(
         "revokeInvitation, orgId:{}, invitationId:{}, requestedBy:{}",
