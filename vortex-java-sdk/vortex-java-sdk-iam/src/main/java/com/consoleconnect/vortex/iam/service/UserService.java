@@ -91,6 +91,7 @@ public class UserService {
     if (dto.getRoles() == null) {
       dto.setRoles(userContext.getTrustedIssuer().getDefaultRoles());
     }
+    userEntity.setUserId(dto.getUserId());
     userEntity.setRoles(dto.getRoles());
     userEntity.setCreatedBy(userContext.getUserId());
 

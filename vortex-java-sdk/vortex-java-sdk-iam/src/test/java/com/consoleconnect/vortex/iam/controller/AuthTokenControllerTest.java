@@ -27,7 +27,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-@ActiveProfiles("auth-bypass")
+@ActiveProfiles("auth-hs256")
 @MockIntegrationTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ContextConfiguration(classes = TestApplication.class)
@@ -81,7 +81,7 @@ class AuthTokenControllerTest extends AbstractIntegrationTest {
         AuthContextConstants.MGMT_ACCESS_TOKEN);
     ConsoleConnectAPIMockServer.verify(
         1,
-        "/api/user/" + AuthContextConstants.MGMT_USERNAME,
+        String.format("/api/user/%s", AuthContextConstants.MGMT_USERNAME),
         AuthContextConstants.MGMT_ACCESS_TOKEN);
   }
 

@@ -8,6 +8,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @AllArgsConstructor
@@ -18,12 +19,12 @@ public class UserContext {
   private String orgId;
   private boolean mgmt;
   private String customerId;
-  private ResourceServerProperty.TrustedIssuer trustedIssuer;
   private String apiServer;
-  private String apiAccessToken;
   private List<String> roles;
 
-  private ConsoleConnectClient consoleConnectClient;
+  @ToString.Exclude private ResourceServerProperty.TrustedIssuer trustedIssuer;
+  @ToString.Exclude private String apiAccessToken;
+  @ToString.Exclude private ConsoleConnectClient consoleConnectClient;
 
   public ConsoleConnectClient getConsoleConnectClient() {
     if (consoleConnectClient != null) {

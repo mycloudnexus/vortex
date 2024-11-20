@@ -13,37 +13,24 @@
     "email": "user_unique_username@email.com",
     "name": "First Last",
     "roles": [
-      {
-        "name": "KEYHOLDER",
-        "display": "Account Admin",
-        "icon": "key outline",
-        "keyholder": false,
-        "visible": true,
-        "shieldOnly": false,
-        "systemDefault": false,
-        "unauthenticatedSystemDefault": false,
-        "id": "5a8b9b008195000012e9f13e",
-        "deletedAt": null,
-        "displayOrder": "-100",
-        "description": "Role Description",
-        "tags": [
-          "keyholder",
-          "Prod"
-        ],
-        "createdAt": "2018-02-20T03:50:24.045Z",
-        "updatedAt": "2024-09-18T04:43:00.433Z",
-        "policyIds": [
-        ],
-        "deleted": false,
-        "permissionIds": [
-        ],
-        "companyIds": [],
-        "parentId": null,
-        "readOnly": true,
-        "queryable": false,
-        "policies": [
-        ]
-      }
+    ],
+    "isFollowing": false,
+    "joinedDate": "2024-09-10T06:21:50.320Z"
+  },
+  {
+    "id": "5d773f33c7e294000b763af7",
+    "createdAt": "2024-09-10T06:10:39.476Z",
+    "username": "user_unique_username2",
+    "tags": [],
+    "location": null,
+    "summary": null,
+    "headline": "It test",
+    "background": null,
+    "avatarId": "5f8650448327a10014505364",
+    "avatar": null,
+    "email": "user_unique_username2@email.com",
+    "name": "First Last",
+    "roles": [
     ],
     "isFollowing": false,
     "joinedDate": "2024-09-10T06:21:50.320Z"

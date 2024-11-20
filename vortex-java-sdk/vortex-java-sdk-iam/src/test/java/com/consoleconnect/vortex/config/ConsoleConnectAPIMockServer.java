@@ -9,11 +9,9 @@ import lombok.SneakyThrows;
 public class ConsoleConnectAPIMockServer {
   @SneakyThrows
   public static void setupMock() {
-    String url =
-        String.format("/v2/companies/%s/members?pageSize=0", AuthContextConstants.MGMT_COMPANY_ID);
     String members = AbstractIntegrationTest.readFileToString("consoleconnect/members.json");
     WireMock.stubFor(
-        WireMock.get(urlEqualTo(url))
+        WireMock.get(urlPathTemplate("/v2/companies/{companyId}/members"))
             .willReturn(
                 WireMock.aResponse()
                     .withStatus(200)
@@ -21,7 +19,7 @@ public class ConsoleConnectAPIMockServer {
                     .withBody(members)));
     String memberInfo = AbstractIntegrationTest.readFileToString("consoleconnect/member_info.json");
     WireMock.stubFor(
-        WireMock.get(urlEqualTo("/api/user/" + AuthContextConstants.MGMT_USERNAME))
+        WireMock.get(urlPathTemplate("/api/user/{username}"))
             .willReturn(
                 WireMock.aResponse()
                     .withStatus(200)
