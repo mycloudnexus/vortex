@@ -446,20 +446,29 @@ public class OrganizationService {
     return abstractConnection.updateConnection(orgId, request, requestedBy);
   }
 
-  public Void resetPassword(String orgId, String userId, String requestedBy) {
-    log.info("orgId:{}, userId:{}, name:{}", orgId, userId, requestedBy);
+  public Void resetPassword(String orgId, String memberId, String requestedBy) {
+    log.info("orgId:{}, userId:{}, name:{}", orgId, memberId, requestedBy);
     try {
       ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
       OrganizationsEntity organizationsEntity = managementAPI.organizations();
-      Member member = checkAndGetMember(orgId, userId, organizationsEntity);
+      Member member = findMemberById(orgId, memberId, organizationsEntity);
 
       EnabledConnectionsPage enabledConnectionsPage =
           organizationsEntity.getConnections(orgId, null).execute().getBody();
+      if (Objects.isNull(enabledConnectionsPage)
+          || CollectionUtils.isEmpty(enabledConnectionsPage.getItems())) {
+        throw VortexException.badRequest("No connection orgId:" + orgId);
+      }
+
+      com.auth0.json.mgmt.organizations.Connection connection =
+          enabledConnectionsPage.getItems().get(0).getConnection();
+      if (connection.getStrategy().equals(ConnectionStrategyEnum.AUTH0.getValue())) {
+        throw VortexException.badRequest("Don't support reset password orgId:" + orgId);
+      }
 
       return this.auth0Client
           .getAuthClient()
-          .resetPassword(
-              member.getEmail(), enabledConnectionsPage.getItems().get(0).getConnection().getName())
+          .resetPassword(member.getEmail(), connection.getName())
           .execute()
           .getBody();
     } catch (Auth0Exception e) {
@@ -467,7 +476,7 @@ public class OrganizationService {
     }
   }
 
-  private Member checkAndGetMember(
+  private Member findMemberById(
       String orgId, String userId, OrganizationsEntity organizationsEntity) throws Auth0Exception {
     MembersPage membersPage = organizationsEntity.getMembers(orgId, null).execute().getBody();
     if (Objects.isNull(membersPage) || CollectionUtils.isEmpty(membersPage.getItems())) {
@@ -504,17 +513,17 @@ public class OrganizationService {
     }
   }
 
-  public User changeStatus(String orgId, String userId, boolean block, String requestedBy) {
+  public User changeStatus(String orgId, String memberId, boolean block, String requestedBy) {
     log.info(
-        "blockUser, orgId:{}, userId:{},block:{}, requestedBy:{}",
+        "blockUser, orgId:{}, memberId:{},block:{}, requestedBy:{}",
         orgId,
-        userId,
+        memberId,
         block,
         requestedBy);
     try {
       ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
       OrganizationsEntity organizationsEntity = managementAPI.organizations();
-      Member member = checkAndGetMember(orgId, userId, organizationsEntity);
+      Member member = findMemberById(orgId, memberId, organizationsEntity);
 
       User user = new User();
       user.setBlocked(block);

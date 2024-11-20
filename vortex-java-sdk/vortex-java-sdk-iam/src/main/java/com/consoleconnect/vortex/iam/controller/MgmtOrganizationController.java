@@ -171,7 +171,7 @@ public class MgmtOrganizationController {
   }
 
   @Operation(summary = "Trigger resetting a user's password")
-  @PostMapping("/{orgId}/reset-password/{userId}")
+  @PostMapping("/{orgId}/members/{memberId}/reset-password")
   public Mono<HttpResponse<Void>> resetPassword(
       @PathVariable String orgId,
       @PathVariable String userId,
@@ -181,7 +181,7 @@ public class MgmtOrganizationController {
   }
 
   @Operation(summary = "Block/Unblock a user by id")
-  @PatchMapping("/{orgId}/user/{userId}/change-status")
+  @PatchMapping("/{orgId}/members/{memberId}/change-status")
   public Mono<HttpResponse<User>> changeStatus(
       @PathVariable String orgId,
       @PathVariable String userId,
