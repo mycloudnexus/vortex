@@ -39,6 +39,8 @@ public class UserService {
   private final EmailService emailService;
   private final UserContextService userContextService;
 
+  private static final String USER_NOT_FOUND = "User not found";
+
   @Transactional
   @PostConstruct
   public void initialize() {
@@ -110,7 +112,7 @@ public class UserService {
     UserEntity userEntity =
         userRepository
             .findOneByUserId(userId)
-            .orElseThrow(() -> VortexException.notFound("User not found"));
+            .orElseThrow(() -> VortexException.notFound(USER_NOT_FOUND));
     if (request.getStatus() != null) userEntity.setStatus(request.getStatus());
     if (request.getRoles() != null) userEntity.setRoles(request.getRoles());
     userEntity.setUpdatedBy(userContext.getUserId());
@@ -127,7 +129,7 @@ public class UserService {
     UserEntity userEntity =
         userRepository
             .findOneByUserId(userId)
-            .orElseThrow(() -> VortexException.notFound("User not found"));
+            .orElseThrow(() -> VortexException.notFound(USER_NOT_FOUND));
     if (userEntity.getStatus() == UserStatusEnum.DELETED) {
       throw VortexException.badRequest("User already deleted");
     }
@@ -150,7 +152,7 @@ public class UserService {
     UserEntity userEntity =
         userRepository
             .findOneByUserId(userId)
-            .orElseThrow(() -> VortexException.notFound("User not found"));
+            .orElseThrow(() -> VortexException.notFound(USER_NOT_FOUND));
     Member member = getMemberById(userContext, userId);
     User user = toUser(userEntity, member, userContext.getOrgId());
 

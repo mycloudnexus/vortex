@@ -32,11 +32,11 @@ public class MemberMapper {
     memberInfo.setFamilyName(user.getFamilyName());
     Map<String, Object> map = user.getAppMetadata();
     if (map != null) {
-      memberInfo.setAppMetadata(new LinkedHashMap<String, Object>(map));
+      memberInfo.setAppMetadata(new LinkedHashMap<>(map));
     }
     Map<String, Object> map1 = user.getUserMetadata();
     if (map1 != null) {
-      memberInfo.setUserMetadata(new LinkedHashMap<String, Object>(map1));
+      memberInfo.setUserMetadata(new LinkedHashMap<>(map1));
     }
     memberInfo.setBlocked(user.isBlocked());
     if (memberInfo.getIdentities() != null) {
