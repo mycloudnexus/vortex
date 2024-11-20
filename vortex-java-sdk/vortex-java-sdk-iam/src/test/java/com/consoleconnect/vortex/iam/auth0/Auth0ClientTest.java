@@ -1,19 +1,11 @@
 package com.consoleconnect.vortex.iam.auth0;
 
 import com.auth0.client.auth.AuthAPI;
-import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.model.Auth0Property;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@ContextConfiguration(classes = TestApplication.class)
 class Auth0ClientTest {
   private Auth0Property auth0Property;
   private Auth0Client auth0Client;
