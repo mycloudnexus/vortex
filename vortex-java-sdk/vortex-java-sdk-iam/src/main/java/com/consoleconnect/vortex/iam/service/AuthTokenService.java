@@ -14,18 +14,18 @@ public class AuthTokenService {
   private final UserContextService userContextService;
 
   public AuthToken getAuthToken(JwtAuthenticationToken jwt) {
-    UserContext userContext = userContextService.createUserContext(jwt);
+    UserContext userContext = userContextService.createUserContext(jwt, true);
 
     AuthToken authToken = new AuthToken();
     authToken.setUserId(userContext.getUserId());
     authToken.setOrgId(userContext.getOrgId());
     authToken.setMgmt(userContext.isMgmt());
-    authToken.setRoles(jwt.getAuthorities().stream().map(Object::toString).toList());
+    authToken.setRoles(userContext.getRoles());
 
     if (userContext.isMgmt()) {
-      authToken.setUserInfo(memberService.getUserInfo(authToken.getUserId()));
-    } else {
       authToken.setUserInfo(userService.getUserInfo(jwt));
+    } else {
+      authToken.setUserInfo(memberService.getUserInfo(authToken.getUserId()));
     }
     return authToken;
   }

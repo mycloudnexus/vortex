@@ -44,11 +44,12 @@ public class ResourceServerProperty {
   @Data
   public static class TrustedIssuer {
     private String issuer;
+    private String secret;
     private CustomClaims customClaims = new CustomClaims();
     private boolean mgmt = false;
     private List<String> defaultRoles = List.of();
     private String defaultOrgId;
-    private String userIdPrefix = "auth0|";
+    private String userIdPrefix;
   }
 
   @Data

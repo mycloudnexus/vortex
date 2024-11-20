@@ -1,6 +1,7 @@
 package com.consoleconnect.vortex.iam.config;
 
 import com.consoleconnect.vortex.iam.acl.MultiTenancyAuthenticationManagerResolver;
+import com.consoleconnect.vortex.iam.acl.MultiTenancyJwtDecoderFactory;
 import com.consoleconnect.vortex.iam.filter.UserContextWebFilter;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.model.ResourceServerProperty;
@@ -82,7 +83,7 @@ public class WebSecurityConfig {
                 oauth2.authenticationManagerResolver(
                     new JwtIssuerReactiveAuthenticationManagerResolver(
                         new MultiTenancyAuthenticationManagerResolver(
-                            iamProperty, userRepository))));
+                            iamProperty, userRepository, new MultiTenancyJwtDecoderFactory()))));
 
     return serverHttpSecurity
         .addFilterAfter(

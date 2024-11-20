@@ -80,7 +80,7 @@ public class UserService {
   }
 
   public User create(CreateUserDto dto, JwtAuthenticationToken token) {
-    UserContext userContext = userContextService.createUserContext(token);
+    UserContext userContext = userContextService.createUserContext(token, true);
     log.info("Creating user: {},createdBy:{}", dto, userContext.getUserId());
 
     Member member = getMemberById(userContext, dto.getUserId());
@@ -104,7 +104,7 @@ public class UserService {
   }
 
   public User update(String userId, UpdateUserDto request, JwtAuthenticationToken token) {
-    UserContext userContext = userContextService.createUserContext(token);
+    UserContext userContext = userContextService.createUserContext(token, true);
     log.info("Updating user: {},request:{},updatedBy:{}", userId, request, userContext.getUserId());
     UserEntity userEntity =
         userRepository
@@ -117,7 +117,7 @@ public class UserService {
   }
 
   public User delete(String userId, JwtAuthenticationToken token) {
-    UserContext userContext = userContextService.createUserContext(token);
+    UserContext userContext = userContextService.createUserContext(token, true);
     String deletedBy = userContext.getUserId();
     log.info("Deleting user: {},deletedBy:{}", userId, deletedBy);
     if (userId.equals(deletedBy)) {
@@ -141,7 +141,7 @@ public class UserService {
   }
 
   public User getUserInfo(String userId, JwtAuthenticationToken token) {
-    UserContext userContext = userContextService.createUserContext(token);
+    UserContext userContext = userContextService.createUserContext(token, true);
     if (userId == null) {
       userId = userContext.getUserId();
     }
@@ -167,7 +167,7 @@ public class UserService {
 
   public Paging<User> search(int page, int size, JwtAuthenticationToken token) {
 
-    final UserContext userContext = userContextService.createUserContext(token);
+    final UserContext userContext = userContextService.createUserContext(token, true);
     log.info("Searching users,page:{},size:{},searchBy:{}", page, size, userContext.getUserId());
 
     final Map<String, Member> id2Member =

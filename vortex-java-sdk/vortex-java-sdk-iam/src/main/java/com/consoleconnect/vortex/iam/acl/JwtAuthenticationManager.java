@@ -16,7 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import reactor.core.publisher.Mono;
 
@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
 
-  private final NimbusJwtDecoder jwtDecoder;
+  private final JwtDecoder jwtDecoder;
   private final ResourceServerProperty.TrustedIssuer trustedIssuer;
   private final UserRepository userRepository;
 

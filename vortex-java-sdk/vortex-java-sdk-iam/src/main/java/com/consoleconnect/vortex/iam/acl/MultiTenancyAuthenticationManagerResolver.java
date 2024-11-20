@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -18,6 +17,7 @@ public class MultiTenancyAuthenticationManagerResolver
 
   private final IamProperty iamProperty;
   private final UserRepository userRepository;
+  private final MultiTenancyJwtDecoderFactory jwtDecoderFactory;
 
   @Override
   public Mono<ReactiveAuthenticationManager> resolve(String issuer) {
@@ -33,9 +33,10 @@ public class MultiTenancyAuthenticationManagerResolver
     }
 
     log.info("found trusted token issuer for issuer:{}", issuer);
+
     return Mono.just(
         new JwtAuthenticationManager(
-            NimbusJwtDecoder.withIssuerLocation(issuer).build(),
+            jwtDecoderFactory.createDecoder(trustedTokenIssuer.get()),
             trustedTokenIssuer.get(),
             userRepository));
   }

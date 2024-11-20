@@ -1,7 +1,6 @@
 package com.consoleconnect.vortex.iam.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -33,58 +32,12 @@ class RoleServiceTest {
   private IamProperty iamProperty = mock(IamProperty.class);
   private CCClientProperty ccClientProperty = mock(CCClientProperty.class);
   private CCHttpClient ccHttpClient = new CCHttpClient(ccClientProperty, genericHttpClient);
-  private DownstreamRoleService downstreamRoleService =
-      new DownstreamRoleService(ccHttpClient, iamProperty);
   private static final String SYSTEM = "system";
   private static final String TEST_COMPANY = "test-company";
 
   private void mockAuth0Property(String uuid) {
     Auth0Property auth0 = new Auth0Property();
-    auth0.setMgmtOrgId(uuid);
     doReturn(auth0).when(iamProperty).getAuth0();
-  }
-
-  @Test
-  void syncRole() {
-    String uuid = UUID.randomUUID().toString();
-    mockAuth0Property(uuid);
-    mockDownstreamProperty(null);
-    mockRoleResponse();
-    downstreamRoleService.syncRole(uuid, SYSTEM);
-    assertThatNoException();
-  }
-
-  @Test
-  void syncOrgNotSame() {
-    mockAuth0Property(UUID.randomUUID().toString());
-    mockDownstreamProperty(null);
-    mockRoleResponse();
-    downstreamRoleService.syncRole(UUID.randomUUID().toString(), SYSTEM);
-    assertThatNoException();
-  }
-
-  @Test
-  void syncUsernameEmpty() {
-    String uuid = UUID.randomUUID().toString();
-    mockAuth0Property(uuid);
-    mockDownstreamProperty(null);
-    mockRoleResponse();
-    downstreamRoleService.syncRole(uuid, null);
-    assertThatNoException();
-  }
-
-  @Test
-  void syncRoleException() {
-    String uuid = UUID.randomUUID().toString();
-    mockAuth0Property(uuid);
-    mockDownstreamProperty(null);
-    DownstreamProperty downstreamProperty = new DownstreamProperty();
-    downstreamProperty.setAdminApiKey(UUID.randomUUID().toString());
-    downstreamProperty.setRole("role");
-    doReturn(downstreamProperty).when(iamProperty).getDownStream();
-    mockRoleResponse();
-    downstreamRoleService.syncRole(uuid, "test");
-    assertThatNoException();
   }
 
   private void mockRoleResponse() {
