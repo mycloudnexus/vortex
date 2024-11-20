@@ -453,18 +453,9 @@ public class OrganizationService {
       OrganizationsEntity organizationsEntity = managementAPI.organizations();
       Member member = findMemberById(orgId, memberId, organizationsEntity);
 
-      EnabledConnectionsPage enabledConnectionsPage =
-          organizationsEntity.getConnections(orgId, null).execute().getBody();
-      if (Objects.isNull(enabledConnectionsPage)
-          || CollectionUtils.isEmpty(enabledConnectionsPage.getItems())) {
-        throw VortexException.badRequest("No connection orgId:" + orgId);
-      }
-
+      String errorMsg = StringUtils.join("Don't support reset password orgId:", orgId);
       com.auth0.json.mgmt.organizations.Connection connection =
-          enabledConnectionsPage.getItems().get(0).getConnection();
-      if (!connection.getStrategy().equals(ConnectionStrategyEnum.AUTH0.getValue())) {
-        throw VortexException.badRequest("Don't support reset password orgId:" + orgId);
-      }
+          findAuth0Connection(orgId, organizationsEntity, errorMsg);
 
       return this.auth0Client
           .getAuthClient()
@@ -474,6 +465,23 @@ public class OrganizationService {
     } catch (Auth0Exception e) {
       throw VortexException.badRequest("Reset error:" + e.getMessage());
     }
+  }
+
+  private com.auth0.json.mgmt.organizations.Connection findAuth0Connection(
+      String orgId, OrganizationsEntity organizationsEntity, String msg) throws Auth0Exception {
+    EnabledConnectionsPage enabledConnectionsPage =
+        organizationsEntity.getConnections(orgId, null).execute().getBody();
+    if (Objects.isNull(enabledConnectionsPage)
+        || CollectionUtils.isEmpty(enabledConnectionsPage.getItems())) {
+      throw VortexException.badRequest("No connection orgId:" + orgId);
+    }
+
+    com.auth0.json.mgmt.organizations.Connection connection =
+        enabledConnectionsPage.getItems().get(0).getConnection();
+    if (!connection.getStrategy().equals(ConnectionStrategyEnum.AUTH0.getValue())) {
+      throw VortexException.badRequest(msg);
+    }
+    return connection;
   }
 
   private Member findMemberById(
@@ -521,15 +529,42 @@ public class OrganizationService {
         block,
         requestedBy);
     try {
-      ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
-      OrganizationsEntity organizationsEntity = managementAPI.organizations();
-      Member member = findMemberById(orgId, memberId, organizationsEntity);
-
-      User user = new User();
-      user.setBlocked(block);
-      return managementAPI.users().update(member.getUserId(), user).execute().getBody();
+      return updateMember(orgId, memberId, block, null);
     } catch (Auth0Exception e) {
       throw VortexException.badRequest("Block/Unblock a user error:" + e.getMessage());
     }
+  }
+
+  public User updateMemberName(String orgId, String memberId, String name, String requestedBy) {
+    log.info(
+        "updateMemberName, orgId:{}, memberId:{},name:{}, requestedBy:{}",
+        orgId,
+        memberId,
+        name,
+        requestedBy);
+    try {
+      return updateMember(orgId, memberId, null, name);
+    } catch (Auth0Exception e) {
+      throw VortexException.badRequest("Update name error:" + e.getMessage());
+    }
+  }
+
+  private User updateMember(String orgId, String memberId, Boolean block, String name)
+      throws Auth0Exception {
+    ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
+    OrganizationsEntity organizationsEntity = managementAPI.organizations();
+    Member member = findMemberById(orgId, memberId, organizationsEntity);
+
+    User user = new User();
+    if (Objects.nonNull(block)) {
+      user.setBlocked(block);
+    }
+
+    if (StringUtils.isNotBlank(name)) { // only for db-connection
+      String errorMsg = StringUtils.join("Don't support update name, orgId:", orgId);
+      findAuth0Connection(orgId, organizationsEntity, errorMsg);
+      user.setName(name);
+    }
+    return managementAPI.users().update(member.getUserId(), user).execute().getBody();
   }
 }

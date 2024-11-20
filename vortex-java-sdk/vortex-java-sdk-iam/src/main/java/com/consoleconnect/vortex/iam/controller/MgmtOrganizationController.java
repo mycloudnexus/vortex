@@ -191,4 +191,16 @@ public class MgmtOrganizationController {
         HttpResponse.ok(
             service.changeStatus(orgId, memberId, block, jwtAuthenticationToken.getName())));
   }
+
+  @Operation(summary = "Update the name of one user.")
+  @PatchMapping("/{orgId}/members/{memberId}/info")
+  public Mono<HttpResponse<User>> updateMemberName(
+      @PathVariable String orgId,
+      @PathVariable String memberId,
+      @RequestParam String name,
+      JwtAuthenticationToken jwtAuthenticationToken) {
+    return Mono.just(
+        HttpResponse.ok(
+            service.updateMemberName(orgId, memberId, name, jwtAuthenticationToken.getName())));
+  }
 }

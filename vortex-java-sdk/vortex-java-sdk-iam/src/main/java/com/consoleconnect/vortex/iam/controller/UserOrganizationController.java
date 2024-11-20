@@ -4,6 +4,7 @@ import com.auth0.json.mgmt.organizations.Invitation;
 import com.auth0.json.mgmt.organizations.Member;
 import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.roles.Role;
+import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
@@ -142,5 +143,21 @@ public class UserOrganizationController {
                   orgId, jwtAuthenticationToken.getName(), jwtAuthenticationToken.getName());
               return HttpResponse.ok(null);
             });
+  }
+
+  @Operation(summary = "Update the name of one user.")
+  @PatchMapping("/info")
+  public Mono<HttpResponse<User>> updateMemberName(
+      @RequestParam String name, JwtAuthenticationToken jwtAuthenticationToken) {
+    return userContextService
+        .getOrgId()
+        .map(
+            orgId ->
+                HttpResponse.ok(
+                    service.updateMemberName(
+                        orgId,
+                        jwtAuthenticationToken.getName(),
+                        name,
+                        jwtAuthenticationToken.getName())));
   }
 }
