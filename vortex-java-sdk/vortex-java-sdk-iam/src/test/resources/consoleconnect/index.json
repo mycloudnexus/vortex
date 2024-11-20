@@ -1,0 +1,12 @@
+[
+  {
+    "method": "GET",
+    "endpoint": "/v2/companies/{companyId}/members",
+    "data": "get_v2_companies_{companyId}_members.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/user/{username}",
+    "data": "get_api_user_{username}.json"
+  }
+]

@@ -5,7 +5,7 @@ import ch.qos.logback.classic.Logger;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.iam.config.AuthContextConstants;
-import com.consoleconnect.vortex.iam.config.ConsoleConnectAPIMockServer;
+import com.consoleconnect.vortex.iam.config.MockServerHelper;
 import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.AuthToken;
 import com.consoleconnect.vortex.iam.dto.MemberInfo;
@@ -49,6 +49,11 @@ class AuthTokenControllerTest extends AbstractIntegrationTest {
     rootLogger.setLevel(Level.DEBUG);
   }
 
+  @BeforeEach
+  void setUpEach() {
+    MockServerHelper.setupMock("consoleconnect");
+  }
+
   @Test
   void givenNoAccessToken_whenGetAuthToken_thenReturn401() {
 
@@ -62,8 +67,6 @@ class AuthTokenControllerTest extends AbstractIntegrationTest {
   @Test
   void givenMgmtAccessToken_whenGetAuthToken_thenReturnUserInfo() {
 
-    ConsoleConnectAPIMockServer.setupMock();
-
     webTestClient.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/auth/token").build(),
@@ -75,11 +78,11 @@ class AuthTokenControllerTest extends AbstractIntegrationTest {
           Assertions.assertEquals(AuthContextConstants.MGMT_USER_ID, res.getData().getUserId());
         });
 
-    ConsoleConnectAPIMockServer.verify(
+    MockServerHelper.verify(
         1,
         String.format("/v2/companies/%s/members?pageSize=0", AuthContextConstants.MGMT_COMPANY_ID),
         AuthContextConstants.MGMT_ACCESS_TOKEN);
-    ConsoleConnectAPIMockServer.verify(
+    MockServerHelper.verify(
         1,
         String.format("/api/user/%s", AuthContextConstants.MGMT_USERNAME),
         AuthContextConstants.MGMT_ACCESS_TOKEN);

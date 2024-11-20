@@ -7,7 +7,7 @@ import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.iam.config.AuthContextConstants;
-import com.consoleconnect.vortex.iam.config.ConsoleConnectAPIMockServer;
+import com.consoleconnect.vortex.iam.config.MockServerHelper;
 import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.CreateUserDto;
 import com.consoleconnect.vortex.iam.dto.UpdateUserDto;
@@ -53,7 +53,7 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
 
   @BeforeEach
   void setUpEach() {
-    ConsoleConnectAPIMockServer.setupMock();
+    MockServerHelper.setupMock("consoleconnect");
   }
 
   @Test
@@ -79,7 +79,7 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
           }
         });
 
-    ConsoleConnectAPIMockServer.verify(
+    MockServerHelper.verify(
         1,
         String.format("/v2/companies/%s/members?pageSize=0", AuthContextConstants.MGMT_COMPANY_ID),
         AuthContextConstants.MGMT_ACCESS_TOKEN);
@@ -106,11 +106,11 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
           Assertions.assertEquals(UserStatusEnum.ACTIVE, res.getData().getStatus());
         });
 
-    ConsoleConnectAPIMockServer.verify(
+    MockServerHelper.verify(
         1,
         String.format("/v2/companies/%s/members?pageSize=0", AuthContextConstants.MGMT_COMPANY_ID),
         AuthContextConstants.MGMT_ACCESS_TOKEN);
-    ConsoleConnectAPIMockServer.verify(
+    MockServerHelper.verify(
         1,
         String.format("/api/user/%s", AuthContextConstants.MGMT_USERNAME),
         AuthContextConstants.MGMT_ACCESS_TOKEN);

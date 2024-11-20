@@ -2,8 +2,8 @@ package com.consoleconnect.vortex.iam.controller;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import com.consoleconnect.vortex.iam.config.Auth0MgmtAPIMockServer;
 import com.consoleconnect.vortex.iam.config.AuthContextConstants;
+import com.consoleconnect.vortex.iam.config.MockServerHelper;
 import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
@@ -44,7 +44,7 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
 
   @BeforeEach
   void setUpEach() {
-    Auth0MgmtAPIMockServer.setupMock();
+    MockServerHelper.setupMock("auth0");
   }
 
   @Test

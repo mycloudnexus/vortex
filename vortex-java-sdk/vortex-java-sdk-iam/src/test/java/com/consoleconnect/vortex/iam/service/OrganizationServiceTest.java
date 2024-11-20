@@ -23,24 +23,30 @@ import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.model.Auth0Property;
+import com.consoleconnect.vortex.test.AbstractIntegrationTest;
+import com.consoleconnect.vortex.test.MockIntegrationTest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@ActiveProfiles("auth-hs256")
+@MockIntegrationTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ContextConfiguration(classes = TestApplication.class)
-class OrganizationServiceTest {
+// @WireMockTest(httpPort = 3031)
+@Slf4j
+class OrganizationServiceTest extends AbstractIntegrationTest {
   @Autowired OrganizationService organizationService;
   @SpyBean Auth0Client auth0Client;
   @SpyBean EmailService emailService;

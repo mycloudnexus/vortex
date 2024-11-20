@@ -11,17 +11,17 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpMethod;
 
-public class Auth0MgmtAPIMockServer {
+public class MockServerHelper {
 
   @SneakyThrows
-  public static void setupMock() {
-    String indexJson = AbstractIntegrationTest.readFileToString("auth0/index.json");
+  public static void setupMock(String mockDataPath) {
+    String indexJson = AbstractIntegrationTest.readFileToString(mockDataPath + "/index.json");
 
     List<MockData> dataList =
         JsonToolkit.fromJson(indexJson, new TypeReference<List<MockData>>() {});
     for (MockData data : dataList) {
       System.out.println(data);
-      String jsonData = AbstractIntegrationTest.readFileToString("auth0/" + data.data);
+      String jsonData = AbstractIntegrationTest.readFileToString(mockDataPath + "/" + data.data);
       WireMock.stubFor(
           WireMock.request(data.method.name(), urlPathTemplate(data.endpoint))
               .willReturn(
