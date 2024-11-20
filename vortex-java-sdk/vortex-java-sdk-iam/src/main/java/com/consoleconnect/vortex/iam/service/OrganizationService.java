@@ -535,21 +535,23 @@ public class OrganizationService {
     }
   }
 
-  public User updateMemberName(String orgId, String memberId, String name, String requestedBy) {
+  public User updateMemberInfo(
+      String orgId, String memberId, MemberInfoUpdateDto memberInfoUpdateDto, String requestedBy) {
     log.info(
-        "updateMemberName, orgId:{}, memberId:{},name:{}, requestedBy:{}",
+        "updateMemberName, orgId:{}, memberId:{}, memberInfoUpdateDto:{}, requestedBy:{}",
         orgId,
         memberId,
-        name,
+        memberInfoUpdateDto,
         requestedBy);
     try {
-      return updateMember(orgId, memberId, null, name);
+      return updateMember(orgId, memberId, null, memberInfoUpdateDto);
     } catch (Auth0Exception e) {
       throw VortexException.badRequest("Update name error:" + e.getMessage());
     }
   }
 
-  private User updateMember(String orgId, String memberId, Boolean block, String name)
+  private User updateMember(
+      String orgId, String memberId, Boolean block, MemberInfoUpdateDto memberInfoUpdateDto)
       throws Auth0Exception {
     ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
     OrganizationsEntity organizationsEntity = managementAPI.organizations();
@@ -560,10 +562,14 @@ public class OrganizationService {
       user.setBlocked(block);
     }
 
-    if (StringUtils.isNotBlank(name)) { // only for db-connection
+    if (Objects.nonNull(memberInfoUpdateDto)) { // only for db-connection
       String errorMsg = StringUtils.join("Don't support update name, orgId:", orgId);
       findAuth0Connection(orgId, organizationsEntity, errorMsg);
-      user.setName(name);
+      user.setGivenName(memberInfoUpdateDto.getGivenName());
+      user.setFamilyName(memberInfoUpdateDto.getFamilyName());
+      user.setName(
+          StringUtils.join(
+              memberInfoUpdateDto.getGivenName(), " ", memberInfoUpdateDto.getFamilyName()));
     }
     return managementAPI.users().update(member.getUserId(), user).execute().getBody();
   }

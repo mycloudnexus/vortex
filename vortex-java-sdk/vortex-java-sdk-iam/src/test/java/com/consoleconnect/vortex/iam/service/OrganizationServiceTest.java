@@ -1142,8 +1142,10 @@ class OrganizationServiceTest {
   @Test
   void test_updateMemberName() throws Auth0Exception {
     String userName = "test-username";
+    MemberInfoUpdateDto memberInfoUpdateDto = new MemberInfoUpdateDto();
     String userId = mockExistedOrgUser(userName);
-    User user = organizationService.updateMemberName(SYSTEM, userId, userName, "request-123");
+    User user =
+        organizationService.updateMemberInfo(SYSTEM, userId, memberInfoUpdateDto, "request-123");
     assertEquals(userName, user.getName());
   }
 
