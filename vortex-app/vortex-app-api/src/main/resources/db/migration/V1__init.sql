@@ -1,5 +1,3 @@
-ALTER TABLE vortex_order DROP COLUMN resource_type;
-
 DO $$
 BEGIN
   IF EXISTS(SELECT *
