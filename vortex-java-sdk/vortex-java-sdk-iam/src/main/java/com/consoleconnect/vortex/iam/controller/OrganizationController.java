@@ -7,7 +7,6 @@ import com.auth0.json.mgmt.roles.Role;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
-import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
 import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
@@ -49,18 +48,6 @@ public class OrganizationController {
         .map(orgId -> HttpResponse.ok(service.listConnections(orgId, page, size)));
   }
 
-  @Operation(summary = "Setup a connection")
-  @PostMapping("/connections")
-  public Mono<HttpResponse<OrganizationConnection>> createConnection(
-      @RequestBody CreateConnectionDto request, JwtAuthenticationToken authenticationToken) {
-    return userContextService
-        .getOrgId()
-        .map(
-            orgId ->
-                HttpResponse.ok(
-                    service.createConnection(orgId, request, authenticationToken.getName())));
-  }
-
   @Operation(summary = "List all invitations")
   @GetMapping("/invitations")
   public Mono<HttpResponse<Paging<Invitation>>> listInvitations(
@@ -91,20 +78,6 @@ public class OrganizationController {
     return userContextService
         .getOrgId()
         .map(orgId -> HttpResponse.ok(service.getInvitationById(orgId, invitationId)));
-  }
-
-  @Operation(summary = "Delete an invitation by id")
-  @DeleteMapping("/invitations/{invitationId}")
-  public Mono<HttpResponse<Void>> delete(
-      @PathVariable String invitationId, JwtAuthenticationToken jwtAuthenticationToken) {
-
-    return userContextService
-        .getOrgId()
-        .map(
-            orgId -> {
-              service.revokeInvitation(orgId, invitationId, jwtAuthenticationToken.getName());
-              return HttpResponse.ok(null);
-            });
   }
 
   @Operation(summary = "List all members")
