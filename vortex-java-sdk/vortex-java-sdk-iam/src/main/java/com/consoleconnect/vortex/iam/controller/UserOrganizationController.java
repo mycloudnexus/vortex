@@ -102,7 +102,7 @@ public class UserOrganizationController {
         .getOrgId()
         .map(
             orgId -> {
-              service.deleteInvitation(orgId, invitationId, jwtAuthenticationToken.getName());
+              service.revokeInvitation(orgId, invitationId, jwtAuthenticationToken.getName());
               return HttpResponse.ok(null);
             });
   }
@@ -129,5 +129,18 @@ public class UserOrganizationController {
     return userContextService
         .getOrgId()
         .map(orgId -> HttpResponse.ok(service.listRoles(orgId, page, size)));
+  }
+
+  @Operation(summary = "Trigger resetting a user's password")
+  @PostMapping("/reset-password")
+  public Mono<HttpResponse<Void>> resetPassword(JwtAuthenticationToken jwtAuthenticationToken) {
+    return userContextService
+        .getOrgId()
+        .map(
+            orgId -> {
+              service.resetPassword(
+                  orgId, jwtAuthenticationToken.getName(), jwtAuthenticationToken.getName());
+              return HttpResponse.ok(null);
+            });
   }
 }
