@@ -4,7 +4,6 @@ import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
-import com.consoleconnect.vortex.iam.model.UserContext;
 import java.nio.charset.StandardCharsets;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +21,8 @@ public class DefaultCreateResourceOrderTransformer extends AbstractResourceTrans
   public byte[] doTransform(
       ServerWebExchange exchange,
       byte[] responseBody,
-      UserContext userContext,
+      String customerId,
       TransformerApiProperty config) {
-
-    String orgId = userContext.getCustomerId();
 
     String response = new String(responseBody, StandardCharsets.UTF_8);
 
@@ -41,8 +38,7 @@ public class DefaultCreateResourceOrderTransformer extends AbstractResourceTrans
       orderId = resourceInstanceId;
       resourceInstanceId = null;
     }
-
-    orderService.createOrder(orgId, orderId, config.getResourceType(), resourceInstanceId);
+    orderService.createOrder(customerId, orderId, config.getResourceType(), resourceInstanceId);
     return responseBody;
   }
 

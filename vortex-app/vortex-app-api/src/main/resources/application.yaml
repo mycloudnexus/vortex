@@ -47,7 +47,7 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins: ${app.gateway.cors.allowed-origins}
+            allowedOrigins: ${GATEWAY_CORS_ALLOWED_ORIGINS:*}
             allowedHeaders: "*"
             allowedMethods:
               - GET
@@ -57,17 +57,12 @@ spring:
               - OPTIONS
       routes:
         - id: downstream-api
-          uri: ${app.gateway.downstream.base-url}
+          uri: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3001}
           predicates:
-            - Path=${app.gateway.downstream.path-prefix}/**
+            - Path=${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}/**
           filters:
-            - RewritePath=${app.gateway.downstream.path-prefix}/(?<path>.*), /$\{path}
-            - RemoveRequestHeader=Authorization
+            - RewritePath=${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}/(?<path>.*), /$\{path}
             - name: SetAPIKey
-              args:
-                keyName: Authorization
-                adminKey: Bearer ${app.gateway.downstream.admin-api-key}
-                userKey: Bearer ${app.gateway.downstream.user-api-key}
 management:
   endpoint:
     health:
@@ -118,13 +113,12 @@ app:
   iam:
     auth0:
       mgmt-api:
-        domain: ${IAM_AUTH0_MGMT_API_DOMAIN:consoleconnect.auth0.com}
+        domain: ${IAM_AUTH0_MGMT_API_DOMAIN:http://localhost:3032}
         client-id: ${IAM_AUTH0_MGMT_API_CLIENT_ID:mgmt-api-client-id}
         client-secret: ${IAM_AUTH0_MGMT_API_CLIENT_SECRET:mgmt-api-client-secret}
-        audience: ${IAM_AUTH0_MGMT_API_AUDIENCE:https://partner.consoleconnect.com/api}
+        audience: ${IAM_AUTH0_MGMT_API_AUDIENCE:http://localhost:3032/api}
       app:
         client-id: ${IAM_AUTH0_APP_CLIENT_ID:app-client-id}
-      mgmt-org-id: ${IAM_AUTH0_MGMT_ORG_ID:}
     email:
       enabled: ${IAM_EMAIL_ENABLED:false}
       provider: ${IAM_EMAIL_PROVIDER:sendgrid}
@@ -137,11 +131,14 @@ app:
           invite-org-member: ${SENDGRID_TEMPLATE_ID_ORG_INVITE:}
     resource-server:
       trusted-issuers:
-        - issuer: ${IAM_RESOURCE_SERVER_TRUSTED_ISSUER_MGMT:https://login.consoleconnect.com/}
+        - issuer: ${IAM_MGMT_TOKEN_ISSUER_URI:https://login.consoleconnect.com/}
           mgmt: true
+          user-id-prefix: ${IAM_MGMT_TOKEN_ISSUER_USER_ID_PREFIX:auth0|}
           default-roles:
             - PLATFORM_ADMIN
-        - issuer: ${IAM_RESOURCE_SERVER_TRUSTED_ISSUER_CUSTOMER:https://vortex.au.auth0.com/}
+          default-org-id: ${IAM_MGMT_TOKEN_ISSUER_ORG_ID:65a4f18aec61ae42ae9606dfx0000}
+        - issuer: ${IAM_CUSTOMER_TOKEN_ISSUER_URI:https://vortex-dev.au.auth0.com/}
+          mgmt: false
           default-roles:
             - ORG_MEMBER
       path-permissions:
@@ -172,21 +169,10 @@ app:
             - ORG_ADMIN
             - ORG_MEMBER
     downstream:
-      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
+      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3001}
       api-key-name: Authorization
-      admin-api-key: Bearer ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
-      user-api-key: Bearer ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
-      role: ${IAM_DOWN_STREAM_VORTEX_ROLE:VORTEX_ADMIN}
-      company-username: ${IAM_DOWN_STREAM_COMPANY_USERNAME:test}
-      role-endpoint: ${IAM_DOWN_STREAM_ROLE_PATH:/api/company/%s/memberships/%s/roles/%s}
-      company-id: ${IAM_DOWN_STREAM_COMPANY_ID:65a4f18aec61ae42ae9606dfx0000}
-    platform-admins:
-      - 5ec4d3765cf0a1001486b95d
-  gateway:
-    cors:
-      allowed-origins: ${GATEWAY_CORS_ALLOWED_ORIGINS:*}
-    downstream:
-      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
-      path-prefix: ${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}
-      admin-api-key: ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
       user-api-key: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
+      company:
+        id: ${GATEWAY_DOWN_STREAM_COMPANY_ID:company-uuid}
+        username: ${GATEWAY_DOWN_STREAM_COMPANY_USERNAME:company-unique-key}
+        admin-user-id: ${GATEWAY_DOWN_STREAM_COMPANY_ADMIN_USER_ID:company-admin-uuid}

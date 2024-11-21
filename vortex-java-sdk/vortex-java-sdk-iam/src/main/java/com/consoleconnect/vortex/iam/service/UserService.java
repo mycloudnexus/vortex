@@ -2,7 +2,6 @@ package com.consoleconnect.vortex.iam.service;
 
 import com.auth0.json.mgmt.organizations.Invitation;
 import com.consoleconnect.vortex.cc.ConsoleConnectClient;
-import com.consoleconnect.vortex.cc.ConsoleConnectClientFactory;
 import com.consoleconnect.vortex.cc.model.Member;
 import com.consoleconnect.vortex.cc.model.UserInfo;
 import com.consoleconnect.vortex.core.exception.VortexException;
@@ -44,28 +43,27 @@ public class UserService {
   @Transactional
   @PostConstruct
   public void initialize() {
-    log.info("UserService initialized");
+    log.info("Initializing default platform admin");
 
-    if (userRepository.count() > 0) {
-      log.info("UserRepository already initialized");
-      return;
+    if (iamProperty.getDownStream() != null
+        && iamProperty.getDownStream().getCompany() != null
+        && iamProperty.getDownStream().getCompany().getAdminUserId() != null) {
+
+      String userId = iamProperty.getDownStream().getCompany().getAdminUserId();
+      userRepository
+          .findOneByUserId(userId)
+          .ifPresentOrElse(
+              userEntity -> log.info("Platform Admin already exists"),
+              () -> {
+                log.info("Creating Platform Admin,userId:{}", userId);
+                UserEntity userEntity = new UserEntity();
+                userEntity.setUserId(userId);
+                userEntity.setStatus(UserStatusEnum.ACTIVE);
+                userEntity.setRoles(List.of(RoleEnum.PLATFORM_ADMIN.toString()));
+                userRepository.save(userEntity);
+                log.info("Platform Admin created,userId:{}", userId);
+              });
     }
-
-    if (iamProperty.getPlatformAdmins() != null) {
-      for (String userId : iamProperty.getPlatformAdmins()) {
-        log.info("platform Admin: {}", userId);
-        UserEntity userEntity = new UserEntity();
-        userEntity.setUserId(userId);
-        userEntity.setStatus(UserStatusEnum.ACTIVE);
-        userEntity.setRoles(List.of(RoleEnum.PLATFORM_ADMIN.toString()));
-        userRepository.save(userEntity);
-      }
-    }
-  }
-
-  public ConsoleConnectClient createClient(String bearerToken) {
-    return ConsoleConnectClientFactory.create(
-        iamProperty.getDownStream().getBaseUrl(), bearerToken);
   }
 
   private Member getMemberById(UserContext userContext, String userId) {
@@ -82,7 +80,7 @@ public class UserService {
   }
 
   public User create(CreateUserDto dto, JwtAuthenticationToken token) {
-    UserContext userContext = userContextService.createUserContext(token, true);
+    UserContext userContext = userContextService.createUserContext(token);
     log.info("Creating user: {},createdBy:{}", dto, userContext.getUserId());
 
     Member member = getMemberById(userContext, dto.getUserId());
@@ -107,7 +105,7 @@ public class UserService {
   }
 
   public User update(String userId, UpdateUserDto request, JwtAuthenticationToken token) {
-    UserContext userContext = userContextService.createUserContext(token, true);
+    UserContext userContext = userContextService.createUserContext(token);
     log.info("Updating user: {},request:{},updatedBy:{}", userId, request, userContext.getUserId());
     UserEntity userEntity =
         userRepository
@@ -120,7 +118,7 @@ public class UserService {
   }
 
   public User delete(String userId, JwtAuthenticationToken token) {
-    UserContext userContext = userContextService.createUserContext(token, true);
+    UserContext userContext = userContextService.createUserContext(token);
     String deletedBy = userContext.getUserId();
     log.info("Deleting user: {},deletedBy:{}", userId, deletedBy);
     if (userId.equals(deletedBy)) {
@@ -144,7 +142,7 @@ public class UserService {
   }
 
   public User getUserInfo(String userId, JwtAuthenticationToken token) {
-    UserContext userContext = userContextService.createUserContext(token, true);
+    UserContext userContext = userContextService.createUserContext(token);
     if (userId == null) {
       userId = userContext.getUserId();
     }
@@ -170,7 +168,7 @@ public class UserService {
 
   public Paging<User> search(int page, int size, JwtAuthenticationToken token) {
 
-    final UserContext userContext = userContextService.createUserContext(token, true);
+    final UserContext userContext = userContextService.createUserContext(token);
     log.info("Searching users,page:{},size:{},searchBy:{}", page, size, userContext.getUserId());
 
     final Map<String, Member> id2Member =

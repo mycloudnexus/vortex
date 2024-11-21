@@ -1,0 +1,55 @@
+---
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: test-api
+          uri: ${app.iam.downstream.base-url}
+          predicates:
+            - Path=/test/**
+          filters:
+            - RewritePath=/test/(?<path>.*), /$\{path}
+            - name: SetAPIKey
+            - name: ResponseBodyTransformer
+              args:
+                apis:
+                  - http-method: PUT
+                    http-path: /test/api/do
+                    transformer: resource.create
+                    resource-type: PORT
+                    resource-instance-id-path: id
+                    response-body-path: $
+                  - http-method: PUT
+                    http-path: /test/api2/do
+                    transformer: resource.create
+                    resource-type: L2
+                  - http-method: GET
+                    http-path: /test/api/do
+                    transformer: resource.list
+                    resource-type: PORT
+                    resource-instance-id-path: id
+                    response-body-path: $.results
+app:
+  iam:
+    resource-server:
+      trusted-issuers:
+        - issuer: https://vortex-mgmt.vortex-unit-test.com/
+          secret: Indisputably-Engaging-Roadway-70
+          mgmt: true
+          user-id-prefix: auth0|
+          default-roles:
+            - PLATFORM_ADMIN
+          default-org-id: 65a4f18aec61ae42ae9606dfx0000
+        - issuer: https://vortex-customer.vortex-unit-test.com/
+          secret: Indisputably-Engaging-Roadway-70
+          default-roles:
+            - ORG_MEMBER
+          mgmt: false
+    downstream:
+      base-url: http://localhost:3031
+      api-key-name: Authorization
+      user-api-key: api-key-has-readonly-role
+      company-username: test-company
+      company-id: 65a4f18aec61ae42ae9606dfx0000
+    platform-admins:
+      - 5d773f33c7e294000b763af6

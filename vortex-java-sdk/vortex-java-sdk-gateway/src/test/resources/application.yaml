@@ -3,6 +3,10 @@ server:
   port: ${port:8000}
 
 spring:
+  main:
+    web-application-type: reactive
+  codec:
+    max-in-memory-size: 500KB
   application:
     name: "@project.artifactId@"
     description: "@project.name@"
@@ -12,14 +16,11 @@ spring:
     default-property-inclusion: NON_NULL
     deserialization:
       fail-on-unknown-properties: false
-  data:
-    rest:
-      detection-strategy: ANNOTATED
   datasource:
     driverClassName: org.postgresql.Driver
-    #    password: ${DB_PASSWORD}
-    #    url: ${DB_URL}
-    #    username: ${DB_USERNAME}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/vortex}
+    username: ${DB_USERNAME:postgresql}
+    password: ${DB_PASSWORD:password}
     hikari:
       pool-name: hikari-platform-service-platform
       connection-test-query: SELECT 1
@@ -39,60 +40,6 @@ spring:
   flyway:
     baseline-on-migrate: true
     enabled: false
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${app.iam.jwt.issuer-uri}
-          jwk-set-uri: ${app.iam.jwt.jwk-set-uri}
-          audiences: ${app.iam.jwt.audience}
-  cloud:
-    gateway:
-      routes:
-        - id: test-api
-          uri: ${app.gateway.test.base-url}
-          predicates:
-            - Path=/test/**
-          filters:
-            - RewritePath=/test/(?<path>.*), /$\{path}
-            - RemoveRequestHeader=Authorization
-            - name: SetAPIKey
-              args:
-                keyName: Authorization
-                adminKey: Bearer ${app.gateway.test.admin-api-key}
-                userKey: Bearer ${app.gateway.test.user-api-key}
-            - name: ResponseBodyTransformer
-              args:
-                apis:
-                  - http-method: PUT
-                    http-path: /test/api/do
-                    transformer: resource.create
-                    resource-type: PORT
-                    resource-instance-id-path: id
-                    response-body-path: $
-                  - http-method: PUT
-                    http-path: /test/api2/do
-                    transformer: resource.create
-                    resource-type: L2
-                  - http-method: GET
-                    http-path: /test/api/do
-                    transformer: resource.list
-                    resource-type: PORT
-                    resource-instance-id-path: id
-                    response-body-path: $.results
-
-        - id: downstream-api
-          uri: ${app.gateway.downstream.base-url}
-          predicates:
-            - Path=/downstream/**
-          filters:
-            - RewritePath=/downstream/(?<path>.*), /$\{path}
-            - RemoveRequestHeader=Authorization
-            - name: SetAPIKey
-              args:
-                keyName: Authorization
-                adminKey: Bearer ${app.gateway.downstream.admin-api-key}
-                userKey: Bearer ${app.gateway.downstream.user-api-key}
 management:
   endpoint:
     health:
@@ -129,37 +76,27 @@ logging:
   level:
     com.consoleconnect.vortex: DEBUG
     org.springframework.security: DEBUG
-    org.springframework.cloud.gateway: DEBUG
 
 app:
   iam:
-    jwt:
-      issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
-      audience: ${IAM_JWT_AUDIENCES:https://partner.consoleconnect.com/api}
-      jwk-set-uri: ${IAM_JWT_JWK_SET_URI:http://localhost:8000/.well-known/jwks.json}
-      custom-claims:
-        orgId: ${IAM_JWT_CUSTOM_CLAIMS_ORG_ID:org_id}
-        roles: ${IAM_JWT_CUSTOM_CLAIMS_ROLES:org_roles}
-        permissions: ${IAM_JWT_CUSTOM_CLAIMS_PERMISSIONS:permissions}
     auth0:
       mgmt-api:
-        domain: ${IAM_AUTH0_MGMT_API_DOMAIN:consoleconnect.auth0.com}
-        client-id: ${IAM_AUTH0_MGMT_API_CLIENT_ID:mgmt-api-client-id}
-        client-secret: ${IAM_AUTH0_MGMT_API_CLIENT_SECRET:mgmt-api-client-secret}
-        audience: ${IAM_AUTH0_MGMT_API_AUDIENCE:https://partner.consoleconnect.com/api}
+        domain: http://localhost:3032
+        client-id: :mgmt-api-client-id
+        client-secret: :mgmt-api-client-secret
+        audience: https://partner.consoleconnect.com/api
       app:
-        client-id: ${IAM_AUTH0_APP_CLIENT_ID:app-client-id}
-      mgmt-org-id: ${IAM_AUTH0_MGMT_ORG_ID:}
+        client-id: app-client-id
     email:
-      enabled: ${IAM_EMAIL_ENABLED:false}
-      provider: ${IAM_EMAIL_PROVIDER:sendgrid}
+      enabled: false
+      provider: sendgrid
       send-grid:
-        api-key: ${SENDGRID_API_KEY:}
+        api-key: send-grid-api-key
         from:
-          name: ${SENDGRID_FROM_NAME:}
-          email: ${SENDGRID_FROM_EMAIL:}
+          name: from-name
+          email: fake@fake.com
         templates:
-          invite-org-member: ${SENDGRID_TEMPLATE_ID_ORG_INVITE:}
+          invite-org-member: template-uuid
     resource-server:
       path-permissions:
         - path: /mgmt/**
@@ -188,21 +125,3 @@ app:
           roles:
             - ORG_ADMIN
             - ORG_MEMBER
-    downstream:
-      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
-      api-key-name: Authorization
-      admin-api-key: Bearer ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
-      user-api-key: Bearer ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
-      role: ${IAM_DOWN_STREAM_VORTEX_ROLE:VORTEX_ADMIN}
-      company-username: ${IAM_DOWN_STREAM_COMPANY_USERNAME:test}
-      company-id: ${IAM_DOWN_STREAM_COMPANY_ID:65a4f18aec61ae42ae9606dfx0000}
-  gateway:
-    test:
-      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:https://api.consoleconnect.com}
-      admin-api-key: ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
-      user-api-key: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
-      company-name: consolecore-poping-company
-    downstream:
-      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
-      admin-api-key: ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
-      user-api-key: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}

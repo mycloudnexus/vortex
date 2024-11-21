@@ -14,7 +14,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserContext {
-  private String subject;
   private String userId;
   private String orgId;
   private boolean mgmt;

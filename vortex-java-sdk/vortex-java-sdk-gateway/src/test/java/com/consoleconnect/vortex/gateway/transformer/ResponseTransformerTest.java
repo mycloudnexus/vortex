@@ -5,9 +5,9 @@ import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.repo.OrderRepository;
 import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.iam.model.IamConstants;
-import com.consoleconnect.vortex.iam.model.UserContext;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.support.DefaultServerCodecConfigurer;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.adapter.DefaultServerWebExchange;
 import org.springframework.web.server.i18n.FixedLocaleContextResolver;
@@ -30,6 +31,7 @@ import org.springframework.web.server.session.DefaultWebSessionManager;
 @Slf4j
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @MockIntegrationTest
+@ActiveProfiles("auth-hs256")
 class ResponseTransformerTest extends AbstractIntegrationTest {
 
   @Autowired private DefaultCreateResourceOrderTransformer orderTransformer;
@@ -39,14 +41,14 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
 
   @SpyBean private OrderRepository orderRepository;
 
-  private UserContext userContext;
   private ServerWebExchange exchange;
   private MockServerHttpResponse response;
 
+  private final String customerId = UUID.randomUUID().toString();
+  private final String accessToken = UUID.randomUUID().toString();
+
   @BeforeEach
   void setUp() {
-    userContext = new UserContext();
-    userContext.setCustomerId("orgId");
 
     response = new MockServerHttpResponse();
     response.setStatusCode(HttpStatus.OK);
@@ -64,7 +66,8 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
             new DefaultServerCodecConfigurer(),
             new FixedLocaleContextResolver());
 
-    exchange.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
+    exchange.getAttributes().put(IamConstants.X_VORTEX_CUSTOMER_ID, customerId);
+    exchange.getAttributes().put(IamConstants.X_VORTEX_BEARER_TOKEN, accessToken);
 
     TransformerApiProperty config = new TransformerApiProperty();
     config.setHttpMethod(HttpMethod.PUT);
@@ -74,7 +77,7 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
 
     orderTransformer.getTransformerId();
     byte[] resBytes = "{\"id\":\"orderId\"}".getBytes();
-    byte[] ret = orderTransformer.doTransform(exchange, resBytes, userContext, config);
+    byte[] ret = orderTransformer.doTransform(exchange, resBytes, customerId, config);
     Assertions.assertNotNull(ret);
   }
 
@@ -92,7 +95,8 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
             new DefaultWebSessionManager(),
             new DefaultServerCodecConfigurer(),
             new FixedLocaleContextResolver());
-    exchange.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
+    exchange.getAttributes().put(IamConstants.X_VORTEX_CUSTOMER_ID, customerId);
+    exchange.getAttributes().put(IamConstants.X_VORTEX_BEARER_TOKEN, accessToken);
 
     TransformerApiProperty config = new TransformerApiProperty();
     config.setHttpMethod(HttpMethod.GET);
@@ -105,7 +109,7 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
         "{\"results\": [{\"id\":\"orderId\", \"createdPortId\":\"portId\"},{\"id\":\"orderId2\"}]}"
             .getBytes();
     orderTransformer.getTransformerId();
-    byte[] ret = portOrderListTransformer.doTransform(exchange, resBytes, userContext, config);
+    byte[] ret = portOrderListTransformer.doTransform(exchange, resBytes, customerId, config);
     Assertions.assertNotNull(ret);
   }
 
@@ -122,7 +126,8 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
             new DefaultServerCodecConfigurer(),
             new FixedLocaleContextResolver());
 
-    exchange.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
+    exchange.getAttributes().put(IamConstants.X_VORTEX_CUSTOMER_ID, customerId);
+    exchange.getAttributes().put(IamConstants.X_VORTEX_BEARER_TOKEN, accessToken);
 
     TransformerApiProperty config = new TransformerApiProperty();
     config.setHttpMethod(HttpMethod.GET);
@@ -134,7 +139,7 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
     byte[] resBytes =
         "{\"results\": [{\"id\":\"portId\", \"status\":\"ACTIVE\"}, {\"id\":\"portId2\", \"status\":\"ACTIVE\"}]}"
             .getBytes();
-    byte[] ret = listTransformer.doTransform(exchange, resBytes, userContext, config);
+    byte[] ret = listTransformer.doTransform(exchange, resBytes, customerId, config);
     Assertions.assertNotNull(ret);
   }
 }

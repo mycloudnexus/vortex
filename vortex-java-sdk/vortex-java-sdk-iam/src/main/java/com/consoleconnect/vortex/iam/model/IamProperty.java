@@ -1,6 +1,5 @@
 package com.consoleconnect.vortex.iam.model;
 
-import java.util.List;
 import lombok.Data;
 
 @Data
@@ -9,6 +8,4 @@ public class IamProperty {
   private ResourceServerProperty resourceServer;
   private EmailProperty email;
   private DownstreamProperty downStream;
-
-  private List<String> platformAdmins;
 }

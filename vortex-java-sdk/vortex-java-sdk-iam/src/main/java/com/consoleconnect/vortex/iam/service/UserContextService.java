@@ -23,13 +23,7 @@ public class UserContextService {
   public static final String ANONYMOUS = "anonymous";
 
   public UserContext createUserContext(JwtAuthenticationToken jwtAuthenticationToken) {
-    return createUserContext(jwtAuthenticationToken, false);
-  }
-
-  public UserContext createUserContext(
-      JwtAuthenticationToken jwtAuthenticationToken, boolean detailsIncluded) {
     UserContext userContext = new UserContext();
-    userContext.setSubject(jwtAuthenticationToken.getToken().getSubject());
     userContext.setUserId(jwtAuthenticationToken.getName());
 
     String issuer = jwtAuthenticationToken.getToken().getIssuer().toString();
@@ -63,18 +57,18 @@ public class UserContextService {
     if (trustedIssuer.getUserIdPrefix() != null) {
       userContext.setUserId(userContext.getUserId().replace(trustedIssuer.getUserIdPrefix(), ""));
     }
-    if (detailsIncluded) {
-      userContext.setTrustedIssuer(trustedIssuer);
-      userContext.setApiServer(iamProperty.getDownStream().getBaseUrl());
-      if (trustedIssuer.isMgmt()) {
-        userContext.setApiAccessToken(jwtAuthenticationToken.getToken().getTokenValue());
-      } else {
-        userContext.setApiAccessToken(iamProperty.getDownStream().getUserApiKey());
-      }
 
-      userContext.setRoles(
-          jwtAuthenticationToken.getAuthorities().stream().map(Object::toString).toList());
+    userContext.setTrustedIssuer(trustedIssuer);
+    userContext.setApiServer(iamProperty.getDownStream().getBaseUrl());
+    if (trustedIssuer.isMgmt()) {
+      userContext.setApiAccessToken(jwtAuthenticationToken.getToken().getTokenValue());
+    } else {
+      userContext.setApiAccessToken(iamProperty.getDownStream().getUserApiKey());
     }
+
+    userContext.setRoles(
+        jwtAuthenticationToken.getAuthorities().stream().map(Object::toString).toList());
+
     return userContext;
   }
 

@@ -41,17 +41,23 @@ public class UserContextWebFilter implements WebFilter, Ordered {
                   && exchange
                       .getRequest()
                       .getHeaders()
-                      .containsKey(IamConstants.X_VORTEX_CUSTOMER_ORG_ID)) {
+                      .containsKey(IamConstants.X_VORTEX_CUSTOMER_ID)) {
                 // customerId can be customized by the client in the header
                 customerId =
-                    exchange
-                        .getRequest()
-                        .getHeaders()
-                        .getFirst(IamConstants.X_VORTEX_CUSTOMER_ORG_ID);
+                    exchange.getRequest().getHeaders().getFirst(IamConstants.X_VORTEX_CUSTOMER_ID);
               }
               userContext.setCustomerId(customerId);
               log.info("user context:{}", userContext);
-              exchange.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
+              exchange.getAttributes().put(IamConstants.X_VORTEX_USER_ID, userContext.getUserId());
+              exchange
+                  .getAttributes()
+                  .put(IamConstants.X_VORTEX_USER_ORG_ID, userContext.getOrgId());
+              exchange
+                  .getAttributes()
+                  .put(IamConstants.X_VORTEX_CUSTOMER_ID, userContext.getCustomerId());
+              exchange
+                  .getAttributes()
+                  .put(IamConstants.X_VORTEX_BEARER_TOKEN, userContext.getApiAccessToken());
               return Mono.just(jwtAuthenticationToken);
             })
         .then(chain.filter(exchange));

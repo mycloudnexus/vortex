@@ -1,94 +1,6 @@
 ---
-server:
-  port: ${port:8000}
-
-spring:
-  main:
-    web-application-type: reactive
-  codec:
-    max-in-memory-size: 500KB
-  application:
-    name: "@project.artifactId@"
-    description: "@project.name@"
-  build:
-    version: "@project.version@"
-  jackson:
-    default-property-inclusion: NON_NULL
-    deserialization:
-      fail-on-unknown-properties: false
-  datasource:
-    driverClassName: org.postgresql.Driver
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/vortex}
-    username: ${DB_USERNAME:postgresql}
-    password: ${DB_PASSWORD:password}
-    hikari:
-      pool-name: hikari-platform-service-platform
-      connection-test-query: SELECT 1
-      maximum-pool-size: 2
-      max-lifetime: 600000
-      connection-timeout: 60000
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
-    database: POSTGRESQL
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        jdbc:
-          time_zone: UTC
-  flyway:
-    baseline-on-migrate: true
-    enabled: false
-management:
-  endpoint:
-    health:
-      show-details: ALWAYS
-  endpoints:
-    web:
-      base-path: /actuator
-      exposure:
-        include: health,info,prometheus
-info:
-  app:
-    encoding: "@project.build.sourceEncoding@"
-    java:
-      source: "@java.version@"
-      target: "@java.version@"
-
-springdoc:
-  show-actuator: true
-  api-docs:
-    enabled: true
-    path: /v3/api-docs
-  swagger-ui:
-    enabled: true
-    path: /swagger-ui.html
-    supported-submit-methods: [ "get", "post", "patch", "delete" ]
-    config-url: /v3/api-docs/swagger-config
-    urls:
-      - url: /v3/api-docs
-        name: Vortex API
-  servers:
-    - url: http://localhost:8000
-      description: localhost
-logging:
-  level:
-    com.consoleconnect.vortex: DEBUG
-    org.springframework.security: DEBUG
-
 app:
   iam:
-    auth0:
-      mgmt-api:
-        domain: http://localhost:3032
-        client-id: :mgmt-api-client-id
-        client-secret: :mgmt-api-client-secret
-        audience: https://partner.consoleconnect.com/api
-      app:
-        client-id: app-client-id
-    email:
-      enabled: false
     resource-server:
       trusted-issuers:
         - issuer: https://vortex-mgmt.vortex-unit-test.com/
@@ -107,7 +19,7 @@ app:
       base-url: http://localhost:3031
       api-key-name: Authorization
       user-api-key: api-key-has-readonly-role
-      company-username: test-company
-      company-id: 65a4f18aec61ae42ae9606dfx0000
-    platform-admins:
-      - 5d773f33c7e294000b763af6
+      company:
+        id: 65a4f18aec61ae42ae9606dfx0000
+        username: test-company
+        admin-user-id: 5d773f33c7e294000b763af6

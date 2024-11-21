@@ -5,10 +5,15 @@ import lombok.Data;
 @Data
 public class DownstreamProperty {
   private String baseUrl;
-  private String apiKeyName;
-  private String adminApiKey;
+  private String apiKeyName = "Authorization";
   private String userApiKey;
-  private String role;
-  private String companyUsername;
-  private String companyId;
+
+  private Company company;
+
+  @Data
+  public static class Company {
+    private String id;
+    private String username;
+    private String adminUserId;
+  }
 }

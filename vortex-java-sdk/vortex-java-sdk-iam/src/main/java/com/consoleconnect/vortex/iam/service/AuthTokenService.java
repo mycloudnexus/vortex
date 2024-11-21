@@ -14,7 +14,7 @@ public class AuthTokenService {
   private final UserContextService userContextService;
 
   public AuthToken getAuthToken(JwtAuthenticationToken jwt) {
-    UserContext userContext = userContextService.createUserContext(jwt, true);
+    UserContext userContext = userContextService.createUserContext(jwt);
 
     AuthToken authToken = new AuthToken();
     authToken.setUserId(userContext.getUserId());

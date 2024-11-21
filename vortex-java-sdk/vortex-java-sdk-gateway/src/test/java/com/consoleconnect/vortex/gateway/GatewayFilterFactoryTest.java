@@ -8,7 +8,6 @@ import com.consoleconnect.vortex.gateway.filter.MefAPIHeaderGatewayFilterFactory
 import com.consoleconnect.vortex.gateway.filter.ResponseBodyTransformerGatewayFilterFactory;
 import com.consoleconnect.vortex.gateway.transformer.AbstractResourceTransformer;
 import com.consoleconnect.vortex.iam.model.IamConstants;
-import com.consoleconnect.vortex.iam.model.UserContext;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
 import java.util.ArrayList;
@@ -31,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.support.DefaultServerCodecConfigurer;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.adapter.DefaultServerWebExchange;
 import org.springframework.web.server.i18n.FixedLocaleContextResolver;
@@ -41,6 +41,7 @@ import reactor.test.StepVerifier;
 
 @Slf4j
 @MockIntegrationTest
+@ActiveProfiles("auth-hs256")
 class GatewayFilterFactoryTest extends AbstractIntegrationTest {
 
   byte[] resBytes =
@@ -91,9 +92,7 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
             new DefaultServerCodecConfigurer(),
             new FixedLocaleContextResolver());
 
-    UserContext userContext = new UserContext();
-    userContext.setCustomerId("orgId");
-    exchange.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
+    exchange.getAttributes().put(IamConstants.X_VORTEX_CUSTOMER_ID, "org");
 
     chain = Mockito.mock(GatewayFilterChain.class);
 
