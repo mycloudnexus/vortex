@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 
 import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
+import com.consoleconnect.vortex.iam.dto.MemberInfoUpdateDto;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
@@ -31,9 +32,9 @@ class MgmtOrganizationControllerTest {
   void test_block() {
     doReturn(mock(User.class))
         .when(organizationService)
-        .changeStatus(anyString(), anyString(), anyBoolean(), any());
+        .changeMemberStatus(anyString(), anyString(), anyBoolean(), any());
     Mono<HttpResponse<User>> responseMono =
-        mgmtOrganizationController.changeStatus(
+        mgmtOrganizationController.changeMemberStatus(
             UUID.randomUUID().toString(),
             UUID.randomUUID().toString(),
             false,
@@ -46,6 +47,23 @@ class MgmtOrganizationControllerTest {
     Mono<HttpResponse<Void>> responseMono =
         mgmtOrganizationController.resetPassword(
             UUID.randomUUID().toString(), UUID.randomUUID().toString(), getAuthenticationToken());
+    Assertions.assertThat(responseMono).isNotNull();
+  }
+
+  @Test
+  void test_updateMemberInfo() {
+    doReturn(mock(User.class))
+        .when(organizationService)
+        .changeMemberStatus(anyString(), anyString(), anyBoolean(), any());
+    MemberInfoUpdateDto memberInfoUpdateDto = new MemberInfoUpdateDto();
+    memberInfoUpdateDto.setFamilyName("familyName");
+    memberInfoUpdateDto.setGivenName("givenName");
+    Mono<HttpResponse<User>> responseMono =
+        mgmtOrganizationController.updateMemberInfo(
+            UUID.randomUUID().toString(),
+            UUID.randomUUID().toString(),
+            memberInfoUpdateDto,
+            getAuthenticationToken());
     Assertions.assertThat(responseMono).isNotNull();
   }
 
