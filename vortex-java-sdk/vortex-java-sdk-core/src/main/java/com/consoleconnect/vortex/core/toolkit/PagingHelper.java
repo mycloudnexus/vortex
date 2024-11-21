@@ -14,7 +14,7 @@ public class PagingHelper {
 
   public static final int ALL = -1;
   public static final int DEFAULT_PAGE = 0;
-  public static final int DEFAULT_SIZE = 100;
+  public static final int DEFAULT_SIZE = 20;
 
   public static final String DEFAULT_PAGE_STR = DEFAULT_PAGE + "";
   public static final String DEFAULT_SIZE_STR = DEFAULT_SIZE + "";
