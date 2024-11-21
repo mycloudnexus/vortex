@@ -57,7 +57,7 @@ public class UserContextWebFilter implements WebFilter, Ordered {
                   .put(IamConstants.X_VORTEX_CUSTOMER_ID, userContext.getCustomerId());
               exchange
                   .getAttributes()
-                  .put(IamConstants.X_VORTEX_BEARER_TOKEN, userContext.getApiAccessToken());
+                  .put(IamConstants.X_VORTEX_ACCESS_TOKEN, userContext.getAccessToken());
               return Mono.just(jwtAuthenticationToken);
             })
         .then(chain.filter(exchange));

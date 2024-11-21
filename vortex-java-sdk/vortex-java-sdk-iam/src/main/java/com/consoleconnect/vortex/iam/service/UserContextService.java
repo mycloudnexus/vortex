@@ -60,11 +60,11 @@ public class UserContextService {
 
     userContext.setTrustedIssuer(trustedIssuer);
     userContext.setApiServer(iamProperty.getDownStream().getBaseUrl());
-    if (trustedIssuer.isMgmt()) {
-      userContext.setApiAccessToken(jwtAuthenticationToken.getToken().getTokenValue());
-    } else {
-      userContext.setApiAccessToken(iamProperty.getDownStream().getUserApiKey());
-    }
+    String tokenValue =
+        trustedIssuer.isMgmt()
+            ? jwtAuthenticationToken.getToken().getTokenValue()
+            : iamProperty.getDownStream().getToken();
+    userContext.setAccessToken(iamProperty.getDownStream().getTokenPrefix() + tokenValue);
 
     userContext.setRoles(
         jwtAuthenticationToken.getAuthorities().stream().map(Object::toString).toList());

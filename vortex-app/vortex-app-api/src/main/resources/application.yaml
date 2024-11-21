@@ -170,8 +170,7 @@ app:
             - ORG_MEMBER
     downstream:
       base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3001}
-      api-key-name: Authorization
-      user-api-key: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
+      token: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
       company:
         id: ${GATEWAY_DOWN_STREAM_COMPANY_ID:company-uuid}
         username: ${GATEWAY_DOWN_STREAM_COMPANY_USERNAME:company-unique-key}

@@ -21,19 +21,19 @@ public class SetAPIKeyGatewayFilterFactory
   public GatewayFilter apply(Config config) {
     // ...
     return ((exchange, chain) -> {
-      String bearerToken = exchange.getAttribute(IamConstants.X_VORTEX_BEARER_TOKEN);
-      if (bearerToken == null) {
-        log.warn("BearerToken is null,SetAPIKeyGatewayFilterFactory will not be applied");
+      String accessToken = exchange.getAttribute(IamConstants.X_VORTEX_ACCESS_TOKEN);
+      if (accessToken == null) {
+        log.warn("AccessToken is null,SetAPIKeyGatewayFilterFactory will not be applied");
         return chain.filter(exchange);
       } else {
-        String apiKeyValue = "Bearer " + bearerToken;
         ServerWebExchange updatedExchange =
             exchange
                 .mutate()
                 .request(
                     request ->
                         request.headers(
-                            httpHeaders -> httpHeaders.add(config.getKeyName(), apiKeyValue)))
+                            httpHeaders ->
+                                httpHeaders.add(config.getAccessTokenHeaderName(), accessToken)))
                 .build();
 
         return chain.filter(updatedExchange);
@@ -43,6 +43,6 @@ public class SetAPIKeyGatewayFilterFactory
 
   @Data
   public static class Config {
-    private String keyName = "Authorization";
+    private String accessTokenHeaderName = "Authorization";
   }
 }

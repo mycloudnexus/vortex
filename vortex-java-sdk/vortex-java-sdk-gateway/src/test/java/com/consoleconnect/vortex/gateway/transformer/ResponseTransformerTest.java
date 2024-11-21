@@ -67,7 +67,7 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
             new FixedLocaleContextResolver());
 
     exchange.getAttributes().put(IamConstants.X_VORTEX_CUSTOMER_ID, customerId);
-    exchange.getAttributes().put(IamConstants.X_VORTEX_BEARER_TOKEN, accessToken);
+    exchange.getAttributes().put(IamConstants.X_VORTEX_ACCESS_TOKEN, accessToken);
 
     TransformerApiProperty config = new TransformerApiProperty();
     config.setHttpMethod(HttpMethod.PUT);
@@ -96,7 +96,7 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
             new DefaultServerCodecConfigurer(),
             new FixedLocaleContextResolver());
     exchange.getAttributes().put(IamConstants.X_VORTEX_CUSTOMER_ID, customerId);
-    exchange.getAttributes().put(IamConstants.X_VORTEX_BEARER_TOKEN, accessToken);
+    exchange.getAttributes().put(IamConstants.X_VORTEX_ACCESS_TOKEN, accessToken);
 
     TransformerApiProperty config = new TransformerApiProperty();
     config.setHttpMethod(HttpMethod.GET);
@@ -127,7 +127,7 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
             new FixedLocaleContextResolver());
 
     exchange.getAttributes().put(IamConstants.X_VORTEX_CUSTOMER_ID, customerId);
-    exchange.getAttributes().put(IamConstants.X_VORTEX_BEARER_TOKEN, accessToken);
+    exchange.getAttributes().put(IamConstants.X_VORTEX_ACCESS_TOKEN, accessToken);
 
     TransformerApiProperty config = new TransformerApiProperty();
     config.setHttpMethod(HttpMethod.GET);

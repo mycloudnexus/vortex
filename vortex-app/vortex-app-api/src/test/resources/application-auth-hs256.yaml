@@ -9,6 +9,7 @@ spring:
             - Path=/downstream/**
           filters:
             - RewritePath=/downstream/(?<path>.*), /$\{path}
+            - RemoveRequestHeader=Authorization
             - name: SetAPIKey
             - name: ResponseBodyTransformer
               args:
@@ -47,8 +48,7 @@ app:
           mgmt: false
     downstream:
       base-url: http://localhost:3031
-      api-key-name: Authorization
-      user-api-key: api-key-has-readonly-role
+      token: api-key-has-readonly-role
       company:
         id: 65a4f18aec61ae42ae9606dfx0000
         username: test-company

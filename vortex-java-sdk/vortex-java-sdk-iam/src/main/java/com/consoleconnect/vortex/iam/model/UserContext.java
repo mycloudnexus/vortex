@@ -22,16 +22,16 @@ public class UserContext {
   private List<String> roles;
 
   @ToString.Exclude private ResourceServerProperty.TrustedIssuer trustedIssuer;
-  @ToString.Exclude private String apiAccessToken;
+  @ToString.Exclude private String accessToken;
   @ToString.Exclude private ConsoleConnectClient consoleConnectClient;
 
   public ConsoleConnectClient getConsoleConnectClient() {
     if (consoleConnectClient != null) {
       return consoleConnectClient;
     }
-    if (apiServer == null || apiAccessToken == null) {
+    if (apiServer == null || accessToken == null) {
       throw VortexException.badRequest("apiServer or apiAccessToken is null");
     }
-    return ConsoleConnectClientFactory.create(apiServer, apiAccessToken, Logger.Level.FULL);
+    return ConsoleConnectClientFactory.create(apiServer, accessToken, Logger.Level.FULL);
   }
 }

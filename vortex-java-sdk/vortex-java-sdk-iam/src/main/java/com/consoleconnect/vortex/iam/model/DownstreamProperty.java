@@ -5,8 +5,10 @@ import lombok.Data;
 @Data
 public class DownstreamProperty {
   private String baseUrl;
-  private String apiKeyName = "Authorization";
-  private String userApiKey;
+
+  private String tokenHeaderName = "Authorization";
+  private String token;
+  private String tokenPrefix = "Bearer ";
 
   private Company company;
 
