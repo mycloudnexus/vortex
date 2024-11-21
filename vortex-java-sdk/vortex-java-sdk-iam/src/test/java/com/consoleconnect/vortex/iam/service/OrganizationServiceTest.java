@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -940,21 +941,7 @@ class OrganizationServiceTest extends AbstractIntegrationTest {
     doReturn("test@example.com").when(member).getEmail();
 
     // mock query connection
-    Request<EnabledConnectionsPage> enabledConnectionsPageRequest = mock(Request.class);
-    Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
-    EnabledConnection enabledConnection = new EnabledConnection("test-connection-xxx");
-    com.auth0.json.mgmt.organizations.Connection connection =
-        new com.auth0.json.mgmt.organizations.Connection();
-    connection.setName("test");
-    connection.setStrategy(ConnectionStrategyEnum.AUTH0.getValue());
-    enabledConnection.setConnection(connection);
-    EnabledConnectionsPage enabledConnectionsPage =
-        new EnabledConnectionsPage(List.of(enabledConnection));
-    doReturn(enabledConnectionsPageRequest)
-        .when(organizationsEntity)
-        .getConnections(anyString(), any());
-    doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPageRequest).execute();
-    doReturn(enabledConnectionsPage).when(enabledConnectionsPageResponse).getBody();
+    mockConnectionForOrg(ConnectionStrategyEnum.AUTH0, organizationsEntity);
 
     AuthAPI authAPI = mock(AuthAPI.class);
     doReturn(authAPI).when(auth0Client).getAuthClient();
@@ -965,6 +952,26 @@ class OrganizationServiceTest extends AbstractIntegrationTest {
     doReturn(resetPasswordResponse).when(resetPasswordRequest).execute();
 
     assertDoesNotThrow(() -> organizationService.resetPassword(SYSTEM, userId, SYSTEM));
+  }
+
+  private static void mockConnectionForOrg(
+      ConnectionStrategyEnum strategyEnum, OrganizationsEntity organizationsEntity)
+      throws Auth0Exception {
+    Request<EnabledConnectionsPage> enabledConnectionsPageRequest = mock(Request.class);
+    Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
+    EnabledConnection enabledConnection = new EnabledConnection("test-connection-xxx");
+    com.auth0.json.mgmt.organizations.Connection connection =
+        new com.auth0.json.mgmt.organizations.Connection();
+    connection.setName("test");
+    connection.setStrategy(strategyEnum.getValue());
+    enabledConnection.setConnection(connection);
+    EnabledConnectionsPage enabledConnectionsPage =
+        new EnabledConnectionsPage(List.of(enabledConnection));
+    doReturn(enabledConnectionsPageRequest)
+        .when(organizationsEntity)
+        .getConnections(anyString(), any());
+    doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPageRequest).execute();
+    doReturn(enabledConnectionsPage).when(enabledConnectionsPageResponse).getBody();
   }
 
   @Test
@@ -991,21 +998,7 @@ class OrganizationServiceTest extends AbstractIntegrationTest {
     doReturn("test@example.com").when(member).getEmail();
 
     // mock query connection
-    Request<EnabledConnectionsPage> enabledConnectionsPageRequest = mock(Request.class);
-    Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
-    EnabledConnection enabledConnection = new EnabledConnection("test-connection-xxx");
-    com.auth0.json.mgmt.organizations.Connection connection =
-        new com.auth0.json.mgmt.organizations.Connection();
-    connection.setName("test");
-    connection.setStrategy(ConnectionStrategyEnum.SAML.getValue());
-    enabledConnection.setConnection(connection);
-    EnabledConnectionsPage enabledConnectionsPage =
-        new EnabledConnectionsPage(List.of(enabledConnection));
-    doReturn(enabledConnectionsPageRequest)
-        .when(organizationsEntity)
-        .getConnections(anyString(), any());
-    doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPageRequest).execute();
-    doReturn(enabledConnectionsPage).when(enabledConnectionsPageResponse).getBody();
+    mockConnectionForOrg(ConnectionStrategyEnum.SAML, organizationsEntity);
 
     AuthAPI authAPI = mock(AuthAPI.class);
     doReturn(authAPI).when(auth0Client).getAuthClient();
@@ -1144,7 +1137,22 @@ class OrganizationServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void testBlockUser() throws Auth0Exception {
+  void test_changeStatus() throws Auth0Exception {
+    String userId = mockExistedOrgUser(null);
+    assertDoesNotThrow(() -> organizationService.changeMemberStatus(SYSTEM, userId, true, SYSTEM));
+  }
+
+  @Test
+  void test_updateMemberName() throws Auth0Exception {
+    String userName = "test-username";
+    MemberInfoUpdateDto memberInfoUpdateDto = new MemberInfoUpdateDto();
+    String userId = mockExistedOrgUser(userName);
+    User user =
+        organizationService.updateMemberInfo(SYSTEM, userId, memberInfoUpdateDto, "request-123");
+    assertEquals(userName, user.getName());
+  }
+
+  private String mockExistedOrgUser(String userName) throws Auth0Exception {
     String userId = UUID.randomUUID().toString();
     ManagementAPI managementAPI = mock(ManagementAPI.class);
     doReturn(managementAPI).when(auth0Client).getMgmtClient();
@@ -1175,7 +1183,11 @@ class OrganizationServiceTest extends AbstractIntegrationTest {
     doReturn(userRequest).when(usersEntity).update(anyString(), any());
     doReturn(userResponse).when(userRequest).execute();
     doReturn(user).when(userResponse).getBody();
+    if (StringUtils.isNotBlank(userName)) {
+      doReturn(userName).when(user).getName();
+    }
 
-    assertDoesNotThrow(() -> organizationService.changeStatus(SYSTEM, userId, true, SYSTEM));
+    mockConnectionForOrg(ConnectionStrategyEnum.AUTH0, organizationsEntity);
+    return userId;
   }
 }
