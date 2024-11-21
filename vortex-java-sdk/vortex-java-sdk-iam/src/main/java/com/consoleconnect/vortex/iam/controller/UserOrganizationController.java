@@ -4,11 +4,13 @@ import com.auth0.json.mgmt.organizations.Invitation;
 import com.auth0.json.mgmt.organizations.Member;
 import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.roles.Role;
+import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
+import com.consoleconnect.vortex.iam.dto.MemberInfoUpdateDto;
 import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.iam.service.UserContextService;
@@ -18,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -142,5 +145,22 @@ public class UserOrganizationController {
                   orgId, jwtAuthenticationToken.getName(), jwtAuthenticationToken.getName());
               return HttpResponse.ok(null);
             });
+  }
+
+  @Operation(summary = "Update the member info.")
+  @PatchMapping("/members")
+  public Mono<HttpResponse<User>> updateMemberInfo(
+      @Validated @RequestBody MemberInfoUpdateDto memberInfoUpdateDto,
+      JwtAuthenticationToken jwtAuthenticationToken) {
+    return userContextService
+        .getOrgId()
+        .map(
+            orgId ->
+                HttpResponse.ok(
+                    service.updateMemberInfo(
+                        orgId,
+                        jwtAuthenticationToken.getName(),
+                        memberInfoUpdateDto,
+                        jwtAuthenticationToken.getName())));
   }
 }
