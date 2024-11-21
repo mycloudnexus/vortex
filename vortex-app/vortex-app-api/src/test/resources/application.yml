@@ -3,6 +3,10 @@ server:
   port: ${port:8000}
 
 spring:
+  main:
+    web-application-type: reactive
+  codec:
+    max-in-memory-size: 500KB
   application:
     name: "@project.artifactId@"
     description: "@project.name@"
@@ -12,14 +16,11 @@ spring:
     default-property-inclusion: NON_NULL
     deserialization:
       fail-on-unknown-properties: false
-  data:
-    rest:
-      detection-strategy: ANNOTATED
   datasource:
     driverClassName: org.postgresql.Driver
-#    password: ${DB_PASSWORD}
-#    url: ${DB_URL}
-#    username: ${DB_USERNAME}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/vortex}
+    username: ${DB_USERNAME:postgresql}
+    password: ${DB_PASSWORD:password}
     hikari:
       pool-name: hikari-platform-service-platform
       connection-test-query: SELECT 1
@@ -37,7 +38,6 @@ spring:
         jdbc:
           time_zone: UTC
   flyway:
-    # clean-on-validation-error: true
     baseline-on-migrate: true
     enabled: false
 management:
@@ -60,11 +60,11 @@ springdoc:
   show-actuator: true
   api-docs:
     enabled: true
-    path: /api-docs
+    path: /v3/api-docs
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
-    supported-submit-methods: ["get", "post", "patch", "delete"]
+    supported-submit-methods: [ "get", "post", "patch", "delete" ]
     config-url: /v3/api-docs/swagger-config
     urls:
       - url: /v3/api-docs
@@ -72,12 +72,56 @@ springdoc:
   servers:
     - url: http://localhost:8000
       description: localhost
-
 logging:
   level:
     com.consoleconnect.vortex: DEBUG
+    org.springframework.security: DEBUG
+
 app:
   iam:
+    auth0:
+      mgmt-api:
+        domain: http://localhost:3032
+        client-id: :mgmt-api-client-id
+        client-secret: :mgmt-api-client-secret
+        audience: https://partner.consoleconnect.com/api
+      app:
+        client-id: app-client-id
+    email:
+      enabled: false
+      provider: sendgrid
+      send-grid:
+        api-key: send-grid-api-key
+        from:
+          name: from-name
+          email: fake@fake.com
+        templates:
+          invite-org-member: template-uuid
     resource-server:
-      allowed-paths:
-        - /actuator/**
+      path-permissions:
+        - path: /mgmt/**
+          http-methods:
+            - POST
+            - DELETE
+            - PATCH
+          roles:
+            - PLATFORM_ADMIN
+        - path: /mgmt/**
+          http-methods:
+            - GET
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+        - path: /organization/**
+          http-methods:
+            - POST
+            - PATCH
+            - DELETE
+          roles:
+            - ORG_ADMIN
+        - path: /organization/**
+          http-methods:
+            - GET
+          roles:
+            - ORG_ADMIN
+            - ORG_MEMBER

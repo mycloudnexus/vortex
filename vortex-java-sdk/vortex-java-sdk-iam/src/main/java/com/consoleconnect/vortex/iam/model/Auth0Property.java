@@ -8,8 +8,6 @@ public class Auth0Property {
   private Config mgmtApi;
   private Config app;
 
-  private String mgmtOrgId;
-
   @Data
   public static class Config {
     private String domain;

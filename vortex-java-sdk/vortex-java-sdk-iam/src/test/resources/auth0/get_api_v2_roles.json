@@ -1,0 +1,12 @@
+[
+  {
+    "id": "rol_WR61rSAJ7canXaGx",
+    "name": "ORG_ADMIN",
+    "description": "Organization Admin"
+  },
+  {
+    "id": "rol_nEep3lauC5QETuP7",
+    "name": "ORG_MEMBER",
+    "description": "Organization Readonly User"
+  }
+]

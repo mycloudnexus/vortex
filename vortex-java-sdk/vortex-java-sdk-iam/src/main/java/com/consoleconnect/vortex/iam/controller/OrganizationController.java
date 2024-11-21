@@ -8,7 +8,6 @@ import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
-import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
 import com.consoleconnect.vortex.iam.dto.MemberInfoUpdateDto;
 import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
@@ -27,9 +26,9 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @RestController()
 @RequestMapping(value = "/organization", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Organization", description = "Organization APIs")
+@Tag(name = "Customer APIs", description = "Customer APIs")
 @Slf4j
-public class UserOrganizationController {
+public class OrganizationController {
 
   private final OrganizationService service;
   private final UserContextService userContextService;
@@ -46,18 +45,6 @@ public class UserOrganizationController {
     return userContextService
         .getOrgId()
         .map(orgId -> HttpResponse.ok(service.getOneConnection(orgId)));
-  }
-
-  @Operation(summary = "Setup a connection")
-  @PostMapping("/connections")
-  public Mono<HttpResponse<OrganizationConnection>> createConnection(
-      @RequestBody CreateConnectionDto request, JwtAuthenticationToken authenticationToken) {
-    return userContextService
-        .getOrgId()
-        .map(
-            orgId ->
-                HttpResponse.ok(
-                    service.createConnection(orgId, request, authenticationToken.getName())));
   }
 
   @Operation(summary = "List all invitations")
@@ -90,20 +77,6 @@ public class UserOrganizationController {
     return userContextService
         .getOrgId()
         .map(orgId -> HttpResponse.ok(service.getInvitationById(orgId, invitationId)));
-  }
-
-  @Operation(summary = "Delete an invitation by id")
-  @DeleteMapping("/invitations/{invitationId}")
-  public Mono<HttpResponse<Void>> delete(
-      @PathVariable String invitationId, JwtAuthenticationToken jwtAuthenticationToken) {
-
-    return userContextService
-        .getOrgId()
-        .map(
-            orgId -> {
-              service.revokeInvitation(orgId, invitationId, jwtAuthenticationToken.getName());
-              return HttpResponse.ok(null);
-            });
   }
 
   @Operation(summary = "List all members")

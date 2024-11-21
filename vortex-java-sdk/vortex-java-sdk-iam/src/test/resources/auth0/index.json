@@ -1,0 +1,67 @@
+[
+  {
+    "method": "POST",
+    "endpoint": "/oauth/token",
+    "data": "post_oauth_token.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/connections",
+    "data": "get_api_v2_connections.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/connections/{id}",
+    "data": "get_api_v2_connections_{id}.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/roles",
+    "data": "get_api_v2_roles.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/organizations",
+    "data": "get_api_v2_organizations.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/organizations/{id}",
+    "data": "get_api_v2_organizations_{id}.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/organizations/{id}/enabled_connections",
+    "data": "get_api_v2_organizations_{id}_enabled_connections.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/organizations/{id}/members",
+    "data": "get_api_v2_organizations_{id}_members_include_totals.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/organizations/{id}/members/{memberId}/roles",
+    "data": "get_api_v2_organizations_{id}_members_{memberId}_roles.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/organizations/{id}/invitations",
+    "data": "get_api_v2_organizations_{id}_invitations_include_totals.json"
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/v2/organizations/{id}/invitations",
+    "data": "post_api_v2_organizations_{id}_invitations.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/users/{id}",
+    "data": "get_api_v2_users_{id}.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/users/{id}/organizations",
+    "data": "get_api_v2_users_{id}_organizations.json"
+  }
+]

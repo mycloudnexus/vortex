@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 @RestController()
 @RequestMapping(value = "/mgmt/organizations", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Mgmt", description = "Mgmt APIs")
+@Tag(name = "Customer Mgmt", description = "Mgmt APIs")
 @Slf4j
 public class MgmtOrganizationController {
 
