@@ -1,0 +1,17 @@
+{
+  "inviter": {
+    "name": "#string"
+  },
+  "invitee": {
+    "email": "#string"
+  },
+  "client_id": "#string",
+  "id": "#string",
+  "connection_id": "#string",
+  "created_at": "#string",
+  "expires_at": "#string",
+  "ticket_id": "#string",
+  "invitation_url": "#string",
+  "organization_id": "#string",
+  "roles": "#array"
+}
