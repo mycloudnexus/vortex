@@ -1,8 +1,9 @@
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, waitFor } from '@testing-library/react'
 
 import { MemoryRouter } from 'react-router-dom'
 import CustomerCompany from '..'
 import { ReactElement } from 'react'
+import { QueryClient, QueryClientProvider } from 'react-query'
 
 global.matchMedia = jest.fn().mockImplementation((query) => ({
   matches: false,
@@ -30,39 +31,62 @@ jest.mock('@/assets/icon/info.svg', () => ({
   ReactComponent: () => <svg data-testid='info' />
 }))
 
-jest.mock('@/stores/company.store', () => ({
-  useCompanyStore: jest.fn().mockReturnValue({
-    companies: [
+jest.mock('@/hooks/company', () => ({
+  useGetCompanyList: jest.fn(),
+  useAddOrganization: jest.fn()
+}))
+
+const mockedUseGetCompanyList = require('@/hooks/company').useGetCompanyList
+const mockedUseAddOrganization = require('@/hooks/company').useAddOrganization
+const dummyData = {
+  code: 200,
+  message: 'OK',
+  data: {
+    data: [
       {
-        key: '1',
-        id: '1',
-        title: 'Test Company',
-        shortName: 'TC',
-        status: 'active'
+        name: 'helloworld123',
+        id: 'org_D4ES55BSeeAHystq',
+        display_name: 'hello_world',
+        metadata: {
+          loginType: 'undefined',
+          status: 'ACTIVE',
+          type: 'CUSTOMER'
+        }
       },
       {
-        key: '2',
-        id: '2',
-        title: 'Inactive Company',
-        shortName: 'IC',
-        status: 'inactive'
+        name: 'qetesting',
+        id: 'org_AeltT2tTQsOFNvCC',
+        display_name: 'QE Testing'
       }
     ],
-    addCompany: jest.fn(),
-    updateCompanyRecord: jest.fn(),
-    updateCompanyStatus: jest.fn()
-  })
-}))
+    total: 2,
+    page: 0,
+    size: 20
+  }
+}
 describe('Customer Company Page', () => {
   let component: ReactElement
+  const queryClient = new QueryClient()
   beforeEach(() => {
+    jest.clearAllMocks()
+
+    mockedUseAddOrganization.mockReturnValue({
+      mutate: jest.fn()
+    })
     component = (
-      <MemoryRouter>
-        <CustomerCompany />
-      </MemoryRouter>
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <CustomerCompany />
+        </MemoryRouter>
+      </QueryClientProvider>
     )
   })
   it('should render table columns', () => {
+    mockedUseGetCompanyList.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false
+    })
     const { getByText } = render(component)
 
     expect(getByText('Name')).toBeInTheDocument()
@@ -72,12 +96,37 @@ describe('Customer Company Page', () => {
     expect(getByText('Action')).toBeInTheDocument()
   })
 
+  it('form renders correctly and modal opens', async () => {
+    const { getByTestId, getByText, getByLabelText, baseElement } = render(component)
+    const button = getByTestId('add-button')
+    expect(button).toBeInTheDocument()
+    fireEvent.click(button)
+    await waitFor(() => {
+      expect(getByTestId('add-modal')).toBeInTheDocument()
+    })
+    act(() => {
+      fireEvent.change(getByLabelText(/Customer company name/i), { target: { value: 'My Company' } })
+      fireEvent.change(getByLabelText(/Customer company URL short name/i), { target: { value: 'MC' } })
+    })
+    const submitButton = getByText('OK')
+    act(() => {
+      fireEvent.click(submitButton)
+    })
+    expect(baseElement).toMatchSnapshot()
+  })
+
   it('should display inactive company data in table rows', () => {
-    const { getByText } = render(component)
-    expect(getByText('Inactive Company')).toBeInTheDocument()
-    expect(getByText('2')).toBeInTheDocument()
-    expect(getByText('IC')).toBeInTheDocument()
+    mockedUseGetCompanyList.mockReturnValue({
+      data: dummyData,
+      isLoading: false,
+      isError: false
+    })
+    const { getByText, baseElement } = render(component)
+    expect(getByText('QE Testing')).toBeInTheDocument()
+    expect(getByText('qetesting')).toBeInTheDocument()
+    expect(getByText('org_AeltT2tTQsOFNvCC')).toBeInTheDocument()
     expect(getByText('Inactive')).toBeInTheDocument()
+    expect(baseElement).toMatchSnapshot()
   })
 
   it('should call handleDeactivate when clicking Deactivate button', async () => {
@@ -92,20 +141,6 @@ describe('Customer Company Page', () => {
   it('should call handleActivate when clicking Activate button', () => {
     const { getByTestId } = render(component)
     fireEvent.click(getByTestId('handle-activate'))
-  })
-  it('form renders correctly and modal opens', async () => {
-    const { getByTestId, getByText, getByLabelText, baseElement } = render(component)
-    const button = getByTestId('add-button')
-    expect(button).toBeInTheDocument()
-    fireEvent.click(button)
-    await waitFor(() => {
-      expect(getByTestId('add-modal')).toBeInTheDocument()
-    })
-    fireEvent.change(getByLabelText(/Customer company name/i), { target: { value: 'My Company' } })
-    fireEvent.change(getByLabelText(/Customer company URL short name/i), { target: { value: 'MC' } })
-    const submitButton = getByText('OK')
-    fireEvent.click(submitButton)
-    expect(baseElement).toMatchSnapshot()
   })
   it('form renders correctly and cancel submit', async () => {
     const { getByTestId, getByText } = render(component)

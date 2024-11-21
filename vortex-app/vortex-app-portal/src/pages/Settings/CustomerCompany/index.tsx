@@ -6,7 +6,6 @@ import { Fragment, useState } from 'react'
 import { useAppStore } from '@/stores/app.store'
 import { useNavigate } from 'react-router-dom'
 
-import { useCompanyStore } from '@/stores/company.store'
 import { ReactComponent as CCIcon } from '@/assets/icon/customer-company.svg'
 import { ReactComponent as CCClose } from '@/assets/icon/close-circle.svg'
 import { ReactComponent as CCStatus } from '@/assets/icon/status.svg'
@@ -140,8 +139,6 @@ const CustomerCompany = (): ReactElement => {
   const { data, isLoading } = useGetCompanyList()
   const companies = data?.data?.data ?? []
   const { mutate } = useAddOrganization()
-  console.log(data, isLoading)
-  const { updateCompanyStatus } = useCompanyStore()
   const { mainColor } = useAppStore()
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
@@ -218,7 +215,6 @@ const CustomerCompany = (): ReactElement => {
   }
   const showModal = () => setIsModalOpen(true)
   const openUpdateModal = (record: ICompany): void => {
-    console.log(record)
     editForm.setFieldsValue(record)
     setUpdateValue(record)
     setIsUpdateModalOpen(true)
@@ -266,7 +262,7 @@ const CustomerCompany = (): ReactElement => {
 
   const handleDeactivateSubmit = (): void => {
     try {
-      updateCompanyStatus(key, 'inactive')
+      console.log(key, 'inactive')
       handleCloseDeactivate()
       handleSuccessDeactivate()
     } catch (error) {

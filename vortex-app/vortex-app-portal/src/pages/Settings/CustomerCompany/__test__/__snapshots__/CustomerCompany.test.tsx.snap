@@ -22,12 +22,12 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
               data-testid="customer-company"
             />
           </div>
-          <h2
+          <h3
             class="ant-typography css-dev-only-do-not-override-ni1kz0"
             style="margin: 0px;"
           >
             Customer Company
-          </h2>
+          </h3>
         </div>
         <button
           class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-default ant-btn-color-default ant-btn-variant-outlined sc-egkSDF kCIHkZ"
@@ -50,16 +50,17 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
             class="ant-spin-container"
           >
             <div
-              class="ant-table css-dev-only-do-not-override-ni1kz0"
+              class="ant-table ant-table-empty css-dev-only-do-not-override-ni1kz0 ant-table-fixed-header"
             >
               <div
                 class="ant-table-container"
               >
                 <div
-                  class="ant-table-content"
+                  class="ant-table-header"
+                  style="overflow: hidden;"
                 >
                   <table
-                    style="table-layout: auto;"
+                    style="table-layout: fixed;"
                   >
                     <colgroup />
                     <thead
@@ -98,162 +99,88 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
                         </th>
                       </tr>
                     </thead>
+                  </table>
+                </div>
+                <div
+                  class="ant-table-body"
+                  style="overflow-y: auto; max-height: 560px;"
+                >
+                  <table
+                    style="table-layout: fixed;"
+                  >
+                    <colgroup />
                     <tbody
                       class="ant-table-tbody"
                     >
                       <tr
-                        class="ant-table-row ant-table-row-level-0"
-                        data-row-key="1"
+                        aria-hidden="true"
+                        class="ant-table-measure-row"
+                        style="height: 0px; font-size: 0px;"
                       >
                         <td
-                          class="ant-table-cell"
-                        >
-                          Test Company
-                        </td>
-                        <td
-                          class="ant-table-cell"
-                        >
-                          1
-                        </td>
-                        <td
-                          class="ant-table-cell"
+                          style="padding: 0px; border: 0px; height: 0px;"
                         >
                           <div
-                            class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center"
-                            style="gap: 5px;"
+                            style="height: 0px; overflow: hidden;"
                           >
-                            TC
-                            <span
-                              data-testid="mocked-svg"
-                            >
-                              <svg
-                                data-testid="info"
-                              />
-                            </span>
+                             
                           </div>
                         </td>
                         <td
-                          class="ant-table-cell"
+                          style="padding: 0px; border: 0px; height: 0px;"
                         >
                           <div
-                            class="ant-flex css-dev-only-do-not-override-ni1kz0"
-                            style="gap: 2px;"
+                            style="height: 0px; overflow: hidden;"
                           >
-                            <svg
-                              data-testid="status"
-                            />
-                            <span
-                              class="ant-typography css-dev-only-do-not-override-ni1kz0"
-                            >
-                              Active
-                            </span>
+                             
                           </div>
                         </td>
                         <td
-                          class="ant-table-cell"
+                          style="padding: 0px; border: 0px; height: 0px;"
                         >
                           <div
-                            class="ant-space css-dev-only-do-not-override-ni1kz0 ant-space-horizontal ant-space-align-center ant-space-gap-row-small ant-space-gap-col-small"
+                            style="height: 0px; overflow: hidden;"
                           >
-                            <div
-                              class="ant-space-item"
-                            >
-                              <button
-                                class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-link ant-btn-color-dangerous ant-btn-variant-link"
-                                data-testid="handle-modify"
-                                style="padding: 4px 0px;"
-                                type="button"
-                              >
-                                <span>
-                                  Modify
-                                </span>
-                              </button>
-                            </div>
-                            <div
-                              class="ant-space-item"
-                            >
-                              <button
-                                class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-link ant-btn-color-dangerous ant-btn-variant-link"
-                                data-testid="handle-deactivate"
-                                style="padding: 4px 0px;"
-                                type="button"
-                              >
-                                <span>
-                                  Deactivate
-                                </span>
-                              </button>
-                            </div>
+                             
+                          </div>
+                        </td>
+                        <td
+                          style="padding: 0px; border: 0px; height: 0px;"
+                        >
+                          <div
+                            style="height: 0px; overflow: hidden;"
+                          >
+                             
+                          </div>
+                        </td>
+                        <td
+                          style="padding: 0px; border: 0px; height: 0px;"
+                        >
+                          <div
+                            style="height: 0px; overflow: hidden;"
+                          >
+                             
                           </div>
                         </td>
                       </tr>
                       <tr
-                        class="ant-table-row ant-table-row-level-0"
-                        data-row-key="2"
+                        class="ant-table-placeholder"
                       >
                         <td
                           class="ant-table-cell"
-                        >
-                          Inactive Company
-                        </td>
-                        <td
-                          class="ant-table-cell"
-                        >
-                          2
-                        </td>
-                        <td
-                          class="ant-table-cell"
+                          colspan="5"
                         >
                           <div
-                            class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center"
-                            style="gap: 5px;"
-                          >
-                            IC
-                            <span
-                              data-testid="mocked-svg"
-                            >
-                              <svg
-                                data-testid="info"
-                              />
-                            </span>
-                          </div>
-                        </td>
-                        <td
-                          class="ant-table-cell"
-                        >
-                          <div
-                            class="ant-flex css-dev-only-do-not-override-ni1kz0"
-                            style="gap: 2px;"
+                            class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center ant-flex-justify-center ant-flex-vertical"
                           >
                             <svg
-                              data-testid="status"
+                              data-testid="customer-company-empty"
                             />
                             <span
-                              class="ant-typography css-dev-only-do-not-override-ni1kz0"
+                              style="font-size: 16px; font-weight: 500; color: rgb(0, 0, 0); font-style: normal;"
                             >
-                              Inactive
+                              No customer company
                             </span>
-                          </div>
-                        </td>
-                        <td
-                          class="ant-table-cell"
-                        >
-                          <div
-                            class="ant-space css-dev-only-do-not-override-ni1kz0 ant-space-horizontal ant-space-align-center ant-space-gap-row-small ant-space-gap-col-small"
-                          >
-                            <div
-                              class="ant-space-item"
-                            >
-                              <button
-                                class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-link ant-btn-color-dangerous ant-btn-variant-link"
-                                data-testid="handle-activate"
-                                style="padding: 4px 0px;"
-                                type="button"
-                              >
-                                <span>
-                                  Activate
-                                </span>
-                              </button>
-                            </div>
                           </div>
                         </td>
                       </tr>
@@ -352,7 +279,7 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
                       >
                         <label
                           class=""
-                          for="add_customer_company_title"
+                          for="add_customer_company_display_name"
                           title=""
                         >
                           <div
@@ -380,7 +307,7 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
                             <input
                               class="ant-input css-dev-only-do-not-override-ni1kz0 ant-input-outlined ant-input-status-validating sc-gtLWhw jtrSU"
                               data-testid="customer-name"
-                              id="add_customer_company_title"
+                              id="add_customer_company_display_name"
                               placeholder="Please enter"
                               type="text"
                               value="My Company"
@@ -401,7 +328,7 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
                       >
                         <label
                           class=""
-                          for="add_customer_company_shortName"
+                          for="add_customer_company_name"
                           title=""
                         >
                           <div
@@ -434,9 +361,9 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
                             class="ant-form-item-control-input-content"
                           >
                             <input
-                              aria-describedby="add_customer_company_shortName_help"
+                              aria-describedby="add_customer_company_name_help"
                               class="ant-input css-dev-only-do-not-override-ni1kz0 ant-input-outlined ant-input-status-validating sc-gtLWhw jtrSU"
-                              id="add_customer_company_shortName"
+                              id="add_customer_company_name"
                               placeholder="Please enter"
                               type="text"
                               value="MC"
@@ -448,7 +375,7 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
                         >
                           <div
                             class="ant-form-item-explain ant-form-item-explain-connected css-dev-only-do-not-override-ni1kz0"
-                            id="add_customer_company_shortName_help"
+                            id="add_customer_company_name_help"
                             role="alert"
                           >
                             <div
@@ -496,6 +423,338 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
             style="width: 0px; height: 0px; overflow: hidden; outline: none;"
             tabindex="0"
           />
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;
+
+exports[`Customer Company Page should display inactive company data in table rows 1`] = `
+<body>
+  <div>
+    <div
+      class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center ant-flex-justify-start ant-flex-vertical"
+      style="width: 70%; margin: 0px auto; gap: 20px;"
+    >
+      <div
+        class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center ant-flex-justify-space-between"
+        style="width: 100%;"
+      >
+        <div
+          class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center"
+          style="gap: 15px;"
+        >
+          <div
+            class="sc-fAUdSK dfFYLE"
+          >
+            <svg
+              data-testid="customer-company"
+            />
+          </div>
+          <h3
+            class="ant-typography css-dev-only-do-not-override-ni1kz0"
+            style="margin: 0px;"
+          >
+            Customer Company
+          </h3>
+        </div>
+        <button
+          class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-default ant-btn-color-default ant-btn-variant-outlined sc-egkSDF kCIHkZ"
+          data-testid="add-button"
+          type="button"
+        >
+          <span>
+            Add customer company
+          </span>
+        </button>
+      </div>
+      <div
+        class="ant-table-wrapper sc-dntaoT jPeUFk css-dev-only-do-not-override-ni1kz0"
+        style="width: 100%;"
+      >
+        <div
+          class="ant-spin-nested-loading css-dev-only-do-not-override-ni1kz0"
+        >
+          <div
+            class="ant-spin-container"
+          >
+            <div
+              class="ant-table css-dev-only-do-not-override-ni1kz0 ant-table-fixed-header"
+            >
+              <div
+                class="ant-table-container"
+              >
+                <div
+                  class="ant-table-header"
+                  style="overflow: hidden;"
+                >
+                  <table
+                    style="table-layout: fixed; visibility: hidden;"
+                  >
+                    <colgroup />
+                    <thead
+                      class="ant-table-thead"
+                    >
+                      <tr>
+                        <th
+                          class="ant-table-cell"
+                          scope="col"
+                        >
+                          Name
+                        </th>
+                        <th
+                          class="ant-table-cell"
+                          scope="col"
+                        >
+                          ID
+                        </th>
+                        <th
+                          class="ant-table-cell"
+                          scope="col"
+                        >
+                          Short name & URL
+                        </th>
+                        <th
+                          class="ant-table-cell"
+                          scope="col"
+                        >
+                          Status
+                        </th>
+                        <th
+                          class="ant-table-cell"
+                          scope="col"
+                        >
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+                <div
+                  class="ant-table-body"
+                  style="overflow-y: scroll; max-height: 560px;"
+                >
+                  <table
+                    style="table-layout: fixed;"
+                  >
+                    <colgroup />
+                    <tbody
+                      class="ant-table-tbody"
+                    >
+                      <tr
+                        aria-hidden="true"
+                        class="ant-table-measure-row"
+                        style="height: 0px; font-size: 0px;"
+                      >
+                        <td
+                          style="padding: 0px; border: 0px; height: 0px;"
+                        >
+                          <div
+                            style="height: 0px; overflow: hidden;"
+                          >
+                             
+                          </div>
+                        </td>
+                        <td
+                          style="padding: 0px; border: 0px; height: 0px;"
+                        >
+                          <div
+                            style="height: 0px; overflow: hidden;"
+                          >
+                             
+                          </div>
+                        </td>
+                        <td
+                          style="padding: 0px; border: 0px; height: 0px;"
+                        >
+                          <div
+                            style="height: 0px; overflow: hidden;"
+                          >
+                             
+                          </div>
+                        </td>
+                        <td
+                          style="padding: 0px; border: 0px; height: 0px;"
+                        >
+                          <div
+                            style="height: 0px; overflow: hidden;"
+                          >
+                             
+                          </div>
+                        </td>
+                        <td
+                          style="padding: 0px; border: 0px; height: 0px;"
+                        >
+                          <div
+                            style="height: 0px; overflow: hidden;"
+                          >
+                             
+                          </div>
+                        </td>
+                      </tr>
+                      <tr
+                        class="ant-table-row ant-table-row-level-0"
+                        data-row-key="org_D4ES55BSeeAHystq"
+                      >
+                        <td
+                          class="ant-table-cell"
+                        >
+                          hello_world
+                        </td>
+                        <td
+                          class="ant-table-cell"
+                        >
+                          org_D4ES55BSeeAHystq
+                        </td>
+                        <td
+                          class="ant-table-cell"
+                        >
+                          <div
+                            class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center"
+                            style="gap: 5px;"
+                          >
+                            helloworld123
+                            <span
+                              data-testid="mocked-svg"
+                            >
+                              <svg
+                                data-testid="info"
+                              />
+                            </span>
+                          </div>
+                        </td>
+                        <td
+                          class="ant-table-cell"
+                        >
+                          <div
+                            class="ant-flex css-dev-only-do-not-override-ni1kz0"
+                            style="gap: 2px;"
+                          >
+                            <svg
+                              data-testid="status"
+                            />
+                            <span
+                              class="ant-typography css-dev-only-do-not-override-ni1kz0"
+                            >
+                              Active
+                            </span>
+                          </div>
+                        </td>
+                        <td
+                          class="ant-table-cell"
+                        >
+                          <div
+                            class="ant-space css-dev-only-do-not-override-ni1kz0 ant-space-horizontal ant-space-align-center ant-space-gap-row-small ant-space-gap-col-small"
+                          >
+                            <div
+                              class="ant-space-item"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-link ant-btn-color-dangerous ant-btn-variant-link"
+                                data-testid="handle-modify"
+                                style="padding: 4px 0px;"
+                                type="button"
+                              >
+                                <span>
+                                  Modify
+                                </span>
+                              </button>
+                            </div>
+                            <div
+                              class="ant-space-item"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-link ant-btn-color-dangerous ant-btn-variant-link"
+                                data-testid="handle-deactivate"
+                                style="padding: 4px 0px;"
+                                type="button"
+                              >
+                                <span>
+                                  Deactivate
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr
+                        class="ant-table-row ant-table-row-level-0"
+                        data-row-key="org_AeltT2tTQsOFNvCC"
+                      >
+                        <td
+                          class="ant-table-cell"
+                        >
+                          QE Testing
+                        </td>
+                        <td
+                          class="ant-table-cell"
+                        >
+                          org_AeltT2tTQsOFNvCC
+                        </td>
+                        <td
+                          class="ant-table-cell"
+                        >
+                          <div
+                            class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center"
+                            style="gap: 5px;"
+                          >
+                            qetesting
+                            <span
+                              data-testid="mocked-svg"
+                            >
+                              <svg
+                                data-testid="info"
+                              />
+                            </span>
+                          </div>
+                        </td>
+                        <td
+                          class="ant-table-cell"
+                        >
+                          <div
+                            class="ant-flex css-dev-only-do-not-override-ni1kz0"
+                            style="gap: 2px;"
+                          >
+                            <svg
+                              data-testid="status"
+                            />
+                            <span
+                              class="ant-typography css-dev-only-do-not-override-ni1kz0"
+                            >
+                              Inactive
+                            </span>
+                          </div>
+                        </td>
+                        <td
+                          class="ant-table-cell"
+                        >
+                          <div
+                            class="ant-space css-dev-only-do-not-override-ni1kz0 ant-space-horizontal ant-space-align-center ant-space-gap-row-small ant-space-gap-col-small"
+                          >
+                            <div
+                              class="ant-space-item"
+                            >
+                              <button
+                                class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-link ant-btn-color-dangerous ant-btn-variant-link"
+                                data-testid="handle-activate"
+                                style="padding: 4px 0px;"
+                                type="button"
+                              >
+                                <span>
+                                  Activate
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
