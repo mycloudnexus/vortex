@@ -1,26 +1,37 @@
-package com.consoleconnect.vortex.iam.config;
+package com.consoleconnect.vortex.test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
-import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
-import com.consoleconnect.vortex.test.AbstractIntegrationTest;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import java.util.List;
 import lombok.Data;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 
+@Slf4j
 public class MockServerHelper {
+
+  public static ObjectMapper createObjectMapper() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+    return objectMapper;
+  }
 
   @SneakyThrows
   public static void setupMock(String mockDataPath) {
     String indexJson = AbstractIntegrationTest.readFileToString(mockDataPath + "/index.json");
 
     List<MockData> dataList =
-        JsonToolkit.fromJson(indexJson, new TypeReference<List<MockData>>() {});
+        createObjectMapper().readValue(indexJson, new TypeReference<List<MockData>>() {});
     for (MockData data : dataList) {
-      System.out.println(data);
+      log.info("{}", data);
       String jsonData = AbstractIntegrationTest.readFileToString(mockDataPath + "/" + data.data);
       WireMock.stubFor(
           WireMock.request(data.method.name(), urlPathTemplate(data.endpoint))
@@ -49,6 +60,5 @@ public class MockServerHelper {
     private HttpMethod method;
     private String endpoint;
     private String data;
-    private boolean endpointTemplate;
   }
 }

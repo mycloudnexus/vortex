@@ -1,4 +1,4 @@
-package com.consoleconnect.vortex.iam.config;
+package com.consoleconnect.vortex.test;
 
 public class AuthContextConstants {
   public static final String MGMT_COMPANY_ID = "65a4f18aec61ae42ae9606dfx0000";
@@ -20,4 +20,6 @@ public class AuthContextConstants {
   public static final String CUSTOMER_COMPANY_ID = "org_0bcbzk1UJV9CvwAU";
   public static final String CUSTOMER_ACCESS_TOKEN =
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvcmdfcm9sZXMiOlsiT1JHX0FETUlOIl0sImlzcyI6Imh0dHBzOi8vdm9ydGV4LWN1c3RvbWVyLnZvcnRleC11bml0LXRlc3QuY29tLyIsInN1YiI6InZvcnRleC10ZXN0fGF1dGgwfDVlYzRkMzc2NWNmMGExMDAxNDg2Yjk1ZCIsImF1ZCI6WyJodHRwczovL3ZvcnRleC1jdXN0b21lci52b3J0ZXgtdW5pdC10ZXN0LmNvbS9hcGkiXSwiaWF0IjoxNzMyMDYzMDM5LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwib3JnX2lkIjoib3JnXzBiY2J6azFVSlY5Q3Z3QVUifQ.rWylXdilwBFuxDwouWCfH1U8sx1i4nnLDtYUsTL-0oY";
+
+  public static final String CUSTOMER_API_KEY = "api-key-has-readonly-role";
 }
