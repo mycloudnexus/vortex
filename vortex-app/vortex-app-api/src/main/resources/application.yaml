@@ -62,6 +62,7 @@ spring:
             - Path=${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}/**
           filters:
             - RewritePath=${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}/(?<path>.*), /$\{path}
+            - RemoveRequestHeader=Authorization
             - name: SetAPIKey
 management:
   endpoint:
