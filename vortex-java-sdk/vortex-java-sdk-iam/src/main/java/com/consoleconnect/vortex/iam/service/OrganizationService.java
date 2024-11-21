@@ -13,7 +13,6 @@ import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Request;
 import com.auth0.net.Response;
-import com.consoleconnect.vortex.cc.CCHttpClient;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.core.toolkit.Paging;
@@ -43,9 +42,7 @@ public class OrganizationService {
   private final Auth0Client auth0Client;
   private final EmailService emailService;
   private final Map<String, AbstractConnection> connectionMap;
-  private final CCHttpClient ccHttpClient;
   private static final Integer TOTAL_PAGE_SIZE = -1;
-  private final DownstreamRoleService downstreamRoleService;
 
   public Organization create(CreateOrganizationDto request, String createdBy) {
     log.info("creating organization: {},requestedBy:{}", request, createdBy);
@@ -285,14 +282,9 @@ public class OrganizationService {
       String orgId, CreateInvitationDto request, String requestedBy) {
     log.info("creating invitation:orgId:{}, {},requestedBy:{}", orgId, request, requestedBy);
 
-    List<String> roleNames = getAvailableRoleNames(orgId);
+    List<String> roleNames = getAvailableRoleNames();
     if (request.getRoles().stream().anyMatch(role -> !roleNames.contains(role))) {
       throw VortexException.badRequest("Role not found for organization: " + orgId);
-    }
-
-    if (auth0Client.getAuth0Property().getMgmtOrgId().equalsIgnoreCase(orgId)
-        && StringUtils.isBlank(request.getUsername())) {
-      throw VortexException.badRequest("Username or companyName cannot be empty.");
     }
 
     try {
@@ -322,11 +314,6 @@ public class OrganizationService {
           organizationsEntity.createInvitation(orgId, invitation);
 
       Response<Invitation> createdInvitationResponse = invitationRequest.execute();
-      if (auth0Client.getAuth0Property().getMgmtOrgId().equalsIgnoreCase(orgId)
-          && createdInvitationResponse.getStatusCode() == HttpStatus.SC_CREATED) {
-        downstreamRoleService.syncRole(orgId, request.getUsername());
-      }
-
       Invitation createdInvitation = createdInvitationResponse.getBody();
       emailService.sendInvitation(createdInvitation);
       return createdInvitation;
@@ -363,20 +350,16 @@ public class OrganizationService {
     }
   }
 
-  private List<String> getAvailableRoleNames(String orgId) {
+  private List<String> getAvailableRoleNames() {
     List<String> roleNames = new ArrayList<>();
     roleNames.add(RoleEnum.ORG_ADMIN.name());
     roleNames.add(RoleEnum.ORG_MEMBER.name());
-    if (auth0Client.getAuth0Property().getMgmtOrgId().equalsIgnoreCase(orgId)) {
-      // the user in mgmt organization can see all roles
-      roleNames.add(RoleEnum.PLATFORM_ADMIN.name());
-      roleNames.add(RoleEnum.PLATFORM_MEMBER.name());
-    }
     return roleNames;
   }
 
   public Paging<Role> listRoles(String orgId, int page, int size) {
-    return PagingHelper.toPage(findRolesByName(getAvailableRoleNames(orgId)), page, size);
+    log.info("list roles, orgId:{}, size:{}", orgId, size);
+    return PagingHelper.toPage(findRolesByName(getAvailableRoleNames()), page, size);
   }
 
   public Paging<OrganizationConnection> listConnections(String orgId, int page, int size) {

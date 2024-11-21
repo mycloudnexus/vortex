@@ -1,17 +1,38 @@
 package com.consoleconnect.vortex.iam.mapper;
 
-import com.auth0.json.mgmt.roles.Role;
-import com.auth0.json.mgmt.users.User;
-import com.consoleconnect.vortex.iam.dto.RoleInfo;
-import com.consoleconnect.vortex.iam.dto.UserInfo;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
+import com.consoleconnect.vortex.iam.dto.User;
+import com.consoleconnect.vortex.iam.entity.UserEntity;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
-@Mapper()
-public interface UserMapper {
-  UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
+public class UserMapper {
+  private UserMapper() {}
 
-  UserInfo toUserInfo(User user);
+  public static final UserMapper INSTANCE = new UserMapper();
 
-  RoleInfo toRoleInfo(Role role);
+  public User toUser(UserEntity userEntity) {
+    if (userEntity == null) {
+      return null;
+    }
+
+    User user = new User();
+
+    user.setId(userEntity.getUserId());
+    if (userEntity.getCreatedAt() != null) {
+      user.setCreatedAt(DateTimeFormatter.ISO_DATE_TIME.format(userEntity.getCreatedAt()));
+    }
+    user.setCreatedBy(userEntity.getCreatedBy());
+    if (userEntity.getUpdatedAt() != null) {
+      user.setUpdatedAt(DateTimeFormatter.ISO_DATE_TIME.format(userEntity.getUpdatedAt()));
+    }
+    user.setUpdatedBy(userEntity.getUpdatedBy());
+    List<String> list = userEntity.getRoles();
+    if (list != null) {
+      user.setRoles(new ArrayList<>(list));
+    }
+    user.setStatus(userEntity.getStatus());
+
+    return user;
+  }
 }

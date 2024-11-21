@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 public class UserInfo extends BaseUserInfo {
   private String type;
   private String status;
-  private List<DownstreamCompany> companies;
+  private List<Company> companies;
   private Map<String, LinkUserCompany> linkUserCompany;
 
   @Data
@@ -20,36 +20,13 @@ public class UserInfo extends BaseUserInfo {
     private String userId;
     private List<String> roleIds;
     private List<String> roles;
-    private LinkUserCompanyPermission permissions;
   }
 
   @Data
-  public static class LinkUserCompanyPermission {
-    // <ADMIN,{company-update:false}>
-    private Map<String, Map<String, Boolean>> groups;
-    private List<Role> roles;
-  }
-
-  @Data
-  public static class DownstreamCompany {
+  public static class Company {
     private String id;
     private String name;
     private String type;
     private String username;
-    private String overviewImage;
-    private List<String> categories;
-    private CloudProviderDetail cloudProviderDetails;
-  }
-
-  @Data
-  public static class CloudProviderDetail {
-    private String bgpAuthority;
-    private String companyType;
-    private Asn asn;
-  }
-
-  @Data
-  public static class Asn {
-    private List<String> range;
   }
 }

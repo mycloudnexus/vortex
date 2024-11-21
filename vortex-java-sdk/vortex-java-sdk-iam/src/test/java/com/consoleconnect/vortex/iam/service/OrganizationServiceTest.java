@@ -15,33 +15,39 @@ import com.auth0.json.mgmt.roles.RolesPage;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Request;
 import com.auth0.net.Response;
-import com.consoleconnect.vortex.config.TestApplication;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
+import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.model.Auth0Property;
+import com.consoleconnect.vortex.test.AbstractIntegrationTest;
+import com.consoleconnect.vortex.test.MockIntegrationTest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@ActiveProfiles("auth-hs256")
+@MockIntegrationTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ContextConfiguration(classes = TestApplication.class)
-class OrganizationServiceTest {
+// @WireMockTest(httpPort = 3031)
+@Slf4j
+class OrganizationServiceTest extends AbstractIntegrationTest {
   @Autowired OrganizationService organizationService;
   @SpyBean Auth0Client auth0Client;
   @SpyBean EmailService emailService;
@@ -727,7 +733,6 @@ class OrganizationServiceTest {
     CreateInvitationDto request = new CreateInvitationDto();
     request.setEmail("test@example.com");
     request.setRoles(List.of("ORG_ADMIN"));
-    request.setUsername("username");
 
     Auth0Property.Config config = new Auth0Property.Config();
     config.setClientId(UUID.randomUUID().toString());
@@ -735,7 +740,6 @@ class OrganizationServiceTest {
     String orgId = UUID.randomUUID().toString();
     Auth0Property auth0 = new Auth0Property();
     auth0.setApp(config);
-    auth0.setMgmtOrgId(orgId);
     doReturn(auth0).when(auth0Client).getAuth0Property();
 
     organizationService.createInvitation(orgId, request, SYSTEM);
@@ -754,7 +758,6 @@ class OrganizationServiceTest {
     String orgId = UUID.randomUUID().toString();
     Auth0Property auth0 = new Auth0Property();
     auth0.setApp(config);
-    auth0.setMgmtOrgId(orgId);
     doReturn(auth0).when(auth0Client).getAuth0Property();
     assertThrows(
         Exception.class, () -> organizationService.createInvitation(orgId, request, SYSTEM));

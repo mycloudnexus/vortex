@@ -4,7 +4,6 @@ import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.entity.OrderEntity;
 import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
-import com.consoleconnect.vortex.iam.model.UserContext;
 import com.jayway.jsonpath.DocumentContext;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -33,14 +32,12 @@ public class DefaultResourceListTransformer extends AbstractResourceTransformer 
   public byte[] doTransform(
       ServerWebExchange exchange,
       byte[] responseBody,
-      UserContext userContext,
+      String customerId,
       TransformerApiProperty config) {
-
-    String orgId = userContext.getCustomerId();
 
     // filter resource by organization
     Map<String, OrderEntity> resources =
-        orderService.listResourceByType(orgId, config.getResourceType()).stream()
+        orderService.listResourceByType(customerId, config.getResourceType()).stream()
             .collect(Collectors.toMap(OrderEntity::getResourceId, x -> x));
 
     Set<String> resourceIds = resources.keySet();
