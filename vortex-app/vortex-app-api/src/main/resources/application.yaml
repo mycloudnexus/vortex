@@ -136,7 +136,7 @@ app:
           user-id-prefix: ${IAM_MGMT_TOKEN_ISSUER_USER_ID_PREFIX:auth0|}
           default-roles:
             - PLATFORM_ADMIN
-          default-org-id: ${IAM_MGMT_TOKEN_ISSUER_ORG_ID:65a4f18aec61ae42ae9606dfx0000}
+          default-org-id: ${GATEWAY_DOWN_STREAM_COMPANY_ID:65a4f18aec61ae42ae9606dfx0000}
         - issuer: ${IAM_CUSTOMER_TOKEN_ISSUER_URI:https://vortex-dev.au.auth0.com/}
           mgmt: false
           default-roles:
