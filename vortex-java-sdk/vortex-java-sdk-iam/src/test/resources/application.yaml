@@ -142,3 +142,11 @@ app:
           roles:
             - ORG_ADMIN
             - ORG_MEMBER
+    downstream:
+      base-url: http://localhost:3000
+      api-key-name: Authorization
+      admin-api-key: Bearer api-key-has-admin-role}
+      user-api-key: Bearer api-key-has-readonly-role
+      role: VORTEX_ADMIN
+      company-username: test
+      company-id: 65a4f18aec61ae42ae9606dfx0000

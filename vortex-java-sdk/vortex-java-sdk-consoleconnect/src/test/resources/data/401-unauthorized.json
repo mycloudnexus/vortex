@@ -1,0 +1,7 @@
+{
+  "error": {
+    "message": "The user is not logged in",
+    "status": 401,
+    "statusCode": 401
+  }
+}

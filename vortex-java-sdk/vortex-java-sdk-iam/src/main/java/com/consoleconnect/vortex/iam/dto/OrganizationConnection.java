@@ -2,6 +2,8 @@ package com.consoleconnect.vortex.iam.dto;
 
 import com.auth0.json.mgmt.connections.Connection;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 
 @Data
@@ -16,4 +18,6 @@ public class OrganizationConnection {
   private Boolean showAsButton;
 
   private Connection connection;
+
+  private Map<String, Object> link = new HashMap<>();
 }

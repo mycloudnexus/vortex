@@ -1,5 +1,6 @@
 package com.consoleconnect.vortex.iam.service;
 
+import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.client.mgmt.OrganizationsEntity;
 import com.auth0.client.mgmt.RolesEntity;
 import com.auth0.client.mgmt.filter.InvitationsFilter;
@@ -12,6 +13,7 @@ import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Request;
 import com.auth0.net.Response;
+import com.consoleconnect.vortex.cc.CCHttpClient;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.core.toolkit.Paging;
@@ -41,8 +43,9 @@ public class OrganizationService {
   private final Auth0Client auth0Client;
   private final EmailService emailService;
   private final Map<String, AbstractConnection> connectionMap;
-  private final DownstreamRoleService downstreamRoleService;
+  private final CCHttpClient ccHttpClient;
   private static final Integer TOTAL_PAGE_SIZE = -1;
+  private final DownstreamRoleService downstreamRoleService;
 
   public Organization create(CreateOrganizationDto request, String createdBy) {
     log.info("creating organization: {},requestedBy:{}", request, createdBy);
@@ -360,21 +363,6 @@ public class OrganizationService {
     }
   }
 
-  public void deleteInvitation(String orgId, String invitationId, String requestedBy) {
-    log.info(
-        "deleting invitation:orgId:{}, invitationId:{},requestedBy:{}",
-        orgId,
-        invitationId,
-        requestedBy);
-    try {
-      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
-      Request<Void> request = organizationsEntity.deleteInvitation(orgId, invitationId);
-      request.execute().getBody();
-    } catch (Auth0Exception e) {
-      throw VortexException.internalError("Failed to delete invitation: " + invitationId);
-    }
-  }
-
   private List<String> getAvailableRoleNames(String orgId) {
     List<String> roleNames = new ArrayList<>();
     roleNames.add(RoleEnum.ORG_ADMIN.name());
@@ -456,5 +444,133 @@ public class OrganizationService {
 
     AbstractConnection abstractConnection = connectionMap.get(strategy);
     return abstractConnection.updateConnection(orgId, request, requestedBy);
+  }
+
+  public Void resetPassword(String orgId, String memberId, String requestedBy) {
+    log.info("orgId:{}, userId:{}, name:{}", orgId, memberId, requestedBy);
+    try {
+      ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
+      OrganizationsEntity organizationsEntity = managementAPI.organizations();
+      Member member = findMemberById(orgId, memberId, organizationsEntity);
+
+      String errorMsg = StringUtils.join("Don't support reset password orgId:", orgId);
+      com.auth0.json.mgmt.organizations.Connection connection =
+          findAuth0Connection(orgId, organizationsEntity, errorMsg);
+
+      return this.auth0Client
+          .getAuthClient()
+          .resetPassword(member.getEmail(), connection.getName())
+          .execute()
+          .getBody();
+    } catch (Auth0Exception e) {
+      throw VortexException.badRequest("Reset error:" + e.getMessage());
+    }
+  }
+
+  private com.auth0.json.mgmt.organizations.Connection findAuth0Connection(
+      String orgId, OrganizationsEntity organizationsEntity, String msg) throws Auth0Exception {
+    EnabledConnectionsPage enabledConnectionsPage =
+        organizationsEntity.getConnections(orgId, null).execute().getBody();
+    if (Objects.isNull(enabledConnectionsPage)
+        || CollectionUtils.isEmpty(enabledConnectionsPage.getItems())) {
+      throw VortexException.badRequest("No connection orgId:" + orgId);
+    }
+
+    com.auth0.json.mgmt.organizations.Connection connection =
+        enabledConnectionsPage.getItems().get(0).getConnection();
+    if (!connection.getStrategy().equals(ConnectionStrategyEnum.AUTH0.getValue())) {
+      throw VortexException.badRequest(msg);
+    }
+    return connection;
+  }
+
+  private Member findMemberById(
+      String orgId, String userId, OrganizationsEntity organizationsEntity) throws Auth0Exception {
+    MembersPage membersPage = organizationsEntity.getMembers(orgId, null).execute().getBody();
+    if (Objects.isNull(membersPage) || CollectionUtils.isEmpty(membersPage.getItems())) {
+      throw VortexException.badRequest("This organization doesn't has any members. orgId:" + orgId);
+    }
+
+    Optional<Member> memberOptional =
+        membersPage.getItems().stream().filter(m -> m.getUserId().equals(userId)).findFirst();
+    if (memberOptional.isEmpty()) {
+      throw VortexException.badRequest(
+          "This user doesn't belong to this organization. userId:" + userId);
+    }
+    return memberOptional.get();
+  }
+
+  public Void revokeInvitation(String orgId, String invitationId, String requestedBy) {
+    log.info(
+        "revokeInvitation, orgId:{}, invitationId:{}, requestedBy:{}",
+        orgId,
+        invitationId,
+        requestedBy);
+    try {
+      ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
+      OrganizationsEntity organizationsEntity = managementAPI.organizations();
+      Request<Invitation> request = organizationsEntity.getInvitation(orgId, invitationId, null);
+      Invitation invitation = request.execute().getBody();
+      if (Objects.isNull(invitation)) {
+        throw VortexException.badRequest(
+            "This user hasn't been invited. invitationId:" + invitationId);
+      }
+      return organizationsEntity.deleteInvitation(orgId, invitationId).execute().getBody();
+    } catch (Auth0Exception e) {
+      throw VortexException.badRequest("Failed to revoke invitation:" + e.getMessage());
+    }
+  }
+
+  public User changeMemberStatus(String orgId, String memberId, boolean block, String requestedBy) {
+    log.info(
+        "blockUser, orgId:{}, memberId:{},block:{}, requestedBy:{}",
+        orgId,
+        memberId,
+        block,
+        requestedBy);
+    try {
+      return doUpdateMember(orgId, memberId, block, null);
+    } catch (Auth0Exception e) {
+      throw VortexException.badRequest("Block/Unblock a user error:" + e.getMessage());
+    }
+  }
+
+  public User updateMemberInfo(
+      String orgId, String memberId, MemberInfoUpdateDto memberInfoUpdateDto, String requestedBy) {
+    log.info(
+        "updateMemberName, orgId:{}, memberId:{}, memberInfoUpdateDto:{}, requestedBy:{}",
+        orgId,
+        memberId,
+        memberInfoUpdateDto,
+        requestedBy);
+    try {
+      return doUpdateMember(orgId, memberId, null, memberInfoUpdateDto);
+    } catch (Auth0Exception e) {
+      throw VortexException.badRequest("Update name error:" + e.getMessage());
+    }
+  }
+
+  private User doUpdateMember(
+      String orgId, String memberId, Boolean block, MemberInfoUpdateDto memberInfoUpdateDto)
+      throws Auth0Exception {
+    ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
+    OrganizationsEntity organizationsEntity = managementAPI.organizations();
+    Member member = findMemberById(orgId, memberId, organizationsEntity);
+
+    User user = new User();
+    if (Objects.nonNull(block)) {
+      user.setBlocked(block);
+    }
+
+    if (Objects.nonNull(memberInfoUpdateDto)) { // only for db-connection
+      String errorMsg = StringUtils.join("Don't support update name, orgId:", orgId);
+      findAuth0Connection(orgId, organizationsEntity, errorMsg);
+      user.setGivenName(memberInfoUpdateDto.getGivenName());
+      user.setFamilyName(memberInfoUpdateDto.getFamilyName());
+      user.setName(
+          StringUtils.join(
+              memberInfoUpdateDto.getGivenName(), " ", memberInfoUpdateDto.getFamilyName()));
+    }
+    return managementAPI.users().update(member.getUserId(), user).execute().getBody();
   }
 }
