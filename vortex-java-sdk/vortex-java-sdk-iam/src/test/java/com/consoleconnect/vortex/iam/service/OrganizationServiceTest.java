@@ -18,15 +18,19 @@ import com.auth0.net.Response;
 import com.consoleconnect.vortex.config.TestApplication;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
+import com.consoleconnect.vortex.core.toolkit.Paging;
+import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.model.Auth0Property;
+import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -761,57 +765,84 @@ class OrganizationServiceTest {
   }
 
   @Test
-  void testListMembers() throws Auth0Exception {
+  @SneakyThrows
+  void test_listMembers() {
     ManagementAPI managementAPI = mock(ManagementAPI.class);
     doReturn(managementAPI).when(auth0Client).getMgmtClient();
 
     OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
     doReturn(organizationsEntity).when(managementAPI).organizations();
 
-    MembersPage membersPage = mock(MembersPage.class);
+    String memberPageStr =
+        AbstractIntegrationTest.readFileToString("auth0/page_organization_members.json");
+    List<Member> members =
+        JsonToolkit.fromJson(memberPageStr, new TypeReference<List<Member>>() {});
+    MembersPage membersPage = new MembersPage(0, 2, 2, 10, "", members);
     Request<MembersPage> membersPageRequest = mock(Request.class);
     Response<MembersPage> membersPageResponse = mock(Response.class);
     doReturn(membersPageRequest).when(organizationsEntity).getMembers(anyString(), any());
     doReturn(membersPageResponse).when(membersPageRequest).execute();
     doReturn(membersPage).when(membersPageResponse).getBody();
-    organizationService.listMembers(UUID.randomUUID().toString(), 1, -1);
-    Assertions.assertThatNoException();
+    Paging<Member> memberPaging =
+        organizationService.listMembers(UUID.randomUUID().toString(), 0, PagingHelper.ALL);
+    assertNotNull(memberPaging);
+    assertEquals(2, memberPaging.getTotal());
   }
 
   @Test
-  void testListInvitations() throws Auth0Exception {
+  @SneakyThrows
+  void test_listInvitations() {
     ManagementAPI managementAPI = mock(ManagementAPI.class);
     doReturn(managementAPI).when(auth0Client).getMgmtClient();
 
     OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
     doReturn(organizationsEntity).when(managementAPI).organizations();
 
-    InvitationsPage membersPage = mock(InvitationsPage.class);
+    List<Invitation> invitations =
+        JsonToolkit.fromJson(
+            AbstractIntegrationTest.readFileToString("auth0/organization_invitations.json"),
+            new TypeReference<List<Invitation>>() {});
+
+    InvitationsPage membersPage = new InvitationsPage(0, 2, null, 2, invitations);
     Request<InvitationsPage> membersPageRequest = mock(Request.class);
     Response<InvitationsPage> membersPageResponse = mock(Response.class);
     doReturn(membersPageRequest).when(organizationsEntity).getInvitations(anyString(), any());
     doReturn(membersPageResponse).when(membersPageRequest).execute();
     doReturn(membersPage).when(membersPageResponse).getBody();
-    organizationService.listInvitations(UUID.randomUUID().toString(), 1, -1);
-    Assertions.assertThatNoException();
+
+    Paging<Invitation> invitationPaging =
+        organizationService.listInvitations(UUID.randomUUID().toString(), 0, PagingHelper.ALL);
+    assertNotNull(invitationPaging);
+    assertEquals(2, invitationPaging.getData().size());
+
+    invitationPaging = organizationService.listInvitations(UUID.randomUUID().toString(), 0, 10);
+    assertNotNull(invitationPaging);
+    assertEquals(2, invitationPaging.getData().size());
   }
 
   @Test
-  void testSearch() throws Auth0Exception {
+  @SneakyThrows
+  void test_search() {
     ManagementAPI managementAPI = mock(ManagementAPI.class);
     doReturn(managementAPI).when(auth0Client).getMgmtClient();
 
     OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
     doReturn(organizationsEntity).when(managementAPI).organizations();
 
-    OrganizationsPage membersPage = mock(OrganizationsPage.class);
+    String memberPageStr =
+        AbstractIntegrationTest.readFileToString("auth0/page_organizations.json");
+    List<Organization> organizations =
+        JsonToolkit.fromJson(memberPageStr, new TypeReference<List<Organization>>() {});
+
+    OrganizationsPage membersPage = new OrganizationsPage(0, 2, 2, 10, "", organizations);
     Request<OrganizationsPage> membersPageRequest = mock(Request.class);
     Response<OrganizationsPage> membersPageResponse = mock(Response.class);
     doReturn(membersPageRequest).when(organizationsEntity).list(any());
     doReturn(membersPageResponse).when(membersPageRequest).execute();
     doReturn(membersPage).when(membersPageResponse).getBody();
-    organizationService.search(UUID.randomUUID().toString(), 1, -1);
-    Assertions.assertThatNoException();
+    Paging<Organization> organizationPaging = organizationService.search(0, 2);
+    assertNotNull(organizationPaging);
+    assertEquals(2, organizationPaging.getData().size());
   }
 
   private void mockOrgConnectionOperation(
@@ -1186,5 +1217,47 @@ class OrganizationServiceTest {
 
     mockConnectionForOrg(ConnectionStrategyEnum.AUTH0, organizationsEntity);
     return userId;
+  }
+
+  @Test
+  @SneakyThrows
+  void test_getOneConnection() {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    EnabledConnection enabledConnection =
+        JsonToolkit.fromJson(
+            AbstractIntegrationTest.readFileToString("auth0/organization_enabled_connection.json"),
+            EnabledConnection.class);
+    Request<EnabledConnectionsPage> enabledConnectionsPage = mock(Request.class);
+    doReturn(enabledConnectionsPage).when(organizationsEntity).getConnections(anyString(), any());
+
+    Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
+    doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPage).execute();
+
+    EnabledConnectionsPage connectionsPage = new EnabledConnectionsPage(List.of(enabledConnection));
+    doReturn(connectionsPage).when(enabledConnectionsPageResponse).getBody();
+
+    ConnectionsEntity connectionsEntity = mock(ConnectionsEntity.class);
+    doReturn(connectionsEntity).when(managementAPI).connections();
+
+    Request<Connection> connectionRequest = mock(Request.class);
+    doReturn(connectionRequest).when(connectionsEntity).get(anyString(), any());
+
+    Response<Connection> connectionResponse = mock(Response.class);
+    doReturn(connectionResponse).when(connectionRequest).execute();
+
+    Connection connection =
+        JsonToolkit.fromJson(
+            AbstractIntegrationTest.readFileToString("auth0/organization_connection.json"),
+            Connection.class);
+    doReturn(connection).when(connectionResponse).getBody();
+
+    OrganizationConnection organizationConnection =
+        organizationService.getOneConnection(UUID.randomUUID().toString());
+    assertNotNull(organizationConnection);
   }
 }
