@@ -19,7 +19,7 @@ public class Auth0PageHelper {
 
   public static <T> Paging<T> listPageByTotal(
       Integer size, Integer page, Function<PageFilterParameters, Page<T>> function) {
-    log.info("listByPage size:{}, page:{}", size, page);
+    log.info("listPageByTotal size:{}, page:{}", size, page);
 
     PageFilterParameters pageFilterParameters = new PageFilterParameters();
     pageFilterParameters.setPage(page);
@@ -41,7 +41,7 @@ public class Auth0PageHelper {
         }
         pageFilterParameters.setPage(++page);
       } while (page < totalPages);
-      log.info("listByPage-all total:{}", total);
+      log.info("listPageByTotal-all total:{}", total);
       return PagingHelper.toPage(result, 0, total, total.longValue());
 
     } else {
@@ -60,12 +60,11 @@ public class Auth0PageHelper {
 
   public static <T> Paging<T> listPageByLimit(
       Integer size, Integer page, Function<PageFilterParameters, Page<T>> function) {
-    log.info("listByLimit size:{}, page:{}", size, page);
+    log.info("listPageByLimit size:{}, page:{}", size, page);
 
     PageFilterParameters pageFilterParameters = new PageFilterParameters();
     pageFilterParameters.setPage(page);
 
-    // Don't contain total field in response.
     if (size == PagingHelper.ALL) {
 
       List<T> result = new ArrayList<>();
@@ -84,7 +83,7 @@ public class Auth0PageHelper {
         // If the current limit is not equal with the passed size, it means no more records.
       } while (limitOfResponse == size);
 
-      log.info("listByLimit-all total:{}", total);
+      log.info("listPageByLimit-all total:{}", total);
       return PagingHelper.toPage(result, 0, total, total.longValue());
 
     } else {

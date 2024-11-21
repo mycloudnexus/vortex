@@ -357,7 +357,7 @@ public class OrganizationService {
             OrganizationsEntity organizationsEntity =
                 this.auth0Client.getMgmtClient().organizations();
 
-            // This endpoint doesn't have total field in response.
+            // This endpoint doesn't contain the value of total field in response.
             Request<InvitationsPage> request =
                 organizationsEntity.getInvitations(orgId, invitationsFilter);
             return request.execute().getBody();
