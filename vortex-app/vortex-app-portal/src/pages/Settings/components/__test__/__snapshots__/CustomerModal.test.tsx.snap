@@ -87,7 +87,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                       >
                         <label
                           class=""
-                          for="modify_customer_company_title"
+                          for="modify_customer_company_display_name"
                           title=""
                         >
                           <div
@@ -115,7 +115,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                             <input
                               class="ant-input css-dev-only-do-not-override-ni1kz0 ant-input-outlined sc-gtLWhw jtrSU"
                               data-testid="customer-name"
-                              id="modify_customer_company_title"
+                              id="modify_customer_company_display_name"
                               placeholder="Please enter"
                               type="text"
                               value=""
@@ -136,7 +136,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                       >
                         <label
                           class=""
-                          for="modify_customer_company_shortName"
+                          for="modify_customer_company_name"
                           title=""
                         >
                           <div
@@ -167,9 +167,9 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                             class="ant-form-item-control-input-content"
                           >
                             <input
-                              aria-describedby="modify_customer_company_shortName_help"
+                              aria-describedby="modify_customer_company_name_help"
                               class="ant-input css-dev-only-do-not-override-ni1kz0 ant-input-outlined sc-gtLWhw jtrSU"
-                              id="modify_customer_company_shortName"
+                              id="modify_customer_company_name"
                               placeholder="Please enter"
                               type="text"
                               value=""
@@ -181,7 +181,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                         >
                           <div
                             class="ant-form-item-explain ant-form-item-explain-connected css-dev-only-do-not-override-ni1kz0"
-                            id="modify_customer_company_shortName_help"
+                            id="modify_customer_company_name_help"
                             role="alert"
                           >
                             <div

@@ -1,7 +1,7 @@
 import { render, fireEvent, waitFor } from '@testing-library/react'
 import { Form } from 'antd'
 import CustomerCompanyModal from '../CustomerModal'
-import { Company } from '@/stores/company.store'
+import { ICompany } from '@/services/types'
 
 jest.mock('@/assets/icon/info.svg', () => ({
   ReactComponent: () => <svg />
@@ -17,9 +17,35 @@ global.matchMedia =
     }
   }
 
-const mockCompanies: Company[] = [
-  { id: '1', title: 'Company A', key: '123', shortName: 'test', status: 'active' },
-  { id: '2', title: 'Company B', key: '1234', shortName: 'test2', status: 'inactive' }
+const mockCompanies: ICompany[] = [
+  {
+    branding: {
+      colors: { page_background: '', primary: '' },
+      logo_url: ''
+    },
+    display_name: 'Company A',
+    id: '123',
+    metadata: {
+      loginType: '',
+      status: 'active',
+      type: ''
+    },
+    name: 'test'
+  },
+  {
+    branding: {
+      colors: { page_background: '', primary: '' },
+      logo_url: ''
+    },
+    display_name: 'Company B',
+    id: '2',
+    metadata: {
+      loginType: '',
+      status: '',
+      type: ''
+    },
+    name: 'test'
+  }
 ]
 
 interface FormWrapperProps {
