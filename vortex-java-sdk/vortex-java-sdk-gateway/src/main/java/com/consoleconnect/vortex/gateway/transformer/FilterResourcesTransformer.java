@@ -4,7 +4,6 @@ import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.entity.ResourceEntity;
 import com.consoleconnect.vortex.gateway.service.ResourceService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
-import com.consoleconnect.vortex.iam.model.UserContext;
 import com.jayway.jsonpath.DocumentContext;
 import java.util.HashMap;
 import java.util.List;
@@ -33,13 +32,13 @@ public class FilterResourcesTransformer
   public String doTransform(
       ServerWebExchange exchange,
       String responseBody,
-      UserContext userContext,
+      String customerId,
       TransformerApiProperty config,
       Metadata metadata) {
 
     DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
     List<Map<String, Object>> data = ctx.read(config.getResponseBodyPath());
-    Object filteredData = this.filterData(metadata, createVariables(data, userContext, config));
+    Object filteredData = this.filterData(metadata, createVariables(data, customerId, config));
 
     if (TransformerApiProperty.DEFAULT_BODY_PATH.equals(config.getResponseBodyPath())) {
       ctx = JsonPathToolkit.createDocCtx(filteredData);
@@ -58,11 +57,10 @@ public class FilterResourcesTransformer
   }
 
   public Map<String, Object> createVariables(
-      Object data, UserContext userContext, TransformerApiProperty config) {
+      Object data, String customerId, TransformerApiProperty config) {
     // filter resource by organization
     List<ResourceEntity> resources =
-        resourceService.findAllByOrganizationIdAndResourceType(
-            userContext.getCustomerId(), config.getResourceType());
+        resourceService.findAllByCustomerIdAndResourceType(customerId, config.getResourceType());
 
     List<String> orderIds = resources.stream().map(ResourceEntity::getOrderId).toList();
     List<String> resourceIds = resources.stream().map(ResourceEntity::getResourceId).toList();

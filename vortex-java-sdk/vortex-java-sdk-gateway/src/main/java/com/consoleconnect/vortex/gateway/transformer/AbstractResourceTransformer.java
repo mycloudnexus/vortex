@@ -5,7 +5,6 @@ import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.iam.model.IamConstants;
-import com.consoleconnect.vortex.iam.model.UserContext;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.server.ServerWebExchange;
@@ -23,10 +22,10 @@ public abstract class AbstractResourceTransformer<T> {
       ServerWebExchange exchange, byte[] responseBody, TransformerApiProperty config) {
     long start = System.currentTimeMillis();
     try {
-      UserContext userContext = exchange.getAttribute(IamConstants.X_VORTEX_USER_CONTEXT);
+      String customerId = exchange.getAttribute(IamConstants.X_VORTEX_CUSTOMER_ID);
       T metadata = JsonToolkit.fromJson(JsonToolkit.toJson(config.getMetadata()), cls);
       String responseBodyJsonStr = new String(responseBody, StandardCharsets.UTF_8);
-      return doTransform(exchange, responseBodyJsonStr, userContext, config, metadata)
+      return doTransform(exchange, responseBodyJsonStr, customerId, config, metadata)
           .getBytes(StandardCharsets.UTF_8);
     } catch (Exception e) {
       log.error("{} transform error.", getClass().getSimpleName(), e);
@@ -42,7 +41,7 @@ public abstract class AbstractResourceTransformer<T> {
   protected abstract String doTransform(
       ServerWebExchange exchange,
       String responseBody,
-      UserContext userContext,
+      String customerId,
       TransformerApiProperty config,
       T metadata);
 

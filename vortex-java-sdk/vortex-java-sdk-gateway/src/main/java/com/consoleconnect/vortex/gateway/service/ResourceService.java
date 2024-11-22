@@ -16,17 +16,15 @@ public class ResourceService {
   public ResourceEntity create(CreateResourceRequest request) {
 
     ResourceEntity resource = new ResourceEntity();
-    resource.setOrganizationId(request.getOrganizationId());
+    resource.setCustomerId(request.getCustomerId());
     resource.setResourceType(request.getResourceType());
     resource.setOrderId(request.getOrderId());
     resource.setResourceId(request.getResourceId());
-    resource.setSyncResourceConfig(request.getSyncResourceConfig());
     return resourceRepository.save(resource);
   }
 
-  public List<ResourceEntity> findAllByOrganizationIdAndResourceType(
-      String organizationId, ResourceTypeEnum resourceTypeEnum) {
-    return resourceRepository.findAllByOrganizationIdAndResourceType(
-        organizationId, resourceTypeEnum);
+  public List<ResourceEntity> findAllByCustomerIdAndResourceType(
+      String customerId, ResourceTypeEnum resourceTypeEnum) {
+    return resourceRepository.findAllByCustomerIdAndResourceType(customerId, resourceTypeEnum);
   }
 }

@@ -42,12 +42,12 @@ public class ResponseBodyTransformerGatewayFilterFactory
   private final Map<String, MessageBodyEncoder> messageBodyEncoders;
 
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
-  private final List<AbstractResourceTransformer> transformers;
+  private final List<AbstractResourceTransformer<?>> transformers;
 
   public ResponseBodyTransformerGatewayFilterFactory(
       Set<MessageBodyDecoder> messageBodyDecoders,
       Set<MessageBodyEncoder> messageBodyEncoders,
-      List<AbstractResourceTransformer> transformers) {
+      List<AbstractResourceTransformer<?>> transformers) {
     super(Config.class);
     this.messageBodyDecoders =
         messageBodyDecoders.stream()
@@ -58,7 +58,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
     this.transformers = transformers;
   }
 
-  public Optional<AbstractResourceTransformer> findTransformer(String transformer) {
+  public Optional<AbstractResourceTransformer<?>> findTransformer(String transformer) {
     if (transformer == null) {
       return Optional.empty();
     }
@@ -72,7 +72,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
 
   public class ResponseBodyTransformerGatewayFilter implements GatewayFilter, Ordered {
 
-    private Map<String, TransformerApiProperty> apiTransformers;
+    private final Map<String, TransformerApiProperty> apiTransformers;
 
     public ResponseBodyTransformerGatewayFilter(Config config) {
       this.apiTransformers =
@@ -97,7 +97,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
         return chain.filter(exchange);
       }
 
-      final Optional<AbstractResourceTransformer> transformer =
+      final Optional<AbstractResourceTransformer<?>> transformer =
           findTransformer(apiProperty.getTransformer());
       if (transformer.isEmpty()) {
         return chain.filter(exchange);
@@ -155,9 +155,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
       for (String encoding : encodingHeaders) {
         MessageBodyDecoder decoder = messageBodyDecoders.get(encoding);
         log.info("extractBody encoding: {}, decoder{}", encoding, decoder.getClass());
-        if (decoder != null) {
-          return decoder.decode(resBytes);
-        }
+        return decoder.decode(resBytes);
       }
       return resBytes;
     }

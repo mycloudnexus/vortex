@@ -4,9 +4,6 @@ import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
-import com.consoleconnect.vortex.iam.model.UserContext;
-import java.nio.charset.StandardCharsets;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
@@ -26,7 +23,7 @@ public class DefaultCreateResourceOrderTransformer extends AbstractResourceTrans
   public String doTransform(
       ServerWebExchange exchange,
       String responseBody,
-      UserContext userContext,
+      String customerId,
       TransformerApiProperty config,
       Object metadata) {
 

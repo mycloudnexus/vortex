@@ -36,7 +36,7 @@ public class PortOrderListTransformer extends AbstractResourceTransformer<Object
   public String doTransform(
       ServerWebExchange exchange,
       String responseBody,
-      UserContext userContext,
+      String customerId,
       TransformerApiProperty config,
       Object metadata) {
 
