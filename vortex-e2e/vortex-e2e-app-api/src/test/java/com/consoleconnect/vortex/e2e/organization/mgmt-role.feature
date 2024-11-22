@@ -6,40 +6,21 @@ Feature: Mgmt Role API
     * configure headers = { 'Authorization': '#(resellerAdminToken)' }
 
   @P0
-  Scenario: List all existing roles, check status and response
+  Scenario: List all existing roles for reseller, check status and response
     * path 'mgmt/roles'
     * method get
     * status 200
-    * def schema = read('classpath:schemas/role-schema.json')
-    * match each response.data.data == schema
-
-  @P1
-  Scenario: Get a role by id, check status
-    * path 'mgmt/roles'
-    * method get
-    * status 200
-    * def roles = response.data.data
-
-    * path 'mgmt/roles', roles[0].id
-    * method get
-    * status 200
-
-  @P0
-  Scenario: List all roles for an organization
-    * path 'mgmt/organizations', resellerOrgId, 'roles'
-    * method get
-    * status 200
-    * assert response.data.total == 4
-    # for reseller, there should be 4 roles
-    * def expectedRoles = ['ORG_ADMIN', 'ORG_MEMBER', 'PLATFORM_ADMIN', 'PLATFORM_MEMBER']
-    * def actualRoles = get response.data.data[*].name
+    * def expectedRoles = ['PLATFORM_ADMIN', 'PLATFORM_MEMBER']
+    * def actualRoles = get response.data
     * match expectedRoles contains actualRoles
     * match actualRoles contains expectedRoles
 
+  @P0
+  Scenario: List all roles for a customer
     * path 'mgmt/organizations'
     * method get
     * status 200
-    * def customers = karate.filter(response.data.data, function(entry){ return entry.id != resellerOrgId })
+    * def customers = response.data.data
 
     * path 'mgmt/organizations', customers[0].id, 'roles'
     * method get
