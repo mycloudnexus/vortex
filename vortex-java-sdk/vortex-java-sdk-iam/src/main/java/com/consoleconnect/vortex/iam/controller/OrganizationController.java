@@ -39,16 +39,12 @@ public class OrganizationController {
     return userContextService.getOrgId().map(orgId -> HttpResponse.ok(service.findOne(orgId)));
   }
 
-  @Operation(summary = "List all existing connections")
-  @GetMapping("/connections")
-  public Mono<HttpResponse<Paging<OrganizationConnection>>> listConnections(
-      @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
-          int page,
-      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
-          int size) {
+  @Operation(summary = "Get one bound connection")
+  @GetMapping("/connection")
+  public Mono<HttpResponse<OrganizationConnection>> getOneConnection() {
     return userContextService
         .getOrgId()
-        .map(orgId -> HttpResponse.ok(service.listConnections(orgId, page, size)));
+        .map(orgId -> HttpResponse.ok(service.getOneConnection(orgId)));
   }
 
   @Operation(summary = "List all invitations")

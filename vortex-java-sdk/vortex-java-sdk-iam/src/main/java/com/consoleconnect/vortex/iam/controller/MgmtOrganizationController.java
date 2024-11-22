@@ -34,13 +34,12 @@ public class MgmtOrganizationController {
   @Operation(summary = "List all existing organizations")
   @GetMapping("")
   public Mono<HttpResponse<Paging<Organization>>> search(
-      @RequestParam(value = "q", required = false) String q,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
-    log.info("search, q:{}, page:{}, size:{}", q, page, size);
-    return Mono.just(HttpResponse.ok(service.search(q, page, size)));
+    log.info("search, page:{}, size:{}", page, size);
+    return Mono.just(HttpResponse.ok(service.search(page, size)));
   }
 
   @Operation(summary = "Create a new organization")
@@ -67,18 +66,13 @@ public class MgmtOrganizationController {
   }
 
   @Operation(summary = "List all existing connections")
-  @GetMapping("/{orgId}/connections")
-  public Mono<HttpResponse<Paging<OrganizationConnection>>> listConnections(
-      @PathVariable String orgId,
-      @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
-          int page,
-      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
-          int size) {
-    return Mono.just(HttpResponse.ok(service.listConnections(orgId, page, size)));
+  @GetMapping("/{orgId}/connection")
+  public Mono<HttpResponse<OrganizationConnection>> getOneConnection(@PathVariable String orgId) {
+    return Mono.just(HttpResponse.ok(service.getOneConnection(orgId)));
   }
 
   @Operation(summary = "Setup a connection")
-  @PostMapping("/{orgId}/connections")
+  @PostMapping("/{orgId}/connection")
   public Mono<HttpResponse<OrganizationConnection>> createConnection(
       @PathVariable String orgId,
       @RequestBody CreateConnectionDto request,

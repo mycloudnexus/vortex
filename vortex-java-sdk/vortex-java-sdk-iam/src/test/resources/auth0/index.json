@@ -11,6 +11,11 @@
   },
   {
     "method": "GET",
+    "endpoint": "/api/v2/connections/{id}",
+    "data": "get_api_v2_connections_{id}.json"
+  },
+  {
+    "method": "GET",
     "endpoint": "/api/v2/roles",
     "data": "get_api_v2_roles.json"
   },
@@ -32,7 +37,7 @@
   {
     "method": "GET",
     "endpoint": "/api/v2/organizations/{id}/members",
-    "data": "get_api_v2_organizations_{id}_members.json"
+    "data": "get_api_v2_organizations_{id}_members_include_totals.json"
   },
   {
     "method": "GET",
@@ -42,7 +47,7 @@
   {
     "method": "GET",
     "endpoint": "/api/v2/organizations/{id}/invitations",
-    "data": "get_api_v2_organizations_{id}_invitations.json"
+    "data": "get_api_v2_organizations_{id}_invitations_include_totals.json"
   },
   {
     "method": "POST",
