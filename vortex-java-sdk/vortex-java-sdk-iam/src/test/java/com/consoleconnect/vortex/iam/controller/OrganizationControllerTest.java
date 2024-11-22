@@ -3,9 +3,12 @@ package com.consoleconnect.vortex.iam.controller;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
+import com.consoleconnect.vortex.iam.config.EmailServiceMockHelper;
 import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
 import com.consoleconnect.vortex.iam.dto.MemberInfoUpdateDto;
+import com.consoleconnect.vortex.iam.model.IamProperty;
+import com.consoleconnect.vortex.iam.service.EmailService;
 import com.consoleconnect.vortex.test.*;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import java.util.List;
@@ -14,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,10 +32,16 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 class OrganizationControllerTest extends AbstractIntegrationTest {
 
   private final WebTestClientHelper webTestClient;
+  private final IamProperty iamProperty;
+
+  @SpyBean private EmailService emailService;
+
+  private EmailServiceMockHelper emailServiceMockHelper;
 
   @Autowired
-  public OrganizationControllerTest(WebTestClient webTestClient) {
+  public OrganizationControllerTest(WebTestClient webTestClient, IamProperty iamProperty) {
     this.webTestClient = new WebTestClientHelper(webTestClient);
+    this.iamProperty = iamProperty;
   }
 
   @BeforeAll
@@ -43,6 +53,11 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   @BeforeEach
   void setUpEach() {
     MockServerHelper.setupMock("auth0");
+
+    if (emailServiceMockHelper == null) {
+      emailServiceMockHelper = new EmailServiceMockHelper(emailService, iamProperty);
+    }
+    emailServiceMockHelper.setUp();
   }
 
   @Test
@@ -150,7 +165,7 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   void givenOrganizationInitialized_whenCreateInvitation_thenReturn200() {
 
     CreateInvitationDto createInvitationDto = new CreateInvitationDto();
-    createInvitationDto.setEmail("fake@fake.com");
+    createInvitationDto.setEmail("fake-2@fake.com");
     createInvitationDto.setRoles(List.of("ORG_ADMIN"));
     createInvitationDto.setSendEmail(false);
     webTestClient.requestAndVerify(
@@ -160,6 +175,12 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
         createInvitationDto,
         200,
         Assertions::assertNotNull);
+
+    // verify email sent
+    emailServiceMockHelper.verifyInvitation(
+        createInvitationDto.getEmail(),
+        iamProperty.getEmail().getSendGrid().getTemplates().getOrgMemberInvitation(),
+        AuthContextConstants.CUSTOMER_USER_NAME);
   }
 
   @Test

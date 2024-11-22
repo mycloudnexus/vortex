@@ -44,7 +44,7 @@ public class EmailService {
   }
 
   public void send(Email to, String templateId, Map<String, Object> context) {
-
+    log.info("Sending email to: {},templateId:{},context:{}", to.getEmail(), templateId, context);
     if (!emailProperty.isEnabled()) {
       log.info("Email service is disabled, skip sending email");
       return;

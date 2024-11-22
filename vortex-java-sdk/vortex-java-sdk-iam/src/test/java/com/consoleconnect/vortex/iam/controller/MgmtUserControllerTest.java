@@ -1,14 +1,12 @@
 package com.consoleconnect.vortex.iam.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.consoleconnect.vortex.core.exception.VortexError;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.core.toolkit.Paging;
+import com.consoleconnect.vortex.iam.config.EmailServiceMockHelper;
 import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.CreateUserDto;
 import com.consoleconnect.vortex.iam.dto.UpdateUserDto;
@@ -20,14 +18,11 @@ import com.consoleconnect.vortex.iam.service.EmailService;
 import com.consoleconnect.vortex.test.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import com.sendgrid.helpers.mail.objects.Email;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -45,6 +40,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 class MgmtUserControllerTest extends AbstractIntegrationTest {
 
   private final WebTestClientHelper webTestClient;
+  private EmailServiceMockHelper emailServiceMockHelper;
 
   @SpyBean private EmailService emailService;
   @Autowired private IamProperty iamProperty;
@@ -62,7 +58,11 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
   @BeforeEach
   void setUpEach() {
     MockServerHelper.setupMock("consoleconnect");
-    Mockito.doNothing().when(emailService).send(any(), any(), any());
+    if (emailServiceMockHelper == null) {
+      emailServiceMockHelper = new EmailServiceMockHelper(emailService, iamProperty);
+    }
+
+    emailServiceMockHelper.setUp();
   }
 
   @Test
@@ -189,22 +189,10 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
         Assertions::assertNotNull);
 
     // verify email sent
-
-    ArgumentCaptor<Email> emailArgumentCaptor = ArgumentCaptor.forClass(Email.class);
-    @SuppressWarnings("unchecked")
-    ArgumentCaptor<Map<String, Object>> mapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
-
-    Mockito.verify(emailService, Mockito.times(1))
-        .send(
-            emailArgumentCaptor.capture(),
-            eq(iamProperty.getEmail().getSendGrid().getTemplates().getUserInvitation()),
-            mapArgumentCaptor.capture());
-    Assertions.assertEquals(
-        "user_unique_username2@email.com", emailArgumentCaptor.getValue().getEmail());
-
-    Map<String, Object> context = mapArgumentCaptor.getValue();
-    Assertions.assertEquals("First Last", context.get("inviterName"));
-    Assertions.assertEquals(iamProperty.getLoginUrl(), context.get("vortexLoginUrl"));
+    emailServiceMockHelper.verifyInvitation(
+        "user_unique_username2@email.com",
+        iamProperty.getEmail().getSendGrid().getTemplates().getUserInvitation(),
+        AuthContextConstants.MGMT_USER_NAME);
   }
 
   @Test
