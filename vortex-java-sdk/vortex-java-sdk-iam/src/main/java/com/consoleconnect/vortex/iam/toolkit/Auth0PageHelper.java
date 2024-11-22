@@ -15,16 +15,19 @@ import lombok.extern.slf4j.Slf4j;
 public class Auth0PageHelper {
   private Auth0PageHelper() {}
 
-  private static final Integer MAX_SIZE_PER_PAGE = 100;
+  public static final Integer MAX_SIZE_PER_PAGE = 100;
 
   public static <T> Paging<T> loadData(
       int page, int size, Function<PageFilterParameters, Page<T>> function) {
     log.info("loadData page:{}, size:{}", page, size);
 
-    int pageSize = Math.max(size, MAX_SIZE_PER_PAGE);
+    int pageSize = Math.min(size, MAX_SIZE_PER_PAGE);
+    if (pageSize <= 0) {
+      pageSize = MAX_SIZE_PER_PAGE;
+    }
     int pageTotalSize = size == PagingHelper.ALL ? Integer.MAX_VALUE : pageSize;
 
-    Integer total = 0;
+    Integer total;
     List<T> result = new ArrayList<>();
 
     do {

@@ -2,6 +2,7 @@ package com.consoleconnect.vortex.iam.controller;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
 import com.consoleconnect.vortex.iam.dto.MemberInfoUpdateDto;
@@ -100,13 +101,22 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   @Order(2)
   void givenOrganizationInitialized_whenRetrieveMembers_thenReturn200() {
 
+    String endpoint = "/organization/members";
+    String auth0Endpoint =
+        "/api/v2/organizations/%s/members?per_page=%d&page=0&include_totals=true";
+
     webTestClient.requestAndVerify(
         HttpMethod.GET,
-        uriBuilder -> uriBuilder.path("/organization/members").build(),
+        uriBuilder -> uriBuilder.path(endpoint).build(),
         Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
         null,
         200,
         Assertions::assertNotNull);
+
+    String url =
+        String.format(
+            auth0Endpoint, AuthContextConstants.CUSTOMER_COMPANY_ID, PagingHelper.DEFAULT_SIZE);
+    MockServerHelper.verify(1, url, AuthContextConstants.AUTH0_ACCESS_TOKEN);
   }
 
   @Test
