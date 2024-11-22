@@ -36,7 +36,7 @@ public class MgmtOrganizationController {
   public Mono<HttpResponse<Paging<Organization>>> search(
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
-      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.ALL_STR)
+      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
     log.info("search, page:{}, size:{}", page, size);
     return Mono.just(HttpResponse.ok(service.search(page, size)));
@@ -72,7 +72,7 @@ public class MgmtOrganizationController {
   }
 
   @Operation(summary = "Setup a connection")
-  @PostMapping("/{orgId}/connections")
+  @PostMapping("/{orgId}/connection")
   public Mono<HttpResponse<OrganizationConnection>> createConnection(
       @PathVariable String orgId,
       @RequestBody CreateConnectionDto request,
@@ -87,7 +87,7 @@ public class MgmtOrganizationController {
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
-      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.ALL_STR)
+      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
     return Mono.just(HttpResponse.ok(service.listInvitations(orgId, page, size)));
   }
@@ -116,7 +116,7 @@ public class MgmtOrganizationController {
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
-      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.ALL_STR)
+      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
     return Mono.just(HttpResponse.ok(service.listMembers(orgId, page, size)));
   }

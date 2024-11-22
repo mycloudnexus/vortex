@@ -52,7 +52,7 @@ public class OrganizationController {
   public Mono<HttpResponse<Paging<Invitation>>> listInvitations(
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
-      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.ALL_STR)
+      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
     return userContextService
         .getOrgId()
@@ -84,7 +84,7 @@ public class OrganizationController {
   public Mono<HttpResponse<Paging<Member>>> listMembers(
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
-      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.ALL_STR)
+      @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
           int size) {
     return userContextService
         .getOrgId()

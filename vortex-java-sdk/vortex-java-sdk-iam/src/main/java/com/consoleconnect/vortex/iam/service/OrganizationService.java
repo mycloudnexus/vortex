@@ -4,7 +4,6 @@ import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.client.mgmt.OrganizationsEntity;
 import com.auth0.client.mgmt.RolesEntity;
 import com.auth0.client.mgmt.filter.InvitationsFilter;
-import com.auth0.client.mgmt.filter.PageFilter;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.connections.ConnectionsPage;
@@ -214,20 +213,17 @@ public class OrganizationService {
 
   public Paging<Organization> search(int page, int size) {
     log.info("search organizations, page:{}, size:{}", page, size);
-    return Auth0PageHelper.listPageByTotal(
-        size,
+    return Auth0PageHelper.loadData(
         page,
+        size,
         (pageFilterParameters -> {
           try {
-            PageFilter invitationsFilter = new PageFilter();
-            invitationsFilter.withTotals(pageFilterParameters.isIncludeTotals());
-            invitationsFilter.withPage(
-                pageFilterParameters.getPage(), pageFilterParameters.getSize());
-            OrganizationsEntity organizationsEntity =
-                this.auth0Client.getMgmtClient().organizations();
-            Request<OrganizationsPage> organizationRequest =
-                organizationsEntity.list(invitationsFilter);
-            return organizationRequest.execute().getBody();
+            return this.auth0Client
+                .getMgmtClient()
+                .organizations()
+                .list(pageFilterParameters.toPageFilter())
+                .execute()
+                .getBody();
           } catch (Auth0Exception e) {
             throw VortexException.internalError("Failed to get organizations");
           }
@@ -257,19 +253,17 @@ public class OrganizationService {
 
   public Paging<Member> listMembers(String orgId, int page, int size) {
     log.info("list members, orgId:{}, size:{}", orgId, size);
-    return Auth0PageHelper.listPageByTotal(
-        size,
+    return Auth0PageHelper.loadData(
         page,
+        size,
         (pageFilterParameters -> {
           try {
-            PageFilter invitationsFilter = new PageFilter();
-            invitationsFilter.withTotals(pageFilterParameters.isIncludeTotals());
-            invitationsFilter.withPage(
-                pageFilterParameters.getPage(), pageFilterParameters.getSize());
-            OrganizationsEntity organizationsEntity =
-                this.auth0Client.getMgmtClient().organizations();
-            Request<MembersPage> request = organizationsEntity.getMembers(orgId, invitationsFilter);
-            return request.execute().getBody();
+            return this.auth0Client
+                .getMgmtClient()
+                .organizations()
+                .getMembers(orgId, pageFilterParameters.toPageFilter())
+                .execute()
+                .getBody();
           } catch (Auth0Exception e) {
             throw VortexException.internalError("Failed to get members of organization: " + orgId);
           }
@@ -335,22 +329,22 @@ public class OrganizationService {
 
   public Paging<Invitation> listInvitations(String orgId, int page, int size) {
     log.info("list invitations, orgId:{}, size:{}", orgId, size);
-    return Auth0PageHelper.listPageByLimit(
-        size,
+    return Auth0PageHelper.loadData(
         page,
+        size,
         (pageFilterParameters -> {
           try {
-            InvitationsFilter invitationsFilter = new InvitationsFilter();
-            invitationsFilter.withTotals(pageFilterParameters.isIncludeTotals());
-            invitationsFilter.withPage(
-                pageFilterParameters.getPage(), pageFilterParameters.getSize());
-            OrganizationsEntity organizationsEntity =
-                this.auth0Client.getMgmtClient().organizations();
+            return this.auth0Client
+                .getMgmtClient()
+                .organizations()
+                .getInvitations(
+                    orgId,
+                    new InvitationsFilter()
+                        .withPage(pageFilterParameters.getPage(), pageFilterParameters.getSize())
+                        .withTotals(pageFilterParameters.isIncludeTotals()))
+                .execute()
+                .getBody();
 
-            // This endpoint doesn't contain the value of total field in response.
-            Request<InvitationsPage> request =
-                organizationsEntity.getInvitations(orgId, invitationsFilter);
-            return request.execute().getBody();
           } catch (Auth0Exception e) {
             throw VortexException.internalError(
                 "Failed to get invitations of organization: " + orgId);
