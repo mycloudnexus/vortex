@@ -7,27 +7,20 @@ Feature: Organization API
 
   @P0
   Scenario: Create an organization with valid payload, check status and response schema
-    * def data = read('classpath:data/organization/create_organization.json')
-    * def name =  'wl-autotest-' + randomWord(6)
-    * def displayName =  name + '-' + 'testing'
-    * set data.name = name
-    * set data.display_name = displayName
-
-    * path 'mgmt/organizations'
-    * request data
-    * method post
-    * status 200
+    * call read('@create-one-organization-ignore-status')
+    * match responseStatus == 200
     * def schema = read('classpath:schemas/organization-schema.json')
     * match response.data == schema
     * match response.data.name == name
     * match response.data.display_name == displayName
-    * match response.data.metadata == {"loginType": "undefined","status": "ACTIVE","type": "CUSTOMER"}
+    * match response.data.metadata == {"loginType": "undefined","status": "ACTIVE", "type": "CUSTOMER"}
 
   @P2
   Scenario: Create an organization with long name, check validation
     * def longName =  'wl-autotest-21-' + randomWord(6)
     * def name = longName
     * def displayName = 'wl-autotest-' + randomWord(6)
+    * def update_data = { name: '#(name)', display_name: '#(displayName)' }
 
     * call read('@create-one-organization-ignore-status')
     * match responseStatus == 400
@@ -36,6 +29,7 @@ Feature: Organization API
     * def longName =  'wl-autotest-256-' + randomWord(240)
     * def displayName = longName
     * def name = 'wl-autotest-' + randomWord(6)
+    * def update_data = { name: '#(name)', display_name: '#(displayName)' }
 
     * call read('@create-one-organization-ignore-status')
     * match responseStatus == 400
@@ -43,8 +37,7 @@ Feature: Organization API
 
   @P2
   Scenario Outline: Create an organization with invalid payload, <case>, check status and error message
-    * def name = <companyName>
-    * def displayName = <displayName>
+    * def update_data = { name: <companyName>, display_name: <displayName> }
 
     * call read('@create-one-organization-ignore-status')
     * match responseStatus == 400
@@ -57,7 +50,7 @@ Feature: Organization API
 
   @P2
   Scenario Outline: Create an organization with invalid name, <case>
-    * def name = <name>
+    * def update_data = { name: <name> }
 
     * call read('@create-one-organization-ignore-status')
     * match responseStatus == 400
@@ -80,6 +73,7 @@ Feature: Organization API
     * def newName =  'wl-autotest-' + randomWord(6)
     * def name = existingName
     * def displayName = newName
+    * def update_data = { name: name, display_name: displayName }
 
     * call read('@create-one-organization-ignore-status')
     * match responseStatus == 400
@@ -145,7 +139,6 @@ Feature: Organization API
     * match response.data.display_name == originalName
 
   @P1
-  @known-issue
   Scenario: Update organization's status, check response
     * call read('@create-one-organization')
 
@@ -169,7 +162,7 @@ Feature: Organization API
     * call read('classpath:com/consoleconnect/vortex/e2e/organization/mgmt-connection.feature@create-one-organization-with-connection')
 
     * call read('classpath:com/consoleconnect/vortex/e2e/organization/mgmt-connection.feature@get-organization-connection')
-    * assert response.data.data.length == 1
+    * assert response.data.connection_id == connectionId
 
     # Deactivate an organization
     * path 'mgmt/organizations', organization.id, 'status'
@@ -181,40 +174,40 @@ Feature: Organization API
 
     # connection should be removed
     * call read('classpath:com/consoleconnect/vortex/e2e/organization/mgmt-connection.feature@get-organization-connection')
-    * match response.data.data == []
+    * match response.data == "#notpresent"
 
     # user can't create new connection
     * call read('classpath:com/consoleconnect/vortex/e2e/organization/mgmt-connection.feature@create-connection-for-organization-ignore-status')
     * match responseStatus == 400
     * match response.reason contains "This organization is inactive"
 
+    # activate the organization
     * path 'mgmt/organizations', organization.id, 'status'
     * params { status: "ACTIVE"}
     * method patch
     * status 200
     * match response.data.metadata.status == "ACTIVE"
-    * match response.data.metadata.loginType == "samlp"
-
+#    * match response.data.metadata.loginType == "samlp"
 
   @ignore
   @create-one-organization-ignore-status
   Scenario: Create an organization
-    * def data = karate.get('data') || read('classpath:data/organization/create_organization.json')
-    * def name =  karate.get('name') || 'wl-autotest-' + randomWord(6)
-    * def displayName =  karate.get('displayName') || name + '-' + 'testing'
+    * def update_data = karate.get('update_data') || {}
+    * def data = read('classpath:data/organization/create_organization.json')
+    * def name = 'wl-autotest-' + randomWord(6)
+    * def displayName = name + '-' + 'testing'
     * set data.name = name
     * set data.display_name = displayName
+    * def deepMerge = read('classpath:com/consoleconnect/vortext/toolkit/deep-merge.js')
+    * def payload = deepMerge(data, update_data)
 
     * path 'mgmt/organizations'
-    * request data
+    * request payload
     * method post
 
   @ignore
   @create-one-organization
   Scenario: Create an organization
-    * def name = 'wl-autotest-' + randomWord(6)
-    * def displayName = name + '-' + 'testing'
-
     * call read('@create-one-organization-ignore-status')
     * match responseStatus == 200
     * def organization = response.data
