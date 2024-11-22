@@ -67,10 +67,10 @@ public class EmailService {
       Response res = client.api(request);
       log.info("email response, status: {}", res.getStatusCode());
       if (res.getStatusCode() >= 300) {
-        log.error("Error occurs on sending email: {}", res.getBody());
-        throw VortexException.internalError("Error occurs at sending email");
+        String errorMsg = String.format("Error occurs on sending email: %s", res.getBody());
+        log.error(errorMsg);
+        throw VortexException.internalError(errorMsg);
       }
-
     } catch (IOException ex) {
       log.error("Error occurs on sending email: ", ex);
       throw VortexException.internalError("Error occurs at sending email", ex);
