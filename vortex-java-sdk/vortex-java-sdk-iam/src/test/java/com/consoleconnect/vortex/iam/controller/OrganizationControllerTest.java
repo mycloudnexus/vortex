@@ -7,12 +7,14 @@ import com.consoleconnect.vortex.iam.config.EmailServiceMockHelper;
 import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
 import com.consoleconnect.vortex.iam.dto.MemberInfoUpdateDto;
+import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.service.EmailService;
 import com.consoleconnect.vortex.test.*;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
@@ -192,7 +194,7 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
 
     CreateInvitationDto createInvitationDto = new CreateInvitationDto();
     createInvitationDto.setEmail("fake-2@fake.com");
-    createInvitationDto.setRoles(List.of("ORG_ADMIN"));
+    createInvitationDto.setRoles(List.of(RoleEnum.ORG_ADMIN.name(), RoleEnum.ORG_MEMBER.name()));
     createInvitationDto.setSendEmail(false);
     webTestClient.requestAndVerify(
         HttpMethod.POST,
@@ -214,6 +216,25 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
         createInvitationDto.getEmail(),
         iamProperty.getEmail().getSendGrid().getTemplates().getOrgMemberInvitation(),
         AuthContextConstants.CUSTOMER_USER_NAME);
+  }
+
+  @Test
+  @Order(7)
+  void givenNotSupportedRole_whenCreateInvitation_thenReturn400() {
+
+    String endpoint = "/organization/invitations";
+
+    CreateInvitationDto createInvitationDto = new CreateInvitationDto();
+    createInvitationDto.setEmail("fake-2@fake.com");
+    createInvitationDto.setRoles(List.of(UUID.randomUUID().toString()));
+    createInvitationDto.setSendEmail(false);
+    webTestClient.requestAndVerify(
+        HttpMethod.POST,
+        uriBuilder -> uriBuilder.path(endpoint).build(),
+        Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
+        createInvitationDto,
+        400,
+        Assertions::assertNotNull);
   }
 
   @Test

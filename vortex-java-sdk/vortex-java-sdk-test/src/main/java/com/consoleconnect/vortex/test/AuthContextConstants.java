@@ -1,6 +1,8 @@
 package com.consoleconnect.vortex.test;
 
 public class AuthContextConstants {
+  private AuthContextConstants() {}
+
   public static final String MGMT_COMPANY_ID = "65a4f18aec61ae42ae9606dfx0000";
 
   // reseller-user1
