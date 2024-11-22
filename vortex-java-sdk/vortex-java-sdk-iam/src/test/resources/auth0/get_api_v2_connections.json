@@ -1,0 +1,22 @@
+[
+  {
+    "id": "con_YNEZH8rgZ8sQz9Fq",
+    "options": {
+      "email": true,
+      "scope": [
+        "email",
+        "profile"
+      ],
+      "profile": true
+    },
+    "strategy": "google-oauth2",
+    "name": "google-oauth2",
+    "is_domain_connection": false,
+    "realms": [
+      "google-oauth2"
+    ],
+    "enabled_clients": [
+      "YQMyMfYiNxweDkcfBx9zQuAwvtcmE4e8"
+    ]
+  }
+]

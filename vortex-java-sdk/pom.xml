@@ -19,6 +19,7 @@
         <module>vortex-java-sdk-core</module>
         <module>vortex-java-sdk-iam</module>
         <module>vortex-java-sdk-gateway</module>
+        <module>vortex-java-sdk-consoleconnect</module>
         <module>vortex-java-sdk-test</module>
     </modules>
 

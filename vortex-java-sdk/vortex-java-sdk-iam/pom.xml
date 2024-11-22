@@ -21,6 +21,12 @@
             <version>0.1.0-preview</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.consoleconnect.vortex</groupId>
+            <artifactId>vortex-java-sdk-consoleconnect</artifactId>
+            <version>0.1.0-preview</version>
+        </dependency>
+
         <!-- spring security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

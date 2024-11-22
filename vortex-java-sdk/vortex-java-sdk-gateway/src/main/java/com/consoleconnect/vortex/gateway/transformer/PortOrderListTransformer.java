@@ -5,7 +5,6 @@ import com.consoleconnect.vortex.gateway.entity.OrderEntity;
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
-import com.consoleconnect.vortex.iam.model.UserContext;
 import com.jayway.jsonpath.DocumentContext;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +40,9 @@ public class PortOrderListTransformer extends AbstractResourceTransformer<Object
       TransformerApiProperty config,
       Object metadata) {
 
-    String orgId = userContext.getCustomerId();
-
     List<OrderEntity> fillOrders = new ArrayList<>();
     Map<String, OrderEntity> orders =
-        orderService.listOrders(orgId, config.getResourceType()).stream()
+        orderService.listOrders(customerId, config.getResourceType()).stream()
             .collect(Collectors.toMap(OrderEntity::getOrderId, x -> x));
 
     Set<String> orderIds = orders.keySet();

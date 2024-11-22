@@ -1,0 +1,40 @@
+[
+  {
+    "inviter": {
+      "name": "test+1@exampe.com"
+    },
+    "invitee": {
+      "email": "q+2@exampe.com"
+    },
+    "client_id": "QeRiQhUHAw8xfVgNNCvKppDwb1IMjZGP",
+    "id": "uinv_OJnRYnzkqWHhUx0E",
+    "connection_id": "con_vAHnUrvuWH9OaRvJ",
+    "created_at": "2024-11-21T07:02:45.836+00:00",
+    "expires_at": "2024-11-28T07:02:45.836+00:00",
+    "ticket_id": "dTcEOk0ZeV5MnkOsqImw7kdXvcVpsyEd",
+    "invitation_url": "https://localhost:8000/invite?invitation=dTcEOk0ZeV5MnkOsqImw7kdXvcVpsyEd&organization=org_PNSlEdvk8z77BmvB&organization_name=qianwen-test",
+    "organization_id": "org_PNSlEdvk8z77BmvB",
+    "roles": [
+      "rol_WR61rSAJ7canXaGx"
+    ]
+  },
+  {
+    "inviter": {
+      "name": "q+3@exampe.com"
+    },
+    "invitee": {
+      "email": "q+4exampe.com"
+    },
+    "client_id": "QeRiQhUHAw8xfVgNNCvKppDwb1IMjZGP",
+    "id": "uinv_8V3CvF16wwcy2eLD",
+    "connection_id": "con_vAHnUrvuWH9OaRvJ",
+    "created_at": "2024-11-21T07:02:42.277+00:00",
+    "expires_at": "2024-11-28T07:02:42.277+00:00",
+    "ticket_id": "5qNe2ZIUwzAnOOpDIfOwNNs40WaBK27D",
+    "invitation_url": "https://localhost:8000/invite?invitation=5qNe2ZIUwzAnOOpDIfOwNNs40WaBK27D&organization=org_PNSlEdvk8z77BmvB&organization_name=qianwen-test",
+    "organization_id": "org_PNSlEdvk8z77BmvB",
+    "roles": [
+      "rol_WR61rSAJ7canXaGx"
+    ]
+  }
+]

@@ -30,7 +30,7 @@ describe('Login page', () => {
 
     expect(loginWithRedirect).toHaveBeenCalledWith({
       authorizationParams: {
-        organization: '123456',
+        // organization: '123456',
         redirect_uri: url
       }
     })

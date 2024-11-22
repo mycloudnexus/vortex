@@ -14,7 +14,7 @@ If you want to run it locally, please replace some variables in karate-config.js
 ./mvnw test
 # or run `mvn test`
 # can specify environment and tags, like 
-# ./mvnw test -Dkarate.env=prod -Dkarate.options="--tags @prod"
+# ./mvnw test -Dkarate.env=dev -Dkarate.options="--tags @Debug"
 
 ```
 
