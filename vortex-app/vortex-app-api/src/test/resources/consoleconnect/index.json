@@ -1,0 +1,12 @@
+[
+  {
+    "method": "GET",
+    "endpoint": "/heartbeat",
+    "data": "get_heartbeat.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/auth/token",
+    "data": "get_api_auth_token.json"
+  }
+]

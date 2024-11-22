@@ -1,0 +1,17 @@
+[
+  {
+    "name": "test-company-1",
+    "id": "org_1uupEpm6y1ZJywPH",
+    "display_name": "orange",
+    "metadata": {
+      "status": "ACTIVE"
+    }
+  },{
+    "name": "test-company-2",
+    "id": "org_1uupEpm6y1ZJywPT",
+    "display_name": "apple",
+    "metadata": {
+      "status": "ACTIVE"
+    }
+  }
+]

@@ -63,6 +63,7 @@
             ${project.basedir}/vortex-java-sdk/vortex-java-sdk-core/target/site/jacoco-aggregate/jacoco.xml,
             ${project.basedir}/vortex-java-sdk/vortex-java-sdk-iam/target/site/jacoco-aggregate/jacoco.xml,
             ${project.basedir}/vortex-java-sdk/vortex-java-sdk-gateway/target/site/jacoco-aggregate/jacoco.xml,
+            ${project.basedir}/vortex-java-sdk/vortex-java-sdk-consoleconnect/target/site/jacoco-aggregate/jacoco.xml,
             ${project.basedir}/kraken-app/kraken-app-api/target/site/jacoco-aggregate/jacoco.xml,
         </sonar.coverage.jacoco.xmlReportPaths>
         <sonar.exclusions>

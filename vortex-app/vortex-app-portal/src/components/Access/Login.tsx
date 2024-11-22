@@ -23,7 +23,7 @@ const Login = () => {
     if (!isAuthenticated && !isLoading) {
       loginWithRedirect({
         authorizationParams: {
-          organization,
+          // organization,
           redirect_uri: window.location.origin
         }
       })

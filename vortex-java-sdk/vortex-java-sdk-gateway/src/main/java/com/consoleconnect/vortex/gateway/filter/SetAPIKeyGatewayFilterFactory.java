@@ -1,7 +1,6 @@
 package com.consoleconnect.vortex.gateway.filter;
 
 import com.consoleconnect.vortex.iam.model.IamConstants;
-import com.consoleconnect.vortex.iam.model.UserContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -22,19 +21,19 @@ public class SetAPIKeyGatewayFilterFactory
   public GatewayFilter apply(Config config) {
     // ...
     return ((exchange, chain) -> {
-      UserContext userContext = exchange.getAttribute(IamConstants.X_VORTEX_USER_CONTEXT);
-      if (userContext == null) {
-        log.warn("User context is null,SetAPIKeyGatewayFilterFactory will not be applied");
+      String accessToken = exchange.getAttribute(IamConstants.X_VORTEX_ACCESS_TOKEN);
+      if (accessToken == null) {
+        log.warn("AccessToken is null,SetAPIKeyGatewayFilterFactory will not be applied");
         return chain.filter(exchange);
       } else {
-        String apiKeyValue = userContext.isMgmt() ? config.getAdminKey() : config.getUserKey();
         ServerWebExchange updatedExchange =
             exchange
                 .mutate()
                 .request(
                     request ->
                         request.headers(
-                            httpHeaders -> httpHeaders.add(config.getKeyName(), apiKeyValue)))
+                            httpHeaders ->
+                                httpHeaders.add(config.getAccessTokenHeaderName(), accessToken)))
                 .build();
 
         return chain.filter(updatedExchange);
@@ -44,8 +43,6 @@ public class SetAPIKeyGatewayFilterFactory
 
   @Data
   public static class Config {
-    private String keyName;
-    private String adminKey;
-    private String userKey;
+    private String accessTokenHeaderName = "Authorization";
   }
 }
