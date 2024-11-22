@@ -22,6 +22,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.util.UriUtils;
 
 @ActiveProfiles("auth-hs256")
 @MockIntegrationTest
@@ -62,58 +63,67 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
 
   @Test
   @Order(1)
-  void givenOrganizationInitialized_whenAccess_thenReturn200() {
+  void givenOrganizationInitialized_whenGetUserInfo_thenReturn200() {
 
+    String endpoint = "/auth/token";
+    String auth0Endpoint = "/api/v2/users/%s";
     webTestClient.requestAndVerify(
         HttpMethod.GET,
-        uriBuilder -> uriBuilder.path("/auth/token").build(),
+        uriBuilder -> uriBuilder.path(endpoint).build(),
         Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
         null,
         200,
         Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        String.format(
+            auth0Endpoint, UriUtils.encodePath(AuthContextConstants.CUSTOMER_USER_ID, "UTF-8")),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
   }
 
   @Test
-  @Order(1)
-  void givenOrganizationInitialized_whenList_thenReturn200() {
-
-    webTestClient.requestAndVerify(
-        HttpMethod.GET,
-        uriBuilder -> uriBuilder.path("/auth/token").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
-        null,
-        200,
-        Assertions::assertNotNull);
-  }
-
-  @Test
-  @Order(1)
+  @Order(2)
   void givenOrganizationInitialized_whenRetrieveOrganization_thenReturn200() {
 
+    String endpoint = "/organization";
+    String auth0Endpoint = "/api/v2/organizations/%s";
     webTestClient.requestAndVerify(
         HttpMethod.GET,
-        uriBuilder -> uriBuilder.path("/organization").build(),
+        uriBuilder -> uriBuilder.path(endpoint).build(),
         Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
         null,
         200,
         Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        String.format(auth0Endpoint, AuthContextConstants.CUSTOMER_COMPANY_ID),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
   }
 
   @Test
-  @Order(2)
-  void givenOrganizationInitialized_whenRetrieveConnections_thenReturn200() {
+  @Order(3)
+  void givenOrganizationInitialized_whenRetrieveConnection_thenReturn200() {
 
+    String endpoint = "/organization/connection";
+    String auth0Endpoint = "/api/v2/organizations/%s/enabled_connections";
     webTestClient.requestAndVerify(
         HttpMethod.GET,
-        uriBuilder -> uriBuilder.path("/organization/connection").build(),
+        uriBuilder -> uriBuilder.path(endpoint).build(),
         Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
         null,
         200,
         Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        String.format(auth0Endpoint, AuthContextConstants.CUSTOMER_COMPANY_ID),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
   }
 
   @Test
-  @Order(2)
+  @Order(4)
   void givenOrganizationInitialized_whenRetrieveMembers_thenReturn200() {
 
     String endpoint = "/organization/members";
@@ -135,34 +145,50 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Order(2)
+  @Order(5)
   void givenOrganizationInitialized_whenRetrieveRoles_thenReturn200() {
 
+    String endpoint = "/organization/roles";
+    String auth0Endpoint = "/api/v2/roles";
     webTestClient.requestAndVerify(
         HttpMethod.GET,
-        uriBuilder -> uriBuilder.path("/organization/roles").build(),
+        uriBuilder -> uriBuilder.path(endpoint).build(),
         Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
         null,
         200,
         Assertions::assertNotNull);
+
+    MockServerHelper.verify(1, auth0Endpoint, AuthContextConstants.AUTH0_ACCESS_TOKEN);
   }
 
   @Test
-  @Order(2)
+  @Order(6)
   void givenOrganizationInitialized_whenRetrieveInvitations_thenReturn200() {
 
+    String endpoint = "/organization/invitations";
+    String auth0Endpoint =
+        "/api/v2/organizations/%s/invitations?per_page=%d&page=0&include_totals=true";
     webTestClient.requestAndVerify(
         HttpMethod.GET,
-        uriBuilder -> uriBuilder.path("/organization/invitations").build(),
+        uriBuilder -> uriBuilder.path(endpoint).build(),
         Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
         null,
         200,
         Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        String.format(
+            auth0Endpoint, AuthContextConstants.CUSTOMER_COMPANY_ID, PagingHelper.DEFAULT_SIZE),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
   }
 
   @Test
-  @Order(2)
+  @Order(7)
   void givenOrganizationInitialized_whenCreateInvitation_thenReturn200() {
+
+    String endpoint = "/organization/invitations";
+    String auth0Endpoint = "/api/v2/organizations/%s/invitations";
 
     CreateInvitationDto createInvitationDto = new CreateInvitationDto();
     createInvitationDto.setEmail("fake-2@fake.com");
@@ -170,11 +196,18 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
     createInvitationDto.setSendEmail(false);
     webTestClient.requestAndVerify(
         HttpMethod.POST,
-        uriBuilder -> uriBuilder.path("/organization/invitations").build(),
+        uriBuilder -> uriBuilder.path(endpoint).build(),
         Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
         createInvitationDto,
         200,
         Assertions::assertNotNull);
+
+    // verify invitation created
+    MockServerHelper.verify(
+        1,
+        HttpMethod.POST,
+        String.format(auth0Endpoint, AuthContextConstants.CUSTOMER_COMPANY_ID),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
 
     // verify email sent
     emailServiceMockHelper.verifyInvitation(
@@ -184,11 +217,12 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Order(2)
+  @Order(8)
   void givenSSOMember_whenResetPassword_thenReturn400() {
+    String endpoint = "/organization/reset-password";
     webTestClient.requestAndVerify(
         HttpMethod.POST,
-        uriBuilder -> uriBuilder.path("/organization/reset-password").build(),
+        uriBuilder -> uriBuilder.path(endpoint).build(),
         Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
         null,
         400,
@@ -196,7 +230,7 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Order(2)
+  @Order(9)
   void givenSSOMember_updateMemberInfo_thenReturn400() {
     MemberInfoUpdateDto memberInfoUpdateDto = new MemberInfoUpdateDto();
     memberInfoUpdateDto.setFamilyName("familyName");
