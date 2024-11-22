@@ -731,7 +731,7 @@ class OrganizationServiceTest extends AbstractIntegrationTest {
     doReturn(invitationResponse).when(invitationRequest).execute();
     doReturn(createdInvitation).when(invitationResponse).getBody();
 
-    doNothing().when(emailService).sendInvitation(any());
+    doNothing().when(emailService).sendInvitation(any(), any());
 
     CreateInvitationDto request = new CreateInvitationDto();
     request.setEmail("test@example.com");

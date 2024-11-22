@@ -1,5 +1,8 @@
 package com.consoleconnect.vortex.iam.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.consoleconnect.vortex.core.exception.VortexError;
@@ -12,16 +15,22 @@ import com.consoleconnect.vortex.iam.dto.UpdateUserDto;
 import com.consoleconnect.vortex.iam.dto.User;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.enums.UserStatusEnum;
+import com.consoleconnect.vortex.iam.model.IamProperty;
+import com.consoleconnect.vortex.iam.service.EmailService;
 import com.consoleconnect.vortex.test.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import com.sendgrid.helpers.mail.objects.Email;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -37,6 +46,9 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
 
   private final WebTestClientHelper webTestClient;
 
+  @SpyBean private EmailService emailService;
+  @Autowired private IamProperty iamProperty;
+
   public MgmtUserControllerTest(@Autowired WebTestClient webTestClient) {
     this.webTestClient = new WebTestClientHelper(webTestClient);
   }
@@ -50,6 +62,7 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
   @BeforeEach
   void setUpEach() {
     MockServerHelper.setupMock("consoleconnect");
+    Mockito.doNothing().when(emailService).send(any(), any(), any());
   }
 
   @Test
@@ -148,7 +161,7 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
     CreateUserDto createUserDto = new CreateUserDto();
     createUserDto.setUserId(AuthContextConstants.MGMT_USER_ID_2);
     createUserDto.setRoles(List.of(RoleEnum.ORG_ADMIN.toString()));
-    createUserDto.setSendEmail(false);
+    createUserDto.setSendEmail(true);
 
     webTestClient.requestAndVerify(
         HttpMethod.POST,
@@ -174,6 +187,24 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
         null,
         200,
         Assertions::assertNotNull);
+
+    // verify email sent
+
+    ArgumentCaptor<Email> emailArgumentCaptor = ArgumentCaptor.forClass(Email.class);
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<Map<String, Object>> mapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
+
+    Mockito.verify(emailService, Mockito.times(1))
+        .send(
+            emailArgumentCaptor.capture(),
+            eq(iamProperty.getEmail().getSendGrid().getTemplates().getUserInvitation()),
+            mapArgumentCaptor.capture());
+    Assertions.assertEquals(
+        "user_unique_username2@email.com", emailArgumentCaptor.getValue().getEmail());
+
+    Map<String, Object> context = mapArgumentCaptor.getValue();
+    Assertions.assertEquals("First Last", context.get("inviterName"));
+    Assertions.assertEquals(iamProperty.getLoginUrl(), context.get("vortexLoginUrl"));
   }
 
   @Test
@@ -239,7 +270,7 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
     CreateUserDto createUserDto = new CreateUserDto();
     createUserDto.setUserId(AuthContextConstants.MGMT_USER_ID_2);
     createUserDto.setRoles(List.of(RoleEnum.ORG_ADMIN.toString()));
-    createUserDto.setSendEmail(false);
+    createUserDto.setSendEmail(true);
 
     webTestClient.requestAndVerify(
         HttpMethod.POST,
