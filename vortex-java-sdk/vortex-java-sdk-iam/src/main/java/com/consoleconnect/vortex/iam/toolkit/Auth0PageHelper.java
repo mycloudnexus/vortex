@@ -49,7 +49,7 @@ public class Auth0PageHelper {
     } while (true);
 
     log.info("loadData done, loadedTotal:{}", result.size());
-    return PagingHelper.toPage(
+    return PagingHelper.toPageNoSubList(
         result, page, result.size(), total != null ? total.longValue() : null);
   }
 
