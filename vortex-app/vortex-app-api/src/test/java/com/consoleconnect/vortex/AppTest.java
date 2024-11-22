@@ -45,6 +45,24 @@ class AppTest extends AbstractIntegrationTest {
   }
 
   @Test
+  void givenAnonymous_whenGetOpenAPISpec_thenReturn200() {
+    webTestClient.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/v3/api-docs").build(),
+        HttpStatus.OK.value(),
+        Assertions::assertNotNull);
+  }
+
+  @Test
+  void givenAnonymous_whenGetDownstreamOpenAPISpec_thenReturn200() {
+    webTestClient.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/v3/api-docs/downstream").build(),
+        HttpStatus.OK.value(),
+        Assertions::assertNotNull);
+  }
+
+  @Test
   void givenAnonymous_whenGetHealth_thenReturn200() {
     webTestClient.requestAndVerify(
         HttpMethod.GET,

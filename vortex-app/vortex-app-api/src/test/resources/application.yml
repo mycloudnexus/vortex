@@ -69,6 +69,8 @@ springdoc:
     urls:
       - url: /v3/api-docs
         name: Vortex API
+      - url: /v3/api-docs/downstream
+        name: Downstream API
   servers:
     - url: http://localhost:8000
       description: localhost
