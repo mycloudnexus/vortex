@@ -10,28 +10,19 @@ Feature: Mgmt Role API
     * path 'mgmt/roles'
     * method get
     * status 200
-    * def schema = read('classpath:schemas/role-schema.json')
-    * match each response.data.data == schema
-
-  @P1
-  Scenario: Get a role by id, check status
-    * path 'mgmt/roles'
-    * method get
-    * status 200
-    * def roles = response.data.data
-
-    * path 'mgmt/roles', roles[0].id
-    * method get
-    * status 200
+    * def expectedRoles = ['PLATFORM_ADMIN', 'PLATFORM_MEMBER']
+    * def actualRoles = get response.data
+    * match expectedRoles contains actualRoles
+    * match actualRoles contains expectedRoles
 
   @P0
   Scenario: List all roles for an organization
     * path 'mgmt/organizations', resellerOrgId, 'roles'
     * method get
     * status 200
-    * assert response.data.total == 4
+    * assert response.data.total == 2
     # for reseller, there should be 4 roles
-    * def expectedRoles = ['ORG_ADMIN', 'ORG_MEMBER', 'PLATFORM_ADMIN', 'PLATFORM_MEMBER']
+    * def expectedRoles = ['ORG_ADMIN', 'ORG_MEMBER']
     * def actualRoles = get response.data.data[*].name
     * match expectedRoles contains actualRoles
     * match actualRoles contains expectedRoles

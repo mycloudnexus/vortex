@@ -9,5 +9,5 @@ Feature: Mgmt Member API
     * path 'mgmt/organizations', resellerOrgId, 'members'
     * method get
     * status 200
-    * def schema = read('classpath:schemas/user-schema.json')
+    * def schema = read('classpath:schemas/member-schema.json')
     * match each response.data.data contains deep schema

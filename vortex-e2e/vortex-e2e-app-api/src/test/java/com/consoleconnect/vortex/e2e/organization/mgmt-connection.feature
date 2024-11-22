@@ -6,19 +6,17 @@ Feature: Mgmt Connection API
 
   @P0
   Scenario: Get reseller organization connection, check status and response
-    * path 'mgmt/organizations', resellerOrgId, 'connections'
+    * path 'mgmt/organizations', resellerOrgId, 'connection'
     * method get
     * status 200
-    * assert response.data.data.length == 1
 
   @P0
   Scenario Outline: Create SAML connection for customer, <case>, then update it, check status and response
     * def update_data = <update_data>
     * call read('classpath:com/consoleconnect/vortex/e2e/organization/mgmt-organization.feature@create-one-organization')
-    * path 'mgmt/organizations', organizationId, 'connections'
+    * path 'mgmt/organizations', organizationId, 'connection'
     * method get
     * status 200
-    * assert response.data.data.length == 0
 
     * call read('@create-connection-for-organization')
     * match response.data contains deep <match_data>
@@ -53,7 +51,7 @@ Feature: Mgmt Connection API
       }
       """
     * def payload = deepMerge(data, update_data)
-    * path 'mgmt/organizations', organizationId, 'connections'
+    * path 'mgmt/organizations', organizationId, 'connection'
     * request payload
     * method post
 
@@ -74,6 +72,6 @@ Feature: Mgmt Connection API
   @ignore
   @get-organization-connection
   Scenario: Get reseller organization connection, check status and response
-    * path 'mgmt/organizations', organizationId, 'connections'
+    * path 'mgmt/organizations', organizationId, 'connection'
     * method get
     * status 200
