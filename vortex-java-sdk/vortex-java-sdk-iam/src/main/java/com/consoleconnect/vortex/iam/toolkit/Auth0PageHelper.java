@@ -1,4 +1,4 @@
-package com.consoleconnect.vortex.iam.util;
+package com.consoleconnect.vortex.iam.toolkit;
 
 import com.auth0.client.mgmt.filter.PageFilter;
 import com.auth0.json.mgmt.Page;

@@ -23,7 +23,7 @@ import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.service.connection.AbstractConnection;
-import com.consoleconnect.vortex.iam.util.Auth0PageHelper;
+import com.consoleconnect.vortex.iam.toolkit.Auth0PageHelper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.*;
 import lombok.AllArgsConstructor;
