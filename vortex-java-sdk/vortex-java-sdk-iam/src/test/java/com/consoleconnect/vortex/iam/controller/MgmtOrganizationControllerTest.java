@@ -14,8 +14,8 @@ import com.consoleconnect.vortex.iam.dto.MemberInfoUpdateDto;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.iam.toolkit.Auth0PageHelper;
 import com.consoleconnect.vortex.test.*;
+import com.consoleconnect.vortex.test.user.TestUser;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -41,11 +41,17 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   private MgmtOrganizationController mgmtOrganizationController =
       new MgmtOrganizationController(organizationService);
 
-  private final WebTestClientHelper webTestClient;
+  private final TestUser mgmtUser;
+  private final TestUser customerUser;
+  private final TestUser anonymousUser;
 
   @Autowired
   public MgmtOrganizationControllerTest(WebTestClient webTestClient) {
-    this.webTestClient = new WebTestClientHelper(webTestClient);
+    WebTestClientHelper webTestClientHelper = new WebTestClientHelper(webTestClient);
+
+    this.mgmtUser = TestUser.loginAsMgmtUser(webTestClientHelper);
+    this.customerUser = TestUser.loginAsCustomerUser(webTestClientHelper);
+    this.anonymousUser = TestUser.login(webTestClientHelper, null);
   }
 
   @BeforeAll
@@ -60,16 +66,36 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  void givenAnonymousUser_whenSearch_thenReturn401() {
+    String endpoint = "/mgmt/organizations";
+
+    anonymousUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path(endpoint).build(),
+        401,
+        org.junit.jupiter.api.Assertions::assertNull);
+  }
+
+  @Test
+  void givenCustomerUser_whenSearch_thenReturn401() {
+    String endpoint = "/mgmt/organizations";
+
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path(endpoint).build(),
+        403,
+        org.junit.jupiter.api.Assertions::assertNull);
+  }
+
+  @Test
   void givenOrganizationCreated_whenSearch_thenReturn200() {
     String endpoint = "/mgmt/organizations";
     String auth0Endpoint = "/api/v2/organizations?per_page=%d&page=0&include_totals=true";
 
     // given default page and size
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path(endpoint).build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         200,
         org.junit.jupiter.api.Assertions::assertNotNull);
 
@@ -77,11 +103,9 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
     MockServerHelper.verify(1, url, AuthContextConstants.AUTH0_ACCESS_TOKEN);
 
     // give size=-1 to load all data
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path(endpoint).queryParam("size", PagingHelper.ALL_STR).build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         200,
         org.junit.jupiter.api.Assertions::assertNotNull);
 
@@ -95,11 +119,9 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
     String auth0Endpoint =
         "/api/v2/organizations/%s/members?per_page=%d&page=0&include_totals=true";
     // given default page and size
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path(endpoint).build(AuthContextConstants.CUSTOMER_COMPANY_ID),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         200,
         org.junit.jupiter.api.Assertions::assertNotNull);
 
@@ -109,15 +131,13 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
     MockServerHelper.verify(1, url, AuthContextConstants.AUTH0_ACCESS_TOKEN);
 
     // given size=-1 to load all data
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder ->
             uriBuilder
                 .path(endpoint)
                 .queryParam("size", PagingHelper.ALL_STR)
                 .build(AuthContextConstants.CUSTOMER_COMPANY_ID),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         200,
         org.junit.jupiter.api.Assertions::assertNotNull);
 
@@ -135,11 +155,9 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
     String auth0Endpoint =
         "/api/v2/organizations/%s/invitations?per_page=%d&page=0&include_totals=true";
     // given default page and size
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path(endpoint).build(AuthContextConstants.CUSTOMER_COMPANY_ID),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         200,
         org.junit.jupiter.api.Assertions::assertNotNull);
 
@@ -149,15 +167,13 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
     MockServerHelper.verify(1, url, AuthContextConstants.AUTH0_ACCESS_TOKEN);
 
     // given size=-1 to load all data
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder ->
             uriBuilder
                 .path(endpoint)
                 .queryParam("size", PagingHelper.ALL_STR)
                 .build(AuthContextConstants.CUSTOMER_COMPANY_ID),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         200,
         org.junit.jupiter.api.Assertions::assertNotNull);
 
