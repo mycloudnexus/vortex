@@ -94,6 +94,21 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
 
   @Test
   @Order(1)
+  void givenUnInvitedUser_whenAccess_thenReturn403() {
+
+    TestUser mgmtUser2 =
+        TestUser.login(webTestClientHelper, AuthContextConstants.MGMT_ACCESS_TOKEN_2);
+
+    // before inviting user, it can't access the system
+    mgmtUser2.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/mgmt/users").build(),
+        403,
+        Assertions::assertNull);
+  }
+
+  @Test
+  @Order(1)
   void givenInitialized_whenListUsers_thenReturn200() {
     mgmtUser.requestAndVerify(
         HttpMethod.GET,
@@ -175,7 +190,7 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
     mgmtUser2.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/auth/token").build(),
-        401,
+        403,
         Assertions::assertNull);
 
     // invite user

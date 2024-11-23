@@ -127,3 +127,15 @@ app:
           roles:
             - ORG_ADMIN
             - ORG_MEMBER
+        - path: /auth/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+            - ORG_ADMIN
+            - ORG_MEMBER
