@@ -171,6 +171,40 @@ app:
           roles:
             - ORG_ADMIN
             - ORG_MEMBER
+        - path: /auth/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+            - ORG_ADMIN
+            - ORG_MEMBER
+        - path: /actuator/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+        - path: ${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+            - ORG_ADMIN
+            - ORG_MEMBER
     downstream:
       base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3001}
       token: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
