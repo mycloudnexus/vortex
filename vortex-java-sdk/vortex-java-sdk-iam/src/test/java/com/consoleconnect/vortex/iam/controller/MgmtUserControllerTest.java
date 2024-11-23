@@ -254,7 +254,7 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
         .requestAndVerify(
             HttpMethod.GET,
             uriBuilder -> uriBuilder.path("/auth/token").build(),
-            401,
+            403,
             Assertions::assertNull);
   }
 
@@ -275,7 +275,7 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
         .requestAndVerify(
             HttpMethod.GET,
             uriBuilder -> uriBuilder.path("/auth/token").build(),
-            401,
+            403,
             Assertions::assertNull);
   }
 
