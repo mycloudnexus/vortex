@@ -16,10 +16,10 @@ import com.consoleconnect.vortex.iam.enums.UserStatusEnum;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.service.EmailService;
 import com.consoleconnect.vortex.test.*;
+import com.consoleconnect.vortex.test.user.TestUser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
@@ -39,14 +39,21 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @Slf4j
 class MgmtUserControllerTest extends AbstractIntegrationTest {
 
-  private final WebTestClientHelper webTestClient;
+  private final WebTestClientHelper webTestClientHelper;
   private EmailServiceMockHelper emailServiceMockHelper;
 
   @SpyBean private EmailService emailService;
   @Autowired private IamProperty iamProperty;
 
+  private final TestUser mgmtUser;
+  private final TestUser customerUser;
+  private final TestUser anonymousUser;
+
   public MgmtUserControllerTest(@Autowired WebTestClient webTestClient) {
-    this.webTestClient = new WebTestClientHelper(webTestClient);
+    webTestClientHelper = new WebTestClientHelper(webTestClient);
+    mgmtUser = TestUser.loginAsMgmtUser(webTestClientHelper);
+    customerUser = TestUser.loginAsCustomerUser(webTestClientHelper);
+    anonymousUser = TestUser.login(webTestClientHelper, null);
   }
 
   @BeforeAll
@@ -67,13 +74,30 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
 
   @Test
   @Order(1)
-  void givenInitialized_whenListUsers_thenReturn200() {
-
-    webTestClient.requestAndVerify(
+  void givenAnonymousUser_whenListUsers_thenReturn401() {
+    anonymousUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/mgmt/users").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
+        401,
+        Assertions::assertNull);
+  }
+
+  @Test
+  @Order(1)
+  void givenCustomerUser_whenListUsers_thenReturn403() {
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/mgmt/users").build(),
+        403,
+        Assertions::assertNull);
+  }
+
+  @Test
+  @Order(1)
+  void givenInitialized_whenListUsers_thenReturn200() {
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/mgmt/users").build(),
         200,
         response -> {
           HttpResponse<Paging<User>> res = JsonToolkit.fromJson(response, new TypeReference<>() {});
@@ -98,12 +122,10 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
   @Order(2)
   void givenCorrectUserId_whenFindOne_thenReturn200() {
 
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder ->
             uriBuilder.path("/mgmt/users/{userId}").build(AuthContextConstants.MGMT_USER_ID),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         200,
         response -> {
           HttpResponse<User> res = JsonToolkit.fromJson(response, new TypeReference<>() {});
@@ -129,11 +151,9 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
   @Order(3)
   void givenWrongUserId_whenFindOne_thenReturn404() {
 
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/mgmt/users/{userId}").build(UUID.randomUUID().toString()),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         404,
         response -> {
           VortexError error = JsonToolkit.fromJson(response, new TypeReference<>() {});
@@ -148,12 +168,13 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
   @Order(4)
   void givenCorrectPayload_whenCreate_thenReturn200() {
 
+    TestUser mgmtUser2 =
+        TestUser.login(webTestClientHelper, AuthContextConstants.MGMT_ACCESS_TOKEN_2);
+
     // before inviting user, it can't access the system
-    webTestClient.requestAndVerify(
+    mgmtUser2.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/auth/token").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN_2),
-        null,
         401,
         Assertions::assertNull);
 
@@ -163,10 +184,9 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
     createUserDto.setRoles(List.of(RoleEnum.ORG_ADMIN.toString()));
     createUserDto.setSendEmail(true);
 
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.POST,
         uriBuilder -> uriBuilder.path("/mgmt/users").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
         createUserDto,
         200,
         response -> {
@@ -180,11 +200,9 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
         });
 
     // invited user should be able to access the system
-    webTestClient.requestAndVerify(
+    mgmtUser2.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/auth/token").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN_2),
-        null,
         200,
         Assertions::assertNotNull);
 
@@ -203,11 +221,10 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
     UpdateUserDto updateUserDto = new UpdateUserDto();
     updateUserDto.setStatus(UserStatusEnum.INACTIVE);
 
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.PATCH,
         uriBuilder ->
             uriBuilder.path("/mgmt/users/{userId}").build(AuthContextConstants.MGMT_USER_ID_2),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
         updateUserDto,
         200,
         response -> {
@@ -218,13 +235,12 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
         });
 
     // disabled user can't access the system
-    webTestClient.requestAndVerify(
-        HttpMethod.GET,
-        uriBuilder -> uriBuilder.path("/auth/token").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN_2),
-        null,
-        401,
-        Assertions::assertNull);
+    TestUser.login(webTestClientHelper, AuthContextConstants.MGMT_ACCESS_TOKEN_2)
+        .requestAndVerify(
+            HttpMethod.GET,
+            uriBuilder -> uriBuilder.path("/auth/token").build(),
+            401,
+            Assertions::assertNull);
   }
 
   @Test
@@ -232,23 +248,20 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
   void givenExistingUser_whenDelete_thenReturn200() {
 
     // delete a user
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.DELETE,
         uriBuilder ->
             uriBuilder.path("/mgmt/users/{userId}").build(AuthContextConstants.MGMT_USER_ID_2),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         200,
         Assertions::assertNotNull);
 
     // deleted user can't access the system
-    webTestClient.requestAndVerify(
-        HttpMethod.GET,
-        uriBuilder -> uriBuilder.path("/auth/token").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN_2),
-        null,
-        401,
-        Assertions::assertNull);
+    TestUser.login(webTestClientHelper, AuthContextConstants.MGMT_ACCESS_TOKEN_2)
+        .requestAndVerify(
+            HttpMethod.GET,
+            uriBuilder -> uriBuilder.path("/auth/token").build(),
+            401,
+            Assertions::assertNull);
   }
 
   @Test
@@ -260,10 +273,9 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
     createUserDto.setRoles(List.of(RoleEnum.ORG_ADMIN.toString()));
     createUserDto.setSendEmail(true);
 
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.POST,
         uriBuilder -> uriBuilder.path("/mgmt/users").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
         createUserDto,
         200,
         response -> {
@@ -277,12 +289,11 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
         });
 
     // invited user should be able to access the system
-    webTestClient.requestAndVerify(
-        HttpMethod.GET,
-        uriBuilder -> uriBuilder.path("/auth/token").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN_2),
-        null,
-        200,
-        Assertions::assertNotNull);
+    TestUser.login(webTestClientHelper, AuthContextConstants.MGMT_ACCESS_TOKEN_2)
+        .requestAndVerify(
+            HttpMethod.GET,
+            uriBuilder -> uriBuilder.path("/auth/token").build(),
+            200,
+            Assertions::assertNotNull);
   }
 }
