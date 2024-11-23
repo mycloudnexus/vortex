@@ -19,12 +19,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 class AppTest extends AbstractIntegrationTest {
 
   private final TestUser mgmtUser;
+  private final TestUser customerUser;
   private final TestUser anonymousUser;
 
   public AppTest(@Autowired WebTestClient webTestClient) {
     WebTestClientHelper webTestClientHelper = new WebTestClientHelper(webTestClient);
 
     this.mgmtUser = TestUser.loginAsMgmtUser(webTestClientHelper);
+    this.customerUser = TestUser.loginAsCustomerUser(webTestClientHelper);
     this.anonymousUser = TestUser.login(webTestClientHelper, null);
   }
 
@@ -66,12 +68,21 @@ class AppTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenAccessToken_whenGetActuator_thenReturn200() {
+  void givenMgmtUser_whenGetActuator_thenReturn200() {
     mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/actuator").build(),
         HttpStatus.OK.value(),
         Assertions::assertNotNull);
+  }
+
+  @Test
+  void givenCustomerUser_whenGetActuator_thenReturn200() {
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator").build(),
+        HttpStatus.FORBIDDEN.value(),
+        Assertions::assertNull);
   }
 
   @Test
@@ -84,12 +95,21 @@ class AppTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenAccessToken_whenGetInfo_thenReturn200() {
+  void givenMgmtUser_whenGetInfo_thenReturn200() {
     mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/actuator/info").build(),
         HttpStatus.OK.value(),
         Assertions::assertNotNull);
+  }
+
+  @Test
+  void givenCustomerUser_whenGetInfo_thenReturn200() {
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator/info").build(),
+        HttpStatus.FORBIDDEN.value(),
+        Assertions::assertNull);
   }
 
   @Test
@@ -102,11 +122,20 @@ class AppTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenAccessToken_whenGetPrometheus_thenReturn200() {
+  void givenMgmtUser_whenGetPrometheus_thenReturn200() {
     mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/actuator/prometheus").build(),
         HttpStatus.OK.value(),
         Assertions::assertNotNull);
+  }
+
+  @Test
+  void givenCustomerUser_whenGetPrometheus_thenReturn200() {
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator/prometheus").build(),
+        HttpStatus.FORBIDDEN.value(),
+        Assertions::assertNull);
   }
 }

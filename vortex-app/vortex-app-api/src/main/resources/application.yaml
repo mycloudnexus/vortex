@@ -183,6 +183,16 @@ app:
             - PLATFORM_MEMBER
             - ORG_ADMIN
             - ORG_MEMBER
+        - path: /actuator/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
         - path: ${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}/**
           http-methods:
             - GET

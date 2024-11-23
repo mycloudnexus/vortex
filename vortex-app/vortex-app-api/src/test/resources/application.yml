@@ -96,7 +96,8 @@ app:
           name: from-name
           email: fake@fake.com
         templates:
-          invite-org-member: template-uuid
+          user-invitation: template-uuid
+          org-member-invitation: template-uuid
     resource-server:
       path-permissions:
         - path: /mgmt/**
@@ -137,6 +138,16 @@ app:
             - PLATFORM_MEMBER
             - ORG_ADMIN
             - ORG_MEMBER
+        - path: /actuator/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
         - path: /downstream/**
           http-methods:
             - GET
