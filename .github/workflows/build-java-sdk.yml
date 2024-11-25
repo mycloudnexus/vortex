@@ -48,7 +48,7 @@ jobs:
           echo $CURRENT_VERSION
           
           JAVA_SDK_VERSION=$CURRENT_VERSION-$COMMIT_HASH_SHORT
-          echo "java-sdk-version=JAVA_SDK_VERSION" >> $GITHUB_OUTPUT
+          echo "java-sdk-version=$JAVA_SDK_VERSION" >> $GITHUB_OUTPUT
 
 
       - name: Bump version in pom.xml files
