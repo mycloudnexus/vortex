@@ -52,7 +52,7 @@ const CustomerCompanyModal = <T extends object>({
             { required: true, message: 'Customer name cannot be empty' },
             {
               validator: async (_, value) => {
-                const exist = companies.find((company) => company.display_name === value)
+                const exist = companies.some((company) => company.display_name === value)
                 if (exist) {
                   return Promise.reject(new Error('Customer name cannot be duplicated'))
                 }
@@ -86,7 +86,7 @@ const CustomerCompanyModal = <T extends object>({
             },
             {
               validator: async (_, value) => {
-                const exist = companies.find((company) => company.name === value)
+                const exist = companies.some((company) => company.name === value)
                 if (exist) {
                   return Promise.reject(new Error('Customer shortname cannot be duplicated'))
                 }
