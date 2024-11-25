@@ -1,0 +1,9 @@
+{
+  "id": "#string",
+  "username": "#string",
+  "name": "#string",
+  "roles": "#array",
+  "status": "#string",
+  "organizationId": "#string",
+  "createdAt": "#string"
+}

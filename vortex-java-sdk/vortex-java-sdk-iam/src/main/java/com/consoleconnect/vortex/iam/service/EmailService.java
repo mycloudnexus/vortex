@@ -23,19 +23,28 @@ public class EmailService {
 
   private final SendGrid client;
   private final EmailProperty emailProperty;
+  private final String loginUrl;
 
   public EmailService(IamProperty iamProperty) {
     this.emailProperty = iamProperty.getEmail();
     this.client = new SendGrid(emailProperty.getSendGrid().getApiKey());
+    this.loginUrl = iamProperty.getLoginUrl();
   }
 
-  public void sendInvitation(Invitation invitation) {
+  public void sendInvitation(Invitation invitation, boolean isPlatformAdmin) {
     Email to = new Email(invitation.getInvitee().getEmail());
-    send(to, emailProperty.getSendGrid().getTemplates().getInviteOrgMember(), new HashMap<>());
+    String templateId =
+        isPlatformAdmin
+            ? emailProperty.getSendGrid().getTemplates().getUserInvitation()
+            : emailProperty.getSendGrid().getTemplates().getOrgMemberInvitation();
+    Map<String, Object> context = new HashMap<>();
+    context.put("inviterName", invitation.getInviter().getName());
+    context.put("vortexLoginUrl", loginUrl);
+    send(to, templateId, context);
   }
 
   public void send(Email to, String templateId, Map<String, Object> context) {
-
+    log.info("Sending email to: {},templateId:{},context:{}", to.getEmail(), templateId, context);
     if (!emailProperty.isEnabled()) {
       log.info("Email service is disabled, skip sending email");
       return;
@@ -58,10 +67,10 @@ public class EmailService {
       Response res = client.api(request);
       log.info("email response, status: {}", res.getStatusCode());
       if (res.getStatusCode() >= 300) {
-        log.error("Error occurs on sending email: {}", res.getBody());
-        throw VortexException.internalError("Error occurs at sending email");
+        String errorMsg = String.format("Error occurs on sending email: %s", res.getBody());
+        log.error(errorMsg);
+        throw VortexException.internalError(errorMsg);
       }
-
     } catch (IOException ex) {
       log.error("Error occurs on sending email: ", ex);
       throw VortexException.internalError("Error occurs at sending email", ex);

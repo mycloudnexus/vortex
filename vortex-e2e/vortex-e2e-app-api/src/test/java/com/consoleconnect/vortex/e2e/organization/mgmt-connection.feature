@@ -5,20 +5,12 @@ Feature: Mgmt Connection API
     * configure headers = { 'Authorization': '#(resellerAdminToken)' }
 
   @P0
-  Scenario: Get reseller organization connection, check status and response
-    * path 'mgmt/organizations', resellerOrgId, 'connections'
-    * method get
-    * status 200
-    * assert response.data.data.length == 1
-
-  @P0
   Scenario Outline: Create SAML connection for customer, <case>, then update it, check status and response
     * def update_data = <update_data>
     * call read('classpath:com/consoleconnect/vortex/e2e/organization/mgmt-organization.feature@create-one-organization')
-    * path 'mgmt/organizations', organizationId, 'connections'
+    * path 'mgmt/organizations', organizationId, 'connection'
     * method get
     * status 200
-    * assert response.data.data.length == 0
 
     * call read('@create-connection-for-organization')
     * match response.data contains deep <match_data>
@@ -36,24 +28,9 @@ Feature: Mgmt Connection API
     * def signingCert = karate.exec(['node', 'src/main/java/com/consoleconnect/vortext/toolkit/generate-cert.js'])
     * def data = read('classpath:data/organization/create_connection_saml.json')
     * set data.saml.debug = true
-    * def deepMerge =
-      """
-      function deepMerge(obj1, obj2) {
-        var result = JSON.parse(JSON.stringify(obj1));
-        for (var key in obj2) {
-          if (obj2.hasOwnProperty(key)) {
-            if (typeof obj2[key] === 'object' && obj2[key] !== null && typeof result[key] === 'object' && result[key] !== null) {
-              result[key] = deepMerge(result[key], obj2[key]);
-            } else {
-              result[key] = obj2[key];
-            }
-          }
-        }
-        return result;
-      }
-      """
+    * def deepMerge = read('classpath:com/consoleconnect/vortext/toolkit/deep-merge.js')
     * def payload = deepMerge(data, update_data)
-    * path 'mgmt/organizations', organizationId, 'connections'
+    * path 'mgmt/organizations', organizationId, 'connection'
     * request payload
     * method post
 
@@ -74,6 +51,6 @@ Feature: Mgmt Connection API
   @ignore
   @get-organization-connection
   Scenario: Get reseller organization connection, check status and response
-    * path 'mgmt/organizations', organizationId, 'connections'
+    * path 'mgmt/organizations', organizationId, 'connection'
     * method get
     * status 200

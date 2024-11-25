@@ -111,6 +111,7 @@ logging:
 
 
 app:
+  loginUrl: ${APP_LOGIN_URL:http://localhost:3000}
   iam:
     auth0:
       mgmt-api:
@@ -129,7 +130,8 @@ app:
           name: ${SENDGRID_FROM_NAME:}
           email: ${SENDGRID_FROM_EMAIL:}
         templates:
-          invite-org-member: ${SENDGRID_TEMPLATE_ID_ORG_INVITE:}
+          user-invitation: ${SENGRID_TEMPLATE_ID_USER_INVITATION:}
+          org-member-invitation: ${SENDGRID_TEMPLATE_ID_ORG_MEMBER_INVITATION:}
     resource-server:
       trusted-issuers:
         - issuer: ${IAM_MGMT_TOKEN_ISSUER_URI:https://login.consoleconnect.com/}
@@ -167,6 +169,40 @@ app:
           http-methods:
             - GET
           roles:
+            - ORG_ADMIN
+            - ORG_MEMBER
+        - path: /auth/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+            - ORG_ADMIN
+            - ORG_MEMBER
+        - path: /actuator/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+        - path: ${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
             - ORG_ADMIN
             - ORG_MEMBER
     downstream:

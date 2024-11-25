@@ -318,7 +318,10 @@ public class OrganizationService {
 
       Response<Invitation> createdInvitationResponse = invitationRequest.execute();
       Invitation createdInvitation = createdInvitationResponse.getBody();
-      emailService.sendInvitation(createdInvitation);
+      if (!request.isSendEmail()) { // not send via auth0, then need to handle internal
+        emailService.sendInvitation(createdInvitation, false);
+      }
+
       return createdInvitation;
     } catch (Auth0Exception e) {
       log.error("create invitations.error", e);
