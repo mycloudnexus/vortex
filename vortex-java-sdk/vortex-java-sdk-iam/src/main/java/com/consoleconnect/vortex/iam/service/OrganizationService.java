@@ -91,6 +91,7 @@ public class OrganizationService {
   }
 
   private Organization doUpdateOrganization(String orgId, Organization updateRequest) {
+    log.info("doUpdateOrganization, orgId:{},payload:{}", orgId, updateRequest);
     try {
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       return organizationsEntity.update(orgId, updateRequest).execute().getBody();
@@ -189,11 +190,7 @@ public class OrganizationService {
   }
 
   public OrganizationInfo findOne(String orgId) {
-    return findOne(orgId, true);
-  }
-
-  public OrganizationInfo findOne(String orgId, boolean withConnection) {
-    log.info("find organization, orgId:{},withConnection:{}", orgId, withConnection);
+    log.info("find organization info, orgId:{}", orgId);
 
     Organization organization =
         findOrganization(orgId)
@@ -202,19 +199,17 @@ public class OrganizationService {
 
     OrganizationInfo organizationInfo =
         OrganizationMapper.INSTANCE.toOrganizationInfo(organization);
-    if (withConnection) {
-      getOrganizationConnection(organizationInfo.getMetadata().getConnectionId())
-          .ifPresent(organizationInfo::setConnection);
-    }
+    getOrganizationConnection(organizationInfo.getMetadata().getConnectionId())
+        .ifPresent(organizationInfo::setConnection);
+
     return organizationInfo;
   }
 
   public Optional<Organization> findOrganization(String orgId) {
     log.info("find organization, orgId:{}", orgId);
     try {
-      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
-      return Optional.of(organizationsEntity.get(orgId).execute().getBody());
-
+      return Optional.of(
+          this.auth0Client.getMgmtClient().organizations().get(orgId).execute().getBody());
     } catch (Auth0Exception e) {
       log.warn("find organization, orgId:{}", orgId);
       return Optional.empty();
@@ -222,8 +217,45 @@ public class OrganizationService {
   }
 
   public Organization findOrganizationAndThrow(String orgId) {
-    return findOrganization(orgId)
-        .orElseThrow(() -> VortexException.badRequest("Organization not found, orgId:" + orgId));
+    return findOrganizationAndThrow(orgId, null, null);
+  }
+
+  public Organization findOrganizationAndThrow(
+      String orgId, OrgStatusEnum orgStatusEnum, Boolean connectionEnabled) {
+    return findOrganizationAndThrow(orgId, orgStatusEnum, connectionEnabled, null);
+  }
+
+  public Organization findOrganizationAndThrow(
+      String orgId,
+      OrgStatusEnum orgStatusEnum,
+      Boolean connectionEnabled,
+      ConnectionStrategyEnum strategy) {
+    Organization organization =
+        findOrganization(orgId)
+            .orElseThrow(
+                () -> VortexException.badRequest("Organization not found, orgId:" + orgId));
+
+    OrganizationMetadata metadata = OrganizationMetadata.fromMap(organization.getMetadata());
+    if (orgStatusEnum != null && metadata.getStatus() != orgStatusEnum) {
+      throw VortexException.badRequest("Organization status is not " + orgStatusEnum);
+    }
+
+    if (connectionEnabled != null) {
+      if (connectionEnabled) {
+        if (metadata.getConnectionId() == null) {
+          throw VortexException.badRequest("No connection found for organization: " + orgId);
+        }
+      } else {
+        if (metadata.getConnectionId() != null) {
+          throw VortexException.badRequest("Connection already exists for organization: " + orgId);
+        }
+      }
+    }
+
+    if (strategy != null && metadata.getStrategy() != strategy) {
+      throw VortexException.badRequest("Organization connection strategy is not " + strategy);
+    }
+    return organization;
   }
 
   public Paging<Member> listMembers(String orgId, int page, int size) {
@@ -268,14 +300,8 @@ public class OrganizationService {
       throw VortexException.badRequest("Role not found for organization: " + orgId);
     }
 
-    Organization organization = findOrganizationAndThrow(orgId);
+    Organization organization = findOrganizationAndThrow(orgId, OrgStatusEnum.ACTIVE, true);
     OrganizationMetadata metadata = OrganizationMetadata.fromMap(organization.getMetadata());
-    if (metadata.getStatus() == OrgStatusEnum.INACTIVE) {
-      throw VortexException.badRequest("Organization is inactive");
-    }
-    if (metadata.getConnectionId() == null) {
-      throw VortexException.badRequest("No connection found for organization: " + orgId);
-    }
     try {
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
 
@@ -368,23 +394,6 @@ public class OrganizationService {
       log.warn("get connection error, connectionId:{}", connectionId);
       return Optional.empty();
     }
-  }
-
-  public Optional<Connection> getOneConnection(String orgId) {
-    String connectionId = null;
-    try {
-      OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
-      Request<EnabledConnectionsPage> request = organizationsEntity.getConnections(orgId, null);
-      List<EnabledConnection> items = request.execute().getBody().getItems();
-      if (CollectionUtils.isEmpty(items)) {
-        return Optional.empty();
-      }
-      connectionId = items.get(0).getConnectionId();
-    } catch (Auth0Exception e) {
-      throw badRequest(e, String.format("get connection of orgId:%s error:", orgId));
-    }
-
-    return getOrganizationConnection(connectionId);
   }
 
   private AbstractConnectionProvider getConnectionProviderByStrategyAndThrow(
@@ -506,18 +515,11 @@ public class OrganizationService {
       String orgId, UpdateConnectionDto request, String requestedBy) {
 
     log.info("updateConnection, orgId:{}, request:{}, requestedBy:{}", orgId, request, requestedBy);
-    Organization organization = this.findOrganizationAndThrow(orgId);
+    Organization organization = this.findOrganizationAndThrow(orgId, OrgStatusEnum.ACTIVE, true);
 
     OrganizationInfo organizationInfo =
         OrganizationMapper.INSTANCE.toOrganizationInfo(organization);
     String connectionId = organizationInfo.getMetadata().getConnectionId();
-    if (connectionId == null) {
-      throw VortexException.badRequest("No connection found for organization: " + orgId);
-    }
-
-    if (organizationInfo.getMetadata().getStatus() == OrgStatusEnum.INACTIVE) {
-      throw VortexException.badRequest("Organization is inactive");
-    }
 
     ConnectionStrategyEnum strategy = organizationInfo.getMetadata().getStrategy();
     AbstractConnectionProvider abstractConnectionProvider =
@@ -544,11 +546,9 @@ public class OrganizationService {
   public Void resetPassword(String orgId, String memberId, String requestedBy) {
     log.info("orgId:{}, userId:{}, name:{}", orgId, memberId, requestedBy);
 
-    Organization organization = findOrganizationAndThrow(orgId);
+    Organization organization =
+        findOrganizationAndThrow(orgId, OrgStatusEnum.ACTIVE, true, ConnectionStrategyEnum.AUTH0);
     OrganizationMetadata metadata = OrganizationMetadata.fromMap(organization.getMetadata());
-    if (metadata.getStrategy() != ConnectionStrategyEnum.AUTH0) {
-      throw VortexException.badRequest("Don't support reset password");
-    }
 
     Member member =
         findMemberById(orgId, memberId)
@@ -567,23 +567,6 @@ public class OrganizationService {
       throw badRequest(
           e, String.format("reset password for orgId:%s, userId:%s, error:", orgId, memberId));
     }
-  }
-
-  private com.auth0.json.mgmt.organizations.Connection findAuth0Connection(
-      String orgId, OrganizationsEntity organizationsEntity, String msg) throws Auth0Exception {
-    EnabledConnectionsPage enabledConnectionsPage =
-        organizationsEntity.getConnections(orgId, null).execute().getBody();
-    if (Objects.isNull(enabledConnectionsPage)
-        || CollectionUtils.isEmpty(enabledConnectionsPage.getItems())) {
-      throw VortexException.badRequest("No connection orgId:" + orgId);
-    }
-
-    com.auth0.json.mgmt.organizations.Connection connection =
-        enabledConnectionsPage.getItems().get(0).getConnection();
-    if (!connection.getStrategy().equals(ConnectionStrategyEnum.AUTH0.getValue())) {
-      throw VortexException.badRequest(msg);
-    }
-    return connection;
   }
 
   public User findUserById(String orgId, String memberId) {
@@ -644,12 +627,8 @@ public class OrganizationService {
         memberId,
         updateMemberDto,
         requestedBy);
-    Organization organization = findOrganizationAndThrow(orgId);
+    Organization organization = findOrganizationAndThrow(orgId, OrgStatusEnum.ACTIVE, true);
     OrganizationMetadata metadata = OrganizationMetadata.fromMap(organization.getMetadata());
-
-    if (metadata.getStrategy() != ConnectionStrategyEnum.AUTH0) {
-      throw VortexException.badRequest("Don't support update member info");
-    }
 
     Member member =
         findMemberById(orgId, memberId)
@@ -658,6 +637,12 @@ public class OrganizationService {
     User updateRequest = new User();
 
     if (updateMemberDto.getGivenName() != null || updateMemberDto.getFamilyName() != null) {
+
+      // only support auth0 connection
+      if (metadata.getStrategy() != ConnectionStrategyEnum.AUTH0) {
+        throw VortexException.badRequest("Don't support update member info");
+      }
+
       updateRequest.setGivenName(updateMemberDto.getGivenName());
       updateRequest.setFamilyName(updateMemberDto.getFamilyName());
       updateRequest.setName(
