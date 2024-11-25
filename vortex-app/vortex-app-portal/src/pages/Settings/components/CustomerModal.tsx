@@ -61,7 +61,7 @@ const CustomerCompanyModal = <T extends object>({
             }
           ]}
         >
-          <CustomInput placeholder='Please enter' data-testid='customer-name' />
+          <CustomInput placeholder='Please enter' data-testid='customer-name' maxLength={255} />
         </Form.Item>
 
         <Form.Item
@@ -83,11 +83,20 @@ const CustomerCompanyModal = <T extends object>({
             {
               pattern: /^[a-z0-9-]{1,20}$/,
               message: 'Only lowercase letters, numbers, and hyphens are allowed. No more than 20 characters.'
+            },
+            {
+              validator: async (_, value) => {
+                const exist = companies.find((company) => company.name === value)
+                if (exist) {
+                  return Promise.reject(new Error('Customer shortname cannot be duplicated'))
+                }
+                return Promise.resolve()
+              }
             }
           ]}
-          help='Only lower case letters, numbers, - , allowed. No more than 20 characters in total'
+          extra='Only lower case letters, numbers, - , allowed. No more than 20 characters in total'
         >
-          <CustomInput placeholder='Please enter' disabled={type === 'update'} />
+          <CustomInput placeholder='Please enter' disabled={type === 'update'} maxLength={20} />
         </Form.Item>
       </Form>
     </StyledModal>

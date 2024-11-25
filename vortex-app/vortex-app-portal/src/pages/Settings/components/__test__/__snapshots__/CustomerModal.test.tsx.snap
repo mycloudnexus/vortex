@@ -116,6 +116,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                               class="ant-input css-dev-only-do-not-override-ni1kz0 ant-input-outlined sc-gtLWhw jtrSU"
                               data-testid="customer-name"
                               id="modify_customer_company_display_name"
+                              maxlength="255"
                               placeholder="Please enter"
                               type="text"
                               value=""
@@ -126,7 +127,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                     </div>
                   </div>
                   <div
-                    class="ant-form-item css-dev-only-do-not-override-ni1kz0 ant-form-item-with-help"
+                    class="ant-form-item css-dev-only-do-not-override-ni1kz0"
                   >
                     <div
                       class="ant-row ant-form-item-row css-dev-only-do-not-override-ni1kz0"
@@ -167,9 +168,10 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                             class="ant-form-item-control-input-content"
                           >
                             <input
-                              aria-describedby="modify_customer_company_name_help"
+                              aria-describedby="modify_customer_company_name_extra"
                               class="ant-input css-dev-only-do-not-override-ni1kz0 ant-input-outlined sc-gtLWhw jtrSU"
                               id="modify_customer_company_name"
+                              maxlength="20"
                               placeholder="Please enter"
                               type="text"
                               value=""
@@ -177,29 +179,13 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                           </div>
                         </div>
                         <div
-                          style="display: flex; flex-wrap: nowrap;"
+                          class="ant-form-item-extra"
+                          id="modify_customer_company_name_extra"
                         >
-                          <div
-                            class="ant-form-item-explain ant-form-item-explain-connected css-dev-only-do-not-override-ni1kz0"
-                            id="modify_customer_company_name_help"
-                            role="alert"
-                          >
-                            <div
-                              class=""
-                            >
-                              Only lower case letters, numbers, - , allowed. No more than 20 characters in total
-                            </div>
-                          </div>
-                          <div
-                            style="width: 0px; height: 24px;"
-                          />
+                          Only lower case letters, numbers, - , allowed. No more than 20 characters in total
                         </div>
                       </div>
                     </div>
-                    <div
-                      class="ant-form-item-margin-offset"
-                      style="margin-bottom: -24px;"
-                    />
                   </div>
                 </form>
               </div>
