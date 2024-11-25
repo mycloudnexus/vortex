@@ -61,10 +61,33 @@ public class OrganizationService {
   public OrganizationInfo update(String orgId, UpdateOrganizationDto request, String createdBy) {
     log.info("updating organization: {},{},requestedBy:{}", orgId, request, createdBy);
     Organization organization = findOrganizationAndThrow(orgId);
+    OrganizationMetadata metadata = OrganizationMetadata.fromMap(organization.getMetadata());
+
     Organization updateRequest = new Organization();
-    updateRequest.setDisplayName(request.getDisplayName());
-    return OrganizationMapper.INSTANCE.toOrganizationInfo(
-        doUpdateOrganization(organization.getId(), updateRequest));
+    if (request.getDisplayName() != null) {
+      updateRequest.setDisplayName(request.getDisplayName());
+    }
+    if (request.getStatus() != null) {
+      if (metadata.getStatus() == request.getStatus()) {
+        throw VortexException.badRequest("The status is the same, orgId:" + orgId);
+      }
+      metadata.setStatus(request.getStatus());
+      updateRequest.setMetadata(OrganizationMetadata.toMap(metadata));
+    }
+
+    organization = doUpdateOrganization(organization.getId(), updateRequest);
+
+    try {
+      if (request.getStatus() == OrgStatusEnum.INACTIVE) {
+        doDeleteEnabledConnection(organization.getId());
+      } else if (request.getStatus() == OrgStatusEnum.ACTIVE) {
+        doRestoreEnabledConnection(organization.getId(), metadata);
+      }
+    } catch (Auth0Exception e) {
+      log.error("update organization status error, orgId:{}", orgId);
+    }
+
+    return OrganizationMapper.INSTANCE.toOrganizationInfo(organization);
   }
 
   private Organization doUpdateOrganization(String orgId, Organization updateRequest) {
@@ -73,34 +96,6 @@ public class OrganizationService {
       return organizationsEntity.update(orgId, updateRequest).execute().getBody();
     } catch (Auth0Exception e) {
       throw badRequest(e, String.format("update organization(%s),error:", orgId));
-    }
-  }
-
-  public OrganizationInfo updateStatus(String orgId, OrgStatusEnum status, String updatedBy) {
-    log.info("updateStatus: orgId:{},status:{},updatedBy:{}", orgId, status, updatedBy);
-
-    Organization organization = findOrganizationAndThrow(orgId);
-
-    OrganizationMetadata metadata = OrganizationMetadata.fromMap(organization.getMetadata());
-    if (status == metadata.getStatus()) {
-      throw VortexException.badRequest("The status is the same, orgId:" + orgId);
-    }
-    metadata.setStatus(status);
-    Organization updateRequest = new Organization();
-    updateRequest.setMetadata(OrganizationMetadata.toMap(metadata));
-
-    organization = doUpdateOrganization(organization.getId(), updateRequest);
-
-    try {
-      if (status == OrgStatusEnum.INACTIVE) {
-        doDeleteEnabledConnection(organization.getId());
-      } else {
-        doRestoreEnabledConnection(organization.getId(), metadata);
-      }
-      return OrganizationMapper.INSTANCE.toOrganizationInfo(organization);
-    } catch (Auth0Exception e) {
-      throw badRequest(
-          e, String.format("update organization(%s) status to %s,error:", orgId, status));
     }
   }
 
