@@ -1,6 +1,5 @@
 package com.consoleconnect.vortex.iam.controller;
 
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
