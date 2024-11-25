@@ -6,7 +6,7 @@ import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.config.EmailServiceMockHelper;
 import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
-import com.consoleconnect.vortex.iam.dto.MemberInfoUpdateDto;
+import com.consoleconnect.vortex.iam.dto.UpdateMemberDto;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.service.EmailService;
@@ -268,14 +268,14 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   @Test
   @Order(9)
   void givenSSOMember_updateMemberInfo_thenReturn400() {
-    MemberInfoUpdateDto memberInfoUpdateDto = new MemberInfoUpdateDto();
-    memberInfoUpdateDto.setFamilyName("familyName");
-    memberInfoUpdateDto.setGivenName("givenName");
+    UpdateMemberDto updateMemberDto = new UpdateMemberDto();
+    updateMemberDto.setFamilyName("familyName");
+    updateMemberDto.setGivenName("givenName");
 
     customerUser.requestAndVerify(
         HttpMethod.PATCH,
         uriBuilder -> uriBuilder.path("/organization/members").build(),
-        memberInfoUpdateDto,
+        updateMemberDto,
         400,
         Assertions::assertNotNull);
   }
