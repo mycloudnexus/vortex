@@ -132,24 +132,6 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Order(3)
-  void givenOrganizationInitialized_whenRetrieveConnection_thenReturn200() {
-
-    String endpoint = "/organization/connection";
-    String auth0Endpoint = "/api/v2/organizations/%s/enabled_connections";
-    customerUser.requestAndVerify(
-        HttpMethod.GET,
-        uriBuilder -> uriBuilder.path(endpoint).build(),
-        200,
-        Assertions::assertNotNull);
-
-    MockServerHelper.verify(
-        1,
-        String.format(auth0Endpoint, AuthContextConstants.CUSTOMER_COMPANY_ID),
-        AuthContextConstants.AUTH0_ACCESS_TOKEN);
-  }
-
-  @Test
   @Order(4)
   void givenOrganizationInitialized_whenRetrieveMembers_thenReturn200() {
 

@@ -25,7 +25,7 @@ public class OrganizationMetadata {
     metadata.setStatus(
         OrgStatusEnum.valueOf((String) map.getOrDefault(META_STATUS, OrgStatusEnum.ACTIVE.name())));
     metadata.setStrategy(
-        ConnectionStrategyEnum.valueOf(
+        ConnectionStrategyEnum.from(
             (String)
                 map.getOrDefault(
                     META_CONNECTION_STRATEGY, ConnectionStrategyEnum.UNDEFINED.name())));
@@ -46,7 +46,7 @@ public class OrganizationMetadata {
     }
     Map<String, Object> map = new HashMap<>();
     map.put(META_STATUS, metadata.getStatus().name());
-    map.put(META_CONNECTION_STRATEGY, metadata.getStrategy().name());
+    map.put(META_CONNECTION_STRATEGY, metadata.getStrategy().getValue());
 
     if (metadata.getConnectionId() != null) {
       map.put(META_CONNECTION_ID, metadata.getConnectionId());
