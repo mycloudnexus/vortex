@@ -38,7 +38,7 @@ public class MemberMapper {
     if (map1 != null) {
       memberInfo.setUserMetadata(new LinkedHashMap<>(map1));
     }
-    memberInfo.setBlocked(user.isBlocked());
+    memberInfo.setBlocked(user.isBlocked() == null ? false : user.isBlocked());
     if (memberInfo.getIdentities() != null) {
       List<Identity> list = user.getIdentities();
       if (list != null) {
