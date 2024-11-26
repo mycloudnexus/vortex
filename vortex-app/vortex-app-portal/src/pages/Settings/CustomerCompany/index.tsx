@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import type { ICompany, CreateOrganizationRequestBody } from '@/services/types'
+import type { ICompany, CreateOrganizationRequestBody, CreateOrganizationResponse } from '@/services/types'
 
 import { Fragment, useState } from 'react'
 
@@ -18,7 +18,7 @@ import { Button, Flex, Form, notification, Space, TableProps, Typography } from 
 import { StyledButton, StyledModal, StyledTable, StyledWrapper } from '../components/styled'
 import CustomerCompanyModal from '../components/CustomerModal'
 import Tooltip from '../components/Tooltip'
-import { useAddOrganization, useGetCompanyList } from '@/hooks/company'
+import { useAddOrganization, useGetCompanyList, useUpdateOrganization } from '@/hooks/company'
 import { useQueryClient } from 'react-query'
 
 const createColumns = (
@@ -139,6 +139,7 @@ const CustomerCompany = (): ReactElement => {
   const { data, isLoading } = useGetCompanyList()
   const companies = data?.data?.data ?? []
   const { mutate } = useAddOrganization()
+  const { mutate: updateMutate } = useUpdateOrganization()
   const { mainColor } = useAppStore()
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
@@ -183,7 +184,7 @@ const CustomerCompany = (): ReactElement => {
         {
           ...values,
           display_name: values.display_name,
-          name: values.name
+          name: values.name.toLowerCase()
         },
         {
           onSuccess: (data) => {
@@ -196,15 +197,14 @@ const CustomerCompany = (): ReactElement => {
                 }
               }
             })
-            setUpdateValue(data.data)
+            handleCancel()
+            handleOpenModal(values)
           },
           onError: (error) => {
             console.log(error, 'error adding')
           }
         }
       )
-      handleCancel()
-      handleOpenModal(values)
     } catch (error) {
       console.log('Form validation failed:', error)
     }
@@ -219,12 +219,37 @@ const CustomerCompany = (): ReactElement => {
     setUpdateValue(record)
     setIsUpdateModalOpen(true)
   }
+  const updateData = (obj: ICompany[], res: CreateOrganizationResponse): ICompany[] => {
+    return obj.map((val: ICompany) => (val.id === res.data.id ? { ...res.data } : val))
+  }
   const handleUpdate = async (): Promise<void> => {
     try {
       const values = await editForm.validateFields()
-      console.log(values)
-
-      closeUpdateModal()
+      updateMutate(
+        {
+          id: updateValue.id,
+          request_body: {
+            display_name: values.display_name
+          }
+        },
+        {
+          onSuccess: (data) => {
+            queryClient.setQueryData('getCompanyList', (oldData: any) => {
+              return {
+                ...oldData,
+                data: {
+                  ...oldData.data,
+                  data: updateData(oldData.data.data, data)
+                }
+              }
+            })
+            closeUpdateModal()
+          },
+          onError: (error) => {
+            console.log(error, 'error update')
+          }
+        }
+      )
     } catch (error) {
       console.log('Form validation failed:', error)
     }

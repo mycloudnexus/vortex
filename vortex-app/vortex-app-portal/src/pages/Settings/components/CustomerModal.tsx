@@ -87,7 +87,8 @@ const CustomerCompanyModal = <T extends object>({
             {
               validator: async (_, value) => {
                 const exist = companies.some((company) => company.name === value)
-                if (exist) {
+                const isUpdate = type !== 'update'
+                if (exist && isUpdate) {
                   return Promise.reject(new Error('Customer shortname cannot be duplicated'))
                 }
                 return Promise.resolve()
