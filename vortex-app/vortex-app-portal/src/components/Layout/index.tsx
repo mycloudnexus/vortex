@@ -111,7 +111,23 @@ const Layout = () => {
     {
       key: '6',
       icon: <SettingIcon />,
-      label: 'Settings'
+      label: 'Settings',
+      children: [
+        {
+          key: '6-1',
+          label: 'Users',
+          onClick: () => {
+            navigate('/settings/users')
+          }
+        },
+        {
+          key: '6-2',
+          label: 'Customer company',
+          onClick: () => {
+            navigate('/settings/customer-company')
+          }
+        }
+      ]
     }
   ]
 
