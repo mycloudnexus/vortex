@@ -692,6 +692,27 @@ class OrganizationServiceTest extends AbstractIntegrationTest {
 
   @Test
   @SneakyThrows
+  void test_listMembers_empty() {
+    ManagementAPI managementAPI = mock(ManagementAPI.class);
+    doReturn(managementAPI).when(auth0Client).getMgmtClient();
+
+    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
+    doReturn(organizationsEntity).when(managementAPI).organizations();
+
+    Request<MembersPage> membersPageRequest = mock(Request.class);
+    Response<MembersPage> membersPageResponse = mock(Response.class);
+    doReturn(membersPageRequest).when(organizationsEntity).getMembers(anyString(), any());
+    doReturn(membersPageResponse).when(membersPageRequest).execute();
+    doReturn(new MembersPage(List.of())).when(membersPageResponse).getBody();
+
+    Paging<MemberInfo> memberPaging =
+        organizationService.listMembers(UUID.randomUUID().toString(), 0, PagingHelper.ALL);
+    assertNotNull(memberPaging);
+    assertEquals(0, memberPaging.getData().size());
+  }
+
+  @Test
+  @SneakyThrows
   void test_listInvitations() {
     ManagementAPI managementAPI = mock(ManagementAPI.class);
     doReturn(managementAPI).when(auth0Client).getMgmtClient();
