@@ -39,7 +39,7 @@ spring:
           time_zone: UTC
   flyway:
     baseline-on-migrate: true
-    enabled: false
+    enabled: true
   cloud:
     gateway:
       default-filters:
