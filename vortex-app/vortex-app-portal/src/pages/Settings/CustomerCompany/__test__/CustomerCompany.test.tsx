@@ -71,8 +71,6 @@ describe('Customer Company Page', () => {
   const queryClient = new QueryClient()
   jest.spyOn(queryClient, 'setQueryData')
   beforeEach(() => {
-    jest.clearAllMocks()
-
     mockedUseAddOrganization.mockReturnValue({
       mutate: jest.fn()
     })
@@ -80,6 +78,7 @@ describe('Customer Company Page', () => {
     mockedUseUpdateOrganization.mockReturnValue({
       mutate: jest.fn()
     })
+
     component = (
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
@@ -87,6 +86,10 @@ describe('Customer Company Page', () => {
         </MemoryRouter>
       </QueryClientProvider>
     )
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
   })
   it('should render table columns', () => {
     mockedUseGetCompanyList.mockReturnValue({
@@ -118,6 +121,7 @@ describe('Customer Company Page', () => {
   })
 
   it('should call handleDeactivate when clicking Deactivate button', async () => {
+    //will update this test
     const { getByTestId, getByText } = render(component)
     fireEvent.click(getByTestId('handle-deactivate'))
     await waitFor(() => {
@@ -126,13 +130,15 @@ describe('Customer Company Page', () => {
     const submitButton = getByText('Yes, continue')
     fireEvent.click(submitButton)
   })
+
   it('should call handleActivate when clicking Activate button', () => {
+    //will update this test
     const { getByTestId } = render(component)
     fireEvent.click(getByTestId('handle-activate'))
   })
-  it('form renders correctly and cancel submit', async () => {
+  it('add form renders correctly and cancel submit', async () => {
     //Will update this test
-    const { getByTestId, getByText } = render(component)
+    const { getByTestId, getByText, queryByTestId } = render(component)
     const button = getByTestId('add-button')
     expect(button).toBeInTheDocument()
     fireEvent.click(button)
@@ -141,14 +147,17 @@ describe('Customer Company Page', () => {
     })
     const submitButton = getByText('Cancel')
     fireEvent.click(submitButton)
+    await waitFor(() => {
+      expect(queryByTestId('add-modal')).not.toBeInTheDocument()
+    })
   })
 
   it('should call useUpdateOrganization mutation on form submission', async () => {
-    const mockMutate = jest.fn((data, { onSuccess }) => {
+    const mockMutate = jest.fn((_data, { onSuccess }) => {
       onSuccess({
         data: {
-          display_name: data.display_name,
-          name: data.name.toLowerCase()
+          id: 'org_D4ES55BSeeAHystq',
+          display_name: 'My Company'
         }
       })
     })
@@ -179,19 +188,76 @@ describe('Customer Company Page', () => {
         })
       )
     })
+
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledTimes(1)
+    })
   })
+
+  it('should handle useUpdateOrganization onError callback', async () => {
+    const mockMutate = jest.fn((_data, { onError }) => {
+      const mockError = new Error('Network error')
+      onError(mockError)
+    })
+
+    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+
+    mockedUseUpdateOrganization.mockReturnValue({
+      mutate: mockMutate
+    })
+
+    const { getByTestId, getByLabelText, getByText } = render(component)
+    const button = getByTestId('handle-modify')
+    expect(button).toBeInTheDocument()
+
+    fireEvent.click(button)
+    await waitFor(() => {
+      expect(getByTestId('update-modal')).toBeInTheDocument()
+    })
+
+    fireEvent.change(getByLabelText(/Customer company name/i), { target: { value: 'My Company' } })
+    const submitButton = getByText('OK')
+    fireEvent.click(submitButton)
+
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'org_D4ES55BSeeAHystq',
+          request_body: {
+            display_name: 'My Company'
+          }
+        }),
+        expect.objectContaining({
+          onSuccess: expect.any(Function),
+          onError: expect.any(Function)
+        })
+      )
+    })
+
+    await waitFor(() => {
+      expect(consoleLogSpy).toHaveBeenCalledWith(expect.any(Error), 'error update')
+    })
+
+    expect(mockMutate).toHaveBeenCalledTimes(1)
+
+    consoleLogSpy.mockRestore()
+  })
+
   it('form update renders correctly and cancel submit', async () => {
-    //Will update this test
-    const { getByTestId, getByText } = render(component)
+    const { getByTestId, getByText, queryByTestId } = render(component)
     const button = getByTestId('handle-modify')
     expect(button).toBeInTheDocument()
     fireEvent.click(button)
     await waitFor(() => {
       expect(getByTestId('update-modal')).toBeInTheDocument()
     })
-    const submitButton = getByText('Cancel')
-    fireEvent.click(submitButton)
+    const cancelButton = getByText('Cancel')
+    fireEvent.click(cancelButton)
+    await waitFor(() => {
+      expect(queryByTestId('update-modal')).not.toBeInTheDocument()
+    })
   })
+
   it('should call useAddOrganization mutation on form submission', async () => {
     const setQueryDataSpy = jest.spyOn(queryClient, 'setQueryData')
     const mockMutate = jest.fn((data, { onSuccess }) => {
@@ -243,5 +309,51 @@ describe('Customer Company Page', () => {
     })
 
     setQueryDataSpy.mockRestore()
+  })
+
+  it('should handle useAddOrganization onError callback', async () => {
+    const mockMutate = jest.fn((_data, { onError }) => {
+      const mockError = new Error('Network error')
+      onError(mockError)
+    })
+
+    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+    mockedUseAddOrganization.mockReturnValue({
+      mutate: mockMutate
+    })
+
+    const { getByTestId, getByLabelText, getByText } = render(component)
+    fireEvent.click(getByTestId('add-button'))
+
+    await waitFor(() => {
+      expect(getByTestId('add-modal')).toBeInTheDocument()
+    })
+
+    fireEvent.change(getByLabelText(/Customer company name/i), {
+      target: { value: 'My New Company' }
+    })
+    fireEvent.change(getByLabelText(/Customer company URL short name/i), {
+      target: { value: 'abc' }
+    })
+    fireEvent.click(getByText('OK'))
+
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          display_name: 'My New Company',
+          name: 'abc'
+        }),
+        expect.objectContaining({
+          onSuccess: expect.any(Function),
+          onError: expect.any(Function)
+        })
+      )
+    })
+
+    await waitFor(() => {
+      expect(consoleLogSpy).toHaveBeenCalledWith(expect.any(Error), 'error adding')
+    })
+    expect(mockMutate).toHaveBeenCalledTimes(1)
+    consoleLogSpy.mockRestore()
   })
 })

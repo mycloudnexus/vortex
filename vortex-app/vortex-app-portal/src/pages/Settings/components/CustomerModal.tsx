@@ -37,6 +37,7 @@ const CustomerCompanyModal = <T extends object>({
       open={isModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}
+      destroyOnClose
       {...rest}
     >
       <Form form={form} name={name} initialValues={initialValues} layout='vertical' style={{ padding: '20px' }}>

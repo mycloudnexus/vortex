@@ -197,14 +197,14 @@ const CustomerCompany = (): ReactElement => {
                 }
               }
             })
-            handleCancel()
-            handleOpenModal(values)
           },
           onError: (error) => {
             console.log(error, 'error adding')
           }
         }
       )
+      handleCancel()
+      handleOpenModal(values)
     } catch (error) {
       console.log('Form validation failed:', error)
     }
@@ -243,13 +243,13 @@ const CustomerCompany = (): ReactElement => {
                 }
               }
             })
-            closeUpdateModal()
           },
           onError: (error) => {
             console.log(error, 'error update')
           }
         }
       )
+      closeUpdateModal()
     } catch (error) {
       console.log('Form validation failed:', error)
     }
