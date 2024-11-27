@@ -156,7 +156,8 @@
 
 //     UpdateOrganizationDto request = new UpdateOrganizationDto();
 //     request.setDisplayName("test");
-//     Organization result = organizationService.update(UUID.randomUUID().toString(), request, SYSTEM);
+//     Organization result = organizationService.update(UUID.randomUUID().toString(), request,
+// SYSTEM);
 
 //     assertNotEquals(result.getDisplayName(), queryOrganization.getDisplayName());
 //   }
@@ -199,7 +200,8 @@
 //             OrganizationMetadata updateMetadata = new OrganizationMetadata();
 //             updateMetadata.setStatus(OrgStatusEnum.INACTIVE);
 //             updateOrganization.setMetadata(
-//                 JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>() {}));
+//                 JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>()
+// {}));
 //             return updateOrganization;
 //           }
 
@@ -211,13 +213,15 @@
 //     doReturn(updateResponse).when(organizationRequest).execute();
 
 //     Request<EnabledConnectionsPage> enabledConnectionsPage = mock(Request.class);
-//     doReturn(enabledConnectionsPage).when(organizationsEntity).getConnections(anyString(), any());
+//     doReturn(enabledConnectionsPage).when(organizationsEntity).getConnections(anyString(),
+// any());
 
 //     Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
 //     doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPage).execute();
 
 //     EnabledConnection enabledConnection = new EnabledConnection("test");
-//     EnabledConnectionsPage connectionsPage = new EnabledConnectionsPage(List.of(enabledConnection));
+//     EnabledConnectionsPage connectionsPage = new
+// EnabledConnectionsPage(List.of(enabledConnection));
 //     doReturn(connectionsPage).when(enabledConnectionsPageResponse).getBody();
 
 //     Request<Void> delRequest = mock(Request.class);
@@ -228,7 +232,8 @@
 //         organizationService.updateStatus(
 //             UUID.randomUUID().toString(), OrgStatusEnum.INACTIVE, SYSTEM);
 //     OrganizationMetadata resultMetadata =
-//         JsonToolkit.fromJson(JsonToolkit.toJson(result.getMetadata()), OrganizationMetadata.class);
+//         JsonToolkit.fromJson(JsonToolkit.toJson(result.getMetadata()),
+// OrganizationMetadata.class);
 //     assertEquals(OrgStatusEnum.INACTIVE, resultMetadata.getStatus());
 //   }
 
@@ -270,7 +275,8 @@
 //             OrganizationMetadata updateMetadata = new OrganizationMetadata();
 //             updateMetadata.setStatus(OrgStatusEnum.INACTIVE);
 //             updateOrganization.setMetadata(
-//                 JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>() {}));
+//                 JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>()
+// {}));
 //             return updateOrganization;
 //           }
 
@@ -282,7 +288,8 @@
 //     doReturn(updateResponse).when(organizationRequest).execute();
 
 //     Request<EnabledConnectionsPage> enabledConnectionsPage = mock(Request.class);
-//     doReturn(enabledConnectionsPage).when(organizationsEntity).getConnections(anyString(), any());
+//     doReturn(enabledConnectionsPage).when(organizationsEntity).getConnections(anyString(),
+// any());
 
 //     Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
 //     doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPage).execute();
@@ -294,7 +301,8 @@
 //         organizationService.updateStatus(
 //             UUID.randomUUID().toString(), OrgStatusEnum.INACTIVE, SYSTEM);
 //     OrganizationMetadata resultMetadata =
-//         JsonToolkit.fromJson(JsonToolkit.toJson(result.getMetadata()), OrganizationMetadata.class);
+//         JsonToolkit.fromJson(JsonToolkit.toJson(result.getMetadata()),
+// OrganizationMetadata.class);
 //     assertEquals(OrgStatusEnum.INACTIVE, resultMetadata.getStatus());
 //   }
 
@@ -337,7 +345,8 @@
 //             updateMetadata.setStatus(OrgStatusEnum.ACTIVE);
 //             updateMetadata.setLoginType(ConnectionStrategyEnum.AUTH0);
 //             updateOrganization.setMetadata(
-//                 JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>() {}));
+//                 JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>()
+// {}));
 //             return updateOrganization;
 //           }
 
@@ -349,7 +358,8 @@
 //     doReturn(updateResponse).when(organizationRequest).execute();
 
 //     Request<EnabledConnectionsPage> enabledConnectionsPage = mock(Request.class);
-//     doReturn(enabledConnectionsPage).when(organizationsEntity).getConnections(anyString(), any());
+//     doReturn(enabledConnectionsPage).when(organizationsEntity).getConnections(anyString(),
+// any());
 
 //     Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
 //     doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPage).execute();
@@ -375,7 +385,8 @@
 //         organizationService.updateStatus(
 //             UUID.randomUUID().toString(), OrgStatusEnum.ACTIVE, SYSTEM);
 //     OrganizationMetadata resultMetadata =
-//         JsonToolkit.fromJson(JsonToolkit.toJson(result.getMetadata()), OrganizationMetadata.class);
+//         JsonToolkit.fromJson(JsonToolkit.toJson(result.getMetadata()),
+// OrganizationMetadata.class);
 //     assertEquals(OrgStatusEnum.ACTIVE, resultMetadata.getStatus());
 //   }
 
@@ -417,7 +428,8 @@
 //             OrganizationMetadata updateMetadata = new OrganizationMetadata();
 //             updateMetadata.setStatus(OrgStatusEnum.ACTIVE);
 //             updateOrganization.setMetadata(
-//                 JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>() {}));
+//                 JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>()
+// {}));
 //             return updateOrganization;
 //           }
 
@@ -429,7 +441,8 @@
 //     doReturn(updateResponse).when(organizationRequest).execute();
 
 //     Request<EnabledConnectionsPage> enabledConnectionsPage = mock(Request.class);
-//     doReturn(enabledConnectionsPage).when(organizationsEntity).getConnections(anyString(), any());
+//     doReturn(enabledConnectionsPage).when(organizationsEntity).getConnections(anyString(),
+// any());
 
 //     Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
 //     doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPage).execute();
@@ -454,7 +467,8 @@
 //         organizationService.updateStatus(
 //             UUID.randomUUID().toString(), OrgStatusEnum.ACTIVE, SYSTEM);
 //     OrganizationMetadata resultMetadata =
-//         JsonToolkit.fromJson(JsonToolkit.toJson(result.getMetadata()), OrganizationMetadata.class);
+//         JsonToolkit.fromJson(JsonToolkit.toJson(result.getMetadata()),
+// OrganizationMetadata.class);
 //     assertEquals(OrgStatusEnum.ACTIVE, resultMetadata.getStatus());
 //   }
 
@@ -496,7 +510,8 @@
 //             OrganizationMetadata updateMetadata = new OrganizationMetadata();
 //             updateMetadata.setStatus(OrgStatusEnum.ACTIVE);
 //             updateOrganization.setMetadata(
-//                 JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>() {}));
+//                 JsonToolkit.fromJson(JsonToolkit.toJson(updateMetadata), new TypeReference<>()
+// {}));
 //             return updateOrganization;
 //           }
 
@@ -516,14 +531,16 @@
 //     Response<ConnectionsPage> connectionResponse = mock(Response.class);
 //     doReturn(connectionResponse).when(connectionsPageRequest).execute();
 
-//     ConnectionsPage existConnection = new ConnectionsPage(List.of(new Connection("abc", "samlp")));
+//     ConnectionsPage existConnection = new ConnectionsPage(List.of(new Connection("abc",
+// "samlp")));
 //     doReturn(existConnection).when(connectionResponse).getBody();
 
 //     Organization result =
 //         organizationService.updateStatus(
 //             UUID.randomUUID().toString(), OrgStatusEnum.ACTIVE, SYSTEM);
 //     OrganizationMetadata resultMetadata =
-//         JsonToolkit.fromJson(JsonToolkit.toJson(result.getMetadata()), OrganizationMetadata.class);
+//         JsonToolkit.fromJson(JsonToolkit.toJson(result.getMetadata()),
+// OrganizationMetadata.class);
 //     assertEquals(OrgStatusEnum.ACTIVE, resultMetadata.getStatus());
 //   }
 
@@ -810,7 +827,8 @@
 //     InvitationsPage invitationsPage = mock(InvitationsPage.class);
 //     Request<InvitationsPage> invitationsPageRequest = mock(Request.class);
 //     Response<InvitationsPage> invitationsPageResponse = mock(Response.class);
-//     doReturn(invitationsPageRequest).when(organizationsEntity).getInvitations(anyString(), any());
+//     doReturn(invitationsPageRequest).when(organizationsEntity).getInvitations(anyString(),
+// any());
 //     doReturn(invitationsPageResponse).when(invitationsPageRequest).execute();
 //     doReturn(invitationsPage).when(invitationsPageResponse).getBody();
 
@@ -958,7 +976,8 @@
 //     doReturn(resetPasswordRequest).when(authAPI).resetPassword(anyString(), any());
 //     doReturn(resetPasswordResponse).when(resetPasswordRequest).execute();
 
-//     assertThrows(Exception.class, () -> organizationService.resetPassword(SYSTEM, userId, SYSTEM));
+//     assertThrows(Exception.class, () -> organizationService.resetPassword(SYSTEM, userId,
+// SYSTEM));
 //   }
 
 //   @Test
@@ -1080,7 +1099,8 @@
 
 //     Request<Void> existInvitationRequest = mock(Request.class);
 //     Response<Void> existInvitationResponse = mock(Response.class);
-//     doReturn(existInvitationRequest).when(organizationsEntity).deleteInvitation(anyString(), any());
+//     doReturn(existInvitationRequest).when(organizationsEntity).deleteInvitation(anyString(),
+// any());
 //     doReturn(existInvitationResponse).when(existInvitationRequest).execute();
 
 //     assertDoesNotThrow(() -> organizationService.revokeInvitation(SYSTEM, userId, SYSTEM));
@@ -1089,7 +1109,8 @@
 //   @Test
 //   void test_changeStatus() throws Auth0Exception {
 //     String userId = mockExistedOrgUser(null);
-//     assertDoesNotThrow(() -> organizationService.changeMemberStatus(SYSTEM, userId, true, SYSTEM));
+//     assertDoesNotThrow(() -> organizationService.changeMemberStatus(SYSTEM, userId, true,
+// SYSTEM));
 //   }
 
 //   @Test
@@ -1152,15 +1173,18 @@
 
 //     EnabledConnection enabledConnection =
 //         JsonToolkit.fromJson(
-//             AbstractIntegrationTest.readFileToString("auth0/organization_enabled_connection.json"),
+//
+// AbstractIntegrationTest.readFileToString("auth0/organization_enabled_connection.json"),
 //             EnabledConnection.class);
 //     Request<EnabledConnectionsPage> enabledConnectionsPage = mock(Request.class);
-//     doReturn(enabledConnectionsPage).when(organizationsEntity).getConnections(anyString(), any());
+//     doReturn(enabledConnectionsPage).when(organizationsEntity).getConnections(anyString(),
+// any());
 
 //     Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
 //     doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPage).execute();
 
-//     EnabledConnectionsPage connectionsPage = new EnabledConnectionsPage(List.of(enabledConnection));
+//     EnabledConnectionsPage connectionsPage = new
+// EnabledConnectionsPage(List.of(enabledConnection));
 //     doReturn(connectionsPage).when(enabledConnectionsPageResponse).getBody();
 
 //     ConnectionsEntity connectionsEntity = mock(ConnectionsEntity.class);

@@ -2,8 +2,6 @@ package com.consoleconnect.vortex.iam.controller;
 
 import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.organizations.Invitation;
-import com.auth0.json.mgmt.organizations.Member;
-import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
