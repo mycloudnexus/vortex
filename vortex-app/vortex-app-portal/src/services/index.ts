@@ -1,5 +1,5 @@
 import request from '@/utils/helpers/request'
-import { USER_INFO, AUTH_TOKEN, USER_ROLE, GET_COMPANY_LIST, CREATE_COMPANY } from './api'
+import { USER_INFO, AUTH_TOKEN, USER_ROLE, ORGANIZATIONS } from './api'
 import { CreateOrganizationRequestBody, CreateOrganizationResponse, IOrganization, RequestResponse } from './types'
 
 export const getUserDetail = (name: string) => {
@@ -16,7 +16,7 @@ export const getUserRole = () => {
 
 export const getCompanyList = async (): Promise<RequestResponse<IOrganization>> => {
   try {
-    const response = await request(GET_COMPANY_LIST)
+    const response = await request(ORGANIZATIONS)
     return response.data
   } catch (error) {
     console.error(error)
@@ -26,7 +26,7 @@ export const getCompanyList = async (): Promise<RequestResponse<IOrganization>> 
 
 export const createOrganization = async (req: CreateOrganizationRequestBody): Promise<CreateOrganizationResponse> => {
   try {
-    const response = await request.post(CREATE_COMPANY, req)
+    const response = await request.post(ORGANIZATIONS, req)
     return response.data
   } catch (error) {
     console.error(error)
