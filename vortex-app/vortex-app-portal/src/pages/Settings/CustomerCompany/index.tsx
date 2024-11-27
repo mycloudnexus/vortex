@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import type { ICompany, CreateOrganizationRequestBody, CreateOrganizationResponse } from '@/services/types'
+import type { ICompany, CreateOrganizationRequestBody } from '@/services/types'
 
 import { Fragment, useState } from 'react'
 
@@ -20,6 +20,7 @@ import CustomerCompanyModal from '../components/CustomerModal'
 import Tooltip from '../components/Tooltip'
 import { useAddOrganization, useGetCompanyList, useUpdateOrganization } from '@/hooks/company'
 import { useQueryClient } from 'react-query'
+import { updateData } from '@/utils/helpers/utils'
 
 const createColumns = (
   handleOpenModify: (record: ICompany) => void,
@@ -219,9 +220,7 @@ const CustomerCompany = (): ReactElement => {
     setUpdateValue(record)
     setIsUpdateModalOpen(true)
   }
-  const updateData = (obj: ICompany[], res: CreateOrganizationResponse): ICompany[] => {
-    return obj.map((val: ICompany) => (val.id === res.data.id ? { ...res.data } : val))
-  }
+
   const handleUpdate = async (): Promise<void> => {
     try {
       const values = await editForm.validateFields()
