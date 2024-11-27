@@ -2,6 +2,7 @@ package com.consoleconnect.vortex.iam.controller;
 
 import com.auth0.json.mgmt.organizations.Invitation;
 import com.auth0.json.mgmt.organizations.Member;
+import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
@@ -11,6 +12,9 @@ import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
 import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
 import com.consoleconnect.vortex.iam.dto.UpdateMemberDto;
 import com.consoleconnect.vortex.iam.service.AuthTokenService;
+import com.consoleconnect.vortex.iam.dto.MemberInfo;
+import com.consoleconnect.vortex.iam.dto.MemberInfoUpdateDto;
+import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.iam.service.UserContextService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -75,7 +79,7 @@ public class OrganizationController {
 
   @Operation(summary = "List all members")
   @GetMapping("/members")
-  public Mono<HttpResponse<Paging<Member>>> listMembers(
+  public Mono<HttpResponse<Paging<MemberInfo>>> listMembers(
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)

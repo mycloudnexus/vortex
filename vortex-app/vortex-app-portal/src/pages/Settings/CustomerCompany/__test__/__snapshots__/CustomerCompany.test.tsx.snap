@@ -308,6 +308,7 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
                               class="ant-input css-dev-only-do-not-override-ni1kz0 ant-input-outlined ant-input-status-validating sc-gtLWhw jtrSU"
                               data-testid="customer-name"
                               id="add_customer_company_display_name"
+                              maxlength="255"
                               placeholder="Please enter"
                               type="text"
                               value="My Company"
@@ -318,7 +319,7 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
                     </div>
                   </div>
                   <div
-                    class="ant-form-item css-dev-only-do-not-override-ni1kz0 ant-form-item-with-help ant-form-item-is-validating"
+                    class="ant-form-item css-dev-only-do-not-override-ni1kz0 ant-form-item-is-validating"
                   >
                     <div
                       class="ant-row ant-form-item-row css-dev-only-do-not-override-ni1kz0"
@@ -361,9 +362,10 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
                             class="ant-form-item-control-input-content"
                           >
                             <input
-                              aria-describedby="add_customer_company_name_help"
+                              aria-describedby="add_customer_company_name_extra"
                               class="ant-input css-dev-only-do-not-override-ni1kz0 ant-input-outlined ant-input-status-validating sc-gtLWhw jtrSU"
                               id="add_customer_company_name"
+                              maxlength="20"
                               placeholder="Please enter"
                               type="text"
                               value="MC"
@@ -371,29 +373,13 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
                           </div>
                         </div>
                         <div
-                          style="display: flex; flex-wrap: nowrap;"
+                          class="ant-form-item-extra"
+                          id="add_customer_company_name_extra"
                         >
-                          <div
-                            class="ant-form-item-explain ant-form-item-explain-connected css-dev-only-do-not-override-ni1kz0"
-                            id="add_customer_company_name_help"
-                            role="alert"
-                          >
-                            <div
-                              class="ant-form-item-explain-validating"
-                            >
-                              Only lower case letters, numbers, - , allowed. No more than 20 characters in total
-                            </div>
-                          </div>
-                          <div
-                            style="width: 0px; height: 24px;"
-                          />
+                          Only lower case letters, numbers, - , allowed. No more than 20 characters in total
                         </div>
                       </div>
                     </div>
-                    <div
-                      class="ant-form-item-margin-offset"
-                      style="margin-bottom: -24px;"
-                    />
                   </div>
                 </form>
               </div>

@@ -3,6 +3,7 @@ package com.consoleconnect.vortex.iam.controller;
 import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.organizations.Invitation;
 import com.auth0.json.mgmt.organizations.Member;
+import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
@@ -110,7 +111,7 @@ public class MgmtOrganizationController {
 
   @Operation(summary = "List all members")
   @GetMapping("/{orgId}/members")
-  public Mono<HttpResponse<Paging<Member>>> listMembers(
+  public Mono<HttpResponse<Paging<MemberInfo>>> listMembers(
       @PathVariable String orgId,
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
