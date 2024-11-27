@@ -1,16 +1,17 @@
 package com.consoleconnect.vortex.iam.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.auth0.Endpoint;
 import com.consoleconnect.vortex.iam.config.TestApplication;
-import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
-import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
-import com.consoleconnect.vortex.iam.dto.OidcConnectionDto;
-import com.consoleconnect.vortex.iam.dto.UpdateOrganizationDto;
+import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
+import com.consoleconnect.vortex.iam.enums.RoleEnum;
+import com.consoleconnect.vortex.iam.service.UserService;
 import com.consoleconnect.vortex.iam.toolkit.Auth0PageHelper;
 import com.consoleconnect.vortex.test.*;
 import com.consoleconnect.vortex.test.user.TestUser;
@@ -21,9 +22,12 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -43,6 +47,8 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   public static final String ORG_ID = "org_0bcbzk1UJV9CvwAU";
   public static final String CONNECTION_ID = "con_YNEZH8rgZ8sQz9Fq";
   public static final String INVITATION_ID = "uinv_WuhQogrsLDMF8L8y";
+
+  @SpyBean private UserService userService;
 
   @Autowired
   public MgmtOrganizationControllerTest(WebTestClient webTestClient) {
@@ -385,6 +391,68 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
           auth0Endpoint.getPath(),
           AuthContextConstants.AUTH0_ACCESS_TOKEN);
     }
+  }
+
+  @Test
+  void givenMgmtUser_thenCreateInvitation_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}/invitations";
+
+    User user = new User();
+    user.setName("test");
+    user.setEmail("hello@hello.com");
+    Mockito.doReturn(user).when(userService).getUserInfo(any(JwtAuthenticationToken.class));
+
+    CreateInvitationDto request = new CreateInvitationDto();
+    request.setSendEmail(true);
+    request.setEmail("test@test.com");
+    request.setRoles(List.of(RoleEnum.ORG_ADMIN.name()));
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.POST,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
+        request,
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.POST,
+        String.format("/api/v2/organizations/%s/invitations", ORG_ID),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
+  }
+
+  @Test
+  void givenMgmtUser_thenRetrieveInvitationById_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}/invitations/{invitationId}";
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID, INVITATION_ID),
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.GET,
+        String.format("/api/v2/organizations/%s/invitations/%s", ORG_ID, INVITATION_ID),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
+  }
+
+  @Test
+  void givenMgmtUser_thenRevokeInvitationById_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}/invitations/{invitationId}";
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.DELETE,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID, INVITATION_ID),
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.DELETE,
+        String.format("/api/v2/organizations/%s/invitations/%s", ORG_ID, INVITATION_ID),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
   }
 
   //  @Test
