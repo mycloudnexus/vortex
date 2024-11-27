@@ -1,20 +1,16 @@
 package com.consoleconnect.vortex.iam.controller;
 
 import com.auth0.json.mgmt.organizations.Invitation;
-import com.auth0.json.mgmt.organizations.Member;
-import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
+import com.consoleconnect.vortex.iam.dto.MemberInfo;
 import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
 import com.consoleconnect.vortex.iam.dto.UpdateMemberDto;
 import com.consoleconnect.vortex.iam.service.AuthTokenService;
-import com.consoleconnect.vortex.iam.dto.MemberInfo;
-import com.consoleconnect.vortex.iam.dto.MemberInfoUpdateDto;
-import com.consoleconnect.vortex.iam.dto.OrganizationConnection;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.iam.service.UserContextService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -10,9 +10,19 @@
     "data": "get_api_v2_connections.json"
   },
   {
+    "method": "POST",
+    "endpoint": "/api/v2/connections",
+    "data": "post_api_v2_connections.json"
+  },
+  {
     "method": "GET",
     "endpoint": "/api/v2/connections/{id}",
     "data": "get_api_v2_connections_{id}.json"
+  },
+  {
+    "method": "DELETE",
+    "endpoint": "/api/v2/connections/{id}",
+    "data": "delete_api_v2_connections_{id}.json"
   },
   {
     "method": "GET",
@@ -25,9 +35,19 @@
     "data": "get_api_v2_organizations.json"
   },
   {
+    "method": "POST",
+    "endpoint": "/api/v2/organizations",
+    "data": "post_api_v2_organizations.json"
+  },
+  {
     "method": "GET",
     "endpoint": "/api/v2/organizations/{id}",
     "data": "get_api_v2_organizations_{id}.json"
+  },
+  {
+    "method": "PATCH",
+    "endpoint": "/api/v2/organizations/{id}",
+    "data": "patch_api_v2_organizations_{id}.json"
   },
   {
     "method": "GET",
@@ -35,9 +55,29 @@
     "data": "get_api_v2_organizations_{id}_enabled_connections.json"
   },
   {
+    "method": "POST",
+    "endpoint": "/api/v2/organizations/{id}/enabled_connections",
+    "data": "post_api_v2_organizations_{id}_enabled_connections.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/organizations/{id}/enabled_connections/{connectionId}",
+    "data": "get_api_v2_organizations_{id}_enabled_connections_{connectionId}.json"
+  },
+  {
+    "method": "DELETE",
+    "endpoint": "/api/v2/organizations/{id}/enabled_connections/{connectionId}",
+    "data": "delete_api_v2_organizations_{id}_enabled_connections_{connectionId}.json"
+  },
+  {
     "method": "GET",
     "endpoint": "/api/v2/organizations/{id}/members",
     "data": "get_api_v2_organizations_{id}_members_include_totals.json"
+  },
+  {
+    "method": "DELETE",
+    "endpoint": "/api/v2/organizations/{id}/members",
+    "data": "delete_api_v2_organizations_{id}_members.json"
   },
   {
     "method": "GET",
@@ -53,6 +93,16 @@
     "method": "POST",
     "endpoint": "/api/v2/organizations/{id}/invitations",
     "data": "post_api_v2_organizations_{id}_invitations.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/organizations/{id}/invitations/{invitationId}",
+    "data": "get_api_v2_organizations_{id}_invitations_{invitationId}.json"
+  },
+  {
+    "method": "DELETE",
+    "endpoint": "/api/v2/organizations/{id}/invitations/{invitationId}",
+    "data": "delete_api_v2_organizations_{id}_invitations_{invitationId}.json"
   },
   {
     "method": "GET",
