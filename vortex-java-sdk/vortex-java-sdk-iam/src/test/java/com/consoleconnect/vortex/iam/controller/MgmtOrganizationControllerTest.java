@@ -4,6 +4,10 @@ import static org.mockito.ArgumentMatchers.any;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.consoleconnect.vortex.cc.model.Role;
+import com.consoleconnect.vortex.core.model.HttpResponse;
+import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
+import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.auth0.Endpoint;
 import com.consoleconnect.vortex.iam.config.TestApplication;
@@ -15,6 +19,7 @@ import com.consoleconnect.vortex.iam.service.UserService;
 import com.consoleconnect.vortex.iam.toolkit.Auth0PageHelper;
 import com.consoleconnect.vortex.test.*;
 import com.consoleconnect.vortex.test.user.TestUser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +36,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.util.UriUtils;
 
 @ActiveProfiles("auth-hs256")
 @MockIntegrationTest
@@ -47,6 +53,7 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   public static final String ORG_ID = "org_0bcbzk1UJV9CvwAU";
   public static final String CONNECTION_ID = "con_YNEZH8rgZ8sQz9Fq";
   public static final String INVITATION_ID = "uinv_WuhQogrsLDMF8L8y";
+  public static final String USER_ID = "vortex-test|auth0|5ec4d3765cf0a1001486b95d";
 
   @SpyBean private UserService userService;
 
@@ -93,7 +100,7 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenOrganizationCreated_whenSearch_thenReturn200() {
+  void givenMgmtUser_whenSearchOrganizations_thenReturn200() {
     String endpoint = "/mgmt/organizations";
     String auth0Endpoint = "/api/v2/organizations?per_page=%d&page=0&include_totals=true";
 
@@ -119,7 +126,7 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenMemberCreated_whenSearchMembers_thenReturn200() {
+  void givenMgmtUser_whenSearchMembers_thenReturn200() {
     String endpoint = "/mgmt/organizations/{orgId}/members";
     String auth0Endpoint =
         "/api/v2/organizations/%s/members?per_page=%d&page=0&include_totals=true";
@@ -155,7 +162,65 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenInvitationCreated_whenSearchInvitations_thenReturn200() {
+  void givenMgmtUser_whenRetrieveMemberById_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}/members/{memberId}";
+
+    // given default page and size
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder ->
+            uriBuilder.path(endpoint).build(AuthContextConstants.CUSTOMER_COMPANY_ID, USER_ID),
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.GET,
+        String.format("/api/v2/users/%s", UriUtils.encodePath(USER_ID, "UTF-8")),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
+  }
+
+  @Test
+  void givenMgmtUser_whenBlockMemberById_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}/members/{memberId}";
+
+    UpdateMemberDto request = new UpdateMemberDto();
+    request.setBlocked(true);
+    // given default page and size
+    mgmtUser.requestAndVerify(
+        HttpMethod.PATCH,
+        uriBuilder ->
+            uriBuilder.path(endpoint).build(AuthContextConstants.CUSTOMER_COMPANY_ID, USER_ID),
+        request,
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.PATCH,
+        String.format("/api/v2/users/%s", UriUtils.encodePath(USER_ID, "UTF-8")),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
+  }
+
+  @Test
+  void givenMgmtUser_whenUpdateMemberById_thenReturn400() {
+    String endpoint = "/mgmt/organizations/{orgId}/members/{memberId}";
+
+    UpdateMemberDto request = new UpdateMemberDto();
+    request.setFamilyName("test");
+    request.setGivenName("test");
+    // given default page and size
+    mgmtUser.requestAndVerify(
+        HttpMethod.PATCH,
+        uriBuilder ->
+            uriBuilder.path(endpoint).build(AuthContextConstants.CUSTOMER_COMPANY_ID, USER_ID),
+        request,
+        400,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+  }
+
+  @Test
+  void givenMgmtUser_whenSearchInvitations_thenReturn200() {
     String endpoint = "/mgmt/organizations/{orgId}/invitations";
     String auth0Endpoint =
         "/api/v2/organizations/%s/invitations?per_page=%d&page=0&include_totals=true";
@@ -336,7 +401,7 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenOrganizationCreated_thenCreateOidcConnection_thenReturn200() {
+  void givenMgmtUser_thenCreateOidcConnection_thenReturn200() {
     String endpoint = "/mgmt/organizations/{orgId}/connection";
 
     CreateConnectionDto request = new CreateConnectionDto();
@@ -455,58 +520,21 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
         AuthContextConstants.AUTH0_ACCESS_TOKEN);
   }
 
-  //  @Test
-  //  void test_revokeInvitation() {
-  //    Mono<HttpResponse<Void>> responseMono =
-  //        mgmtOrganizationController.revokeInvitation(
-  //            UUID.randomUUID().toString(), UUID.randomUUID().toString(),
-  // getAuthenticationToken());
-  //    Assertions.assertThat(responseMono).isNotNull();
-  //  }
-  //
-  //  @Test
-  //  void test_block() {
-  //    doReturn(mock(User.class))
-  //        .when(organizationService)
-  //        .changeMemberStatus(anyString(), anyString(), anyBoolean(), any());
-  //    Mono<HttpResponse<User>> responseMono =
-  //        mgmtOrganizationController.changeMemberStatus(
-  //            UUID.randomUUID().toString(),
-  //            UUID.randomUUID().toString(),
-  //            false,
-  //            getAuthenticationToken());
-  //    Assertions.assertThat(responseMono).isNotNull();
-  //  }
-  //
-  //  @Test
-  //  void test_resetPassword() {
-  //    Mono<HttpResponse<Void>> responseMono =
-  //        mgmtOrganizationController.resetPassword(
-  //            UUID.randomUUID().toString(), UUID.randomUUID().toString(),
-  // getAuthenticationToken());
-  //    Assertions.assertThat(responseMono).isNotNull();
-  //  }
-  //
-  //  @Test
-  //  void test_updateMemberInfo() {
-  //    doReturn(mock(User.class))
-  //        .when(organizationService)
-  //        .changeMemberStatus(anyString(), anyString(), anyBoolean(), any());
-  //    MemberInfoUpdateDto memberInfoUpdateDto = new MemberInfoUpdateDto();
-  //    memberInfoUpdateDto.setFamilyName("familyName");
-  //    memberInfoUpdateDto.setGivenName("givenName");
-  //    Mono<HttpResponse<User>> responseMono =
-  //        mgmtOrganizationController.updateMemberInfo(
-  //            UUID.randomUUID().toString(),
-  //            UUID.randomUUID().toString(),
-  //            memberInfoUpdateDto,
-  //            getAuthenticationToken());
-  //    Assertions.assertThat(responseMono).isNotNull();
-  //  }
-  //
-  //  private JwtAuthenticationToken getAuthenticationToken() {
-  //    Jwt jwt =
-  //        Jwt.withTokenValue("token").subject("test").header("Authorization", "Bearer ").build();
-  //    return new JwtAuthenticationToken(jwt);
-  //  }
+  @Test
+  void givenMgmtUser_thenListRoles_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}/roles";
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
+        200,
+        res -> {
+          log.info("{}", res);
+          HttpResponse<Paging<Role>> roles = JsonToolkit.fromJson(res, new TypeReference<>() {});
+          Assertions.assertEquals(2, roles.getData().getData().size());
+        });
+
+    MockServerHelper.verify(
+        1, HttpMethod.GET, "/api/v2/roles", AuthContextConstants.AUTH0_ACCESS_TOKEN);
+  }
 }
