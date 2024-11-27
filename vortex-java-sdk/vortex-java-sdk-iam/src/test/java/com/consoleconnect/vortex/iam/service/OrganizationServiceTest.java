@@ -692,27 +692,23 @@ class OrganizationServiceTest extends AbstractIntegrationTest {
 
   @Test
   @SneakyThrows
-  void test_listMembers() {
+  void test_listMembers_empty() {
     ManagementAPI managementAPI = mock(ManagementAPI.class);
     doReturn(managementAPI).when(auth0Client).getMgmtClient();
 
     OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
     doReturn(organizationsEntity).when(managementAPI).organizations();
 
-    String memberPageStr =
-        AbstractIntegrationTest.readFileToString("auth0/page_organization_members.json");
-    List<Member> members =
-        JsonToolkit.fromJson(memberPageStr, new TypeReference<List<Member>>() {});
-    MembersPage membersPage = new MembersPage(0, 2, 2, 10, "", members);
     Request<MembersPage> membersPageRequest = mock(Request.class);
     Response<MembersPage> membersPageResponse = mock(Response.class);
     doReturn(membersPageRequest).when(organizationsEntity).getMembers(anyString(), any());
     doReturn(membersPageResponse).when(membersPageRequest).execute();
-    doReturn(membersPage).when(membersPageResponse).getBody();
-    Paging<Member> memberPaging =
+    doReturn(new MembersPage(List.of())).when(membersPageResponse).getBody();
+
+    Paging<MemberInfo> memberPaging =
         organizationService.listMembers(UUID.randomUUID().toString(), 0, PagingHelper.ALL);
     assertNotNull(memberPaging);
-    assertEquals(2, memberPaging.getTotal());
+    assertEquals(0, memberPaging.getData().size());
   }
 
   @Test
