@@ -152,6 +152,27 @@ describe('Customer Company Page', () => {
     })
   })
 
+  // Helper function to handle form submission
+  const handleFormSubmitForUpdate = async ({ companyName }: { companyName: string }) => {
+    const { getByTestId, getByLabelText, getByText } = render(component)
+
+    const button = getByTestId('handle-modify')
+    expect(button).toBeInTheDocument()
+
+    fireEvent.click(button)
+
+    await waitFor(() => {
+      expect(getByTestId('update-modal')).toBeInTheDocument()
+    })
+
+    fireEvent.change(getByLabelText(/Customer company name/i), { target: { value: companyName } })
+
+    const submitButton = getByText('OK')
+    fireEvent.click(submitButton)
+
+    return { getByTestId, getByLabelText, getByText }
+  }
+
   it('should call useUpdateOrganization mutation on form submission', async () => {
     const mockMutate = jest.fn((_data, { onSuccess }) => {
       onSuccess({
@@ -161,19 +182,13 @@ describe('Customer Company Page', () => {
         }
       })
     })
+
     mockedUseUpdateOrganization.mockReturnValue({
       mutate: mockMutate
     })
-    const { getByTestId, getByLabelText, getByText } = render(component)
-    const button = getByTestId('handle-modify')
-    expect(button).toBeInTheDocument()
-    fireEvent.click(button)
-    await waitFor(() => {
-      expect(getByTestId('update-modal')).toBeInTheDocument()
-    })
-    fireEvent.change(getByLabelText(/Customer company name/i), { target: { value: 'My Company' } })
-    const submitButton = getByText('OK')
-    fireEvent.click(submitButton)
+
+    await handleFormSubmitForUpdate({ companyName: 'My Company' })
+
     await waitFor(() => {
       expect(mockMutate).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -206,18 +221,7 @@ describe('Customer Company Page', () => {
       mutate: mockMutate
     })
 
-    const { getByTestId, getByLabelText, getByText } = render(component)
-    const button = getByTestId('handle-modify')
-    expect(button).toBeInTheDocument()
-
-    fireEvent.click(button)
-    await waitFor(() => {
-      expect(getByTestId('update-modal')).toBeInTheDocument()
-    })
-
-    fireEvent.change(getByLabelText(/Customer company name/i), { target: { value: 'My Company' } })
-    const submitButton = getByText('OK')
-    fireEvent.click(submitButton)
+    await handleFormSubmitForUpdate({ companyName: 'My Company' })
 
     await waitFor(() => {
       expect(mockMutate).toHaveBeenCalledWith(
@@ -258,6 +262,27 @@ describe('Customer Company Page', () => {
     })
   })
 
+  // Helper function to handle form submission
+  const handleFormSubmit = async ({ companyName, companyUrl }: { companyName: string; companyUrl: string }) => {
+    const { getByTestId, getByLabelText, getByText } = render(component)
+
+    fireEvent.click(getByTestId('add-button'))
+
+    await waitFor(() => {
+      expect(getByTestId('add-modal')).toBeInTheDocument()
+    })
+
+    fireEvent.change(getByLabelText(/Customer company name/i), {
+      target: { value: companyName }
+    })
+    fireEvent.change(getByLabelText(/Customer company URL short name/i), {
+      target: { value: companyUrl }
+    })
+    fireEvent.click(getByText('OK'))
+
+    return { getByTestId, getByLabelText, getByText }
+  }
+
   it('should call useAddOrganization mutation on form submission', async () => {
     const setQueryDataSpy = jest.spyOn(queryClient, 'setQueryData')
     const mockMutate = jest.fn((data, { onSuccess }) => {
@@ -273,20 +298,8 @@ describe('Customer Company Page', () => {
       mutate: mockMutate
     })
 
-    const { getByTestId, getByLabelText, getByText } = render(component)
-    fireEvent.click(getByTestId('add-button'))
+    await handleFormSubmit({ companyName: 'My New Company', companyUrl: 'abc' })
 
-    await waitFor(() => {
-      expect(getByTestId('add-modal')).toBeInTheDocument()
-    })
-
-    fireEvent.change(getByLabelText(/Customer company name/i), {
-      target: { value: 'My New Company' }
-    })
-    fireEvent.change(getByLabelText(/Customer company URL short name/i), {
-      target: { value: 'abc' }
-    })
-    fireEvent.click(getByText('OK'))
     await waitFor(() => {
       expect(mockMutate).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -322,20 +335,7 @@ describe('Customer Company Page', () => {
       mutate: mockMutate
     })
 
-    const { getByTestId, getByLabelText, getByText } = render(component)
-    fireEvent.click(getByTestId('add-button'))
-
-    await waitFor(() => {
-      expect(getByTestId('add-modal')).toBeInTheDocument()
-    })
-
-    fireEvent.change(getByLabelText(/Customer company name/i), {
-      target: { value: 'My New Company' }
-    })
-    fireEvent.change(getByLabelText(/Customer company URL short name/i), {
-      target: { value: 'abc' }
-    })
-    fireEvent.click(getByText('OK'))
+    await handleFormSubmit({ companyName: 'My New Company', companyUrl: 'abc' })
 
     await waitFor(() => {
       expect(mockMutate).toHaveBeenCalledWith(
