@@ -8,7 +8,9 @@ import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.CreateConnectionDto;
 import com.consoleconnect.vortex.iam.dto.CreateOrganizationDto;
 import com.consoleconnect.vortex.iam.dto.OidcConnectionDto;
+import com.consoleconnect.vortex.iam.dto.UpdateOrganizationDto;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
+import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.toolkit.Auth0PageHelper;
 import com.consoleconnect.vortex.test.*;
 import com.consoleconnect.vortex.test.user.TestUser;
@@ -37,6 +39,10 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   private final TestUser mgmtUser;
   private final TestUser customerUser;
   private final TestUser anonymousUser;
+
+  public static final String ORG_ID = "org_0bcbzk1UJV9CvwAU";
+  public static final String CONNECTION_ID = "con_YNEZH8rgZ8sQz9Fq";
+  public static final String INVITATION_ID = "uinv_WuhQogrsLDMF8L8y";
 
   @Autowired
   public MgmtOrganizationControllerTest(WebTestClient webTestClient) {
@@ -250,12 +256,82 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  void givenMgmtUser_whenRetrieveOrganization_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}";
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.GET,
+        String.format("/api/v2/organizations/%s", ORG_ID),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
+  }
+
+  @Test
+  void givenMgmtUser_whenUpdateOrganization_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}";
+
+    UpdateOrganizationDto request = new UpdateOrganizationDto();
+    request.setDisplayName("test-updated");
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.PATCH,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
+        request,
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.PATCH,
+        String.format("/api/v2/organizations/%s", ORG_ID),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
+  }
+
+  @Test
+  void givenMgmtUser_whenDisableOrganization_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}";
+
+    UpdateOrganizationDto request = new UpdateOrganizationDto();
+    request.setStatus(OrgStatusEnum.INACTIVE);
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.PATCH,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
+        request,
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.PATCH,
+        String.format("/api/v2/organizations/%s", ORG_ID),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
+  }
+
+  @Test
+  void givenMgmtUser_whenEnableOrganizationInActiveStatus_thenReturn400() {
+    String endpoint = "/mgmt/organizations/{orgId}";
+
+    UpdateOrganizationDto request = new UpdateOrganizationDto();
+    request.setStatus(OrgStatusEnum.ACTIVE);
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.PATCH,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
+        request,
+        400,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+  }
+
+  @Test
   void givenOrganizationCreated_thenCreateOidcConnection_thenReturn200() {
     String endpoint = "/mgmt/organizations/{orgId}/connection";
-
-    String orgId = "org_0bcbzk1UJV9CvwAU";
-    String connectionId = "con_YNEZH8rgZ8sQz9Fq";
-    String invitationId = "uinv_WuhQogrsLDMF8L8y";
 
     CreateConnectionDto request = new CreateConnectionDto();
     request.setStrategy(ConnectionStrategyEnum.OIDC);
@@ -266,7 +342,7 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
 
     mgmtUser.requestAndVerify(
         HttpMethod.POST,
-        uriBuilder -> uriBuilder.path(endpoint).build(orgId),
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
         request,
         200,
         org.junit.jupiter.api.Assertions::assertNotNull);
@@ -274,14 +350,14 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
     List<Endpoint> auth0Endpoints = new ArrayList<>();
 
     String connections = "/api/v2/connections";
-    String connectionById = String.format("%s/%s", connections, connectionId);
+    String connectionById = String.format("%s/%s", connections, CONNECTION_ID);
 
-    String orgById = String.format("/api/v2/organizations/%s", orgId);
+    String orgById = String.format("/api/v2/organizations/%s", ORG_ID);
     String enabledConnections = String.format("%s/enabled_connections", orgById);
-    String enabledConnectionById = String.format("%s/%s", enabledConnections, connectionId);
+    String enabledConnectionById = String.format("%s/%s", enabledConnections, CONNECTION_ID);
     String members = String.format("%s/members", orgById);
     String invitations = String.format("%s/invitations", orgById);
-    String invitationById = String.format("%s/invitations/%s", orgById, invitationId);
+    String invitationById = String.format("%s/invitations/%s", orgById, INVITATION_ID);
 
     // connections
     auth0Endpoints.add(new Endpoint(HttpMethod.DELETE, connectionById));
