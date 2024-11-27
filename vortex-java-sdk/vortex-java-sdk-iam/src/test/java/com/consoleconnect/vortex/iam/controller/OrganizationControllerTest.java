@@ -2,6 +2,7 @@ package com.consoleconnect.vortex.iam.controller;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.consoleconnect.vortex.core.model.AppProperty;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.config.EmailServiceMockHelper;
 import com.consoleconnect.vortex.iam.config.TestApplication;
@@ -35,6 +36,7 @@ import org.springframework.web.util.UriUtils;
 class OrganizationControllerTest extends AbstractIntegrationTest {
 
   private final IamProperty iamProperty;
+  private final AppProperty appProperty;
 
   @SpyBean private EmailService emailService;
 
@@ -45,8 +47,10 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   private final TestUser customerUser;
 
   @Autowired
-  public OrganizationControllerTest(WebTestClient webTestClient, IamProperty iamProperty) {
+  public OrganizationControllerTest(
+      WebTestClient webTestClient, IamProperty iamProperty, AppProperty appProperty) {
     this.iamProperty = iamProperty;
+    this.appProperty = appProperty;
 
     WebTestClientHelper webTestClientHelper = new WebTestClientHelper(webTestClient);
     mgmtUser = TestUser.loginAsMgmtUser(webTestClientHelper);
@@ -65,7 +69,7 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
     MockServerHelper.setupMock("auth0");
 
     if (emailServiceMockHelper == null) {
-      emailServiceMockHelper = new EmailServiceMockHelper(emailService, iamProperty);
+      emailServiceMockHelper = new EmailServiceMockHelper(emailService, appProperty);
     }
     emailServiceMockHelper.setUp();
   }

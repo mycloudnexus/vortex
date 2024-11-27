@@ -105,7 +105,7 @@ public class UserService {
       Invitee invitee = new Invitee(member.getEmail());
       Invitation invitation =
           new Invitation(inviter, invitee, iamProperty.getAuth0().getApp().getClientId());
-      emailService.sendInvitation(invitation, true);
+      emailService.sendInvitation(invitation, member.getName(), true);
     }
     return toUser(userEntity, member, userContext.getOrgId());
   }

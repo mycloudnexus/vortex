@@ -8,6 +8,7 @@ public class EmailProperty {
   private boolean enabled = false;
   private String provider = "sendgrid";
   private SendGrid sendGrid;
+  private String supportEmail;
 
   @Data
   public static class SendGrid {

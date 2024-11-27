@@ -8,5 +8,4 @@ public class IamProperty {
   private ResourceServerProperty resourceServer;
   private EmailProperty email;
   private DownstreamProperty downStream;
-  private String loginUrl;
 }
