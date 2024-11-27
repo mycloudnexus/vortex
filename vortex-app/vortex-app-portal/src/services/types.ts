@@ -24,7 +24,6 @@ interface Colors {
 
 export interface CreateOrganizationRequestBody {
   name: string
-  metadata: MetaData
   display_name: string
 }
 

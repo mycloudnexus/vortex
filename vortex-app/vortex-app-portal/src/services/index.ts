@@ -22,7 +22,11 @@ export const getUserRole = () => {
 
 export const getCompanyList = async (): Promise<RequestResponse<IOrganization>> => {
   try {
-    const response = await request(ORGANIZATIONS)
+    const response = await request(ORGANIZATIONS, {
+      params: {
+        size: 200
+      }
+    })
     return response.data
   } catch (error) {
     console.error(error)
