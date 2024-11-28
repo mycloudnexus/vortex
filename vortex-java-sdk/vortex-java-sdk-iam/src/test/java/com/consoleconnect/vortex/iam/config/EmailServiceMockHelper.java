@@ -2,7 +2,7 @@ package com.consoleconnect.vortex.iam.config;
 
 import static org.mockito.ArgumentMatchers.eq;
 
-import com.consoleconnect.vortex.iam.model.IamProperty;
+import com.consoleconnect.vortex.core.model.AppProperty;
 import com.consoleconnect.vortex.iam.service.EmailService;
 import com.sendgrid.helpers.mail.objects.Email;
 import java.util.Map;
@@ -14,7 +14,7 @@ import org.mockito.Mockito;
 @AllArgsConstructor
 public class EmailServiceMockHelper {
   private final EmailService emailService;
-  private final IamProperty iamProperty;
+  private final AppProperty appProperty;
 
   public void setUp() {
     Mockito.doNothing().when(emailService).send(Mockito.any(), Mockito.any(), Mockito.any());
@@ -30,7 +30,7 @@ public class EmailServiceMockHelper {
     Assertions.assertEquals(email, emailArgumentCaptor.getValue().getEmail());
 
     Map<String, Object> context = mapArgumentCaptor.getValue();
-    Assertions.assertEquals(inviterName, context.get("inviterName"));
-    Assertions.assertEquals(iamProperty.getLoginUrl(), context.get("vortexLoginUrl"));
+    Assertions.assertEquals(inviterName, context.get("requestor"));
+    Assertions.assertEquals(appProperty.getLoginUrl(), context.get("url"));
   }
 }

@@ -79,6 +79,7 @@ logging:
 
 app:
   loginUrl: http://localhost:3000
+  productName: Vortex
   iam:
     auth0:
       mgmt-api:
