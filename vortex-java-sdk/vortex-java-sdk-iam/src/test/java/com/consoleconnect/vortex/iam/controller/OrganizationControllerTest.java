@@ -14,6 +14,7 @@ import com.consoleconnect.vortex.iam.service.EmailService;
 import com.consoleconnect.vortex.test.*;
 import com.consoleconnect.vortex.test.user.TestUser;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -273,6 +274,22 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  @Order(8)
+  void givenCustomerUser_resetPasswordOnUsernamePasswordConnection_thenReturn200() {
+    String endpoint = "/organization/reset-password";
+
+    MockServerHelper.setupMock("auth0/organization/connection/username-password");
+
+    customerUser.requestAndVerify(
+        HttpMethod.POST,
+        uriBuilder -> uriBuilder.path(endpoint).build(),
+        200,
+        Assertions::assertNotNull);
+
+    MockServerHelper.verify(1, HttpMethod.POST, "/dbconnections/change_password");
+  }
+
+  @Test
   @Order(9)
   void givenCustomerUser_updateMemberInfoOnSsoConnection_thenReturn400() {
     UpdateMemberDto updateMemberDto = new UpdateMemberDto();
@@ -285,5 +302,29 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
         updateMemberDto,
         400,
         Assertions::assertNotNull);
+  }
+
+  @Test
+  @Order(9)
+  void givenCustomerUser_updateMemberInfoOnUsernamePasswordConnection_thenReturn200() {
+
+    MockServerHelper.setupMock("auth0/organization/connection/username-password");
+    UpdateMemberDto updateMemberDto = new UpdateMemberDto();
+    updateMemberDto.setFamilyName("familyName");
+    updateMemberDto.setGivenName("givenName");
+
+    customerUser.requestAndVerify(
+        HttpMethod.PATCH,
+        uriBuilder -> uriBuilder.path("/organization/members").build(),
+        updateMemberDto,
+        200,
+        Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.PATCH,
+        "/api/v2/users/"
+            + UriUtils.encodePath(AuthContextConstants.CUSTOMER_USER_ID, StandardCharsets.UTF_8),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
   }
 }

@@ -1,7 +1,0 @@
-[
-  {
-    "method": "GET",
-    "endpoint": "/api/v2/organizations/{id}",
-    "data": "get_api_v2_organizations_{id}.json"
-  }
-]
