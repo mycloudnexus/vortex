@@ -9,9 +9,9 @@ import com.consoleconnect.vortex.iam.dto.AuthToken;
 import com.consoleconnect.vortex.iam.dto.MemberInfo;
 import com.consoleconnect.vortex.iam.service.MemberService;
 import com.consoleconnect.vortex.test.*;
+import com.consoleconnect.vortex.test.user.TestUser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
@@ -31,12 +31,18 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @Slf4j
 class AuthTokenControllerTest extends AbstractIntegrationTest {
 
-  private final WebTestClientHelper webTestClient;
-
   @MockBean private MemberService memberService;
 
+  private final TestUser mgmtUser;
+  private final TestUser anonymousUser;
+  private final TestUser customerUser;
+
   public AuthTokenControllerTest(@Autowired WebTestClient webTestClient) {
-    this.webTestClient = new WebTestClientHelper(webTestClient);
+    WebTestClientHelper webTestClientHelper = new WebTestClientHelper(webTestClient);
+
+    mgmtUser = TestUser.loginAsMgmtUser(webTestClientHelper);
+    customerUser = TestUser.loginAsCustomerUser(webTestClientHelper);
+    anonymousUser = TestUser.login(webTestClientHelper, null);
   }
 
   @BeforeAll
@@ -51,9 +57,8 @@ class AuthTokenControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenNoAccessToken_whenGetAuthToken_thenReturn401() {
-
-    webTestClient.requestAndVerify(
+  void givenAnonymousUser_whenGetAuthToken_thenReturn401() {
+    anonymousUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/auth/token").build(),
         401,
@@ -61,13 +66,11 @@ class AuthTokenControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenMgmtAccessToken_whenGetAuthToken_thenReturnUserInfo() {
+  void givenMgmtUser_whenGetAuthToken_thenReturnUserInfo() {
 
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/auth/token").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         200,
         response -> {
           HttpResponse<AuthToken> res = JsonToolkit.fromJson(response, new TypeReference<>() {});
@@ -85,7 +88,7 @@ class AuthTokenControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenCustomerAccessToken_whenGetAuthToken_thenReturnUserInfo() {
+  void givenCustomerUser_whenGetAuthToken_thenReturnUserInfo() {
 
     MemberInfo memberInfo = new MemberInfo();
     memberInfo.setId(AuthContextConstants.CUSTOMER_USER_ID);
@@ -93,11 +96,9 @@ class AuthTokenControllerTest extends AbstractIntegrationTest {
     memberInfo.setName("first last");
     Mockito.doReturn(memberInfo).when(memberService).getUserInfo(Mockito.anyString());
 
-    webTestClient.requestAndVerify(
+    customerUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/auth/token").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
-        null,
         200,
         response -> {
           HttpResponse<AuthToken> res = JsonToolkit.fromJson(response, new TypeReference<>() {});

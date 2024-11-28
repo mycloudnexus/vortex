@@ -6,6 +6,7 @@ import com.consoleconnect.vortex.iam.dto.MemberInfo;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.BooleanUtils;
 
 public class MemberMapper {
   private MemberMapper() {}
@@ -38,7 +39,11 @@ public class MemberMapper {
     if (map1 != null) {
       memberInfo.setUserMetadata(new LinkedHashMap<>(map1));
     }
-    memberInfo.setBlocked(user.isBlocked());
+    memberInfo.setBlocked(false);
+    // By default, the value of blocked is null. Compliant solution from sonarcloud.
+    if (BooleanUtils.isTrue(user.isBlocked())) {
+      memberInfo.setBlocked(true);
+    }
     if (memberInfo.getIdentities() != null) {
       List<Identity> list = user.getIdentities();
       if (list != null) {

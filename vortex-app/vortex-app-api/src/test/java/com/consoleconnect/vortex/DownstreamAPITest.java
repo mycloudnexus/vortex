@@ -3,8 +3,8 @@ package com.consoleconnect.vortex;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.consoleconnect.vortex.test.*;
+import com.consoleconnect.vortex.test.user.TestUser;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
-import java.util.Map;
 import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +19,19 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @WireMockTest(httpPort = 3031)
 class DownstreamAPITest extends AbstractIntegrationTest {
 
-  private final WebTestClientHelper webTestClient;
+  private final TestUser mgmtUser;
+  private final TestUser unInvitedMgmtUser;
+  private final TestUser anonymousUser;
+  private final TestUser customerUser;
 
   public DownstreamAPITest(@Autowired WebTestClient webTestClient) {
-    this.webTestClient = new WebTestClientHelper(webTestClient);
+    WebTestClientHelper webTestClientHelper = new WebTestClientHelper(webTestClient);
+
+    this.mgmtUser = TestUser.loginAsMgmtUser(webTestClientHelper);
+    this.customerUser = TestUser.loginAsCustomerUser(webTestClientHelper);
+    this.anonymousUser = TestUser.login(webTestClientHelper, null);
+    this.unInvitedMgmtUser =
+        TestUser.login(webTestClientHelper, AuthContextConstants.MGMT_ACCESS_TOKEN_2);
   }
 
   @BeforeAll
@@ -38,7 +47,7 @@ class DownstreamAPITest extends AbstractIntegrationTest {
 
   @Test
   void givenAnonymous_whenGetHeartbeat_thenReturn401() {
-    webTestClient.requestAndVerify(
+    anonymousUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/downstream/heartbeat").build(),
         HttpStatus.UNAUTHORIZED.value(),
@@ -46,12 +55,19 @@ class DownstreamAPITest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenMgmtAccessToken_whenGetHeartbeat_thenReturn200() {
-    webTestClient.requestAndVerify(
+  void givenUninvitedMgmtUser_whenGetHeartbeat_thenReturn404() {
+    unInvitedMgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/downstream/heartbeat").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
+        HttpStatus.FORBIDDEN.value(),
+        Assertions::assertNull);
+  }
+
+  @Test
+  void givenMgmtAccessToken_whenGetHeartbeat_thenReturn200() {
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/downstream/heartbeat").build(),
         HttpStatus.OK.value(),
         Assertions::assertNotNull);
 
@@ -60,11 +76,9 @@ class DownstreamAPITest extends AbstractIntegrationTest {
 
   @Test
   void givenCustomerAccessToken_whenGetHeartbeat_thenReturn200() {
-    webTestClient.requestAndVerify(
+    customerUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/downstream/heartbeat").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
-        null,
         HttpStatus.OK.value(),
         Assertions::assertNotNull);
 
@@ -74,11 +88,9 @@ class DownstreamAPITest extends AbstractIntegrationTest {
 
   @Test
   void givenMgmtAccessToken_whenGetCurrentUserInfo_thenReturn200() {
-    webTestClient.requestAndVerify(
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/downstream/api/auth/token").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         HttpStatus.OK.value(),
         Assertions::assertNotNull);
 
@@ -86,12 +98,19 @@ class DownstreamAPITest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenCustomerAccessToken_whenGetCurrentUserInfo_thenReturn200() {
-    webTestClient.requestAndVerify(
+  void givenUnInvitedMgmtAccessToken_whenGetCurrentUserInfo_thenReturn403() {
+    unInvitedMgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/downstream/api/auth/token").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.CUSTOMER_ACCESS_TOKEN),
-        null,
+        HttpStatus.FORBIDDEN.value(),
+        Assertions::assertNull);
+  }
+
+  @Test
+  void givenCustomerAccessToken_whenGetCurrentUserInfo_thenReturn200() {
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/downstream/api/auth/token").build(),
         HttpStatus.OK.value(),
         Assertions::assertNotNull);
 

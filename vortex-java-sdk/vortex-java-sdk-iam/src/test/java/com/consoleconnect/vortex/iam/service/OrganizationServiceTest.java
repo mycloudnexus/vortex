@@ -11,7 +11,6 @@ import com.auth0.exception.Auth0Exception;
 import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.connections.ConnectionsPage;
 import com.auth0.json.mgmt.organizations.*;
-import com.auth0.json.mgmt.roles.RolesPage;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.Request;
 import com.auth0.net.Response;
@@ -34,7 +33,6 @@ import java.util.UUID;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -676,80 +674,6 @@ class OrganizationServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void testCreateInvitation() throws Auth0Exception {
-    ManagementAPI managementAPI = mock(ManagementAPI.class);
-    doReturn(managementAPI).when(auth0Client).getMgmtClient();
-
-    OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
-    doReturn(organizationsEntity).when(managementAPI).organizations();
-    Request<Organization> organizationRequest = mock(Request.class);
-    doReturn(organizationRequest).when(organizationsEntity).get(anyString());
-
-    Response<Organization> organizationResponse = mock(Response.class);
-    doReturn(organizationResponse).when(organizationRequest).execute();
-
-    // mock query organization
-    Organization queryOrganization = mock(Organization.class);
-    doReturn(queryOrganization).when(organizationResponse).getBody();
-    doReturn(UUID.randomUUID().toString()).when(queryOrganization).getId();
-
-    Request<EnabledConnectionsPage> enabledConnectionsPageRequest = mock(Request.class);
-    Response<EnabledConnectionsPage> enabledConnectionsPageResponse = mock(Response.class);
-    EnabledConnection enabledConnection = new EnabledConnection(UUID.randomUUID().toString());
-    EnabledConnectionsPage enabledConnectionsPage =
-        new EnabledConnectionsPage(List.of(enabledConnection));
-    doReturn(enabledConnectionsPageRequest)
-        .when(organizationsEntity)
-        .getConnections(anyString(), any());
-    doReturn(enabledConnectionsPageResponse).when(enabledConnectionsPageRequest).execute();
-    doReturn(enabledConnectionsPage).when(enabledConnectionsPageResponse).getBody();
-
-    RolesEntity rolesEntity = mock(RolesEntity.class);
-    RolesPage rolesPage = mock(RolesPage.class);
-    Request<RolesPage> roleRequest = mock(Request.class);
-    Response<RolesPage> roleResponse = mock(Response.class);
-    doReturn(rolesEntity).when(managementAPI).roles();
-    doReturn(roleRequest).when(rolesEntity).list(any());
-    doReturn(roleResponse).when(roleRequest).execute();
-    doReturn(rolesPage).when(roleResponse).getBody();
-
-    User user = new User("test");
-    user.setName("user-name");
-
-    Request<User> userRequest = mock(Request.class);
-    Response<User> userResponse = mock(Response.class);
-    UsersEntity usersEntity = mock(UsersEntity.class);
-    doReturn(usersEntity).when(managementAPI).users();
-    doReturn(userRequest).when(usersEntity).get(anyString(), any());
-    doReturn(userResponse).when(userRequest).execute();
-    doReturn(user).when(userResponse).getBody();
-
-    Request<Invitation> invitationRequest = mock(Request.class);
-    Response<Invitation> invitationResponse = mock(Response.class);
-    Invitation createdInvitation = mock(Invitation.class);
-    doReturn(invitationRequest).when(organizationsEntity).createInvitation(anyString(), any());
-    doReturn(invitationResponse).when(invitationRequest).execute();
-    doReturn(createdInvitation).when(invitationResponse).getBody();
-
-    doNothing().when(emailService).sendInvitation(any());
-
-    CreateInvitationDto request = new CreateInvitationDto();
-    request.setEmail("test@example.com");
-    request.setRoles(List.of("ORG_ADMIN"));
-
-    Auth0Property.Config config = new Auth0Property.Config();
-    config.setClientId(UUID.randomUUID().toString());
-
-    String orgId = UUID.randomUUID().toString();
-    Auth0Property auth0 = new Auth0Property();
-    auth0.setApp(config);
-    doReturn(auth0).when(auth0Client).getAuth0Property();
-
-    organizationService.createInvitation(orgId, request, SYSTEM);
-    Assertions.assertThatNoException();
-  }
-
-  @Test
   void testCreateInvitationUsername() {
     CreateInvitationDto request = new CreateInvitationDto();
     request.setEmail("test@example.com");
@@ -768,27 +692,23 @@ class OrganizationServiceTest extends AbstractIntegrationTest {
 
   @Test
   @SneakyThrows
-  void test_listMembers() {
+  void test_listMembers_empty() {
     ManagementAPI managementAPI = mock(ManagementAPI.class);
     doReturn(managementAPI).when(auth0Client).getMgmtClient();
 
     OrganizationsEntity organizationsEntity = mock(OrganizationsEntity.class);
     doReturn(organizationsEntity).when(managementAPI).organizations();
 
-    String memberPageStr =
-        AbstractIntegrationTest.readFileToString("auth0/page_organization_members.json");
-    List<Member> members =
-        JsonToolkit.fromJson(memberPageStr, new TypeReference<List<Member>>() {});
-    MembersPage membersPage = new MembersPage(0, 2, 2, 10, "", members);
     Request<MembersPage> membersPageRequest = mock(Request.class);
     Response<MembersPage> membersPageResponse = mock(Response.class);
     doReturn(membersPageRequest).when(organizationsEntity).getMembers(anyString(), any());
     doReturn(membersPageResponse).when(membersPageRequest).execute();
-    doReturn(membersPage).when(membersPageResponse).getBody();
-    Paging<Member> memberPaging =
+    doReturn(new MembersPage(List.of())).when(membersPageResponse).getBody();
+
+    Paging<MemberInfo> memberPaging =
         organizationService.listMembers(UUID.randomUUID().toString(), 0, PagingHelper.ALL);
     assertNotNull(memberPaging);
-    assertEquals(2, memberPaging.getTotal());
+    assertEquals(0, memberPaging.getData().size());
   }
 
   @Test

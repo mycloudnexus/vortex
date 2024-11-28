@@ -4,6 +4,7 @@ import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.client.mgmt.OrganizationsEntity;
 import com.auth0.client.mgmt.RolesEntity;
 import com.auth0.client.mgmt.filter.InvitationsFilter;
+import com.auth0.client.mgmt.filter.UserFilter;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.connections.ConnectionsPage;
@@ -22,10 +23,13 @@ import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
+import com.consoleconnect.vortex.iam.mapper.MemberMapper;
 import com.consoleconnect.vortex.iam.service.connection.AbstractConnection;
 import com.consoleconnect.vortex.iam.toolkit.Auth0PageHelper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -250,23 +254,70 @@ public class OrganizationService {
     }
   }
 
-  public Paging<Member> listMembers(String orgId, int page, int size) {
+  public Paging<MemberInfo> listMembers(String orgId, int page, int size) {
     log.info("list members, orgId:{}, size:{}", orgId, size);
-    return Auth0PageHelper.loadData(
-        page,
-        size,
-        (pageFilterParameters -> {
-          try {
-            return this.auth0Client
-                .getMgmtClient()
-                .organizations()
-                .getMembers(orgId, pageFilterParameters.toPageFilter())
-                .execute()
-                .getBody();
-          } catch (Auth0Exception e) {
-            throw VortexException.internalError("Failed to get members of organization: " + orgId);
-          }
-        }));
+    Paging<Member> memberPaging =
+        Auth0PageHelper.loadData(
+            page,
+            size,
+            (pageFilterParameters -> {
+              try {
+                return this.auth0Client
+                    .getMgmtClient()
+                    .organizations()
+                    .getMembers(orgId, pageFilterParameters.toPageFilter())
+                    .execute()
+                    .getBody();
+              } catch (Auth0Exception e) {
+                throw VortexException.internalError(
+                    "Failed to get members of organization: " + orgId);
+              }
+            }));
+
+    if (Objects.isNull(memberPaging) || CollectionUtils.isEmpty(memberPaging.getData())) {
+      return PagingHelper.toPageNoSubList(Collections.emptyList(), page, size, null);
+    }
+
+    OrganizationConnection organization = getOneConnection(orgId);
+    Paging<User> userPaging =
+        Auth0PageHelper.loadData(
+            0,
+            -1,
+            (pageFilterParameters -> {
+              try {
+                return this.auth0Client
+                    .getMgmtClient()
+                    .users()
+                    .list(
+                        new UserFilter()
+                            .withSearchEngine("v2")
+                            .withQuery(
+                                String.format(
+                                    "identities.connection:\"%s\"",
+                                    organization.getConnection().getName()))
+                            .withPage(
+                                pageFilterParameters.getPage(), pageFilterParameters.getSize())
+                            .withTotals(true))
+                    .execute()
+                    .getBody();
+              } catch (Auth0Exception e) {
+                throw VortexException.internalError(
+                    "Failed to get users of organization: " + orgId);
+              }
+            }));
+
+    Map<String, Member> memberMap =
+        memberPaging.getData().stream()
+            .collect(Collectors.toMap(Member::getUserId, Function.identity()));
+
+    List<MemberInfo> memberInfos =
+        userPaging.getData().stream()
+            .filter(user -> memberMap.containsKey(user.getId()))
+            .map(MemberMapper.INSTANCE::toMemberInfo)
+            .toList();
+
+    return PagingHelper.toPageNoSubList(
+        memberInfos, memberPaging.getPage(), memberPaging.getSize(), memberPaging.getTotal());
   }
 
   private List<Role> findRolesByName(List<String> roleNames) {
@@ -318,7 +369,10 @@ public class OrganizationService {
 
       Response<Invitation> createdInvitationResponse = invitationRequest.execute();
       Invitation createdInvitation = createdInvitationResponse.getBody();
-      emailService.sendInvitation(createdInvitation);
+      if (!request.isSendEmail()) { // not send via auth0, then need to handle internal
+        emailService.sendInvitation(createdInvitation, false);
+      }
+
       return createdInvitation;
     } catch (Auth0Exception e) {
       log.error("create invitations.error", e);
