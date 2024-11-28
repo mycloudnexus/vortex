@@ -46,7 +46,6 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
   private MockServerHttpResponse response;
 
   private final String customerId = UUID.randomUUID().toString();
-  private final String accessToken = UUID.randomUUID().toString();
 
   @BeforeEach
   void setUp() {
