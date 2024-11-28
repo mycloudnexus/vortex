@@ -1,13 +1,12 @@
 package com.consoleconnect.vortex.gateway.transformer;
 
+import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
-import com.consoleconnect.vortex.gateway.repo.OrderRepository;
-import com.consoleconnect.vortex.gateway.service.OrderService;
-import com.consoleconnect.vortex.iam.model.IamConstants;
+import com.consoleconnect.vortex.iam.model.UserContext;
+import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
@@ -37,26 +37,25 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
   @Autowired private DefaultCreateResourceOrderTransformer orderTransformer;
   @Autowired private DefaultResourceListTransformer listTransformer;
   @Autowired private PortOrderListTransformer portOrderListTransformer;
-  @Autowired private OrderService orderService;
+  @Autowired private PortConnectionsTransformer portConnectionsTransformer;
 
-  @SpyBean private OrderRepository orderRepository;
+  @SpyBean private OrganizationService organizationService;
 
   private ServerWebExchange exchange;
   private MockServerHttpResponse response;
 
-  private final String customerId = UUID.randomUUID().toString();
-  private final String accessToken = UUID.randomUUID().toString();
+  UserContext userContext;
 
   @BeforeEach
   void setUp() {
+    userContext = new UserContext();
+    userContext.setMgmt(false);
+    userContext.setCustomerId("orgId");
+    userContext.setAccessToken("token");
 
     response = new MockServerHttpResponse();
     response.setStatusCode(HttpStatus.OK);
-  }
 
-  @Test
-  @Order(1)
-  void testCreateAdapter() {
     MockServerHttpRequest request = MockServerHttpRequest.put("/test/api/do").build();
     exchange =
         new DefaultServerWebExchange(
@@ -65,9 +64,11 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
             new DefaultWebSessionManager(),
             new DefaultServerCodecConfigurer(),
             new FixedLocaleContextResolver());
+  }
 
-    exchange.getAttributes().put(IamConstants.X_VORTEX_CUSTOMER_ID, customerId);
-    exchange.getAttributes().put(IamConstants.X_VORTEX_ACCESS_TOKEN, accessToken);
+  @Test
+  @Order(1)
+  void testCreateTransformer() {
 
     TransformerApiProperty config = new TransformerApiProperty();
     config.setHttpMethod(HttpMethod.PUT);
@@ -77,26 +78,13 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
 
     orderTransformer.getTransformerId();
     byte[] resBytes = "{\"id\":\"orderId\"}".getBytes();
-    byte[] ret = orderTransformer.doTransform(exchange, resBytes, customerId, config);
+    byte[] ret = orderTransformer.doTransform(exchange, resBytes, userContext, config);
     Assertions.assertNotNull(ret);
   }
 
   @Test
   @Order(2)
-  void testListPortOrdersAdapter() {
-    MockServerHttpRequest request =
-        MockServerHttpRequest.get(
-                "/consoleconnect/api/company/consolecore-poping-company/ports/orders")
-            .build();
-    exchange =
-        new DefaultServerWebExchange(
-            request,
-            response,
-            new DefaultWebSessionManager(),
-            new DefaultServerCodecConfigurer(),
-            new FixedLocaleContextResolver());
-    exchange.getAttributes().put(IamConstants.X_VORTEX_CUSTOMER_ID, customerId);
-    exchange.getAttributes().put(IamConstants.X_VORTEX_ACCESS_TOKEN, accessToken);
+  void testListPortOrdersTransformer() {
 
     TransformerApiProperty config = new TransformerApiProperty();
     config.setHttpMethod(HttpMethod.GET);
@@ -109,25 +97,13 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
         "{\"results\": [{\"id\":\"orderId\", \"createdPortId\":\"portId\"},{\"id\":\"orderId2\"}]}"
             .getBytes();
     orderTransformer.getTransformerId();
-    byte[] ret = portOrderListTransformer.doTransform(exchange, resBytes, customerId, config);
+    byte[] ret = portOrderListTransformer.doTransform(exchange, resBytes, userContext, config);
     Assertions.assertNotNull(ret);
   }
 
   @Test
   @Order(3)
-  void testDefaultResourceListAdapter() {
-    MockServerHttpRequest request = MockServerHttpRequest.get("/test/api/do").build();
-
-    exchange =
-        new DefaultServerWebExchange(
-            request,
-            response,
-            new DefaultWebSessionManager(),
-            new DefaultServerCodecConfigurer(),
-            new FixedLocaleContextResolver());
-
-    exchange.getAttributes().put(IamConstants.X_VORTEX_CUSTOMER_ID, customerId);
-    exchange.getAttributes().put(IamConstants.X_VORTEX_ACCESS_TOKEN, accessToken);
+  void testDefaultResourceListTransformer() {
 
     TransformerApiProperty config = new TransformerApiProperty();
     config.setHttpMethod(HttpMethod.GET);
@@ -139,7 +115,31 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
     byte[] resBytes =
         "{\"results\": [{\"id\":\"portId\", \"status\":\"ACTIVE\"}, {\"id\":\"portId2\", \"status\":\"ACTIVE\"}]}"
             .getBytes();
-    byte[] ret = listTransformer.doTransform(exchange, resBytes, customerId, config);
+    byte[] ret = listTransformer.doTransform(exchange, resBytes, userContext, config);
+    Assertions.assertNotNull(ret);
+  }
+
+  @Test
+  @Order(4)
+  void testPortConnectionsTransformer() {
+
+    Organization org = new Organization();
+    org.setName("orgName");
+    Mockito.doReturn(org).when(organizationService).findOne(Mockito.any());
+
+    TransformerApiProperty config = new TransformerApiProperty();
+    config.setHttpMethod(HttpMethod.GET);
+    config.setHttpPath("/test/api/do");
+    config.setTransformer("port.connection.list");
+    config.setResourceType(ResourceTypeEnum.PORT);
+    config.setResponseBodyPath("$.results");
+
+    byte[] resBytes =
+        ("{\"results\": [{\"destCompany\":{\"name\":\"cname1\", \"company\":{\"registeredName\":\"cname1\"}}},"
+                + "{\"destCompany\":{\"name\":\"cname2\", \"company\":{\"registeredName\":\"cname2\"}}}]}")
+            .getBytes();
+    orderTransformer.getTransformerId();
+    byte[] ret = portConnectionsTransformer.doTransform(exchange, resBytes, userContext, config);
     Assertions.assertNotNull(ret);
   }
 }

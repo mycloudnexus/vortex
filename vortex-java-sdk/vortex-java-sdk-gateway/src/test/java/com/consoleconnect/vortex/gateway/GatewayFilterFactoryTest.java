@@ -8,6 +8,7 @@ import com.consoleconnect.vortex.gateway.filter.MefAPIHeaderGatewayFilterFactory
 import com.consoleconnect.vortex.gateway.filter.ResponseBodyTransformerGatewayFilterFactory;
 import com.consoleconnect.vortex.gateway.transformer.AbstractResourceTransformer;
 import com.consoleconnect.vortex.iam.model.IamConstants;
+import com.consoleconnect.vortex.iam.model.UserContext;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
   @Autowired private Set<MessageBodyEncoder> messageBodyEncoders;
   @Autowired private List<AbstractResourceTransformer> transformers;
 
+  private UserContext userContext;
   private ServerWebExchange exchange;
   private ResponseBodyTransformerGatewayFilterFactory.Config config;
   private ResponseBodyTransformerGatewayFilterFactory responseTransformerFilter;
@@ -62,6 +64,11 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
 
   @BeforeEach
   void setUp() {
+    userContext = new UserContext();
+    userContext.setMgmt(false);
+    userContext.setCustomerId("org");
+    userContext.setAccessToken("token");
+
     TransformerApiProperty property = new TransformerApiProperty();
     property.setHttpMethod(HttpMethod.PUT);
     property.setHttpPath("/test/api/do");
@@ -92,7 +99,7 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
             new DefaultServerCodecConfigurer(),
             new FixedLocaleContextResolver());
 
-    exchange.getAttributes().put(IamConstants.X_VORTEX_CUSTOMER_ID, "org");
+    exchange.getAttributes().put(IamConstants.X_USER_CONTEXT, userContext);
 
     chain = Mockito.mock(GatewayFilterChain.class);
 
