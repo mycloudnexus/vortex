@@ -1,4 +1,4 @@
-import request from '@/utils/helpers/request' // Adjust the import path if using a custom request instance
+import request from '@/utils/helpers/request'
 import { createOrganization, getCompanyList, updateOrganization } from '..'
 import type {
   CreateOrganizationRequestBody,
@@ -8,10 +8,10 @@ import type {
   UpdateOrganizationRequestBody
 } from '../types'
 
-jest.mock('@/utils/helpers/request') // Mocking axios
+jest.mock('@/utils/helpers/request')
 
 describe('Api calls', () => {
-  const ORGANIZATIONS = '/mgmt/organizations' // Ensure this matches your actual constant
+  const ORGANIZATIONS = '/mgmt/organizations'
 
   describe('update organization', () => {
     let mockPatch = jest.fn()
