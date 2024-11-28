@@ -264,6 +264,11 @@ public class OrganizationService {
 
   public Paging<MemberInfo> listMembers(String orgId, int page, int size) {
     log.info("list members, orgId:{}, size:{}", orgId, size);
+
+    Optional<Connection> connectionOptional = this.getOrganizationConnection(orgId);
+    if (connectionOptional.isEmpty()) {
+      return PagingHelper.toPage(List.of(), page, size);
+    }
     Paging<Member> memberPaging =
         Auth0PageHelper.loadData(
             page,
@@ -286,7 +291,6 @@ public class OrganizationService {
       return PagingHelper.toPageNoSubList(Collections.emptyList(), page, size, null);
     }
 
-    OrganizationConnection organization = getOneConnection(orgId);
     Paging<User> userPaging =
         Auth0PageHelper.loadData(
             0,
@@ -302,7 +306,7 @@ public class OrganizationService {
                             .withQuery(
                                 String.format(
                                     "identities.connection:\"%s\"",
-                                    organization.getConnection().getName()))
+                                    connectionOptional.get().getName()))
                             .withPage(
                                 pageFilterParameters.getPage(), pageFilterParameters.getSize())
                             .withTotals(true))

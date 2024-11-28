@@ -391,7 +391,7 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   void givenMgmtUser_whenEnableOrganizationInActiveStatus_thenReturn400() {
     String endpoint = "/mgmt/organizations/{orgId}";
 
-    MockServerHelper.setupMock("auth0/scenarios/organization/enable");
+    MockServerHelper.setupMock("auth0/scenarios/organization/disable");
 
     UpdateOrganizationDto request = new UpdateOrganizationDto();
     request.setStatus(OrgStatusEnum.ACTIVE);
@@ -401,6 +401,23 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
         uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
         request,
         400,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+  }
+
+  @Test
+  void givenMgmtUser_whenEnableOrganization_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}";
+
+    MockServerHelper.setupMock("auth0/scenarios/organization/enable");
+
+    UpdateOrganizationDto request = new UpdateOrganizationDto();
+    request.setStatus(OrgStatusEnum.ACTIVE);
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.PATCH,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
+        request,
+        200,
         org.junit.jupiter.api.Assertions::assertNotNull);
   }
 
