@@ -368,7 +368,7 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   void givenMgmtUser_whenDisableOrganization_thenReturn200() {
     String endpoint = "/mgmt/organizations/{orgId}";
 
-    MockServerHelper.setupMock("auth0/scenarios/organization/disable");
+    MockServerHelper.setupMock("auth0/organization/disable");
 
     UpdateOrganizationDto request = new UpdateOrganizationDto();
     request.setStatus(OrgStatusEnum.INACTIVE);
@@ -391,7 +391,7 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   void givenMgmtUser_whenEnableOrganizationInActiveStatus_thenReturn400() {
     String endpoint = "/mgmt/organizations/{orgId}";
 
-    MockServerHelper.setupMock("auth0/scenarios/organization/disable");
+    MockServerHelper.setupMock("auth0/organization/disable");
 
     UpdateOrganizationDto request = new UpdateOrganizationDto();
     request.setStatus(OrgStatusEnum.ACTIVE);
@@ -408,7 +408,7 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   void givenMgmtUser_whenEnableOrganization_thenReturn200() {
     String endpoint = "/mgmt/organizations/{orgId}";
 
-    MockServerHelper.setupMock("auth0/scenarios/organization/enable");
+    MockServerHelper.setupMock("auth0/organization/enable");
 
     UpdateOrganizationDto request = new UpdateOrganizationDto();
     request.setStatus(OrgStatusEnum.ACTIVE);
@@ -483,7 +483,7 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   void givenMgmtUser_thenUpdateOidcConnection_thenReturn200() {
     String endpoint = "/mgmt/organizations/{orgId}/connection";
 
-    MockServerHelper.setupMock("auth0/scenarios/organization/connection/oidc");
+    MockServerHelper.setupMock("auth0/organization/connection/oidc");
 
     UpdateConnectionDto request = new UpdateConnectionDto();
 
@@ -579,7 +579,7 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   void givenMgmtUser_thenUpdateUsernamePasswordConnection_thenReturn400() {
     String endpoint = "/mgmt/organizations/{orgId}/connection";
 
-    MockServerHelper.setupMock("auth0/scenarios/organization/connection/username-password");
+    MockServerHelper.setupMock("auth0/organization/connection/username-password");
 
     UpdateConnectionDto request = new UpdateConnectionDto();
 
@@ -651,7 +651,7 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   void givenMgmtUser_thenUpdateSamlConnection_thenReturn200() {
     String endpoint = "/mgmt/organizations/{orgId}/connection";
 
-    MockServerHelper.setupMock("auth0/scenarios/organization/connection/saml");
+    MockServerHelper.setupMock("auth0/organization/connection/saml");
     UpdateConnectionDto request = new UpdateConnectionDto();
     SamlConnectionDto saml = new SamlConnectionDto();
     request.setSaml(saml);
