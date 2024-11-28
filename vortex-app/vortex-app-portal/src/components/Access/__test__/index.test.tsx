@@ -16,7 +16,7 @@ jest.mock('@auth0/auth0-react', () => ({
 }))
 
 const mockAuth0Provider = Auth0Provider as jest.MockedFunction<typeof Auth0Provider>
-describe('auth provider', () => {
+describe('auth reseller provider', () => {
   beforeEach(() => {
     jest.mock('@/stores/app.store', () => ({
       useAppStore: () => {
@@ -32,6 +32,30 @@ describe('auth provider', () => {
   })
   const Children = <span>children</span>
   it('renders the Auth0 Provider', () => {
+    expect.hasAssertions()
+
+    render(<AuthProvider>{Children}</AuthProvider>)
+
+    expect(screen.getByText('children')).toBeInTheDocument()
+  })
+})
+
+describe('auth customer provider', () => {
+  beforeEach(() => {
+    jest.mock('@/stores/app.store', () => ({
+      useAppStore: () => {
+        return {
+          userType: 'customer'
+        }
+      }
+    }))
+    mockAuth0Provider.mockClear().mockImplementation(({ children }) => children as React.ReactElement)
+    ENV.CUSTOMER_AUTH0_AUDIENCE = 'CUSTOMER_audience'
+    ENV.CUSTOMER_AUTH0_CLIENT_ID = 'CUSTOMER_clientId'
+    ENV.CUSTOMER_AUTH0_DOMAIN = 'https://auth0.customer.domain.test'
+  })
+  const Children = <span>children</span>
+  it('renders the customer Auth0 Provider', () => {
     expect.hasAssertions()
 
     render(<AuthProvider>{Children}</AuthProvider>)
