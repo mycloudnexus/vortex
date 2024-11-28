@@ -137,10 +137,10 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
 
   @Test
   void testSetAPIKeyGatewayFilterFactory() {
-    SetAPIKeyGatewayFilterFactory.Config config = new SetAPIKeyGatewayFilterFactory.Config();
+    SetAPIKeyGatewayFilterFactory.Config keyConfig = new SetAPIKeyGatewayFilterFactory.Config();
 
     setAPIKeyFactory = new SetAPIKeyGatewayFilterFactory();
-    GatewayFilter filter = setAPIKeyFactory.apply(config);
+    GatewayFilter filter = setAPIKeyFactory.apply(keyConfig);
     Mono<Void> result = filter.filter(exchange, chain);
     StepVerifier.create(result).expectComplete().verify();
   }

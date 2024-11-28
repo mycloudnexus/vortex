@@ -49,9 +49,8 @@ public class PortConnectionsTransformer extends AbstractResourceTransformer {
       ctx.set("$.results[" + i + "].destCompany.name", org.getName());
       ctx.set("$.results[" + i + "].destCompany.company.registeredName", org.getName());
     }
-    byte[] resBytes = ctx.jsonString().getBytes(StandardCharsets.UTF_8);
 
-    return resBytes;
+    return ctx.jsonString().getBytes(StandardCharsets.UTF_8);
   }
 
   @Override
