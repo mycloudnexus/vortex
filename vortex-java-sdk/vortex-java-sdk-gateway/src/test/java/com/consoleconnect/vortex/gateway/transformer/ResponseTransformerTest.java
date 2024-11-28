@@ -3,10 +3,11 @@ package com.consoleconnect.vortex.gateway.transformer;
 import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
-import com.consoleconnect.vortex.iam.model.UserContext;
+import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,14 +45,11 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
   private ServerWebExchange exchange;
   private MockServerHttpResponse response;
 
-  UserContext userContext;
+  private final String customerId = UUID.randomUUID().toString();
+  private final String accessToken = UUID.randomUUID().toString();
 
   @BeforeEach
   void setUp() {
-    userContext = new UserContext();
-    userContext.setMgmt(false);
-    userContext.setCustomerId("orgId");
-    userContext.setAccessToken("token");
 
     response = new MockServerHttpResponse();
     response.setStatusCode(HttpStatus.OK);
@@ -78,7 +76,7 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
 
     orderTransformer.getTransformerId();
     byte[] resBytes = "{\"id\":\"orderId\"}".getBytes();
-    byte[] ret = orderTransformer.doTransform(exchange, resBytes, userContext, config);
+    byte[] ret = orderTransformer.doTransform(exchange, resBytes, customerId, config);
     Assertions.assertNotNull(ret);
   }
 
@@ -97,7 +95,7 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
         "{\"results\": [{\"id\":\"orderId\", \"createdPortId\":\"portId\"},{\"id\":\"orderId2\"}]}"
             .getBytes();
     orderTransformer.getTransformerId();
-    byte[] ret = portOrderListTransformer.doTransform(exchange, resBytes, userContext, config);
+    byte[] ret = portOrderListTransformer.doTransform(exchange, resBytes, customerId, config);
     Assertions.assertNotNull(ret);
   }
 
@@ -115,13 +113,15 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
     byte[] resBytes =
         "{\"results\": [{\"id\":\"portId\", \"status\":\"ACTIVE\"}, {\"id\":\"portId2\", \"status\":\"ACTIVE\"}]}"
             .getBytes();
-    byte[] ret = listTransformer.doTransform(exchange, resBytes, userContext, config);
+    byte[] ret = listTransformer.doTransform(exchange, resBytes, customerId, config);
     Assertions.assertNotNull(ret);
   }
 
   @Test
   @Order(4)
   void testPortConnectionsTransformer() {
+
+    exchange.getAttributes().put(IamConstants.X_VORTEX_MGMT_ORG, Boolean.FALSE);
 
     Organization org = new Organization();
     org.setName("orgName");
@@ -139,11 +139,7 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
                 + "{\"destCompany\":{\"name\":\"cname2\", \"company\":{\"registeredName\":\"cname2\"}}}]}")
             .getBytes();
     portConnectionsTransformer.getTransformerId();
-    byte[] ret = portConnectionsTransformer.doTransform(exchange, resBytes, userContext, config);
-    Assertions.assertNotNull(ret);
-
-    userContext.setMgmt(false);
-    ret = portConnectionsTransformer.doTransform(exchange, resBytes, userContext, config);
+    byte[] ret = portConnectionsTransformer.doTransform(exchange, resBytes, customerId, config);
     Assertions.assertNotNull(ret);
   }
 }

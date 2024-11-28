@@ -3,7 +3,7 @@ package com.consoleconnect.vortex.gateway.transformer;
 import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
-import com.consoleconnect.vortex.iam.model.UserContext;
+import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.jayway.jsonpath.DocumentContext;
 import java.nio.charset.StandardCharsets;
@@ -31,14 +31,16 @@ public class PortConnectionsTransformer extends AbstractResourceTransformer {
   public byte[] doTransform(
       ServerWebExchange exchange,
       byte[] responseBody,
-      UserContext userContext,
+      String customerId,
       TransformerApiProperty config) {
 
-    if (userContext.isMgmt()) {
+    Boolean isMgt = exchange.getAttribute(IamConstants.X_VORTEX_MGMT_ORG);
+
+    if (isMgt == null || isMgt) {
       return responseBody;
     }
 
-    Organization org = organizationService.findOne(userContext.getCustomerId());
+    Organization org = organizationService.findOne(customerId);
 
     String responseJson = new String(responseBody, StandardCharsets.UTF_8);
 

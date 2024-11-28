@@ -6,10 +6,8 @@ import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.filter.MefAPIHeaderGatewayFilterFactory;
 import com.consoleconnect.vortex.gateway.filter.ResponseBodyTransformerGatewayFilterFactory;
-import com.consoleconnect.vortex.gateway.filter.SetAPIKeyGatewayFilterFactory;
 import com.consoleconnect.vortex.gateway.transformer.AbstractResourceTransformer;
 import com.consoleconnect.vortex.iam.model.IamConstants;
-import com.consoleconnect.vortex.iam.model.UserContext;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
 import java.util.ArrayList;
@@ -56,21 +54,14 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
   @Autowired private Set<MessageBodyEncoder> messageBodyEncoders;
   @Autowired private List<AbstractResourceTransformer> transformers;
 
-  private UserContext userContext;
   private ServerWebExchange exchange;
   private ResponseBodyTransformerGatewayFilterFactory.Config config;
   private ResponseBodyTransformerGatewayFilterFactory responseTransformerFilter;
   private MefAPIHeaderGatewayFilterFactory mefAPIHeaderFilter;
-  private SetAPIKeyGatewayFilterFactory setAPIKeyFactory;
   private GatewayFilterChain chain;
 
   @BeforeEach
   void setUp() {
-    userContext = new UserContext();
-    userContext.setMgmt(false);
-    userContext.setCustomerId("org");
-    userContext.setAccessToken("token");
-
     TransformerApiProperty property = new TransformerApiProperty();
     property.setHttpMethod(HttpMethod.PUT);
     property.setHttpPath("/test/api/do");
@@ -101,7 +92,7 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
             new DefaultServerCodecConfigurer(),
             new FixedLocaleContextResolver());
 
-    exchange.getAttributes().put(IamConstants.X_USER_CONTEXT, userContext);
+    exchange.getAttributes().put(IamConstants.X_VORTEX_CUSTOMER_ID, "org");
 
     chain = Mockito.mock(GatewayFilterChain.class);
 
@@ -131,16 +122,6 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
     mefConfig.setKeyValue("value");
     mefAPIHeaderFilter = new MefAPIHeaderGatewayFilterFactory();
     GatewayFilter filter = mefAPIHeaderFilter.apply(mefConfig);
-    Mono<Void> result = filter.filter(exchange, chain);
-    StepVerifier.create(result).expectComplete().verify();
-  }
-
-  @Test
-  void testSetAPIKeyGatewayFilterFactory() {
-    SetAPIKeyGatewayFilterFactory.Config keyConfig = new SetAPIKeyGatewayFilterFactory.Config();
-
-    setAPIKeyFactory = new SetAPIKeyGatewayFilterFactory();
-    GatewayFilter filter = setAPIKeyFactory.apply(keyConfig);
     Mono<Void> result = filter.filter(exchange, chain);
     StepVerifier.create(result).expectComplete().verify();
   }

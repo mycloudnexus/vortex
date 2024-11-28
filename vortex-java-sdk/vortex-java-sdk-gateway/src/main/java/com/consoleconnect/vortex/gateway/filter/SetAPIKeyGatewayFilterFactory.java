@@ -1,7 +1,6 @@
 package com.consoleconnect.vortex.gateway.filter;
 
 import com.consoleconnect.vortex.iam.model.IamConstants;
-import com.consoleconnect.vortex.iam.model.UserContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -22,8 +21,8 @@ public class SetAPIKeyGatewayFilterFactory
   public GatewayFilter apply(Config config) {
     // ...
     return ((exchange, chain) -> {
-      UserContext userContext = exchange.getAttribute(IamConstants.X_USER_CONTEXT);
-      if (userContext == null || userContext.getAccessToken() == null) {
+      String accessToken = exchange.getAttribute(IamConstants.X_VORTEX_ACCESS_TOKEN);
+      if (accessToken == null) {
         log.warn("AccessToken is null,SetAPIKeyGatewayFilterFactory will not be applied");
         return chain.filter(exchange);
       } else {
@@ -34,9 +33,7 @@ public class SetAPIKeyGatewayFilterFactory
                     request ->
                         request.headers(
                             httpHeaders ->
-                                httpHeaders.add(
-                                    config.getAccessTokenHeaderName(),
-                                    userContext.getAccessToken())))
+                                httpHeaders.add(config.getAccessTokenHeaderName(), accessToken)))
                 .build();
 
         return chain.filter(updatedExchange);
