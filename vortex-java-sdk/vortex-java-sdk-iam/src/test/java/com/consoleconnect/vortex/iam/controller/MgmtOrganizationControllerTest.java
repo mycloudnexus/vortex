@@ -368,6 +368,8 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   void givenMgmtUser_whenDisableOrganization_thenReturn200() {
     String endpoint = "/mgmt/organizations/{orgId}";
 
+    MockServerHelper.setupMock("auth0/scenarios/organization/disable");
+
     UpdateOrganizationDto request = new UpdateOrganizationDto();
     request.setStatus(OrgStatusEnum.INACTIVE);
 
@@ -388,6 +390,8 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   @Test
   void givenMgmtUser_whenEnableOrganizationInActiveStatus_thenReturn400() {
     String endpoint = "/mgmt/organizations/{orgId}";
+
+    MockServerHelper.setupMock("auth0/scenarios/organization/enable");
 
     UpdateOrganizationDto request = new UpdateOrganizationDto();
     request.setStatus(OrgStatusEnum.ACTIVE);
