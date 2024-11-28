@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class OIDCConnectionProvider extends AbstractConnectionProvider {
+public class OidcConnectionProvider extends AbstractConnectionProvider {
 
   @Autowired
-  public OIDCConnectionProvider(Auth0Client auth0Client) {
+  public OidcConnectionProvider(Auth0Client auth0Client) {
     super(auth0Client);
   }
 

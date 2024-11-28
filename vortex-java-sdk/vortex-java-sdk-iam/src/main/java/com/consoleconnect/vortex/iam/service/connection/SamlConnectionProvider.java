@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class SAMLConnectionProvider extends AbstractConnectionProvider {
+public class SamlConnectionProvider extends AbstractConnectionProvider {
 
   @Autowired
-  public SAMLConnectionProvider(Auth0Client auth0Client) {
+  public SamlConnectionProvider(Auth0Client auth0Client) {
     super(auth0Client);
   }
 
