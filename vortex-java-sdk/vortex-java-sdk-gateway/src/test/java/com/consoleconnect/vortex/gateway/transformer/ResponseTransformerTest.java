@@ -138,8 +138,12 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
         ("{\"results\": [{\"destCompany\":{\"name\":\"cname1\", \"company\":{\"registeredName\":\"cname1\"}}},"
                 + "{\"destCompany\":{\"name\":\"cname2\", \"company\":{\"registeredName\":\"cname2\"}}}]}")
             .getBytes();
-    orderTransformer.getTransformerId();
+    portConnectionsTransformer.getTransformerId();
     byte[] ret = portConnectionsTransformer.doTransform(exchange, resBytes, userContext, config);
+    Assertions.assertNotNull(ret);
+
+    userContext.setMgmt(false);
+    ret = portConnectionsTransformer.doTransform(exchange, resBytes, userContext, config);
     Assertions.assertNotNull(ret);
   }
 }

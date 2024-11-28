@@ -6,6 +6,7 @@ import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.filter.MefAPIHeaderGatewayFilterFactory;
 import com.consoleconnect.vortex.gateway.filter.ResponseBodyTransformerGatewayFilterFactory;
+import com.consoleconnect.vortex.gateway.filter.SetAPIKeyGatewayFilterFactory;
 import com.consoleconnect.vortex.gateway.transformer.AbstractResourceTransformer;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.model.UserContext;
@@ -60,6 +61,7 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
   private ResponseBodyTransformerGatewayFilterFactory.Config config;
   private ResponseBodyTransformerGatewayFilterFactory responseTransformerFilter;
   private MefAPIHeaderGatewayFilterFactory mefAPIHeaderFilter;
+  private SetAPIKeyGatewayFilterFactory setAPIKeyFactory;
   private GatewayFilterChain chain;
 
   @BeforeEach
@@ -129,6 +131,16 @@ class GatewayFilterFactoryTest extends AbstractIntegrationTest {
     mefConfig.setKeyValue("value");
     mefAPIHeaderFilter = new MefAPIHeaderGatewayFilterFactory();
     GatewayFilter filter = mefAPIHeaderFilter.apply(mefConfig);
+    Mono<Void> result = filter.filter(exchange, chain);
+    StepVerifier.create(result).expectComplete().verify();
+  }
+
+  @Test
+  void testSetAPIKeyGatewayFilterFactory() {
+    SetAPIKeyGatewayFilterFactory.Config config = new SetAPIKeyGatewayFilterFactory.Config();
+
+    setAPIKeyFactory = new SetAPIKeyGatewayFilterFactory();
+    GatewayFilter filter = setAPIKeyFactory.apply(config);
     Mono<Void> result = filter.filter(exchange, chain);
     StepVerifier.create(result).expectComplete().verify();
   }
