@@ -1,9 +1,9 @@
 export const ENV = {
   API_BASE_URL: process.env.API_BASE_URL,
-  VORTEX_AUTH0_DOMAIN: process.env.AUTH0_DOMAIN,
-  VORTEX_AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
-  VORTEX_AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
-  VORTEX_AUTH0_MGMT_ORG_ID: process.env.AUTH0_MGMT_ORG_ID,
+  RESELLER_AUTH0_DOMAIN: process.env.AUTH0_DOMAIN,
+  RESELLER_AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
+  RESELLER_AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
+  RESELLER_AUTH0_MGMT_ORG_ID: process.env.AUTH0_MGMT_ORG_ID,
   CUSTOMER_AUTH0_DOMAIN: process.env.CUSTOMER_AUTH0_DOMAIN,
   CUSTOMER_AUTH0_CLIENT_ID: process.env.CUSTOMER_AUTH0_CLIENT_ID,
   CUSTOMER_AUTH0_AUDIENCE: process.env.CUSTOMER_AUTH0_AUDIENCE,
@@ -18,19 +18,19 @@ export const ENV = {
 }
 
 export const CUSTOMER_AUTH0 = {
-  domain: process.env.CUSTOMER_AUTH0_DOMAIN || '',
-  clientId: process.env.CUSTOMER_AUTH0_CLIENT_ID || '',
+  domain: ENV.CUSTOMER_AUTH0_DOMAIN || '',
+  clientId: ENV.CUSTOMER_AUTH0_CLIENT_ID || '',
   authorizationParams: {
     redirect_uri: window.location.origin,
-    audience: process.env.CUSTOMER_AUTH0_AUDIENCE
+    audience: ENV.CUSTOMER_AUTH0_AUDIENCE
   }
 }
 
 export const RESELLER_AUTH0 = {
-  domain: process.env.AUTH0_DOMAIN || '',
-  clientId: process.env.AUTH0_CLIENT_ID || '',
+  domain: ENV.RESELLER_AUTH0_DOMAIN || '',
+  clientId: ENV.RESELLER_AUTH0_CLIENT_ID || '',
   authorizationParams: {
     redirect_uri: window.location.origin,
-    audience: process.env.AUTH0_AUDIENCE
+    audience: ENV.RESELLER_AUTH0_AUDIENCE
   }
 }

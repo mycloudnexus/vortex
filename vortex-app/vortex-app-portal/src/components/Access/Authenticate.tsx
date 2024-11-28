@@ -6,7 +6,7 @@ import { filter, get } from 'lodash'
 import { useGetUserAuthDetail, useGetUserRole } from '@/hooks/user'
 import { getOrg, storeToken } from '@/utils/helpers/token'
 import { useAppStore } from '@/stores/app.store'
-import type { AuthUser } from 'src/stores/type'
+import type { AuthUser } from '@/stores/type'
 
 interface AuthenticateProps {
   children: ReactNode
@@ -48,7 +48,6 @@ const Authenticate = ({ children }: AuthenticateProps) => {
     if (!isAuthenticated && !isLoading) {
       const org = getOrg()
       const loginUrl = org ? `${org}/login` : 'login'
-      console.log('--orgorgorg', org, loginUrl)
       navigate(loginUrl)
     }
     if (isAuthenticated) {

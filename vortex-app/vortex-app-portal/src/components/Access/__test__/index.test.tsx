@@ -26,9 +26,9 @@ describe('auth provider', () => {
       }
     }))
     mockAuth0Provider.mockClear().mockImplementation(({ children }) => children as React.ReactElement)
-    ENV.VORTEX_AUTH0_AUDIENCE = 'audience'
-    ENV.VORTEX_AUTH0_CLIENT_ID = 'clientId'
-    ENV.VORTEX_AUTH0_DOMAIN = 'https://auth0.domain.test'
+    ENV.RESELLER_AUTH0_AUDIENCE = 'audience'
+    ENV.RESELLER_AUTH0_CLIENT_ID = 'clientId'
+    ENV.RESELLER_AUTH0_DOMAIN = 'https://auth0.domain.test'
   })
   const Children = <span>children</span>
   it('renders the Auth0 Provider', () => {
