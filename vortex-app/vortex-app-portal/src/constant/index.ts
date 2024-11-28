@@ -1,8 +1,36 @@
 export const ENV = {
   API_BASE_URL: process.env.API_BASE_URL,
-  AUTH0_DOMAIN: process.env.AUTH0_DOMAIN,
-  AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
-  AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
-  AUTH0_MGMT_ORG_ID: process.env.AUTH0_MGMT_ORG_ID,
-  VOTEX_MODULES: process.env.VOTEX_MODULES
+  VORTEX_AUTH0_DOMAIN: process.env.AUTH0_DOMAIN,
+  VORTEX_AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
+  VORTEX_AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
+  VORTEX_AUTH0_MGMT_ORG_ID: process.env.AUTH0_MGMT_ORG_ID,
+  CUSTOMER_AUTH0_DOMAIN: process.env.CUSTOMER_AUTH0_DOMAIN,
+  CUSTOMER_AUTH0_CLIENT_ID: process.env.CUSTOMER_AUTH0_CLIENT_ID,
+  CUSTOMER_AUTH0_AUDIENCE: process.env.CUSTOMER_AUTH0_AUDIENCE,
+  VOTEX_MODULES: process.env.VOTEX_MODULES,
+  THEME_COLOR: process.env.THEME_COLOR,
+  COMPANY_LOGO_URL: process.env.COMPANY_LOGO_URL,
+  SPECIFICATIONS_LINK_URL: process.env.SPECIFICATIONS_LINK_URL,
+  HELP_CENTER_URL: process.env.HELP_CENTER_UR,
+  TERM_OF_USE_URL: process.env.TERM_OF_USE_URL,
+  PRIVACY_STATMENT_URL: process.env.PRIVACY_STATMENT_URL,
+  COOKIE_URL: process.env.COOKIE_URL
+}
+
+export const CUSTOMER_AUTH0 = {
+  domain: process.env.CUSTOMER_AUTH0_DOMAIN || '',
+  clientId: process.env.CUSTOMER_AUTH0_CLIENT_ID || '',
+  authorizationParams: {
+    redirect_uri: window.location.origin,
+    audience: process.env.CUSTOMER_AUTH0_AUDIENCE
+  }
+}
+
+export const RESELLER_AUTH0 = {
+  domain: process.env.AUTH0_DOMAIN || '',
+  clientId: process.env.AUTH0_CLIENT_ID || '',
+  authorizationParams: {
+    redirect_uri: window.location.origin,
+    audience: process.env.AUTH0_AUDIENCE
+  }
 }

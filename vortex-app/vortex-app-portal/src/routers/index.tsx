@@ -2,7 +2,7 @@ import Layout from '@/components/Layout'
 import Dashboard from '@/pages/Dashboard'
 import EdgeModuleContainer from '@/pages/ExampleMicroModule'
 import { createBrowserRouter, RouteObject } from 'react-router-dom'
-import Login from '@/components/Access/Login'
+import Login from '@/pages/Login'
 
 type CustomRoute = {
   breadCrumbName?: string
@@ -13,6 +13,10 @@ export type IRouteObject = RouteObject & CustomRoute
 export const routes: IRouteObject[] = [
   {
     path: '/:organization/login',
+    element: <Login />
+  },
+  {
+    path: '/login',
     element: <Login />
   },
   {

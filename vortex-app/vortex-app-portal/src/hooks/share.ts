@@ -3,7 +3,6 @@ const useInitialData = () => {
   const { roleList, user, currentAuth0User } = useAppStore()
 
   return { roleList, user, currentAuth0User }
-
 }
 
 export default useInitialData

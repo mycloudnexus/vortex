@@ -5,6 +5,7 @@ import { ENV } from '@/constant'
 import { AuthProvider } from '..'
 
 const mockedUsedNavigate = jest.fn()
+
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockedUsedNavigate
@@ -17,10 +18,17 @@ jest.mock('@auth0/auth0-react', () => ({
 const mockAuth0Provider = Auth0Provider as jest.MockedFunction<typeof Auth0Provider>
 describe('auth provider', () => {
   beforeEach(() => {
+    jest.mock('@/stores/app.store', () => ({
+      useAppStore: () => {
+        return {
+          userType: 'reseller'
+        }
+      }
+    }))
     mockAuth0Provider.mockClear().mockImplementation(({ children }) => children as React.ReactElement)
-    ENV.AUTH0_AUDIENCE = 'audience'
-    ENV.AUTH0_CLIENT_ID = 'clientId'
-    ENV.AUTH0_DOMAIN = 'https://auth0.domain.test'
+    ENV.VORTEX_AUTH0_AUDIENCE = 'audience'
+    ENV.VORTEX_AUTH0_CLIENT_ID = 'clientId'
+    ENV.VORTEX_AUTH0_DOMAIN = 'https://auth0.domain.test'
   })
   const Children = <span>children</span>
   it('renders the Auth0 Provider', () => {

@@ -1,13 +1,12 @@
-import { Spin } from 'antd'
-import React, { useEffect, ReactNode, useCallback } from 'react'
+import { Skeleton } from 'antd'
+import { useEffect, ReactNode, useCallback } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { filter, get } from 'lodash'
 import { useGetUserAuthDetail, useGetUserRole } from '@/hooks/user'
 import { getOrg, storeToken } from '@/utils/helpers/token'
-import { ENV } from '@/constant'
 import { useAppStore } from '@/stores/app.store'
-import type { AuthUser } from '@/stores/type'
+import type { AuthUser } from 'src/stores/type'
 
 interface AuthenticateProps {
   children: ReactNode
@@ -15,11 +14,17 @@ interface AuthenticateProps {
 
 const Authenticate = ({ children }: AuthenticateProps) => {
   const { isLoading, isAuthenticated, user, getAccessTokenSilently, error } = useAuth0()
-  const { currentAuth0User, setCurrentAuth0User, setUser, setRoleList } = useAppStore()
+  const { currentAuth0User, setCurrentAuth0User, setUser, setRoleList, setuserType } = useAppStore()
   const navigate = useNavigate()
 
   const { data: userData } = useGetUserAuthDetail()
   const { data: roleData } = useGetUserRole()
+
+  useEffect(() => {
+    if (window.localStorage.getItem('org')) {
+      setuserType('customer')
+    }
+  }, [])
 
   const saveToken = useCallback(async () => {
     const res = await getAccessTokenSilently()
@@ -41,8 +46,10 @@ const Authenticate = ({ children }: AuthenticateProps) => {
 
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {
-      const org = getOrg() || ENV.AUTH0_MGMT_ORG_ID
-      navigate(`${org}/login`)
+      const org = getOrg()
+      const loginUrl = org ? `${org}/login` : 'login'
+      console.log('--orgorgorg', org, loginUrl)
+      navigate(loginUrl)
     }
     if (isAuthenticated) {
       saveToken()
@@ -53,7 +60,7 @@ const Authenticate = ({ children }: AuthenticateProps) => {
   }, [isAuthenticated, isLoading, user, saveToken])
 
   if (isLoading || !isAuthenticated) {
-    return <Spin />
+    return <Skeleton />
   }
   if (error) {
     return <div>Oops... {error.message}</div>
