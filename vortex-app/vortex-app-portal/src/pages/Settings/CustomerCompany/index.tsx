@@ -20,7 +20,6 @@ import CustomerCompanyModal from '../components/CustomerModal'
 import Tooltip from '../components/Tooltip'
 import { useAddOrganization, useGetCompanyList, useUpdateOrganization } from '@/hooks/company'
 import { useQueryClient } from 'react-query'
-import { updateData } from '@/utils/helpers/utils'
 
 const createColumns = (
   handleOpenModify: (record: ICompany) => void,
@@ -137,7 +136,7 @@ const CustomerCompany = (): ReactElement => {
   const [addForm] = Form.useForm<CreateOrganizationRequestBody>()
   const [editForm] = Form.useForm()
   const [api, contextHolder] = notification.useNotification({ top: 80 })
-  const { data, isLoading } = useGetCompanyList()
+  const { data, isFetching } = useGetCompanyList()
   const companies = data?.data?.data ?? []
   const { mutate } = useAddOrganization()
   const { mutate: updateMutate } = useUpdateOrganization()
@@ -188,16 +187,8 @@ const CustomerCompany = (): ReactElement => {
           name: values.name.toLowerCase()
         },
         {
-          onSuccess: (data) => {
-            queryClient.setQueryData('getCompanyList', (oldData: any) => {
-              return {
-                ...oldData,
-                data: {
-                  ...oldData.data,
-                  data: [...oldData.data.data, data.data]
-                }
-              }
-            })
+          onSuccess: async () => {
+            await queryClient.invalidateQueries('getCompanyList')
           },
           onError: (error) => {
             console.log(error, 'error adding')
@@ -232,16 +223,8 @@ const CustomerCompany = (): ReactElement => {
           }
         },
         {
-          onSuccess: (data) => {
-            queryClient.setQueryData('getCompanyList', (oldData: any) => {
-              return {
-                ...oldData,
-                data: {
-                  ...oldData.data,
-                  data: updateData(oldData.data.data, data)
-                }
-              }
-            })
+          onSuccess: async () => {
+            await queryClient.invalidateQueries('getCompanyList')
           },
           onError: (error) => {
             console.log(error, 'error update')
@@ -314,7 +297,7 @@ const CustomerCompany = (): ReactElement => {
       </Flex>
 
       <StyledTable
-        loading={isLoading}
+        loading={isFetching}
         columns={createColumns(
           (record) => openUpdateModal(record),
           (key) => handleActivate(key),

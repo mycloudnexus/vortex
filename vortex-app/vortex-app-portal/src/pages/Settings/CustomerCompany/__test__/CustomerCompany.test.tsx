@@ -284,7 +284,6 @@ describe('Customer Company Page', () => {
   }
 
   it('should call useAddOrganization mutation on form submission', async () => {
-    const setQueryDataSpy = jest.spyOn(queryClient, 'setQueryData')
     const mockMutate = jest.fn((data, { onSuccess }) => {
       onSuccess({
         data: {
@@ -312,16 +311,6 @@ describe('Customer Company Page', () => {
         })
       )
     })
-    expect(setQueryDataSpy).toHaveBeenCalledWith('getCompanyList', expect.any(Function))
-
-    const updaterFunction = setQueryDataSpy.mock.calls[0][1] as any
-    const updatedData = updaterFunction(dummyData)
-    expect(updatedData).toEqual({
-      ...dummyData,
-      data: { ...dummyData.data, data: [...dummyData.data.data, { display_name: 'My New Company', name: 'abc' }] }
-    })
-
-    setQueryDataSpy.mockRestore()
   })
 
   it('should handle useAddOrganization onError callback', async () => {
