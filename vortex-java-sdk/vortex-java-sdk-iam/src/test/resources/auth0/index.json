@@ -63,5 +63,10 @@
     "method": "GET",
     "endpoint": "/api/v2/users/{id}/organizations",
     "data": "get_api_v2_users_{id}_organizations.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/users",
+    "data": "get_api_v2_users.json"
   }
 ]
