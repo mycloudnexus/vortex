@@ -92,11 +92,13 @@
     ],
     "moduleNameMapper": {
       "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+      "\\.(jpg|jpeg|png)$": "<rootDir>/src/test/fileMock.ts",
       "^@/(.*)$": "<rootDir>/src/$1",
       "^.+\\.svg$": "jest-transformer-svg"
     },
     "transform": {
-      "\\.[jt]sx?$": "babel-jest"
+      "\\.[jt]sx?$": "babel-jest",
+      "^.+\\.svg$": "jest-transformer-svg"
     },
     "testEnvironment": "jsdom"
   },

@@ -3,8 +3,8 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Headroom from 'react-headroom'
 import NavMain from './NavMain'
 import * as styles from './index.module.scss'
-import Sider from 'antd/es/layout/Sider'
-import { Flex, Menu } from 'antd'
+// import Sider from 'antd/es/layout/Sider'
+import { Flex, Menu, Layout } from 'antd'
 import NetIcon from '@/assets/icon/network.svg'
 import { useAppStore } from '@/stores/app.store'
 import { DoubleLeftOutlined, DoubleRightOutlined, DownOutlined, RightOutlined } from '@ant-design/icons'
@@ -21,8 +21,9 @@ import useDeviceDetect from '@/hooks/useDeviceDetect'
 import MainMenuMobileDrawer from './MainMenuMobileDrawer'
 import Authenticate from '../Access/Authenticate'
 import BreadCrumb from '../BreadCrumb'
+const { Sider } = Layout
 
-const Layout = () => {
+const BaseLayout = () => {
   const { mainColor } = useAppStore()
   const SliderCustom = styled(Sider)`
     .ant-menu-submenu-selected {
@@ -198,4 +199,4 @@ const Layout = () => {
   )
 }
 
-export default Layout
+export default BaseLayout
