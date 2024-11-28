@@ -12,7 +12,7 @@ export const useAppStore = create<AppStore>()((set) => ({
   setCurrentCompany: (currentCompany) => set({ currentCompany }),
   setCurrentAuth0User: (currentAuth0User) => set({ currentAuth0User }),
   currentAuth0User: null,
-  mainColor: ENV.THEME_COLOR || '#FF7900',
+  mainColor: ENV.THEME_COLOR ?? '#FF7900',
   user: null,
   setUser: (user) => set({ user }),
   roleList: null,

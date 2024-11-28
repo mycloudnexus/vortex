@@ -18,8 +18,8 @@ export const ENV = {
 }
 
 export const CUSTOMER_AUTH0 = {
-  domain: ENV.CUSTOMER_AUTH0_DOMAIN || '',
-  clientId: ENV.CUSTOMER_AUTH0_CLIENT_ID || '',
+  domain: ENV.CUSTOMER_AUTH0_DOMAIN ?? '',
+  clientId: ENV.CUSTOMER_AUTH0_CLIENT_ID ?? '',
   authorizationParams: {
     redirect_uri: window.location.origin,
     audience: ENV.CUSTOMER_AUTH0_AUDIENCE
@@ -27,8 +27,8 @@ export const CUSTOMER_AUTH0 = {
 }
 
 export const RESELLER_AUTH0 = {
-  domain: ENV.RESELLER_AUTH0_DOMAIN || '',
-  clientId: ENV.RESELLER_AUTH0_CLIENT_ID || '',
+  domain: ENV.RESELLER_AUTH0_DOMAIN ?? '',
+  clientId: ENV.RESELLER_AUTH0_CLIENT_ID ?? '',
   authorizationParams: {
     redirect_uri: window.location.origin,
     audience: ENV.RESELLER_AUTH0_AUDIENCE

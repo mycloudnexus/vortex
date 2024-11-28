@@ -15,7 +15,7 @@ const App: FC = () => {
     const link: any = document.querySelector("link[rel*='icon']") || document.createElement('link')
     link.type = 'image/x-icon'
     link.rel = 'shortcut icon'
-    link.href = ENV.COMPANY_LOGO_URL || logo
+    link.href = ENV.COMPANY_LOGO_URL ?? logo
     document.getElementsByTagName('head')[0].appendChild(link)
   }, [])
   return (
