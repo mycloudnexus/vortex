@@ -1,6 +1,7 @@
 import { render, fireEvent } from '@testing-library/react'
 import { useAuth0 } from '@auth0/auth0-react'
 import Login from '..'
+import { Logo } from '../Icon'
 
 jest.mock('@auth0/auth0-react')
 
@@ -76,5 +77,9 @@ describe('Login page', () => {
     render(<Login />)
     expect(mockedUsedNavigate).toHaveBeenCalledTimes(1)
     expect(mockedUsedNavigate).toHaveBeenCalledWith(`/`)
+  })
+  it('logo render', () => {
+    const { container } = render(<Logo />)
+    expect(container.firstElementChild?.tagName).toBe('svg')
   })
 })
