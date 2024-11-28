@@ -339,6 +339,7 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
                             Customer company URL short name
                             <span
                               data-testid="mocked-svg"
+                              style="display: flex; justify-content: center;"
                             >
                               <svg
                                 data-testid="info"
@@ -600,9 +601,14 @@ exports[`Customer Company Page should display inactive company data in table row
                             class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center"
                             style="gap: 5px;"
                           >
-                            helloworld123
+                            <span
+                              style="font-size: 14px; font-weight: 500; font-style: normal; text-overflow: ellipsis; overflow: hidden;"
+                            >
+                              helloworld123
+                            </span>
                             <span
                               data-testid="mocked-svg"
+                              style="display: flex; justify-content: center;"
                             >
                               <svg
                                 data-testid="info"
@@ -685,9 +691,14 @@ exports[`Customer Company Page should display inactive company data in table row
                             class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center"
                             style="gap: 5px;"
                           >
-                            qetesting
+                            <span
+                              style="font-size: 14px; font-weight: 500; font-style: normal; text-overflow: ellipsis; overflow: hidden;"
+                            >
+                              qetesting
+                            </span>
                             <span
                               data-testid="mocked-svg"
+                              style="display: flex; justify-content: center;"
                             >
                               <svg
                                 data-testid="info"

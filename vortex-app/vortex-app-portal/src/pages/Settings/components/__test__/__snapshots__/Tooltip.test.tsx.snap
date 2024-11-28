@@ -6,6 +6,7 @@ exports[`Tooltip Component renders the Login URL with shortName 1`] = `
     <span
       class="ant-tooltip-open"
       data-testid="mocked-svg"
+      style="display: flex; justify-content: center;"
     >
       <svg />
     </span>
@@ -28,11 +29,12 @@ exports[`Tooltip Component renders the Login URL with shortName 1`] = `
         >
           <div
             class="ant-typography css-dev-only-do-not-override-ni1kz0"
+            data-testid="tooltip"
             style="display: flex; align-items: flex-start;"
           >
             Login URL:
             <br />
-            https://consoleconnect/example.com
+            undefined/example/login
             <button
               aria-label="Copy"
               class="ant-typography-copy"
@@ -72,6 +74,7 @@ exports[`Tooltip Component renders the message when shortName is not defined 1`]
     <span
       class="ant-tooltip-open"
       data-testid="mocked-svg"
+      style="display: flex; justify-content: center;"
     >
       <svg />
     </span>

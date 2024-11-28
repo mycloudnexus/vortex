@@ -147,6 +147,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                             Customer company URL short name
                             <span
                               data-testid="mocked-svg"
+                              style="display: flex; justify-content: center;"
                             >
                               <svg />
                             </span>

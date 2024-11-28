@@ -40,10 +40,10 @@ const createColumns = (
     title: 'Short name & URL',
     dataIndex: 'name',
     key: 'name',
-    render: (_, { name }) => (
+    render: (_, { name, id }) => (
       <Flex gap={5} align='center'>
-        {name}
-        <Tooltip shortName={name} color='#FFF' placement='topLeft' />
+        <Text.NormalMedium style={{ textOverflow: 'ellipsis', overflow: 'hidden' }}>{name}</Text.NormalMedium>
+        <Tooltip orgId={id} color='#FFF' placement='topLeft' />
       </Flex>
     )
   },
