@@ -25,6 +25,11 @@
     "data": "delete_api_v2_connections_{id}.json"
   },
   {
+    "method": "PATCH",
+    "endpoint": "/api/v2/connections/{id}",
+    "data": "patch_api_v2_connections_{id}.json"
+  },
+  {
     "method": "GET",
     "endpoint": "/api/v2/roles",
     "data": "get_api_v2_roles.json"

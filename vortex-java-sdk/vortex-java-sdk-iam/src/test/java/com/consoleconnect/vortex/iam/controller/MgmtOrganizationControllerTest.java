@@ -480,6 +480,48 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  void givenMgmtUser_thenUpdateOidcConnection_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}/connection";
+
+    MockServerHelper.setupMock("auth0/scenarios/organization/connection/oidc");
+
+    UpdateConnectionDto request = new UpdateConnectionDto();
+
+    OidcConnectionDto oidc = new OidcConnectionDto();
+    oidc.setClientId(UUID.randomUUID().toString());
+    oidc.setDiscoveryUrl("https://test.com");
+    request.setOidc(oidc);
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.PATCH,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
+        request,
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    List<Endpoint> auth0Endpoints = new ArrayList<>();
+
+    String connections = "/api/v2/connections";
+    String connectionById = String.format("%s/%s", connections, CONNECTION_ID);
+
+    String orgById = String.format("/api/v2/organizations/%s", ORG_ID);
+
+    // connections
+    auth0Endpoints.add(new Endpoint(HttpMethod.PATCH, connectionById));
+
+    // organization
+    auth0Endpoints.add(new Endpoint(HttpMethod.GET, orgById));
+
+    for (Endpoint auth0Endpoint : auth0Endpoints) {
+      MockServerHelper.verify(
+          1,
+          auth0Endpoint.getHttpMethod(),
+          auth0Endpoint.getPath(),
+          AuthContextConstants.AUTH0_ACCESS_TOKEN);
+    }
+  }
+
+  @Test
   void givenMgmtUser_thenCreateUsernamePasswordConnection_thenReturn200() {
     String endpoint = "/mgmt/organizations/{orgId}/connection";
 
@@ -534,6 +576,22 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  void givenMgmtUser_thenUpdateUsernamePasswordConnection_thenReturn400() {
+    String endpoint = "/mgmt/organizations/{orgId}/connection";
+
+    MockServerHelper.setupMock("auth0/scenarios/organization/connection/username-password");
+
+    UpdateConnectionDto request = new UpdateConnectionDto();
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.PATCH,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
+        request,
+        400,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+  }
+
+  @Test
   void givenMgmtUser_thenCreateSamlConnection_thenReturn200() {
     String endpoint = "/mgmt/organizations/{orgId}/connection";
 
@@ -579,6 +637,44 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
     // invitations
     auth0Endpoints.add(new Endpoint(HttpMethod.GET, invitations));
     auth0Endpoints.add(new Endpoint(HttpMethod.DELETE, invitationById));
+
+    for (Endpoint auth0Endpoint : auth0Endpoints) {
+      MockServerHelper.verify(
+          1,
+          auth0Endpoint.getHttpMethod(),
+          auth0Endpoint.getPath(),
+          AuthContextConstants.AUTH0_ACCESS_TOKEN);
+    }
+  }
+
+  @Test
+  void givenMgmtUser_thenUpdateSamlConnection_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}/connection";
+
+    MockServerHelper.setupMock("auth0/scenarios/organization/connection/saml");
+    UpdateConnectionDto request = new UpdateConnectionDto();
+    SamlConnectionDto saml = new SamlConnectionDto();
+    request.setSaml(saml);
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.PATCH,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
+        request,
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    List<Endpoint> auth0Endpoints = new ArrayList<>();
+
+    String connections = "/api/v2/connections";
+    String connectionById = String.format("%s/%s", connections, CONNECTION_ID);
+
+    String orgById = String.format("/api/v2/organizations/%s", ORG_ID);
+
+    // connections
+    auth0Endpoints.add(new Endpoint(HttpMethod.PATCH, connectionById));
+
+    // organization
+    auth0Endpoints.add(new Endpoint(HttpMethod.GET, orgById));
 
     for (Endpoint auth0Endpoint : auth0Endpoints) {
       MockServerHelper.verify(
