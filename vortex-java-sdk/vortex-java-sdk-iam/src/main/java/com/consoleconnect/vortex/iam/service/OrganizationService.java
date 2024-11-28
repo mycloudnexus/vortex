@@ -286,6 +286,7 @@ public class OrganizationService {
       return PagingHelper.toPageNoSubList(Collections.emptyList(), page, size, null);
     }
 
+    OrganizationConnection organization = getOneConnection(orgId);
     Paging<User> userPaging =
         Auth0PageHelper.loadData(
             0,
@@ -297,6 +298,11 @@ public class OrganizationService {
                     .users()
                     .list(
                         new UserFilter()
+                            .withSearchEngine("v2")
+                            .withQuery(
+                                String.format(
+                                    "identities.connection:\"%s\"",
+                                    organization.getConnection().getName()))
                             .withPage(
                                 pageFilterParameters.getPage(), pageFilterParameters.getSize())
                             .withTotals(true))

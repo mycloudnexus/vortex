@@ -112,6 +112,7 @@ logging:
 
 app:
   loginUrl: ${APP_LOGIN_URL:http://localhost:3000}
+  productName: ${APP_PRODUCT_NAME:Vortex}
   iam:
     auth0:
       mgmt-api:
@@ -124,13 +125,14 @@ app:
     email:
       enabled: ${IAM_EMAIL_ENABLED:false}
       provider: ${IAM_EMAIL_PROVIDER:sendgrid}
+      support-email: ${IAM_EMAIL_SUPPORT_EMAIL:support-email-address}
       send-grid:
         api-key: ${SENDGRID_API_KEY:}
         from:
           name: ${SENDGRID_FROM_NAME:}
           email: ${SENDGRID_FROM_EMAIL:}
         templates:
-          user-invitation: ${SENGRID_TEMPLATE_ID_USER_INVITATION:}
+          user-invitation: ${SENDGRID_TEMPLATE_ID_USER_INVITATION:d-46d8384818644728943afbdd13563545}
           org-member-invitation: ${SENDGRID_TEMPLATE_ID_ORG_MEMBER_INVITATION:}
     resource-server:
       trusted-issuers:

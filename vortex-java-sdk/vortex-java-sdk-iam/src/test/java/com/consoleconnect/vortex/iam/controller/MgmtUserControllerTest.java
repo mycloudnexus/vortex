@@ -3,6 +3,7 @@ package com.consoleconnect.vortex.iam.controller;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.consoleconnect.vortex.core.exception.VortexError;
+import com.consoleconnect.vortex.core.model.AppProperty;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.core.toolkit.Paging;
@@ -44,6 +45,7 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
 
   @SpyBean private EmailService emailService;
   @Autowired private IamProperty iamProperty;
+  @Autowired private AppProperty appProperty;
 
   private final TestUser mgmtUser;
   private final TestUser customerUser;
@@ -66,7 +68,7 @@ class MgmtUserControllerTest extends AbstractIntegrationTest {
   void setUpEach() {
     MockServerHelper.setupMock("consoleconnect");
     if (emailServiceMockHelper == null) {
-      emailServiceMockHelper = new EmailServiceMockHelper(emailService, iamProperty);
+      emailServiceMockHelper = new EmailServiceMockHelper(emailService, appProperty);
     }
 
     emailServiceMockHelper.setUp();
