@@ -480,6 +480,116 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  void givenMgmtUser_thenCreateUsernamePasswordConnection_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}/connection";
+
+    CreateConnectionDto request = new CreateConnectionDto();
+    request.setStrategy(ConnectionStrategyEnum.AUTH0);
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.POST,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
+        request,
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    List<Endpoint> auth0Endpoints = new ArrayList<>();
+
+    String connections = "/api/v2/connections";
+    String connectionById = String.format("%s/%s", connections, CONNECTION_ID);
+
+    String orgById = String.format("/api/v2/organizations/%s", ORG_ID);
+    String enabledConnections = String.format("%s/enabled_connections", orgById);
+    String enabledConnectionById = String.format("%s/%s", enabledConnections, CONNECTION_ID);
+    String members = String.format("%s/members", orgById);
+    String invitations = String.format("%s/invitations", orgById);
+    String invitationById = String.format("%s/invitations/%s", orgById, INVITATION_ID);
+
+    // connections
+    auth0Endpoints.add(new Endpoint(HttpMethod.DELETE, connectionById));
+    auth0Endpoints.add(new Endpoint(HttpMethod.POST, connections));
+
+    // organization
+    auth0Endpoints.add(new Endpoint(HttpMethod.GET, orgById));
+    auth0Endpoints.add(new Endpoint(HttpMethod.PATCH, orgById));
+
+    // enabled connections
+    auth0Endpoints.add(new Endpoint(HttpMethod.DELETE, enabledConnectionById));
+
+    // members
+    auth0Endpoints.add(new Endpoint(HttpMethod.GET, members));
+    auth0Endpoints.add(new Endpoint(HttpMethod.DELETE, members));
+
+    // invitations
+    auth0Endpoints.add(new Endpoint(HttpMethod.GET, invitations));
+    auth0Endpoints.add(new Endpoint(HttpMethod.DELETE, invitationById));
+
+    for (Endpoint auth0Endpoint : auth0Endpoints) {
+      MockServerHelper.verify(
+          1,
+          auth0Endpoint.getHttpMethod(),
+          auth0Endpoint.getPath(),
+          AuthContextConstants.AUTH0_ACCESS_TOKEN);
+    }
+  }
+
+  @Test
+  void givenMgmtUser_thenCreateSamlConnection_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}/connection";
+
+    CreateConnectionDto request = new CreateConnectionDto();
+    request.setStrategy(ConnectionStrategyEnum.SAML);
+    SamlConnectionDto saml = new SamlConnectionDto();
+    request.setSaml(saml);
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.POST,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID),
+        request,
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    List<Endpoint> auth0Endpoints = new ArrayList<>();
+
+    String connections = "/api/v2/connections";
+    String connectionById = String.format("%s/%s", connections, CONNECTION_ID);
+
+    String orgById = String.format("/api/v2/organizations/%s", ORG_ID);
+    String enabledConnections = String.format("%s/enabled_connections", orgById);
+    String enabledConnectionById = String.format("%s/%s", enabledConnections, CONNECTION_ID);
+    String members = String.format("%s/members", orgById);
+    String invitations = String.format("%s/invitations", orgById);
+    String invitationById = String.format("%s/invitations/%s", orgById, INVITATION_ID);
+
+    // connections
+    auth0Endpoints.add(new Endpoint(HttpMethod.DELETE, connectionById));
+    auth0Endpoints.add(new Endpoint(HttpMethod.POST, connections));
+
+    // organization
+    auth0Endpoints.add(new Endpoint(HttpMethod.GET, orgById));
+    auth0Endpoints.add(new Endpoint(HttpMethod.PATCH, orgById));
+
+    // enabled connections
+    auth0Endpoints.add(new Endpoint(HttpMethod.DELETE, enabledConnectionById));
+
+    // members
+    auth0Endpoints.add(new Endpoint(HttpMethod.GET, members));
+    auth0Endpoints.add(new Endpoint(HttpMethod.DELETE, members));
+
+    // invitations
+    auth0Endpoints.add(new Endpoint(HttpMethod.GET, invitations));
+    auth0Endpoints.add(new Endpoint(HttpMethod.DELETE, invitationById));
+
+    for (Endpoint auth0Endpoint : auth0Endpoints) {
+      MockServerHelper.verify(
+          1,
+          auth0Endpoint.getHttpMethod(),
+          auth0Endpoint.getPath(),
+          AuthContextConstants.AUTH0_ACCESS_TOKEN);
+    }
+  }
+
+  @Test
   void givenMgmtUser_thenCreateInvitation_thenReturn200() {
     String endpoint = "/mgmt/organizations/{orgId}/invitations";
 
