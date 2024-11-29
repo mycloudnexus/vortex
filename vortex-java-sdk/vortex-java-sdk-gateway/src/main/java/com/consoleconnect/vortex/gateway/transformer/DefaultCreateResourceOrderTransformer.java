@@ -1,12 +1,12 @@
 package com.consoleconnect.vortex.gateway.transformer;
 
-import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
+import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
+import com.consoleconnect.vortex.gateway.model.TransformerContext;
 import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
 @Service
@@ -20,31 +20,31 @@ public class DefaultCreateResourceOrderTransformer extends AbstractResourceTrans
   }
 
   @Override
-  public String doTransform(
-      ServerWebExchange exchange,
-      String responseBody,
-      String customerId,
-      TransformerApiProperty config,
-      Object metadata) {
+  public String doTransform(String responseBody, TransformerContext<Object> context) {
 
     String orderId = null;
 
     String resourceInstanceId =
-        JsonPathToolkit.read(responseBody, "$." + config.getResourceInstanceId());
+        JsonPathToolkit.read(
+            responseBody, "$." + context.getSpecification().getResourceInstanceId());
 
-    log.info("create vortex resource order, api property:{}", config);
+    log.info("create vortex resource order, api property:{}", context.getSpecification());
 
     // order
-    if (config.getResourceType() == ResourceTypeEnum.PORT) {
+    if (context.getSpecification().getResourceType() == ResourceTypeEnum.PORT) {
       orderId = resourceInstanceId;
       resourceInstanceId = null;
     }
-    orderService.createOrder(customerId, orderId, config.getResourceType(), resourceInstanceId);
+    orderService.createOrder(
+        context.getCustomerId(),
+        orderId,
+        context.getSpecification().getResourceType(),
+        resourceInstanceId);
     return responseBody;
   }
 
   @Override
-  public String getTransformerId() {
-    return "resource.create.legacy";
+  public TransformerIdentityEnum getTransformerId() {
+    return TransformerIdentityEnum.DEFAULT_RESOURCE_CREATE;
   }
 }

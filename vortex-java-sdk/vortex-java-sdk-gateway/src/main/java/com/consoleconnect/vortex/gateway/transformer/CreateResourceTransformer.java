@@ -1,12 +1,13 @@
 package com.consoleconnect.vortex.gateway.transformer;
 
-import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.dto.CreateResourceRequest;
+import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
+import com.consoleconnect.vortex.gateway.model.TransformerContext;
 import com.consoleconnect.vortex.gateway.service.ResourceService;
+import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
 @Service
@@ -21,30 +22,29 @@ public class CreateResourceTransformer
   }
 
   @Override
-  public String doTransform(
-      ServerWebExchange exchange,
-      String responseBody,
-      String customerId,
-      TransformerApiProperty config,
-      Metadata metadata) {
+  public String doTransform(String responseBody, TransformerContext<Metadata> context) {
 
     CreateResourceRequest request = new CreateResourceRequest();
-    request.setCustomerId(customerId);
-    request.setResourceType(config.getResourceType());
+    request.setCustomerId(context.getCustomerId());
+    request.setResourceType(context.getSpecification().getResourceType());
 
+    String data =
+        JsonPathToolkit.read(responseBody, context.getSpecification().getResponseDataPath());
+
+    Metadata metadata = context.getSpecification().getMetadata();
     if (metadata.getOrderId() != null) {
-      request.setOrderId(readJsonPath(responseBody, metadata.getOrderId(), config));
+      request.setOrderId(JsonPathToolkit.read(data, metadata.getOrderId()));
     }
     if (metadata.getResourceId() != null) {
-      request.setResourceId(readJsonPath(responseBody, metadata.getResourceId(), config));
+      request.setResourceId(JsonPathToolkit.read(data, metadata.getResourceId()));
     }
     resourceService.create(request);
     return responseBody;
   }
 
   @Override
-  public String getTransformerId() {
-    return "resource.create";
+  public TransformerIdentityEnum getTransformerId() {
+    return TransformerIdentityEnum.RESOURCE_CREATE;
   }
 
   @Data

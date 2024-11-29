@@ -2,7 +2,8 @@ package com.consoleconnect.vortex.gateway.filter;
 
 import static java.util.function.Function.identity;
 
-import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
+import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
+import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
 import com.consoleconnect.vortex.gateway.transformer.AbstractResourceTransformer;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,11 +56,12 @@ public class ResponseBodyTransformerGatewayFilterFactory
     this.transformers = transformers;
   }
 
-  public Optional<AbstractResourceTransformer<?>> findTransformer(String transformer) {
+  public Optional<AbstractResourceTransformer<?>> findTransformer(
+      TransformerIdentityEnum transformer) {
     if (transformer == null) {
       return Optional.empty();
     }
-    return transformers.stream().filter(t -> t.getTransformerId().equals(transformer)).findFirst();
+    return transformers.stream().filter(t -> t.getTransformerId() == transformer).findFirst();
   }
 
   @Override
@@ -69,18 +71,19 @@ public class ResponseBodyTransformerGatewayFilterFactory
 
   public class ResponseBodyTransformerGatewayFilter implements GatewayFilter, Ordered {
 
-    private final Map<String, TransformerApiProperty> apiTransformers;
+    private final Map<String, TransformerSpecification> endpointTransformerMap;
 
     public ResponseBodyTransformerGatewayFilter(Config config) {
-      apiTransformers = buildAPITransformers(config);
+      endpointTransformerMap = buildEndpointTransformerMap(config);
     }
 
-    private Map<String, TransformerApiProperty> buildAPITransformers(Config config) {
-      if (config.getApis().stream().anyMatch(api -> !this.validate(api))) {
-        log.error("transformer api properties are invalid");
-        throw new IllegalArgumentException("transformer api properties cannot be empty.");
+    private Map<String, TransformerSpecification> buildEndpointTransformerMap(Config config) {
+      if (config.getSpecifications().stream()
+          .anyMatch(specification -> !this.validate(specification))) {
+        log.error("transformer specification are invalid.");
+        throw new IllegalArgumentException("transformer specification are invalid.");
       }
-      return config.getApis().stream()
+      return config.getSpecifications().stream()
           .collect(
               Collectors.toMap(t -> buildFullPath(t.getHttpMethod(), t.getHttpPath()), x -> x));
     }
@@ -88,7 +91,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
       // Step 1: match transformer
-      TransformerApiProperty apiProperty = match(exchange);
+      TransformerSpecification apiProperty = match(exchange);
       if (apiProperty == null) {
         return chain.filter(exchange);
       }
@@ -178,19 +181,19 @@ public class ResponseBodyTransformerGatewayFilterFactory
       return NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1;
     }
 
-    private boolean validate(TransformerApiProperty t) {
-      return t.getHttpMethod() == null
-          || t.getHttpPath() == null
-          || t.getTransformer() == null
-          || t.getResourceType() == null;
+    private boolean validate(TransformerSpecification t) {
+      return t.getHttpMethod() != null
+          && t.getHttpPath() != null
+          && t.getTransformer() != null
+          && t.getResourceType() != null;
     }
 
-    public TransformerApiProperty match(ServerWebExchange exchange) {
+    public TransformerSpecification match(ServerWebExchange exchange) {
       String key =
           buildFullPath(
               exchange.getRequest().getMethod(), exchange.getRequest().getURI().getPath());
 
-      for (Map.Entry<String, TransformerApiProperty> entry : apiTransformers.entrySet()) {
+      for (Map.Entry<String, TransformerSpecification> entry : endpointTransformerMap.entrySet()) {
         if (pathMatcher.match(entry.getKey(), key)) {
           return entry.getValue();
         }
@@ -206,6 +209,6 @@ public class ResponseBodyTransformerGatewayFilterFactory
   @Data
   public static class Config {
 
-    private List<TransformerApiProperty> apis = new ArrayList<>();
+    private List<TransformerSpecification> specifications = new ArrayList<>();
   }
 }

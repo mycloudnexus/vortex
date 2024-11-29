@@ -70,45 +70,45 @@ spring:
                 userKey: Bearer ${app.gateway.downstream.user-api-key}
             - name: ResponseBodyTransformer
               args:
-                apis:
+                specifications:
                   - http-method: PUT
                     http-path: ${app.gateway.downstream.path-prefix}/api/company/${app.gateway.downstream.company-username}/ports/orders
-                    transformer: resource.create
+                    transformer: RESOURCE_CREATE
                     resource-type: ORDER_PORT
-                    response-body-path: $
+                    response-data-path: $
                     metadata:
                       orderId: id
 
                   - http-method: PUT
                     http-path: ${app.gateway.downstream.path-prefix}/api/v2/company/${app.gateway.downstream.company-username}/connections/layer2
-                    transformer: resource.create
+                    transformer: RESOURCE_CREATE
                     resource-type: L2
-                    response-body-path: $
+                    response-data-path: $
                     metadata:
                       orderId: id
                       resourceId: id
 
                   - http-method: GET
                     http-path: ${app.gateway.downstream.path-prefix}/api/company/${app.gateway.downstream.company-username}/ports/orders
-                    transformer: resources.filter
+                    transformer: RESOURCES_FILTER
                     resource-type: ORDER_PORT
-                    response-body-path: $.results
+                    response-data-path: $.results
                     metadata:
                       filter: #data.?[#orderIds.contains(id)]
 
                   - http-method: GET
                     http-path: ${app.gateway.downstream.path-prefix}/api/company/${app.gateway.downstream.company-username}/ports
-                    transformer: resources.filter
+                    transformer: RESOURCES_FILTER
                     resource-type: ORDER_PORT
-                    response-body-path: $.results
+                    response-data-path: $.results
                     metadata:
                       filter: #data.?[#resourceIds.contains(id)]
 
                   - http-method: GET
                     http-path: ${app.gateway.downstream.path-prefix}/api/v2/company/${app.gateway.downstream.company-username}/connections
-                    transformer: resources.filter
+                    transformer: RESOURCES_FILTER
                     resource-type: L2
-                    response-body-path: $.results
+                    response-data-path: $.results
                     metadata:
                       filter: #data.?[#resourceIds.contains(id)]
 management:

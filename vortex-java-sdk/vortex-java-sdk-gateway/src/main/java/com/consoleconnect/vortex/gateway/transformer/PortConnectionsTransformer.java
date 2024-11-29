@@ -1,16 +1,15 @@
 package com.consoleconnect.vortex.gateway.transformer;
 
-import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
+import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
+import com.consoleconnect.vortex.gateway.model.TransformerContext;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
-import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.jayway.jsonpath.DocumentContext;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
 @Service
@@ -30,23 +29,16 @@ public class PortConnectionsTransformer extends AbstractResourceTransformer<Obje
    * @return
    */
   @Override
-  public String doTransform(
-      ServerWebExchange exchange,
-      String responseBody,
-      String customerId,
-      TransformerApiProperty config,
-      Object metadata) {
-
-    Boolean isMgt = exchange.getAttribute(IamConstants.X_VORTEX_MGMT_ORG);
-
-    if (isMgt == null || isMgt) {
+  public String doTransform(String responseBody, TransformerContext<Object> context) {
+    if (context.isMgmt()) {
       return responseBody;
     }
 
-    OrganizationInfo org = organizationService.findOne(customerId);
+    OrganizationInfo org = organizationService.findOne(context.getCustomerId());
 
     DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
-    List<Map<String, Object>> resPortConns = ctx.read(config.getResponseBodyPath());
+    List<Map<String, Object>> resPortConns =
+        ctx.read(context.getSpecification().getResponseDataPath());
     // reset customer organization name
     for (int i = 0; i < resPortConns.size(); i++) {
       ctx.set("$.results[" + i + "].destCompany.name", org.getName());
@@ -57,7 +49,7 @@ public class PortConnectionsTransformer extends AbstractResourceTransformer<Obje
   }
 
   @Override
-  public String getTransformerId() {
-    return "port.connection.list";
+  public TransformerIdentityEnum getTransformerId() {
+    return TransformerIdentityEnum.PORT_CONNECTION_LIST;
   }
 }

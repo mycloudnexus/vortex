@@ -1,7 +1,12 @@
 package com.consoleconnect.vortex.gateway.transformer;
 
-import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
+import static com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum.DEFAULT_RESOURCE_LIST;
+
 import com.consoleconnect.vortex.gateway.entity.OrderEntity;
+import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
+import com.consoleconnect.vortex.gateway.model.TransformerContext;
+import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
+import com.consoleconnect.vortex.gateway.model.TransformerSpecificationInternal;
 import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.jayway.jsonpath.DocumentContext;
@@ -11,7 +16,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
 @Service
@@ -31,40 +35,42 @@ public class DefaultResourceListTransformer extends AbstractResourceTransformer<
    * @return
    */
   @Override
-  public String doTransform(
-      ServerWebExchange exchange,
-      String responseBody,
-      String customerId,
-      TransformerApiProperty config,
-      Object metadata) {
+  public String doTransform(String responseBody, TransformerContext<Object> context) {
 
     // filter resource by organization
     Map<String, OrderEntity> resources =
-        orderService.listResourceByType(customerId, config.getResourceType()).stream()
+        orderService
+            .listResourceByType(
+                context.getCustomerId(), context.getSpecification().getResourceType())
+            .stream()
             .collect(Collectors.toMap(OrderEntity::getResourceId, x -> x));
 
     Set<String> resourceIds = resources.keySet();
 
     DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
-    List<Map<String, Object>> resOrders = ctx.read(config.getResponseBodyPath());
+    List<Map<String, Object>> resOrders =
+        ctx.read(context.getSpecification().getResponseDataPath());
 
     // filter resources
-    resOrders.removeIf(o -> filterResource(resourceIds, o, config));
+    resOrders.removeIf(o -> filterResource(resourceIds, o, context.getSpecification()));
 
-    if (TransformerApiProperty.DEFAULT_BODY_PATH.equals(config.getResponseBodyPath())) {
+    if (TransformerSpecification.JSON_ROOT.equals(
+        context.getSpecification().getResponseDataPath())) {
       // override ctx
       ctx = JsonPathToolkit.createDocCtx(resOrders);
     } else {
-      ctx.set(config.getResponseBodyPath(), resOrders);
+      ctx.set(context.getSpecification().getResponseDataPath(), resOrders);
     }
 
-    log.info("process completed, resourceType:{}", config.getResourceType());
+    log.info("process completed, resourceType:{}", context.getSpecification().getResourceType());
     return ctx.jsonString();
   }
 
   // default filter
   protected boolean filterResource(
-      Set<String> resourceIds, Map<String, Object> dto, TransformerApiProperty config) {
+      Set<String> resourceIds,
+      Map<String, Object> dto,
+      TransformerSpecificationInternal<Object> config) {
     String oId = (String) dto.get(config.getResourceInstanceId());
     if (resourceIds.contains(oId)) {
       return Boolean.FALSE;
@@ -73,7 +79,7 @@ public class DefaultResourceListTransformer extends AbstractResourceTransformer<
   }
 
   @Override
-  public String getTransformerId() {
-    return "resource.list";
+  public TransformerIdentityEnum getTransformerId() {
+    return DEFAULT_RESOURCE_LIST;
   }
 }
