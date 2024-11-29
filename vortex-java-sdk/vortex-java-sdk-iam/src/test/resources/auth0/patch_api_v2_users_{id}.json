@@ -1,0 +1,23 @@
+{
+  "created_at": "2024-10-25T06:45:58.124Z",
+  "email": "fake@pravatar.com",
+  "email_verified": "true",
+  "family_name": "fake",
+  "given_name": "name",
+  "identities": [
+    {
+      "user_id": "vortex-test|auth0|5ec4d3765cf0a1001486b95d",
+      "provider": "oidc",
+      "connection": "xxxx",
+      "isSocial": false
+    }
+  ],
+  "name": "fake@pravatar.com",
+  "nickname": "fake name",
+  "picture": "https://i.pravatar.cc/150?u=fake@pravatar.come",
+  "updated_at": "2024-11-20T03:04:44.977Z",
+  "user_id": "vortex-test|auth0|5ec4d3765cf0a1001486b95d",
+  "last_ip": "10.10.10.10",
+  "last_login": "2024-11-20T03:04:44.977Z",
+  "logins_count": 100
+}
