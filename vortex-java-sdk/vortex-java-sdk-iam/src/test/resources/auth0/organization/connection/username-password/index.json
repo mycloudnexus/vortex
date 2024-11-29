@@ -1,0 +1,12 @@
+[
+  {
+    "method": "GET",
+    "endpoint": "/api/v2/organizations/{id}",
+    "data": "get_api_v2_organizations_{id}.json"
+  },
+  {
+    "method": "POST",
+    "endpoint": "/dbconnections/change_password",
+    "data": "post_dbconnections_change_password.json"
+  }
+]
