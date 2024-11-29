@@ -152,10 +152,13 @@ public class ResponseBodyTransformerGatewayFilterFactory
 
       List<String> encodingHeaders =
           exchange.getResponse().getHeaders().getOrEmpty(HttpHeaders.CONTENT_ENCODING);
+
       for (String encoding : encodingHeaders) {
         MessageBodyDecoder decoder = messageBodyDecoders.get(encoding);
-        log.info("extractBody encoding: {}, decoder{}", encoding, decoder.getClass());
-        return decoder.decode(resBytes);
+        if (decoder != null) {
+          log.info("extractBody encoding: {}, decoder{}", encoding, decoder.getClass());
+          return decoder.decode(resBytes);
+        }
       }
       return resBytes;
     }
