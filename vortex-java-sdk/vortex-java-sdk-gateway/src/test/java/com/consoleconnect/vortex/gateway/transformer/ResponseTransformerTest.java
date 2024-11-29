@@ -1,8 +1,8 @@
 package com.consoleconnect.vortex.gateway.transformer;
 
-import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
+import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
@@ -122,7 +122,7 @@ class ResponseTransformerTest extends AbstractIntegrationTest {
 
     exchange.getAttributes().put(IamConstants.X_VORTEX_MGMT_ORG, Boolean.FALSE);
 
-    Organization org = new Organization();
+    OrganizationInfo org = new OrganizationInfo();
     org.setName("orgName");
     Mockito.doReturn(org).when(organizationService).findOne(Mockito.any());
 

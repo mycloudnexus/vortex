@@ -1,8 +1,8 @@
 package com.consoleconnect.vortex.gateway.transformer;
 
-import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
+import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.jayway.jsonpath.DocumentContext;
@@ -40,7 +40,7 @@ public class PortConnectionsTransformer extends AbstractResourceTransformer {
       return responseBody;
     }
 
-    Organization org = organizationService.findOne(customerId);
+    OrganizationInfo org = organizationService.findOne(customerId);
 
     String responseJson = new String(responseBody, StandardCharsets.UTF_8);
 
