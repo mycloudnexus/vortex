@@ -549,7 +549,9 @@ public class OrganizationService {
     }
 
     // delete existing connection
-    doDeleteConnection(organization, metadata.getConnectionId());
+    if (StringUtils.isNotBlank(metadata.getConnectionId())) {
+      doDeleteConnection(organization, metadata.getConnectionId());
+    }
 
     // create a new connection
     Connection createdConnection = doCreateConnection(organization, connectionProvider, request);
