@@ -4,10 +4,7 @@ import static java.util.function.Function.identity;
 
 import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
 import com.consoleconnect.vortex.gateway.transformer.AbstractResourceTransformer;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -75,18 +72,17 @@ public class ResponseBodyTransformerGatewayFilterFactory
     private final Map<String, TransformerApiProperty> apiTransformers;
 
     public ResponseBodyTransformerGatewayFilter(Config config) {
-      this.apiTransformers =
-          config.getApis().stream()
-              .filter(
-                  t -> {
-                    if (check(t)) {
-                      throw new IllegalArgumentException(
-                          "transformer api properties cannot be empty.");
-                    }
-                    return Boolean.TRUE;
-                  })
-              .collect(
-                  Collectors.toMap(t -> buildFullPath(t.getHttpMethod(), t.getHttpPath()), x -> x));
+      apiTransformers = buildAPITransformers(config);
+    }
+
+    private Map<String, TransformerApiProperty> buildAPITransformers(Config config) {
+      if (config.getApis().stream().anyMatch(api -> !this.validate(api))) {
+        log.error("transformer api properties are invalid");
+        throw new IllegalArgumentException("transformer api properties cannot be empty.");
+      }
+      return config.getApis().stream()
+          .collect(
+              Collectors.toMap(t -> buildFullPath(t.getHttpMethod(), t.getHttpPath()), x -> x));
     }
 
     @Override
@@ -182,7 +178,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
       return NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1;
     }
 
-    private boolean check(TransformerApiProperty t) {
+    private boolean validate(TransformerApiProperty t) {
       return t.getHttpMethod() == null
           || t.getHttpPath() == null
           || t.getTransformer() == null
@@ -210,6 +206,6 @@ public class ResponseBodyTransformerGatewayFilterFactory
   @Data
   public static class Config {
 
-    private List<TransformerApiProperty> apis;
+    private List<TransformerApiProperty> apis = new ArrayList<>();
   }
 }
