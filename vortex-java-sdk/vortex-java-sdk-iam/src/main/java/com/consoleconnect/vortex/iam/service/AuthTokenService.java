@@ -1,6 +1,8 @@
 package com.consoleconnect.vortex.iam.service;
 
 import com.consoleconnect.vortex.iam.dto.AuthToken;
+import com.consoleconnect.vortex.iam.dto.MemberInfo;
+import com.consoleconnect.vortex.iam.dto.User;
 import com.consoleconnect.vortex.iam.model.UserContext;
 import lombok.AllArgsConstructor;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -23,9 +25,17 @@ public class AuthTokenService {
     authToken.setRoles(userContext.getRoles());
 
     if (userContext.isMgmt()) {
-      authToken.setUserInfo(userService.getUserInfo(jwt));
+      User user = userService.getUserInfo(jwt);
+
+      authToken.setName(user.getName());
+      authToken.setEmail(user.getEmail());
+
+      authToken.setUserInfo(user);
     } else {
-      authToken.setUserInfo(memberService.getUserInfo(authToken.getUserId()));
+      MemberInfo memberInfo = memberService.getUserInfo(authToken.getUserId());
+      authToken.setName(memberInfo.getName());
+      authToken.setEmail(memberInfo.getEmail());
+      authToken.setUserInfo(memberInfo);
     }
     return authToken;
   }

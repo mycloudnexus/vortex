@@ -7,13 +7,14 @@ import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.config.EmailServiceMockHelper;
 import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
-import com.consoleconnect.vortex.iam.dto.MemberInfoUpdateDto;
+import com.consoleconnect.vortex.iam.dto.UpdateMemberDto;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.service.EmailService;
 import com.consoleconnect.vortex.test.*;
 import com.consoleconnect.vortex.test.user.TestUser;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -76,7 +77,7 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
 
   @Test
   @Order(1)
-  void givenOrganizationInitialized_whenGetUserInfo_thenReturn200() {
+  void givenCustomerUser_whenGetUserInfo_thenReturn200() {
 
     String endpoint = "/auth/token";
     String auth0Endpoint = "/api/v2/users/%s";
@@ -119,7 +120,7 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
 
   @Test
   @Order(2)
-  void givenOrganizationInitialized_whenRetrieveOrganization_thenReturn200() {
+  void givenCustomerUser_whenRetrieveOrganization_thenReturn200() {
 
     String endpoint = "/organization";
     String auth0Endpoint = "/api/v2/organizations/%s";
@@ -136,26 +137,8 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Order(3)
-  void givenOrganizationInitialized_whenRetrieveConnection_thenReturn200() {
-
-    String endpoint = "/organization/connection";
-    String auth0Endpoint = "/api/v2/organizations/%s/enabled_connections";
-    customerUser.requestAndVerify(
-        HttpMethod.GET,
-        uriBuilder -> uriBuilder.path(endpoint).build(),
-        200,
-        Assertions::assertNotNull);
-
-    MockServerHelper.verify(
-        1,
-        String.format(auth0Endpoint, AuthContextConstants.CUSTOMER_COMPANY_ID),
-        AuthContextConstants.AUTH0_ACCESS_TOKEN);
-  }
-
-  @Test
   @Order(4)
-  void givenOrganizationInitialized_whenRetrieveMembers_thenReturn200() {
+  void givenCustomerUser_whenRetrieveMembers_thenReturn200() {
 
     String endpoint = "/organization/members";
     String auth0Endpoint =
@@ -175,7 +158,7 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
 
   @Test
   @Order(5)
-  void givenOrganizationInitialized_whenRetrieveRoles_thenReturn200() {
+  void givenCustomerUser_whenRetrieveRoles_thenReturn200() {
 
     String endpoint = "/organization/roles";
     String auth0Endpoint = "/api/v2/roles";
@@ -190,7 +173,7 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
 
   @Test
   @Order(6)
-  void givenOrganizationInitialized_whenRetrieveInvitations_thenReturn200() {
+  void givenCustomerUser_whenRetrieveInvitations_thenReturn200() {
 
     String endpoint = "/organization/invitations";
     String auth0Endpoint =
@@ -209,8 +192,29 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  @Order(6)
+  void givenCustomerUser_whenRetrieveInvitationById_thenReturn200() {
+
+    String endpoint = "/organization/invitations/{invitationId}";
+
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path(endpoint).build(MgmtOrganizationControllerTest.INVITATION_ID),
+        200,
+        Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.GET,
+        String.format(
+            "/api/v2/organizations/%s/invitations/%s",
+            AuthContextConstants.CUSTOMER_COMPANY_ID, MgmtOrganizationControllerTest.INVITATION_ID),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
+  }
+
+  @Test
   @Order(7)
-  void givenOrganizationInitialized_whenCreateInvitation_thenReturn200() {
+  void givenCustomerUser_whenCreateInvitation_thenReturn200() {
 
     String endpoint = "/organization/invitations";
     String auth0Endpoint = "/api/v2/organizations/%s/invitations";
@@ -242,7 +246,7 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
 
   @Test
   @Order(7)
-  void givenNotSupportedRole_whenCreateInvitation_thenReturn400() {
+  void givenCustomerUser_whenCreateInvitationWithNotSupportedRole_thenReturn400() {
 
     String endpoint = "/organization/invitations";
 
@@ -260,7 +264,7 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
 
   @Test
   @Order(8)
-  void givenSSOMember_whenResetPassword_thenReturn400() {
+  void givenCustomerUser_whenResetPasswordOnSsoConnection_thenReturn400() {
     String endpoint = "/organization/reset-password";
     customerUser.requestAndVerify(
         HttpMethod.POST,
@@ -270,17 +274,57 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
+  @Order(8)
+  void givenCustomerUser_resetPasswordOnUsernamePasswordConnection_thenReturn200() {
+    String endpoint = "/organization/reset-password";
+
+    MockServerHelper.setupMock("auth0/organization/connection/username-password");
+
+    customerUser.requestAndVerify(
+        HttpMethod.POST,
+        uriBuilder -> uriBuilder.path(endpoint).build(),
+        200,
+        Assertions::assertNotNull);
+
+    MockServerHelper.verify(1, HttpMethod.POST, "/dbconnections/change_password");
+  }
+
+  @Test
   @Order(9)
-  void givenSSOMember_updateMemberInfo_thenReturn400() {
-    MemberInfoUpdateDto memberInfoUpdateDto = new MemberInfoUpdateDto();
-    memberInfoUpdateDto.setFamilyName("familyName");
-    memberInfoUpdateDto.setGivenName("givenName");
+  void givenCustomerUser_updateMemberInfoOnSsoConnection_thenReturn400() {
+    UpdateMemberDto updateMemberDto = new UpdateMemberDto();
+    updateMemberDto.setFamilyName("familyName");
+    updateMemberDto.setGivenName("givenName");
 
     customerUser.requestAndVerify(
         HttpMethod.PATCH,
         uriBuilder -> uriBuilder.path("/organization/members").build(),
-        memberInfoUpdateDto,
+        updateMemberDto,
         400,
         Assertions::assertNotNull);
+  }
+
+  @Test
+  @Order(9)
+  void givenCustomerUser_updateMemberInfoOnUsernamePasswordConnection_thenReturn200() {
+
+    MockServerHelper.setupMock("auth0/organization/connection/username-password");
+    UpdateMemberDto updateMemberDto = new UpdateMemberDto();
+    updateMemberDto.setFamilyName("familyName");
+    updateMemberDto.setGivenName("givenName");
+
+    customerUser.requestAndVerify(
+        HttpMethod.PATCH,
+        uriBuilder -> uriBuilder.path("/organization/members").build(),
+        updateMemberDto,
+        200,
+        Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.PATCH,
+        "/api/v2/users/"
+            + UriUtils.encodePath(AuthContextConstants.CUSTOMER_USER_ID, StandardCharsets.UTF_8),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
   }
 }
