@@ -3,6 +3,7 @@ package com.consoleconnect.vortex.gateway;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
+import com.consoleconnect.vortex.gateway.data.ListResponse;
 import com.consoleconnect.vortex.gateway.dto.CreateResourceRequest;
 import com.consoleconnect.vortex.gateway.entity.ResourceEntity;
 import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
@@ -15,7 +16,6 @@ import com.consoleconnect.vortex.test.user.TestUser;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import java.util.List;
 import java.util.Map;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
@@ -356,10 +356,5 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
         HttpMethod.GET,
         String.format("/api/company/%s/ports", AuthContextConstants.MGMT_COMPANY_USERNAME),
         AuthContextConstants.MGMT_ACCESS_TOKEN);
-  }
-
-  @Data
-  public static class ListResponse {
-    private List<Object> results;
   }
 }
