@@ -40,7 +40,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
   private final Map<String, MessageBodyEncoder> messageBodyEncoders;
 
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
-  private final List<AbstractResourceTransformer<?>> transformers;
+  private final Map<TransformerIdentityEnum, AbstractResourceTransformer<?>> transformerMap;
 
   public ResponseBodyTransformerGatewayFilterFactory(
       Set<MessageBodyDecoder> messageBodyDecoders,
@@ -53,15 +53,14 @@ public class ResponseBodyTransformerGatewayFilterFactory
     this.messageBodyEncoders =
         messageBodyEncoders.stream()
             .collect(Collectors.toMap(MessageBodyEncoder::encodingType, identity()));
-    this.transformers = transformers;
+    this.transformerMap =
+        transformers.stream()
+            .collect(Collectors.toMap(AbstractResourceTransformer::getTransformerId, identity()));
   }
 
   public Optional<AbstractResourceTransformer<?>> findTransformer(
       TransformerIdentityEnum transformer) {
-    if (transformer == null) {
-      return Optional.empty();
-    }
-    return transformers.stream().filter(t -> t.getTransformerId() == transformer).findFirst();
+    return Optional.ofNullable(transformerMap.get(transformer));
   }
 
   @Override
@@ -71,39 +70,39 @@ public class ResponseBodyTransformerGatewayFilterFactory
 
   public class ResponseBodyTransformerGatewayFilter implements GatewayFilter, Ordered {
 
-    private final Map<String, TransformerSpecification> endpointTransformerMap;
+    private final List<TransformerSpecification> transformerSpecifications;
 
     public ResponseBodyTransformerGatewayFilter(Config config) {
-      endpointTransformerMap = buildEndpointTransformerMap(config);
-    }
-
-    private Map<String, TransformerSpecification> buildEndpointTransformerMap(Config config) {
       if (config.getSpecifications().stream()
           .anyMatch(specification -> !this.validate(specification))) {
         log.error("transformer specification are invalid.");
         throw new IllegalArgumentException("transformer specification are invalid.");
       }
-      return config.getSpecifications().stream()
-          .collect(
-              Collectors.toMap(t -> buildFullPath(t.getHttpMethod(), t.getHttpPath()), x -> x));
+      transformerSpecifications = config.getSpecifications();
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
       // Step 1: match transformer
-      TransformerSpecification apiProperty = match(exchange);
-      if (apiProperty == null) {
+      Optional<TransformerSpecification> specificationOptional =
+          findTransformerSpecification(exchange);
+      if (specificationOptional.isEmpty()) {
+        log.info("no matched transformer specification.");
         return chain.filter(exchange);
       }
 
+      TransformerSpecification specification = specificationOptional.get();
       final Optional<AbstractResourceTransformer<?>> transformer =
-          findTransformer(apiProperty.getTransformer());
+          findTransformer(specification.getTransformer());
       if (transformer.isEmpty()) {
+        log.error("no matched transformer, transformer:{}", specification.getTransformer());
         return chain.filter(exchange);
       }
 
       log.info(
-          "match transformer:{}, property:{}", transformer.get().getClass().getName(), apiProperty);
+          "matched transformer:{}, specification:{}",
+          transformer.get().getClass().getName(),
+          specification);
       return chain.filter(
           exchange
               .mutate()
@@ -135,7 +134,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
                                       byte[] resBody =
                                           transformer
                                               .get()
-                                              .transform(exchange, content, apiProperty);
+                                              .transform(exchange, content, specification);
 
                                       // Step 5: encode
                                       return bufferFactory().wrap(writeBody(exchange, resBody));
@@ -188,21 +187,16 @@ public class ResponseBodyTransformerGatewayFilterFactory
           && t.getResourceType() != null;
     }
 
-    public TransformerSpecification match(ServerWebExchange exchange) {
-      String key =
-          buildFullPath(
-              exchange.getRequest().getMethod(), exchange.getRequest().getURI().getPath());
+    public Optional<TransformerSpecification> findTransformerSpecification(
+        ServerWebExchange exchange) {
 
-      for (Map.Entry<String, TransformerSpecification> entry : endpointTransformerMap.entrySet()) {
-        if (pathMatcher.match(entry.getKey(), key)) {
-          return entry.getValue();
-        }
-      }
-      return null;
-    }
+      HttpMethod method = exchange.getRequest().getMethod();
+      String path = exchange.getRequest().getURI().getPath();
 
-    private String buildFullPath(HttpMethod method, String httpPath) {
-      return method.name() + " " + httpPath;
+      log.info("findTransformerSpecification method:{}, path:{}", method, path);
+      return transformerSpecifications.stream()
+          .filter(t -> t.getHttpMethod() == method && pathMatcher.match(t.getHttpPath(), path))
+          .findFirst();
     }
   }
 

@@ -3,33 +3,38 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: test-api
+        - id: downstream-api
           uri: ${app.iam.downstream.base-url}
           predicates:
-            - Path=/test/**
+            - Path=/downstream/**
           filters:
-            - RewritePath=/test/(?<path>.*), /$\{path}
+            - RewritePath=/downstream/(?<path>.*), /$\{path}
             - RemoveRequestHeader=Authorization
             - name: SetAPIKey
             - name: ResponseBodyTransformer
               args:
                 specifications:
                   - http-method: PUT
-                    http-path: /test/api/do
-                    transformer: DEFAULT_RESOURCE_CREATE
-                    resource-type: PORT
-                    resource-instance-id-path: id
+                    http-path: /downstream/api/company/${app.iam.downstream.company.username}/ports/orders
+                    transformer: RESOURCE_CREATE
+                    resource-type: ORDER_PORT
                     response-data-path: $
-                  - http-method: PUT
-                    http-path: /test/api2/do
-                    transformer: resource.create
-                    resource-type: L2
+                    metadata:
+                      orderId: id
                   - http-method: GET
-                    http-path: /test/api/do
-                    transformer: DEFAULT_RESOURCE_LIST
-                    resource-type: PORT
-                    resource-instance-id-path: id
+                    http-path: /downstream/api/company/${app.iam.downstream.company.username}/ports/orders
+                    transformer: RESOURCES_FILTER
+                    resource-type: ORDER_PORT
                     response-data-path: $.results
+                    metadata:
+                      filter: "#data.?[#orderIds.contains(id)]"
+                  - http-method: GET
+                    http-path: /downstream/api/company/${app.iam.downstream.company.username}/ports
+                    transformer: RESOURCES_FILTER
+                    resource-type: ORDER_PORT
+                    response-data-path: $.results
+                    metadata:
+                      filter: "#data.?[#resourceIds.contains(id)]"
 app:
   iam:
     resource-server:
@@ -51,5 +56,5 @@ app:
       token: api-key-has-readonly-role
       company:
         id: 65a4f18aec61ae42ae9606dfx0000
-        username: test-company
+        username: reseller-username
         admin-user-id: 5d773f33c7e294000b763af6

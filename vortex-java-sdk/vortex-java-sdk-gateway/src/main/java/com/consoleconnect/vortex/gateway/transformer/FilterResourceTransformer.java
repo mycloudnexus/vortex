@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -41,7 +42,7 @@ public class FilterResourceTransformer
 
     DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
     // data to be filtered, it MUST be a list
-    List<Map<String, Object>> data = ctx.read(context.getSpecification().getResponseDataPath());
+    List<Object> data = ctx.read(context.getSpecification().getResponseDataPath());
 
     // variables for filtering
     Map<String, Object> filterVariables =
@@ -63,8 +64,10 @@ public class FilterResourceTransformer
   private Object filterData(Object data, String filter, Map<String, Object> variables) {
     variables.put(VAR_DATA, data);
     StandardEvaluationContext context = new StandardEvaluationContext();
+    context.addPropertyAccessor(new MapAccessor());
     context.setVariables(variables);
     ExpressionParser parser = new SpelExpressionParser();
+
     return parser.parseExpression(filter).getValue(context);
   }
 

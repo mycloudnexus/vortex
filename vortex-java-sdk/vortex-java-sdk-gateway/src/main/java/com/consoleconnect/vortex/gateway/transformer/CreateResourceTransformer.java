@@ -28,8 +28,7 @@ public class CreateResourceTransformer
     request.setCustomerId(context.getCustomerId());
     request.setResourceType(context.getSpecification().getResourceType());
 
-    String data =
-        JsonPathToolkit.read(responseBody, context.getSpecification().getResponseDataPath());
+    String data = extraData(responseBody, context.getSpecification().getResponseDataPath());
 
     Metadata metadata = context.getSpecification().getMetadata();
     if (metadata.getOrderId() != null) {

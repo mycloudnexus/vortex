@@ -1,10 +1,12 @@
 package com.consoleconnect.vortex.gateway.transformer;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
+import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
 import com.consoleconnect.vortex.gateway.model.TransformerContext;
 import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
 import com.consoleconnect.vortex.gateway.model.TransformerSpecificationInternal;
+import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ public abstract class AbstractResourceTransformer<T> {
 
   public final byte[] transform(
       ServerWebExchange exchange, byte[] responseBody, TransformerSpecification specification) {
+    log.info("Start to transform,specification:{}", specification);
     long start = System.currentTimeMillis();
     try {
       String customerId = exchange.getAttribute(IamConstants.X_VORTEX_CUSTOMER_ID);
@@ -49,4 +52,10 @@ public abstract class AbstractResourceTransformer<T> {
   protected abstract String doTransform(String data, TransformerContext<T> context);
 
   public abstract TransformerIdentityEnum getTransformerId();
+
+  protected String extraData(String responseBody, String responseDataPath) {
+    return TransformerSpecification.JSON_ROOT.equalsIgnoreCase(responseDataPath)
+        ? responseBody
+        : JsonToolkit.toJson(JsonPathToolkit.read(responseBody, responseDataPath, Object.class));
+  }
 }
