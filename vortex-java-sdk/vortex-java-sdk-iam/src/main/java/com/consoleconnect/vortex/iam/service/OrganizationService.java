@@ -184,7 +184,7 @@ public class OrganizationService {
               }
             }));
 
-    return PagingHelper.toPage(
+    return PagingHelper.toPageNoSubList(
         organizationPaging.getData().stream()
             .map(OrganizationMapper.INSTANCE::toOrganizationInfo)
             .toList(),
