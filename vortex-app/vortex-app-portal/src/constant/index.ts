@@ -14,7 +14,8 @@ export const ENV = {
   HELP_CENTER_URL: process.env.HELP_CENTER_UR,
   TERM_OF_USE_URL: process.env.TERM_OF_USE_URL,
   PRIVACY_STATEMENT_URL: process.env.PRIVACY_STATEMENT_URL,
-  COOKIE_URL: process.env.COOKIE_URL
+  COOKIE_URL: process.env.COOKIE_URL,
+  DOWNSTREAM_ALIAS: process.env.DOWNSTREAM_ALIAS
 }
 
 export const CUSTOMER_AUTH0 = {
