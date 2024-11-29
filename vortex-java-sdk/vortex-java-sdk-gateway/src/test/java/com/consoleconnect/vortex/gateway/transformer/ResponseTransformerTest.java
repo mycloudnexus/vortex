@@ -91,7 +91,8 @@
 //     config.setResponseBodyPath("$.results");
 
 //     byte[] resBytes =
-//         "{\"results\": [{\"id\":\"orderId\", \"createdPortId\":\"portId\"},{\"id\":\"orderId2\"}]}"
+//         "{\"results\": [{\"id\":\"orderId\",
+// \"createdPortId\":\"portId\"},{\"id\":\"orderId2\"}]}"
 //             .getBytes();
 //     orderTransformer.getTransformerId();
 //     byte[] ret = portOrderListTransformer.doTransform(exchange, resBytes, customerId, config);
@@ -110,7 +111,8 @@
 //     config.setResponseBodyPath("$.results");
 
 //     byte[] resBytes =
-//         "{\"results\": [{\"id\":\"portId\", \"status\":\"ACTIVE\"}, {\"id\":\"portId2\", \"status\":\"ACTIVE\"}]}"
+//         "{\"results\": [{\"id\":\"portId\", \"status\":\"ACTIVE\"}, {\"id\":\"portId2\",
+// \"status\":\"ACTIVE\"}]}"
 //             .getBytes();
 //     byte[] ret = listTransformer.doTransform(exchange, resBytes, customerId, config);
 //     Assertions.assertNotNull(ret);
@@ -134,8 +136,10 @@
 //     config.setResponseBodyPath("$.results");
 
 //     byte[] resBytes =
-//         ("{\"results\": [{\"destCompany\":{\"name\":\"cname1\", \"company\":{\"registeredName\":\"cname1\"}}},"
-//                 + "{\"destCompany\":{\"name\":\"cname2\", \"company\":{\"registeredName\":\"cname2\"}}}]}")
+//         ("{\"results\": [{\"destCompany\":{\"name\":\"cname1\",
+// \"company\":{\"registeredName\":\"cname1\"}}},"
+//                 + "{\"destCompany\":{\"name\":\"cname2\",
+// \"company\":{\"registeredName\":\"cname2\"}}}]}")
 //             .getBytes();
 //     portConnectionsTransformer.getTransformerId();
 //     byte[] ret = portConnectionsTransformer.doTransform(exchange, resBytes, customerId, config);
