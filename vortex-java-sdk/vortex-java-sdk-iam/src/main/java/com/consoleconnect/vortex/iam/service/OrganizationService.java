@@ -265,10 +265,15 @@ public class OrganizationService {
   public Paging<MemberInfo> listMembers(String orgId, int page, int size) {
     log.info("list members, orgId:{}, size:{}", orgId, size);
 
-    Optional<Connection> connectionOptional = this.getOrganizationConnection(orgId);
+    Organization organization = findOrganizationAndThrow(orgId);
+    OrganizationMetadata organizationMetadata =
+        OrganizationMetadata.fromMap(organization.getMetadata());
+    Optional<Connection> connectionOptional =
+        getOrganizationConnection(organizationMetadata.getConnectionId());
     if (connectionOptional.isEmpty()) {
       return PagingHelper.toPage(List.of(), page, size);
     }
+
     Paging<Member> memberPaging =
         Auth0PageHelper.loadData(
             page,
