@@ -7,6 +7,7 @@ import { IRouteObject, routes } from '@/routers'
 import { Breadcrumb as AntBreadcrumb } from 'antd'
 import { styled } from 'styled-components'
 import { useAppStore } from '@/stores/app.store'
+import { RightOutlined } from '@ant-design/icons'
 
 interface StyledLinkProps {
   isLast: boolean
@@ -17,7 +18,8 @@ const StyledLink = styled(Link).withConfig({
   shouldForwardProp: (prop) => !['isLast', 'mainColor'].includes(prop)
 })<StyledLinkProps>`
   color: ${({ isLast, mainColor }) => (isLast ? '#000' : mainColor)} !important;
-  font-weight: normal;
+  font-weight: 600;
+  font-size: 1rem;
   &:hover {
     color: ${({ isLast, mainColor }) => (isLast ? mainColor : '#000')} !important;
   }
@@ -87,7 +89,7 @@ const BreadCrumb = (): ReactElement => {
 
   return (
     <StyledBreadCrumb
-      separator='>'
+      separator={<RightOutlined />}
       items={breadCrumbsItems}
       style={{ fontSize: '18px' }}
       itemRender={(route, params, routes, paths) => renderBreadCrumbItems(route, params, routes, paths, mainColor)}

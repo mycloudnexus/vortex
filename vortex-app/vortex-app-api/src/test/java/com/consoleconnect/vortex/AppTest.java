@@ -1,10 +1,9 @@
 package com.consoleconnect.vortex;
 
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
-import com.consoleconnect.vortex.test.AuthContextConstants;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
 import com.consoleconnect.vortex.test.WebTestClientHelper;
-import java.util.Map;
+import com.consoleconnect.vortex.test.user.TestUser;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability;
@@ -19,16 +18,22 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @AutoConfigureObservability
 class AppTest extends AbstractIntegrationTest {
 
-  private final WebTestClientHelper webTestClient;
+  private final TestUser mgmtUser;
+  private final TestUser customerUser;
+  private final TestUser anonymousUser;
 
   public AppTest(@Autowired WebTestClient webTestClient) {
-    this.webTestClient = new WebTestClientHelper(webTestClient);
+    WebTestClientHelper webTestClientHelper = new WebTestClientHelper(webTestClient);
+
+    this.mgmtUser = TestUser.loginAsMgmtUser(webTestClientHelper);
+    this.customerUser = TestUser.loginAsCustomerUser(webTestClientHelper);
+    this.anonymousUser = TestUser.login(webTestClientHelper, null);
   }
 
   @Test
   void givenAnonymous_whenGetHome_thenReturnRedirect() {
 
-    webTestClient.requestAndVerify(
+    anonymousUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/").build(),
         HttpStatus.PERMANENT_REDIRECT.value(),
@@ -37,7 +42,7 @@ class AppTest extends AbstractIntegrationTest {
 
   @Test
   void givenAnonymous_whenGetSwaggerUi_thenReturn200() {
-    webTestClient.requestAndVerify(
+    anonymousUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/swagger-ui.html").build(),
         HttpStatus.FOUND.value(),
@@ -46,7 +51,7 @@ class AppTest extends AbstractIntegrationTest {
 
   @Test
   void givenAnonymous_whenGetHealth_thenReturn200() {
-    webTestClient.requestAndVerify(
+    anonymousUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/actuator/health").build(),
         HttpStatus.OK.value(),
@@ -55,7 +60,7 @@ class AppTest extends AbstractIntegrationTest {
 
   @Test
   void givenAnonymous_whenGetActuator_thenReturn401() {
-    webTestClient.requestAndVerify(
+    anonymousUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/actuator").build(),
         HttpStatus.UNAUTHORIZED.value(),
@@ -63,19 +68,26 @@ class AppTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenAccessToken_whenGetActuator_thenReturn200() {
-    webTestClient.requestAndVerify(
+  void givenMgmtUser_whenGetActuator_thenReturn200() {
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/actuator").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         HttpStatus.OK.value(),
         Assertions::assertNotNull);
+  }
+
+  @Test
+  void givenCustomerUser_whenGetActuator_thenReturn200() {
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator").build(),
+        HttpStatus.FORBIDDEN.value(),
+        Assertions::assertNull);
   }
 
   @Test
   void givenAnonymous_whenGetInfo_thenReturn401() {
-    webTestClient.requestAndVerify(
+    anonymousUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/actuator/info").build(),
         HttpStatus.UNAUTHORIZED.value(),
@@ -83,39 +95,47 @@ class AppTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenAccessToken_whenGetInfo_thenReturn200() {
-    webTestClient.requestAndVerify(
+  void givenMgmtUser_whenGetInfo_thenReturn200() {
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/actuator/info").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         HttpStatus.OK.value(),
         Assertions::assertNotNull);
+  }
+
+  @Test
+  void givenCustomerUser_whenGetInfo_thenReturn200() {
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator/info").build(),
+        HttpStatus.FORBIDDEN.value(),
+        Assertions::assertNull);
   }
 
   @Test
   void givenAnonymous_whenGetPrometheus_thenReturn401() {
-    webTestClient.requestAndVerify(
+    anonymousUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/actuator/prometheus").build(),
-        Map.of("accept", "text/plain;version=0.0.4;charset=utf-8"),
-        null,
         HttpStatus.UNAUTHORIZED.value(),
         Assertions::assertNull);
   }
 
   @Test
-  void givenAccessToken_whenGetPrometheus_thenReturn200() {
-    webTestClient.requestAndVerify(
+  void givenMgmtUser_whenGetPrometheus_thenReturn200() {
+    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/actuator/prometheus").build(),
-        Map.of(
-            "accept",
-            "text/plain;version=0.0.4;charset=utf-8",
-            "Authorization",
-            "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
         HttpStatus.OK.value(),
         Assertions::assertNotNull);
+  }
+
+  @Test
+  void givenCustomerUser_whenGetPrometheus_thenReturn200() {
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator/prometheus").build(),
+        HttpStatus.FORBIDDEN.value(),
+        Assertions::assertNull);
   }
 }

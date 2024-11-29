@@ -7,8 +7,8 @@ import lombok.Data;
 public class EmailProperty {
   private boolean enabled = false;
   private String provider = "sendgrid";
-
   private SendGrid sendGrid;
+  private String supportEmail;
 
   @Data
   public static class SendGrid {
@@ -19,6 +19,7 @@ public class EmailProperty {
 
   @Data
   public static class EmailTemplates {
-    private String inviteOrgMember;
+    private String userInvitation;
+    private String orgMemberInvitation;
   }
 }
