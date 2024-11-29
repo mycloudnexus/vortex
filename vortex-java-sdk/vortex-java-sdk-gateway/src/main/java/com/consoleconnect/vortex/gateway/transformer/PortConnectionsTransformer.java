@@ -6,20 +6,22 @@ import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.jayway.jsonpath.DocumentContext;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
 @Service
-@AllArgsConstructor
-public class PortConnectionsTransformer extends AbstractResourceTransformer {
+public class PortConnectionsTransformer extends AbstractResourceTransformer<Object> {
 
   protected final OrganizationService organizationService;
+
+  public PortConnectionsTransformer(OrganizationService organizationService) {
+    super(Object.class);
+    this.organizationService = organizationService;
+  }
 
   /**
    * process result and error code
@@ -28,11 +30,12 @@ public class PortConnectionsTransformer extends AbstractResourceTransformer {
    * @return
    */
   @Override
-  public byte[] doTransform(
+  public String doTransform(
       ServerWebExchange exchange,
-      byte[] responseBody,
+      String responseBody,
       String customerId,
-      TransformerApiProperty config) {
+      TransformerApiProperty config,
+      Object metadata) {
 
     Boolean isMgt = exchange.getAttribute(IamConstants.X_VORTEX_MGMT_ORG);
 
@@ -42,9 +45,7 @@ public class PortConnectionsTransformer extends AbstractResourceTransformer {
 
     OrganizationInfo org = organizationService.findOne(customerId);
 
-    String responseJson = new String(responseBody, StandardCharsets.UTF_8);
-
-    DocumentContext ctx = JsonPathToolkit.createDocCtx(responseJson);
+    DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
     List<Map<String, Object>> resPortConns = ctx.read(config.getResponseBodyPath());
     // reset customer organization name
     for (int i = 0; i < resPortConns.size(); i++) {
@@ -52,7 +53,7 @@ public class PortConnectionsTransformer extends AbstractResourceTransformer {
       ctx.set("$.results[" + i + "].destCompany.company.registeredName", org.getName());
     }
 
-    return ctx.jsonString().getBytes(StandardCharsets.UTF_8);
+    return ctx.jsonString();
   }
 
   @Override
