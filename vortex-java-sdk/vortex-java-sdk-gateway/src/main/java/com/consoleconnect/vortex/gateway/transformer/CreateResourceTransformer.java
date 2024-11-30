@@ -12,17 +12,17 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class CreateResourceTransformer
-    extends AbstractResourceTransformer<CreateResourceTransformer.Metadata> {
+    extends AbstractResourceTransformer<CreateResourceTransformer.Options> {
 
   protected final ResourceService resourceService;
 
   public CreateResourceTransformer(ResourceService resourceService) {
-    super(Metadata.class);
+    super(Options.class);
     this.resourceService = resourceService;
   }
 
   @Override
-  public String doTransform(String responseBody, TransformerContext<Metadata> context) {
+  public String doTransform(String responseBody, TransformerContext<Options> context) {
 
     CreateResourceRequest request = new CreateResourceRequest();
     request.setCustomerId(context.getCustomerId());
@@ -30,12 +30,12 @@ public class CreateResourceTransformer
 
     String data = extraData(responseBody, context.getSpecification().getResponseDataPath());
 
-    Metadata metadata = context.getSpecification().getMetadata();
-    if (metadata.getOrderId() != null) {
-      request.setOrderId(JsonPathToolkit.read(data, metadata.getOrderId()));
+    Options options = context.getSpecification().getOptions();
+    if (options.getOrderId() != null) {
+      request.setOrderId(JsonPathToolkit.read(data, options.getOrderId()));
     }
-    if (metadata.getResourceId() != null) {
-      request.setResourceId(JsonPathToolkit.read(data, metadata.getResourceId()));
+    if (options.getResourceId() != null) {
+      request.setResourceId(JsonPathToolkit.read(data, options.getResourceId()));
     }
     resourceService.create(request);
     return responseBody;
@@ -47,7 +47,7 @@ public class CreateResourceTransformer
   }
 
   @Data
-  public static class Metadata {
+  public static class Options {
     private String orderId;
     private String resourceId;
   }

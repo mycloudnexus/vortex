@@ -2,7 +2,6 @@ package com.consoleconnect.vortex.gateway.entity;
 
 import com.consoleconnect.vortex.core.entity.AbstractEntity;
 import com.consoleconnect.vortex.gateway.enums.ResourceStateEnum;
-import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,9 +38,8 @@ public class ResourceEntity extends AbstractEntity {
   @Column(name = "resource_id")
   private String resourceId;
 
-  @Enumerated(EnumType.STRING)
   @Column(name = "resource_type", nullable = false)
-  private ResourceTypeEnum resourceType;
+  private String resourceType;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "resource_state")

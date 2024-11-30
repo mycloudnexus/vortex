@@ -6,5 +6,5 @@ import lombok.Data;
 public class TransformerContext<T> {
   private String customerId;
   private boolean mgmt;
-  private TransformerSpecificationInternal<T> specification;
+  private TransformerSpecification<T> specification;
 }

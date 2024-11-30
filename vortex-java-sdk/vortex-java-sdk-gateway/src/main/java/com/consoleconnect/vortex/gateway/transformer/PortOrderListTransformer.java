@@ -39,7 +39,9 @@ public class PortOrderListTransformer extends AbstractResourceTransformer<Object
     List<OrderEntity> fillOrders = new ArrayList<>();
     Map<String, OrderEntity> orders =
         orderService
-            .listOrders(context.getCustomerId(), context.getSpecification().getResourceType())
+            .listOrders(
+                context.getCustomerId(),
+                ResourceTypeEnum.valueOf(context.getSpecification().getResourceType()))
             .stream()
             .collect(Collectors.toMap(OrderEntity::getOrderId, x -> x));
 

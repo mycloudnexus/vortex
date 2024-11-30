@@ -70,7 +70,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
 
   public class ResponseBodyTransformerGatewayFilter implements GatewayFilter, Ordered {
 
-    private final List<TransformerSpecification> transformerSpecifications;
+    private final List<TransformerSpecification.Default> transformerSpecifications;
 
     public ResponseBodyTransformerGatewayFilter(Config config) {
       if (config.getSpecifications().stream()
@@ -84,14 +84,14 @@ public class ResponseBodyTransformerGatewayFilterFactory
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
       // Step 1: match transformer
-      Optional<TransformerSpecification> specificationOptional =
+      Optional<TransformerSpecification.Default> specificationOptional =
           findTransformerSpecification(exchange);
       if (specificationOptional.isEmpty()) {
         log.info("no matched transformer specification.");
         return chain.filter(exchange);
       }
 
-      TransformerSpecification specification = specificationOptional.get();
+      TransformerSpecification.Default specification = specificationOptional.get();
       final Optional<AbstractResourceTransformer<?>> transformer =
           findTransformer(specification.getTransformer());
       if (transformer.isEmpty()) {
@@ -180,14 +180,14 @@ public class ResponseBodyTransformerGatewayFilterFactory
       return NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1;
     }
 
-    private boolean validate(TransformerSpecification t) {
+    private boolean validate(TransformerSpecification.Default t) {
       return t.getHttpMethod() != null
           && t.getHttpPath() != null
           && t.getTransformer() != null
           && t.getResourceType() != null;
     }
 
-    public Optional<TransformerSpecification> findTransformerSpecification(
+    public Optional<TransformerSpecification.Default> findTransformerSpecification(
         ServerWebExchange exchange) {
 
       HttpMethod method = exchange.getRequest().getMethod();
@@ -203,6 +203,6 @@ public class ResponseBodyTransformerGatewayFilterFactory
   @Data
   public static class Config {
 
-    private List<TransformerSpecification> specifications = new ArrayList<>();
+    private List<TransformerSpecification.Default> specifications = new ArrayList<>();
   }
 }

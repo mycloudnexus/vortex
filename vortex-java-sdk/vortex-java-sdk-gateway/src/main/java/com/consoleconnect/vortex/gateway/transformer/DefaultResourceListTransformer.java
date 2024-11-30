@@ -3,10 +3,10 @@ package com.consoleconnect.vortex.gateway.transformer;
 import static com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum.DEFAULT_RESOURCE_LIST;
 
 import com.consoleconnect.vortex.gateway.entity.OrderEntity;
+import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
 import com.consoleconnect.vortex.gateway.model.TransformerContext;
 import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
-import com.consoleconnect.vortex.gateway.model.TransformerSpecificationInternal;
 import com.consoleconnect.vortex.gateway.service.OrderService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.jayway.jsonpath.DocumentContext;
@@ -41,7 +41,8 @@ public class DefaultResourceListTransformer extends AbstractResourceTransformer<
     Map<String, OrderEntity> resources =
         orderService
             .listResourceByType(
-                context.getCustomerId(), context.getSpecification().getResourceType())
+                context.getCustomerId(),
+                ResourceTypeEnum.valueOf(context.getSpecification().getResourceType()))
             .stream()
             .collect(Collectors.toMap(OrderEntity::getResourceId, x -> x));
 
@@ -68,9 +69,7 @@ public class DefaultResourceListTransformer extends AbstractResourceTransformer<
 
   // default filter
   protected boolean filterResource(
-      Set<String> resourceIds,
-      Map<String, Object> dto,
-      TransformerSpecificationInternal<Object> config) {
+      Set<String> resourceIds, Map<String, Object> dto, TransformerSpecification<Object> config) {
     String oId = (String) dto.get(config.getResourceInstanceId());
     if (resourceIds.contains(oId)) {
       return Boolean.FALSE;

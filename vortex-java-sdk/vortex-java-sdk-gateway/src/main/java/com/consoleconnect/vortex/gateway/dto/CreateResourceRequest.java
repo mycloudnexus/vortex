@@ -1,6 +1,5 @@
 package com.consoleconnect.vortex.gateway.dto;
 
-import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateResourceRequest {
   private String customerId;
-  private ResourceTypeEnum resourceType;
+  private String resourceType;
   private String orderId;
   private String resourceId;
 }

@@ -80,7 +80,7 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
     // create a resource for the customer company
     CreateResourceRequest createResourceRequest = new CreateResourceRequest();
     createResourceRequest.setCustomerId(AuthContextConstants.CUSTOMER_COMPANY_ID);
-    createResourceRequest.setResourceType(ResourceTypeEnum.ORDER_PORT);
+    createResourceRequest.setResourceType(ResourceTypeEnum.ORDER_PORT.name());
     createResourceRequest.setOrderId("66e28efa04a4727d5387da10");
     resourceService.create(createResourceRequest);
 
@@ -94,14 +94,14 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
     // create a resource for the customer company
     resourceService.updateResourceId(
         AuthContextConstants.CUSTOMER_COMPANY_ID,
-        ResourceTypeEnum.ORDER_PORT,
+        ResourceTypeEnum.ORDER_PORT.name(),
         "66e28efa04a4727d5387da10",
         "5762451a82894b9b1b1a5dc2");
 
     // create a resource for the mgmt company
     resourceService.updateResourceId(
         AuthContextConstants.MGMT_COMPANY_ID,
-        ResourceTypeEnum.ORDER_PORT,
+        ResourceTypeEnum.ORDER_PORT.name(),
         "66e28efa04a4727d5387da11",
         "5762451a82894b9b1b1a5dc3");
   }
@@ -142,7 +142,7 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
           // the resource should be associated with the customer company
           List<ResourceEntity> resourceEntityList =
               resourceService.findAllByCustomerIdAndResourceType(
-                  AuthContextConstants.CUSTOMER_COMPANY_ID, ResourceTypeEnum.ORDER_PORT);
+                  AuthContextConstants.CUSTOMER_COMPANY_ID, ResourceTypeEnum.ORDER_PORT.name());
 
           Assertions.assertNotNull(resourceEntityList);
           Assertions.assertEquals(1, resourceEntityList.size());
@@ -194,7 +194,7 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
           // the resource should be associated with the mgmt company
           List<ResourceEntity> resourceEntityList =
               resourceService.findAllByCustomerIdAndResourceType(
-                  AuthContextConstants.MGMT_COMPANY_ID, ResourceTypeEnum.ORDER_PORT);
+                  AuthContextConstants.MGMT_COMPANY_ID, ResourceTypeEnum.ORDER_PORT.name());
 
           Assertions.assertNotNull(resourceEntityList);
           Assertions.assertEquals(1, resourceEntityList.size());

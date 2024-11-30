@@ -31,15 +31,14 @@ public class DefaultCreateResourceOrderTransformer extends AbstractResourceTrans
     log.info("create vortex resource order, api property:{}", context.getSpecification());
 
     // order
-    if (context.getSpecification().getResourceType() == ResourceTypeEnum.PORT) {
+    ResourceTypeEnum resourceTypeEnum =
+        ResourceTypeEnum.valueOf(context.getSpecification().getResourceType());
+    if (resourceTypeEnum == ResourceTypeEnum.PORT) {
       orderId = resourceInstanceId;
       resourceInstanceId = null;
     }
     orderService.createOrder(
-        context.getCustomerId(),
-        orderId,
-        context.getSpecification().getResourceType(),
-        resourceInstanceId);
+        context.getCustomerId(), orderId, resourceTypeEnum, resourceInstanceId);
     return responseBody;
   }
 

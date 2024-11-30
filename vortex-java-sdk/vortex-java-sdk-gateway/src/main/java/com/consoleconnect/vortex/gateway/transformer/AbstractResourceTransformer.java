@@ -5,7 +5,6 @@ import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
 import com.consoleconnect.vortex.gateway.model.TransformerContext;
 import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
-import com.consoleconnect.vortex.gateway.model.TransformerSpecificationInternal;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +14,14 @@ import org.springframework.web.server.ServerWebExchange;
 @Slf4j
 public abstract class AbstractResourceTransformer<T> {
 
+  public static final String VAR_RESOURCES = "resources";
+  public static final String VAR_ORDER_IDS = "orderIds";
+  public static final String VAR_RESOURCE_IDS = "resourceIds";
+  public static final String VAR_DATA = "data";
+  public static final String VAR_CUSTOMER_ID = "customerId";
+  public static final String VAR_CUSTOMER_NAME = "customerName";
+  public static final String VAR_IS_MGMT = "isMgmt";
+
   private final Class<T> cls;
 
   protected AbstractResourceTransformer(Class<T> cls) {
@@ -22,15 +29,16 @@ public abstract class AbstractResourceTransformer<T> {
   }
 
   public final byte[] transform(
-      ServerWebExchange exchange, byte[] responseBody, TransformerSpecification specification) {
+      ServerWebExchange exchange,
+      byte[] responseBody,
+      TransformerSpecification.Default specification) {
     log.info("Start to transform,specification:{}", specification);
     long start = System.currentTimeMillis();
     try {
       String customerId = exchange.getAttribute(IamConstants.X_VORTEX_CUSTOMER_ID);
       Boolean isMgt = exchange.getAttribute(IamConstants.X_VORTEX_MGMT_ORG);
 
-      TransformerSpecificationInternal<T> specificationInternal =
-          TransformerSpecificationInternal.of(specification, cls);
+      TransformerSpecification<T> specificationInternal = specification.copy(cls);
       String responseBodyJsonStr = new String(responseBody, StandardCharsets.UTF_8);
       TransformerContext<T> context = new TransformerContext<>();
       context.setCustomerId(customerId);

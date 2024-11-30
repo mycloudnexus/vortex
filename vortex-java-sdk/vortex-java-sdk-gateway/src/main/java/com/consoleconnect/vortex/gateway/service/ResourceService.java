@@ -3,7 +3,6 @@ package com.consoleconnect.vortex.gateway.service;
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.gateway.dto.CreateResourceRequest;
 import com.consoleconnect.vortex.gateway.entity.ResourceEntity;
-import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.repo.ResourceRepository;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -30,13 +29,13 @@ public class ResourceService {
   }
 
   public List<ResourceEntity> findAllByCustomerIdAndResourceType(
-      String customerId, ResourceTypeEnum resourceTypeEnum) {
-    return resourceRepository.findAllByCustomerIdAndResourceType(customerId, resourceTypeEnum);
+      String customerId, String resourceType) {
+    return resourceRepository.findAllByCustomerIdAndResourceType(customerId, resourceType);
   }
 
   @Transactional
   public ResourceEntity updateResourceId(
-      String customerId, ResourceTypeEnum resourceType, String orderId, String resourceId) {
+      String customerId, String resourceType, String orderId, String resourceId) {
     ResourceEntity resource =
         resourceRepository
             .findOneByCustomerIdAndResourceTypeAndOrderId(customerId, resourceType, orderId)
