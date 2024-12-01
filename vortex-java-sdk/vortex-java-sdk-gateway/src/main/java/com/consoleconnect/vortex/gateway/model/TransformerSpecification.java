@@ -5,9 +5,11 @@ import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 
 @Data
+@Slf4j
 public class TransformerSpecification<T> {
 
   public static final String JSON_ROOT = "$";
@@ -36,8 +38,8 @@ public class TransformerSpecification<T> {
     if (this.getOptions() == null) {
       return transformerSpecification;
     }
-    R metadata = JsonToolkit.fromJson(JsonToolkit.toJson(this.getOptions()), cls);
-    transformerSpecification.setOptions(metadata);
+    R renderedOptions = JsonToolkit.fromJson(JsonToolkit.toJson(this.getOptions()), cls);
+    transformerSpecification.setOptions(renderedOptions);
     return transformerSpecification;
   }
 

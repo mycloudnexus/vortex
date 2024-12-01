@@ -3,7 +3,9 @@ package com.consoleconnect.vortex.gateway.toolkit;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.gateway.data.IdObject;
 import com.consoleconnect.vortex.gateway.data.ListResponse;
+import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.fasterxml.jackson.core.type.TypeReference;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +41,7 @@ class SpelExpressionEngineTest {
     // Act
     List<IdObject> filteredResults =
         JsonToolkit.fromJson(
-            JsonToolkit.toJson(SpelExpressionEngine.parse(expression, variables)),
+            JsonToolkit.toJson(SpelExpressionEngine.evaluate(expression, variables)),
             new TypeReference<>() {});
 
     // Verify
@@ -53,7 +55,7 @@ class SpelExpressionEngineTest {
     // verify
     filteredResults =
         JsonToolkit.fromJson(
-            JsonToolkit.toJson(SpelExpressionEngine.parse(expression, variables)),
+            JsonToolkit.toJson(SpelExpressionEngine.evaluate(expression, variables)),
             new TypeReference<>() {});
     Assertions.assertEquals(0, filteredResults.size());
 
@@ -62,8 +64,23 @@ class SpelExpressionEngineTest {
     // verify
     filteredResults =
         JsonToolkit.fromJson(
-            JsonToolkit.toJson(SpelExpressionEngine.parse(expression, variables)),
+            JsonToolkit.toJson(SpelExpressionEngine.evaluate(expression, variables)),
             new TypeReference<>() {});
     Assertions.assertEquals(0, filteredResults.size());
+  }
+
+  @Test
+  void testJsonObject() throws IOException {
+    Map<String, Object> variables = new HashMap<>();
+    variables.put("customerName", "test");
+    variables.put("customerId", "1");
+
+    String expression = AbstractIntegrationTest.readFileToString("spel/evaluate-object.json");
+    Map<String, Object> data =
+        JsonToolkit.fromJson(expression, new TypeReference<Map<String, Object>>() {});
+    Object result = SpelExpressionEngine.evaluate(data, variables);
+    String resultJson = JsonToolkit.toJson(result);
+    Assertions.assertEquals("test", JsonPathToolkit.read(resultJson, "$.name"));
+    Assertions.assertEquals("test", JsonPathToolkit.read(resultJson, "$.company.registeredName"));
   }
 }

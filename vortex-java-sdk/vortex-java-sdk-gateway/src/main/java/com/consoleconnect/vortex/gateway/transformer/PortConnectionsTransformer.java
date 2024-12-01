@@ -4,6 +4,7 @@ import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
 import com.consoleconnect.vortex.gateway.model.TransformerContext;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
+import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.jayway.jsonpath.DocumentContext;
 import java.util.List;
@@ -30,7 +31,7 @@ public class PortConnectionsTransformer extends AbstractResourceTransformer<Obje
    */
   @Override
   public String doTransform(String responseBody, TransformerContext<Object> context) {
-    if (context.isMgmt()) {
+    if (context.getLoginUserType() != UserTypeEnum.CUSTOMER_USER) {
       return responseBody;
     }
 

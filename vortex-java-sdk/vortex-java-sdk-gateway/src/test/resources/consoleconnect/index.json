@@ -18,5 +18,10 @@
     "method": "GET",
     "endpoint": "/api/company/{companyName}/ports",
     "data": "get_api_company_{companyName}_ports.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/company/{companyName}/ports/{portId}/connections",
+    "data": "get_api_company_{companyName}_ports_{portId}_connections.json"
   }
 ]

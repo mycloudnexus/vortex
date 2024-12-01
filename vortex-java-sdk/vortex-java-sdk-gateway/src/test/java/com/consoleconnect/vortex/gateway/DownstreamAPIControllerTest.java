@@ -10,16 +10,21 @@ import com.consoleconnect.vortex.gateway.enums.ResourceTypeEnum;
 import com.consoleconnect.vortex.gateway.repo.ResourceRepository;
 import com.consoleconnect.vortex.gateway.service.ResourceService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
+import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
 import com.consoleconnect.vortex.iam.model.IamConstants;
+import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.test.*;
 import com.consoleconnect.vortex.test.user.TestUser;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -38,6 +43,8 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
 
   @Autowired private ResourceService resourceService;
   @Autowired private ResourceRepository resourceRepository;
+
+  @SpyBean private OrganizationService organizationService;
 
   @Autowired
   public DownstreamAPIControllerTest(WebTestClient webTestClient) {
@@ -356,5 +363,44 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
         HttpMethod.GET,
         String.format("/api/company/%s/ports", AuthContextConstants.MGMT_COMPANY_USERNAME),
         AuthContextConstants.MGMT_ACCESS_TOKEN);
+  }
+
+  @Test
+  @Order(4)
+  void givenConnectionCreated_whenListPorConnections_thenConnectionDestCompanyNameChanged() {
+
+    OrganizationInfo org = new OrganizationInfo();
+    org.setId(AuthContextConstants.CUSTOMER_COMPANY_ID);
+    org.setName("Customer Company");
+    Mockito.doReturn(org).when(organizationService).findOne(Mockito.anyString());
+
+    String portId = UUID.randomUUID().toString();
+    String endpoint =
+        String.format(
+            "/downstream/api/company/%s/ports/%s/connections",
+            AuthContextConstants.MGMT_COMPANY_USERNAME, portId);
+
+    // companyName should be changed to Customer Company
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path(endpoint).build(),
+        200,
+        res -> {
+          Assertions.assertNotNull(res);
+          System.out.println(res);
+          Assertions.assertEquals(
+              org.getName(), JsonPathToolkit.read(res, "$.results[0].destCompany.name"));
+          Assertions.assertEquals(
+              org.getName(),
+              JsonPathToolkit.read(res, "$.results[0].destCompany.company.registeredName"));
+        });
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.GET,
+        String.format(
+            "/api/company/%s/ports/%s/connections",
+            AuthContextConstants.MGMT_COMPANY_USERNAME, portId),
+        AuthContextConstants.CUSTOMER_API_KEY);
   }
 }

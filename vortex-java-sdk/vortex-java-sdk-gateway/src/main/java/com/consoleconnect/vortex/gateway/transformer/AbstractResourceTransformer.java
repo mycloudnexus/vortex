@@ -6,6 +6,7 @@ import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
 import com.consoleconnect.vortex.gateway.model.TransformerContext;
 import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
+import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
@@ -36,24 +37,22 @@ public abstract class AbstractResourceTransformer<T> {
     long start = System.currentTimeMillis();
     try {
       String customerId = exchange.getAttribute(IamConstants.X_VORTEX_CUSTOMER_ID);
-      Boolean isMgt = exchange.getAttribute(IamConstants.X_VORTEX_MGMT_ORG);
+      UserTypeEnum userType = exchange.getAttribute(IamConstants.X_VORTEX_USER_TYPE);
 
       TransformerSpecification<T> specificationInternal = specification.copy(cls);
       String responseBodyJsonStr = new String(responseBody, StandardCharsets.UTF_8);
       TransformerContext<T> context = new TransformerContext<>();
       context.setCustomerId(customerId);
       context.setSpecification(specificationInternal);
-      context.setMgmt(isMgt != null && isMgt);
+      context.setLoginUserType(userType);
 
-      return doTransform(responseBodyJsonStr, context).getBytes(StandardCharsets.UTF_8);
+      byte[] result = doTransform(responseBodyJsonStr, context).getBytes(StandardCharsets.UTF_8);
+      log.info("Transform done, time: {} ms.", System.currentTimeMillis() - start);
+      return result;
     } catch (Exception e) {
-      log.error("{} transform error.", getClass().getSimpleName(), e);
-      throw VortexException.badRequest("Failed to transform", e);
-    } finally {
-      log.info(
-          "{} transform cost: {} ms.",
-          getClass().getSimpleName(),
-          System.currentTimeMillis() - start);
+      String errorMsg = "Failed to transform,error:{}" + e.getMessage();
+      log.error("{}", errorMsg);
+      throw VortexException.badRequest(errorMsg);
     }
   }
 

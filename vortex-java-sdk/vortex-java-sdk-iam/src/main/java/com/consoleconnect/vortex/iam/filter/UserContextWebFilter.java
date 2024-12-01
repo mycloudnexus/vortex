@@ -1,5 +1,6 @@
 package com.consoleconnect.vortex.iam.filter;
 
+import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.model.UserContext;
 import com.consoleconnect.vortex.iam.service.UserContextService;
@@ -37,7 +38,7 @@ public class UserContextWebFilter implements WebFilter, Ordered {
                   userContextService.createUserContext(jwtAuthenticationToken);
 
               String customerId = userContext.getOrgId();
-              if (userContext.isMgmt()
+              if (userContext.getUserType() == UserTypeEnum.MGMT_USER
                   && exchange
                       .getRequest()
                       .getHeaders()
@@ -58,7 +59,9 @@ public class UserContextWebFilter implements WebFilter, Ordered {
               exchange
                   .getAttributes()
                   .put(IamConstants.X_VORTEX_ACCESS_TOKEN, userContext.getAccessToken());
-              exchange.getAttributes().put(IamConstants.X_VORTEX_MGMT_ORG, userContext.isMgmt());
+              exchange
+                  .getAttributes()
+                  .put(IamConstants.X_VORTEX_USER_TYPE, userContext.getUserType());
               return Mono.just(jwtAuthenticationToken);
             })
         .then(chain.filter(exchange));

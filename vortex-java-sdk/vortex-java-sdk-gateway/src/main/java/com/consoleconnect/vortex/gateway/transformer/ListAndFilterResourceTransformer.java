@@ -53,7 +53,7 @@ public class ListAndFilterResourceTransformer
 
   private Object filterData(Object data, String filter, Map<String, Object> variables) {
     variables.put(VAR_DATA, data);
-    return SpelExpressionEngine.parse(filter, variables);
+    return SpelExpressionEngine.evaluate(filter, variables);
   }
 
   public Map<String, Object> buildFilterVariables(String customerId, String resourceType) {
