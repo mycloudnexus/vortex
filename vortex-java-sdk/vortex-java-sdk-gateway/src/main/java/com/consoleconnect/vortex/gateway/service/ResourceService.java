@@ -30,6 +30,9 @@ public class ResourceService {
 
   public List<ResourceEntity> findAllByCustomerIdAndResourceType(
       String customerId, String resourceType) {
+    if (resourceType == null) {
+      return resourceRepository.findAllByCustomerId(customerId);
+    }
     return resourceRepository.findAllByCustomerIdAndResourceType(customerId, resourceType);
   }
 
@@ -42,5 +45,10 @@ public class ResourceService {
             .orElseThrow(() -> VortexException.notFound("Resource not found"));
     resource.setResourceId(resourceId);
     return resourceRepository.save(resource);
+  }
+
+  @Transactional
+  public void updateAll(List<ResourceEntity> resources) {
+    resourceRepository.saveAll(resources);
   }
 }

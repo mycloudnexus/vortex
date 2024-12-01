@@ -2,16 +2,20 @@ package com.consoleconnect.vortex.gateway.transformer;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
+import com.consoleconnect.vortex.gateway.dto.CreateResourceRequest;
+import com.consoleconnect.vortex.gateway.entity.ResourceEntity;
 import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
+import com.consoleconnect.vortex.gateway.model.Hook;
 import com.consoleconnect.vortex.gateway.model.TransformerContext;
 import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
+import com.consoleconnect.vortex.gateway.service.ResourceService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.gateway.toolkit.SpelExpressionEngine;
 import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.model.IamConstants;
+import com.consoleconnect.vortex.iam.service.OrganizationService;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -29,8 +33,14 @@ public abstract class AbstractResourceTransformer<T> {
 
   private final Class<T> cls;
 
-  protected AbstractResourceTransformer(Class<T> cls) {
+  protected final ResourceService resourceService;
+  protected final OrganizationService organizationService;
+
+  protected AbstractResourceTransformer(
+      Class<T> cls, OrganizationService organizationService, ResourceService resourceService) {
     this.cls = cls;
+    this.organizationService = organizationService;
+    this.resourceService = resourceService;
   }
 
   public final byte[] transform(
@@ -49,7 +59,7 @@ public abstract class AbstractResourceTransformer<T> {
       context.setCustomerId(customerId);
       context.setSpecification(specificationInternal);
       context.setLoginUserType(userType);
-
+      context.setVariables(buildVariables(context));
       byte[] result = responseBody;
       if (canTransform(context)) {
         result = doTransform(responseBodyJsonStr, context).getBytes(StandardCharsets.UTF_8);
@@ -82,17 +92,84 @@ public abstract class AbstractResourceTransformer<T> {
       log.info("No condition,transform directly.");
       return true;
     }
-
-    Map<String, Object> variables = new HashMap<>();
-    variables.put(VAR_CUSTOMER_ID, context.getCustomerId());
-    variables.put(VAR_USER_TYPE, context.getLoginUserType().name());
-
-    log.info("Variables:{}", variables);
     log.info("when:{}", context.getSpecification().getWhen());
     Boolean conditionOn =
         SpelExpressionEngine.evaluate(
-            context.getSpecification().getWhen(), variables, Boolean.class);
+            context.getSpecification().getWhen(), context.getVariables(), Boolean.class);
     log.info("Condition on:{}", conditionOn);
     return conditionOn != null && conditionOn;
+  }
+
+  public Map<String, Object> buildVariables(TransformerContext<T> context) {
+    // filter resource by customerId and resourceType
+    List<ResourceEntity> resources =
+        resourceService.findAllByCustomerIdAndResourceType(
+            context.getCustomerId(), context.getSpecification().getResourceType());
+
+    List<String> orderIds =
+        resources.stream().map(ResourceEntity::getOrderId).filter(Objects::nonNull).toList();
+
+    List<String> resourceIds =
+        resources.stream().map(ResourceEntity::getResourceId).filter(Objects::nonNull).toList();
+
+    Map<String, Object> variables = new HashMap<>();
+    variables.put(VAR_ORDER_IDS, orderIds);
+    variables.put(VAR_RESOURCE_IDS, resourceIds);
+    variables.put(VAR_RESOURCES, resources);
+    variables.put(VAR_CUSTOMER_ID, context.getCustomerId());
+    variables.put(VAR_USER_TYPE, context.getLoginUserType().name());
+
+    return variables;
+  }
+
+  protected ResourceEntity createResource(CreateResourceRequest request) {
+    return this.resourceService.create(request);
+  }
+
+  protected void beforeTransform(List<Object> data, TransformerContext<T> context) {
+    // do nothing
+
+  }
+
+  protected void afterTransform(List<Object> data, TransformerContext<T> context) {
+    log.info("afterTransform:{}", data);
+    if (context.getSpecification().getHooks() == null
+        || context.getSpecification().getHooks().isEmpty()) {
+      log.info("No hooks,skip.");
+      return;
+    }
+
+    List<ResourceEntity> resources =
+        (List<ResourceEntity>) context.getVariables().get(VAR_RESOURCES);
+
+    for (Hook.Default hook : context.getSpecification().getHooks()) {
+      log.info("Hook:{}", hook);
+      if ("SYNC_RESOURCE_ID".equalsIgnoreCase(hook.getId())) {
+        log.info("Sync resource id.");
+        for (Object obj : data) {
+          String objStr = JsonToolkit.toJson(obj);
+
+          String orderIdPath = String.format("$.%s", hook.getOptions().get("orderId"));
+          String resourceIdPath = String.format("$.%s", hook.getOptions().get("resourceId"));
+
+          String orderId = JsonPathToolkit.read(objStr, orderIdPath);
+          String resourceId = JsonPathToolkit.read(objStr, resourceIdPath);
+
+          log.info("orderId:{},resourceId:{}", orderId, resourceId);
+          if (orderId != null && resourceId != null) {
+            Optional<ResourceEntity> resourceEntityOptional =
+                resources.stream().filter(r -> orderId.equals(r.getOrderId())).findFirst();
+            if (resourceEntityOptional.isPresent()) {
+              resourceEntityOptional.get().setResourceId(resourceId);
+              log.info("Resource found,update resource id.");
+            } else {
+              log.info("Resource not found,create new one.");
+            }
+          }
+        }
+      }
+
+      resourceService.updateAll(resources);
+    }
   }
 }

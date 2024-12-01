@@ -5,6 +5,7 @@ import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
 import com.consoleconnect.vortex.gateway.model.TransformerContext;
 import com.consoleconnect.vortex.gateway.service.ResourceService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
+import com.consoleconnect.vortex.iam.service.OrganizationService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,11 +15,9 @@ import org.springframework.stereotype.Service;
 public class CreateResourceTransformer
     extends AbstractResourceTransformer<CreateResourceTransformer.Options> {
 
-  protected final ResourceService resourceService;
-
-  public CreateResourceTransformer(ResourceService resourceService) {
-    super(Options.class);
-    this.resourceService = resourceService;
+  public CreateResourceTransformer(
+      OrganizationService organizationService, ResourceService resourceService) {
+    super(Options.class, organizationService, resourceService);
   }
 
   @Override
@@ -37,7 +36,7 @@ public class CreateResourceTransformer
     if (options.getResourceId() != null) {
       request.setResourceId(JsonPathToolkit.read(data, options.getResourceId()));
     }
-    resourceService.create(request);
+    createResource(request);
     return responseBody;
   }
 

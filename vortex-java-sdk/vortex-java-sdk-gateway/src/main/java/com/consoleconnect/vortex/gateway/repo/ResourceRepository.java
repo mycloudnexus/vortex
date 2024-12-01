@@ -10,11 +10,10 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface ResourceRepository
     extends PagingAndSortingRepository<ResourceEntity, UUID>, CrudRepository<ResourceEntity, UUID> {
 
+  List<ResourceEntity> findAllByCustomerId(String customerId);
+
   List<ResourceEntity> findAllByCustomerIdAndResourceType(String customerId, String resourceType);
 
   Optional<ResourceEntity> findOneByCustomerIdAndResourceTypeAndOrderId(
       String customerId, String resourceType, String orderId);
-
-  Optional<ResourceEntity> findOneByCustomerIdAndResourceTypeAndResourceId(
-      String customerId, String resourceType, String resourceId);
 }
