@@ -37,18 +37,19 @@ public class ResourceService {
   }
 
   @Transactional
-  public ResourceEntity updateResourceId(
+  public void updateResourceId(
       String customerId, String resourceType, String orderId, String resourceId) {
     ResourceEntity resource =
         resourceRepository
             .findOneByCustomerIdAndResourceTypeAndOrderId(customerId, resourceType, orderId)
             .orElseThrow(() -> VortexException.notFound("Resource not found"));
     resource.setResourceId(resourceId);
-    return resourceRepository.save(resource);
+    resourceRepository.save(resource);
   }
 
   @Transactional
   public void updateAll(List<ResourceEntity> resources) {
+    log.info("update resources: {}", resources.size());
     resourceRepository.saveAll(resources);
   }
 }

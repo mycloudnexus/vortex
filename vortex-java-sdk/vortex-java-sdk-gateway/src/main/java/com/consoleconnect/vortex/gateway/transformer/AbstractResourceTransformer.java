@@ -122,15 +122,11 @@ public abstract class AbstractResourceTransformer<T> {
     return variables;
   }
 
-  protected ResourceEntity createResource(CreateResourceRequest request) {
-    return this.resourceService.create(request);
+  protected void createResource(CreateResourceRequest request) {
+    this.resourceService.create(request);
   }
 
-  protected void beforeTransform(List<Object> data, TransformerContext<T> context) {
-    // do nothing
-
-  }
-
+  @SuppressWarnings("unchecked")
   protected void afterTransform(List<Object> data, TransformerContext<T> context) {
     log.info("afterTransform:{}", data);
     if (context.getSpecification().getHooks() == null
@@ -145,31 +141,37 @@ public abstract class AbstractResourceTransformer<T> {
     for (Hook.Default hook : context.getSpecification().getHooks()) {
       log.info("Hook:{}", hook);
       if ("SYNC_RESOURCE_ID".equalsIgnoreCase(hook.getId())) {
-        log.info("Sync resource id.");
-        for (Object obj : data) {
-          String objStr = JsonToolkit.toJson(obj);
+        syncResourceId(data, resources, hook);
+      } else {
+        log.info("Unknown hook:{}", hook.getId());
+      }
+    }
+  }
 
-          String orderIdPath = String.format("$.%s", hook.getOptions().get("orderId"));
-          String resourceIdPath = String.format("$.%s", hook.getOptions().get("resourceId"));
+  private void syncResourceId(
+      List<Object> data, List<ResourceEntity> resources, Hook.Default hook) {
+    log.info("Sync resource id.");
+    for (Object obj : data) {
+      String objStr = JsonToolkit.toJson(obj);
 
-          String orderId = JsonPathToolkit.read(objStr, orderIdPath);
-          String resourceId = JsonPathToolkit.read(objStr, resourceIdPath);
+      String orderIdPath = String.format("$.%s", hook.getOptions().get("orderId"));
+      String resourceIdPath = String.format("$.%s", hook.getOptions().get("resourceId"));
 
-          log.info("orderId:{},resourceId:{}", orderId, resourceId);
-          if (orderId != null && resourceId != null) {
-            Optional<ResourceEntity> resourceEntityOptional =
-                resources.stream().filter(r -> orderId.equals(r.getOrderId())).findFirst();
-            if (resourceEntityOptional.isPresent()) {
-              resourceEntityOptional.get().setResourceId(resourceId);
-              log.info("Resource found,update resource id.");
-            } else {
-              log.info("Resource not found,create new one.");
-            }
-          }
+      String orderId = JsonPathToolkit.read(objStr, orderIdPath);
+      String resourceId = JsonPathToolkit.read(objStr, resourceIdPath);
+
+      log.info("orderId:{},resourceId:{}", orderId, resourceId);
+      if (orderId != null && resourceId != null) {
+        Optional<ResourceEntity> resourceEntityOptional =
+            resources.stream().filter(r -> orderId.equals(r.getOrderId())).findFirst();
+        if (resourceEntityOptional.isPresent()) {
+          resourceEntityOptional.get().setResourceId(resourceId);
+          log.info("Resource found,update resource id.");
+        } else {
+          log.info("Resource not found,create new one.");
         }
       }
-
-      resourceService.updateAll(resources);
     }
+    resourceService.updateAll(resources);
   }
 }
