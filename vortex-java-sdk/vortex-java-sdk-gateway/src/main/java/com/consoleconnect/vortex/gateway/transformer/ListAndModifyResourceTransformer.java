@@ -47,7 +47,8 @@ public class ListAndModifyResourceTransformer
             String.format(
                 "%s[%d].%s",
                 context.getSpecification().getResponseDataPath(), i, property.getKey());
-        Object updatingValue = SpelExpressionEngine.evaluate(property.getValue(), variables);
+        Object updatingValue =
+            SpelExpressionEngine.evaluate(property.getValue(), variables, Object.class);
         String mainJson = JsonToolkit.toJson(ctx.read(path));
         String updatingJson = JsonToolkit.toJson(updatingValue);
         String updatedJson =

@@ -58,11 +58,6 @@ public class ResponseBodyTransformerGatewayFilterFactory
             .collect(Collectors.toMap(AbstractResourceTransformer::getTransformerId, identity()));
   }
 
-  public Optional<AbstractResourceTransformer<?>> findTransformer(
-      TransformerIdentityEnum transformer) {
-    return Optional.ofNullable(transformerMap.get(transformer));
-  }
-
   @Override
   public GatewayFilter apply(Config config) {
     return new ResponseBodyTransformerGatewayFilter(config);
@@ -74,7 +69,10 @@ public class ResponseBodyTransformerGatewayFilterFactory
 
     public ResponseBodyTransformerGatewayFilter(Config config) {
       if (config.getSpecifications().stream()
-          .anyMatch(specification -> !this.validate(specification))) {
+          .anyMatch(
+              specification ->
+                  !specification.isValidated()
+                      || !transformerMap.containsKey(specification.getTransformer()))) {
         log.error("transformer specification are invalid.");
         throw new IllegalArgumentException("transformer specification are invalid.");
       }
@@ -84,25 +82,16 @@ public class ResponseBodyTransformerGatewayFilterFactory
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
       // Step 1: match transformer
-      Optional<TransformerSpecification.Default> specificationOptional =
-          findTransformerSpecification(exchange);
-      if (specificationOptional.isEmpty()) {
-        log.info("no matched transformer specification.");
+      List<TransformerSpecification.Default> specifications =
+          findTransformerSpecifications(exchange);
+      if (specifications.isEmpty()) {
+        log.info(
+            "{} {},no matched transformer specification, skip transform.",
+            exchange.getRequest().getMethod(),
+            exchange.getRequest().getURI().getPath());
         return chain.filter(exchange);
       }
 
-      TransformerSpecification.Default specification = specificationOptional.get();
-      final Optional<AbstractResourceTransformer<?>> transformer =
-          findTransformer(specification.getTransformer());
-      if (transformer.isEmpty()) {
-        log.error("no matched transformer, transformer:{}", specification.getTransformer());
-        return chain.filter(exchange);
-      }
-
-      log.info(
-          "matched transformer:{}, specification:{}",
-          transformer.get().getClass().getName(),
-          specification);
       return chain.filter(
           exchange
               .mutate()
@@ -131,10 +120,8 @@ public class ResponseBodyTransformerGatewayFilterFactory
                                       content = extractBody(exchange, content);
 
                                       // Step 4: process the response body with the transformer
-                                      byte[] resBody =
-                                          transformer
-                                              .get()
-                                              .transform(exchange, content, specification);
+
+                                      byte[] resBody = transform(exchange, content, specifications);
 
                                       // Step 5: encode
                                       return bufferFactory().wrap(writeBody(exchange, resBody));
@@ -161,6 +148,21 @@ public class ResponseBodyTransformerGatewayFilterFactory
       return resBytes;
     }
 
+    private byte[] transform(
+        ServerWebExchange exchange,
+        byte[] resBytes,
+        List<TransformerSpecification.Default> specifications) {
+
+      for (TransformerSpecification.Default specification : specifications) {
+        resBytes =
+            transformerMap
+                .get(specification.getTransformer())
+                .transform(exchange, resBytes, specification);
+      }
+
+      return resBytes;
+    }
+
     private byte[] writeBody(ServerWebExchange exchange, byte[] resBytes) {
       List<String> encodingHeaders =
           exchange.getResponse().getHeaders().getOrEmpty(HttpHeaders.CONTENT_ENCODING);
@@ -180,14 +182,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
       return NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1;
     }
 
-    private boolean validate(TransformerSpecification.Default t) {
-      return t.getHttpMethod() != null
-          && t.getHttpPath() != null
-          && t.getTransformer() != null
-          && t.getResourceType() != null;
-    }
-
-    public Optional<TransformerSpecification.Default> findTransformerSpecification(
+    public List<TransformerSpecification.Default> findTransformerSpecifications(
         ServerWebExchange exchange) {
 
       HttpMethod method = exchange.getRequest().getMethod();
@@ -196,7 +191,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
       log.info("findTransformerSpecification method:{}, path:{}", method, path);
       return transformerSpecifications.stream()
           .filter(t -> t.getHttpMethod() == method && pathMatcher.match(t.getHttpPath(), path))
-          .findFirst();
+          .toList();
     }
   }
 

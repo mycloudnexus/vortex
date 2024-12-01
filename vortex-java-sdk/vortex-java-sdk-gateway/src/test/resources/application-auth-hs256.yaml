@@ -35,12 +35,12 @@ spring:
                     response-data-path: $.results
                     options:
                       filter: "#data.?[#resourceIds.contains(id)]"
-                  - http-method: GET
+                  - when: "#userType == 'CUSTOMER_USER'"
+                    http-method: GET
                     http-path: /downstream/api/company/${app.iam.downstream.company.username}/ports/*/connections
                     transformer: RESOURCES_LIST_AND_MODIFY
                     resource-type: CONNECTION
                     response-data-path: $.results
-                    if: "#isMgmtUser"
                     options:
                       destCompany:
                         name: "#customerName"

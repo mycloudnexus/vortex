@@ -51,21 +51,21 @@ public class SpelExpressionEngine {
   }
 
   @SuppressWarnings("unchecked")
-  public static Object evaluate(Object expression, Map<String, Object> context) {
-    if (expression instanceof String) {
-      return evaluate((String) expression, context);
+  public static <T> T evaluate(Object expression, Map<String, Object> context, Class<T> cls) {
+    if (expression instanceof String expressionInString) {
+      return evaluate(expressionInString, context, cls);
     } else if (expression instanceof Map<?, ?>) {
-      return evaluate((Map<String, Object>) expression, context);
+      return evaluate((Map<String, Object>) expression, context, cls);
     } else {
       throw VortexException.badRequest("Unsupported type: " + expression.getClass());
     }
   }
 
-  public static Object evaluate(String expression, Map<String, Object> context) {
+  public static <T> T evaluate(String expression, Map<String, Object> context, Class<T> cls) {
     try {
       return new SpelExpressionParser()
           .parseExpression(expression)
-          .getValue(buildContext(context), Object.class);
+          .getValue(buildContext(context), cls);
     } catch (Exception ex) {
       log.error("Failed to evaluate expression: {}", expression, ex);
       return null;
@@ -73,20 +73,19 @@ public class SpelExpressionEngine {
   }
 
   @SuppressWarnings("unchecked")
-  public static Object evaluate(Map<String, Object> map, Map<String, Object> context) {
+  public static <T> T evaluate(Map<String, Object> map, Map<String, Object> context, Class<T> cls) {
     if (map == null) {
       return null;
     }
     for (Map.Entry<String, Object> v : map.entrySet()) {
-
       if (v.getValue() instanceof String value) {
-        v.setValue(evaluate(value, context));
+        v.setValue(evaluate(value, context, cls));
       } else if (v.getValue() instanceof Map<?, ?>) {
-        v.setValue(evaluate((Map<String, Object>) v.getValue(), context));
+        v.setValue(evaluate((Map<String, Object>) v.getValue(), context, cls));
       } else {
         throw VortexException.badRequest("Unsupported type: " + v.getValue().getClass());
       }
     }
-    return map;
+    return (T) map;
   }
 }

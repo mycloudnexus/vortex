@@ -221,7 +221,7 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
 
   @Test
   @Order(3)
-  void givenOrderCreated_whenListOrder_thenOnlyListOrderAssigned() {
+  void givenOrderCreated_whenCustomerUserListOrder_thenOnlyListOrderAssigned() {
 
     initializeOrderPorts();
 
@@ -252,6 +252,17 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
         HttpMethod.GET,
         String.format("/api/company/%s/ports/orders", AuthContextConstants.MGMT_COMPANY_USERNAME),
         AuthContextConstants.CUSTOMER_API_KEY);
+  }
+
+  @Test
+  @Order(3)
+  void givenOrderCreated_whenMgmtUserListOrder_thenOnlyListOrderAssigned() {
+
+    initializeOrderPorts();
+
+    String endpoint =
+        String.format(
+            "/downstream/api/company/%s/ports/orders", AuthContextConstants.MGMT_COMPANY_USERNAME);
 
     // mgmt user should see its own order
     mgmtUser.requestAndVerify(
@@ -260,7 +271,6 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
         200,
         res -> {
           Assertions.assertNotNull(res);
-          System.out.println(res);
 
           ListResponse listResponse = JsonToolkit.fromJson(res, ListResponse.class);
           Assertions.assertNotNull(listResponse);
@@ -280,7 +290,7 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
 
   @Test
   @Order(4)
-  void givenPortCreated_whenListPorts_thenOnlyListPortAssigned() {
+  void givenPortCreated_whenCustomerUserListPorts_thenOnlyListPortAssigned() {
 
     initializeOrderPorts();
 
@@ -290,19 +300,6 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
 
     // customer should not see any ports until the resource is created
     customerUser.requestAndVerify(
-        HttpMethod.GET,
-        uriBuilder -> uriBuilder.path(endpoint).build(),
-        200,
-        res -> {
-          Assertions.assertNotNull(res);
-
-          ListResponse listResponse = JsonToolkit.fromJson(res, ListResponse.class);
-          Assertions.assertNotNull(listResponse);
-          Assertions.assertEquals(0, listResponse.getResults().size());
-        });
-
-    // mgmt should not see any ports until the resource is created
-    mgmtUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path(endpoint).build(),
         200,
@@ -333,6 +330,39 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
               JsonPathToolkit.read(JsonToolkit.toJson(listResponse.getResults().get(0)), "$.id"));
         });
 
+    // access downstream api via mgmt access token
+    MockServerHelper.verify(
+        2,
+        HttpMethod.GET,
+        String.format("/api/company/%s/ports", AuthContextConstants.MGMT_COMPANY_USERNAME),
+        AuthContextConstants.CUSTOMER_API_KEY);
+  }
+
+  @Test
+  @Order(4)
+  void givenPortCreated_whenMgmtUserListPorts_thenOnlyListPortAssigned() {
+
+    initializeOrderPorts();
+
+    String endpoint =
+        String.format(
+            "/downstream/api/company/%s/ports", AuthContextConstants.MGMT_COMPANY_USERNAME);
+
+    // mgmt should not see any ports until the resource is created
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path(endpoint).build(),
+        200,
+        res -> {
+          Assertions.assertNotNull(res);
+
+          ListResponse listResponse = JsonToolkit.fromJson(res, ListResponse.class);
+          Assertions.assertNotNull(listResponse);
+          Assertions.assertEquals(0, listResponse.getResults().size());
+        });
+
+    createPorts();
+
     // mgmt user should see its own order
     mgmtUser.requestAndVerify(
         HttpMethod.GET,
@@ -340,7 +370,6 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
         200,
         res -> {
           Assertions.assertNotNull(res);
-          System.out.println(res);
 
           ListResponse listResponse = JsonToolkit.fromJson(res, ListResponse.class);
           Assertions.assertNotNull(listResponse);
@@ -355,19 +384,13 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
         2,
         HttpMethod.GET,
         String.format("/api/company/%s/ports", AuthContextConstants.MGMT_COMPANY_USERNAME),
-        AuthContextConstants.CUSTOMER_API_KEY);
-
-    // access downstream api via mgmt access token
-    MockServerHelper.verify(
-        2,
-        HttpMethod.GET,
-        String.format("/api/company/%s/ports", AuthContextConstants.MGMT_COMPANY_USERNAME),
         AuthContextConstants.MGMT_ACCESS_TOKEN);
   }
 
   @Test
   @Order(4)
-  void givenConnectionCreated_whenListPorConnections_thenConnectionDestCompanyNameChanged() {
+  void
+      givenConnectionCreated_whenCustomerUserListPorConnections_thenConnectionDestCompanyNameChanged() {
 
     OrganizationInfo org = new OrganizationInfo();
     org.setId(AuthContextConstants.CUSTOMER_COMPANY_ID);
@@ -387,7 +410,6 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
         200,
         res -> {
           Assertions.assertNotNull(res);
-          System.out.println(res);
           Assertions.assertEquals(
               org.getName(), JsonPathToolkit.read(res, "$.results[0].destCompany.name"));
           Assertions.assertEquals(
@@ -402,5 +424,40 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
             "/api/company/%s/ports/%s/connections",
             AuthContextConstants.MGMT_COMPANY_USERNAME, portId),
         AuthContextConstants.CUSTOMER_API_KEY);
+  }
+
+  @Test
+  @Order(4)
+  void
+      givenConnectionCreated_whenMgmtUserListPorConnections_thenConnectionDestCompanyNameNotChanged() {
+
+    String companyName = "dest company name";
+    String portId = UUID.randomUUID().toString();
+    String endpoint =
+        String.format(
+            "/downstream/api/company/%s/ports/%s/connections",
+            AuthContextConstants.MGMT_COMPANY_USERNAME, portId);
+
+    // companyName should be changed to Customer Company
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path(endpoint).build(),
+        200,
+        res -> {
+          Assertions.assertNotNull(res);
+          Assertions.assertEquals(
+              companyName, JsonPathToolkit.read(res, "$.results[0].destCompany.name"));
+          Assertions.assertEquals(
+              companyName,
+              JsonPathToolkit.read(res, "$.results[0].destCompany.company.registeredName"));
+        });
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.GET,
+        String.format(
+            "/api/company/%s/ports/%s/connections",
+            AuthContextConstants.MGMT_COMPANY_USERNAME, portId),
+        AuthContextConstants.MGMT_ACCESS_TOKEN);
   }
 }
