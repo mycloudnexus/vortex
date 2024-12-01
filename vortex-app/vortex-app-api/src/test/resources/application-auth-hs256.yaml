@@ -12,24 +12,6 @@ spring:
             - RemoveRequestHeader=Authorization
             - name: SetAPIKey
             - name: ResponseBodyTransformer
-              args:
-                specifications:
-                  - http-method: PUT
-                    http-path: /test/api/do
-                    transformer: DEFAULT_RESOURCE_CREATE
-                    resource-type: PORT
-                    resource-instance-id-path: id
-                    response-data-path: $
-                  - http-method: PUT
-                    http-path: /test/api2/do
-                    transformer: DEFAULT_RESOURCE_CREATE
-                    resource-type: L2
-                  - http-method: GET
-                    http-path: /test/api/do
-                    transformer: DEFAULT_RESOURCE_LIST
-                    resource-type: PORT
-                    resource-instance-id-path: id
-                    response-data-path: $.results
 app:
   iam:
     resource-server:
