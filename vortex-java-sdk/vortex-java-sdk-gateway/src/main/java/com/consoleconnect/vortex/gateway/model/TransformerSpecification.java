@@ -2,6 +2,7 @@ package com.consoleconnect.vortex.gateway.model;
 
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
@@ -49,36 +50,19 @@ public class TransformerSpecification<T> {
 
   public boolean isValidated() {
 
-    return required.stream()
-        .allMatch(
-            field -> {
-              if ("HttpMethod".equals(field)) {
-                return this.getHttpMethod() != null;
-              }
-              if ("httpPath".equals(field)) {
-                return this.getHttpPath() != null;
-              }
-              if ("transformer".equals(field)) {
-                return this.getTransformer() != null;
-              }
-              if ("resourceType".equals(field)) {
-                return this.getResourceType() != null;
-              }
-              if ("resourceInstanceId".equals(field)) {
-                return this.getResourceInstanceId() != null;
-              }
-              if ("responseDataPath".equals(field)) {
-                return this.getResponseDataPath() != null;
-              }
-              if ("when".equals(field)) {
-                return this.getWhen() != null;
-              }
+    for (String name : required) {
+      try {
+        Field field = TransformerSpecification.class.getDeclaredField(name);
+        if (field.get(this) == null) {
+          return false;
+        }
+      } catch (Exception e) {
+        log.error("Error validating transformer specification", e);
+        return false;
+      }
+    }
 
-              if (field.startsWith("options")) {
-                return this.getOptions() != null;
-              }
-              return true;
-            });
+    return true;
   }
 
   public static class Default extends TransformerSpecification<Map<String, Object>> {
