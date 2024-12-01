@@ -523,6 +523,11 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
   void
       givenConnectionCreated_whenMgmtUserListPorConnections_thenConnectionDestCompanyNameNotChanged() {
 
+    OrganizationInfo org = new OrganizationInfo();
+    org.setId(AuthContextConstants.CUSTOMER_COMPANY_ID);
+    org.setName("Customer Company");
+    Mockito.doReturn(org).when(organizationService).findOne(Mockito.anyString());
+
     String companyName = "dest company name";
     String portId = UUID.randomUUID().toString();
     String endpoint =
