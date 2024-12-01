@@ -35,6 +35,9 @@ public class ListAndModifyResourceTransformer
     // data to be filtered, it MUST be a list
     List<Object> data = ctx.read(context.getSpecification().getResponseDataPath());
 
+    OrganizationInfo org = organizationService.findOne(context.getCustomerId());
+    context.getVariables().put(VAR_CUSTOMER_NAME, org.getName());
+
     for (int i = 0; i < data.size(); i++) {
       for (Map.Entry<String, Object> property :
           context.getSpecification().getOptions().entrySet()) {
@@ -55,16 +58,6 @@ public class ListAndModifyResourceTransformer
     }
 
     return ctx.jsonString();
-  }
-
-  @Override
-  public Map<String, Object> buildVariables(TransformerContext<Options> context) {
-    // filter resource by customerId and resourceType
-    Map<String, Object> variables = super.buildVariables(context);
-
-    OrganizationInfo org = organizationService.findOne(context.getCustomerId());
-    variables.put(VAR_CUSTOMER_NAME, org.getName());
-    return variables;
   }
 
   @Override
