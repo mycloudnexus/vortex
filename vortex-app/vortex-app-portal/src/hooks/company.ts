@@ -1,4 +1,4 @@
-import { createOrganization, getCompanyList, updateOrganization } from '@/services'
+import { createOrganization, getCompanyList, getOrganizationById, updateOrganization } from '@/services'
 import {
   CreateOrganizationRequestBody,
   CreateOrganizationResponse,
@@ -23,5 +23,16 @@ export const useAddOrganization = () => {
 export const useUpdateOrganization = () => {
   return useMutation<CreateOrganizationResponse, Error, UpdateOrganizationRequestBody>(
     (req: UpdateOrganizationRequestBody) => updateOrganization(req)
+  )
+}
+
+export const useGetOrganizationById = (
+  orgId: string,
+  config: UseQueryOptions<CreateOrganizationResponse, Error> = {}
+): UseQueryResult<CreateOrganizationResponse, Error> => {
+  return useQuery<CreateOrganizationResponse, Error>(
+    ['getCompanyById', orgId],
+    () => getOrganizationById(orgId),
+    config
   )
 }

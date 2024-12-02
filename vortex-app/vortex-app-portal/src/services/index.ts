@@ -54,3 +54,13 @@ export const updateOrganization = async (req: UpdateOrganizationRequestBody): Pr
     throw error
   }
 }
+
+export const getOrganizationById = async (orgId: string): Promise<CreateOrganizationResponse> => {
+  try {
+    const response = await request(`${ORGANIZATIONS}/${orgId}`)
+    return response.data
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
