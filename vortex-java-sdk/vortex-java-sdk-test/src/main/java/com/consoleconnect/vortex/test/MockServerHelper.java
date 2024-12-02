@@ -40,7 +40,7 @@ public class MockServerHelper {
           WireMock.request(data.method.name(), urlPathTemplate(data.endpoint))
               .willReturn(
                   WireMock.aResponse()
-                      .withStatus(200)
+                      .withStatus(HttpStatus.OK.value())
                       .withHeader("Content-Type", "application/json")
                       .withBody(jsonData)));
     }
@@ -67,12 +67,12 @@ public class MockServerHelper {
                 accessToken == null ? absent() : equalTo("Bearer " + accessToken)));
   }
 
-  public static void requestException(HttpMethod httpMethod, HttpStatus httpStatus, String url) {
+  public static void requestException(HttpMethod httpMethod, String url) {
     WireMock.stubFor(
         WireMock.request(httpMethod.name(), urlPathTemplate(url))
             .willReturn(
                 WireMock.aResponse()
-                    .withStatus(httpStatus.value())
+                    .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .withHeader("Content-Type", "application/json")
                     .withBody("{}")));
   }

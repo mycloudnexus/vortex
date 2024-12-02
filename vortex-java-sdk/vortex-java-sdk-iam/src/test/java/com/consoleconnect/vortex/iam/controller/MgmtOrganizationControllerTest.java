@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -789,7 +788,6 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
 
     MockServerHelper.requestException(
         HttpMethod.DELETE,
-        HttpStatus.BAD_REQUEST,
         String.format("/api/v2/users/%s", UriUtils.encodePath(USER_ID, "UTF-8")));
 
     mgmtUser.requestAndVerify(
