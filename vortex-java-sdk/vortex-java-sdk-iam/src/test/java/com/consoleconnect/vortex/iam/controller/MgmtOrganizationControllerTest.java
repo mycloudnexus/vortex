@@ -764,4 +764,21 @@ class MgmtOrganizationControllerTest extends AbstractIntegrationTest {
     MockServerHelper.verify(
         1, HttpMethod.GET, "/api/v2/roles", AuthContextConstants.AUTH0_ACCESS_TOKEN);
   }
+
+  @Test
+  void givenMgmtUser_thenDeleteMember_thenReturn200() {
+    String endpoint = "/mgmt/organizations/{orgId}/members/{memberId}";
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.DELETE,
+        uriBuilder -> uriBuilder.path(endpoint).build(ORG_ID, USER_ID),
+        200,
+        org.junit.jupiter.api.Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.DELETE,
+        String.format("/api/v2/users/%s", UriUtils.encodePath(USER_ID, "UTF-8")),
+        AuthContextConstants.AUTH0_ACCESS_TOKEN);
+  }
 }
