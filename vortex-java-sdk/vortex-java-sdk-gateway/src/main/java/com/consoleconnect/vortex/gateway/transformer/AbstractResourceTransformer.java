@@ -138,7 +138,7 @@ public abstract class AbstractResourceTransformer<T> {
   }
 
   protected void createResource(CreateResourceRequest request) {
-    this.resourceService.create(request);
+    this.resourceService.create(request, null);
   }
 
   @SuppressWarnings("unchecked")

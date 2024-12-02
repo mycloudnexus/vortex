@@ -22,10 +22,7 @@ import lombok.Setter;
     uniqueConstraints = {
       @UniqueConstraint(
           name = "vortex_resource_uni_orderId",
-          columnNames = {"customer_id", "resource_type", "order_id"}),
-      @UniqueConstraint(
-          name = "vortex_resource_uni_resourceId",
-          columnNames = {"customer_id", "resource_type", "resource_id"})
+          columnNames = {"customer_id", "resource_type", "order_id"})
     })
 public class ResourceEntity extends AbstractEntity {
 

@@ -86,12 +86,12 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
     createResourceRequest.setCustomerId(AuthContextConstants.CUSTOMER_COMPANY_ID);
     createResourceRequest.setResourceType(ResourceTypeEnum.ORDER_PORT.name());
     createResourceRequest.setOrderId("66e28efa04a4727d5387da10");
-    resourceService.create(createResourceRequest);
+    resourceService.create(createResourceRequest, null);
 
     // create a resource for the mgmt company
     createResourceRequest.setCustomerId(AuthContextConstants.MGMT_COMPANY_ID);
     createResourceRequest.setOrderId("66e28efa04a4727d5387da11");
-    resourceService.create(createResourceRequest);
+    resourceService.create(createResourceRequest, null);
   }
 
   void createPorts() {
@@ -497,7 +497,7 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
     request.setResourceType(ResourceTypeEnum.ORDER_PORT.name());
     request.setResourceId(portId);
     request.setOrderId(orderId);
-    resourceService.create(request);
+    resourceService.create(request, null);
 
     String endpoint =
         String.format(
@@ -551,7 +551,7 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
     request.setResourceType(ResourceTypeEnum.ORDER_PORT.name());
     request.setResourceId(portId);
     request.setOrderId(orderId);
-    resourceService.create(request);
+    resourceService.create(request, null);
 
     // companyName should be changed to Customer Company
     mgmtUser.requestAndVerify(
