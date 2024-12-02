@@ -37,14 +37,13 @@ public class ListAndModifyResourceTransformer
     context.getVariables().put(VAR_CUSTOMER_NAME, org.getName());
 
     Options options = context.getSpecification().getOptions();
-    if (options.getWhen() != null) {
-      if (Boolean.FALSE.equals(
-          SpelExpressionEngine.evaluate(
-              options.getWhen(), context.getVariables(), Boolean.class))) {
-        log.info("variables:{}", context.getVariables());
-        log.info("Skip modify resource, as when condition is not met,{}", options.getWhen());
-        return responseBody;
-      }
+    if (options.getWhen() != null
+        && Boolean.FALSE.equals(
+            SpelExpressionEngine.evaluate(
+                options.getWhen(), context.getVariables(), Boolean.class))) {
+      log.info("variables:{}", context.getVariables());
+      log.info("Skip modify resource, as when condition is not met,{}", options.getWhen());
+      return responseBody;
     }
 
     for (int i = 0; i < data.size(); i++) {
