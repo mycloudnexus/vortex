@@ -12,7 +12,7 @@ import type { AuthUser } from '@/stores/type'
 const Login = () => {
   const { isLoading, isAuthenticated, loginWithRedirect, user } = useAuth0()
   const navigate = useNavigate()
-  const { organization = ENV.AUTH0_MGMT_ORG_ID } = useParams()
+  const { organization = ENV.RESELLER_AUTH0_MGMT_ORG_ID } = useParams()
   const { setCurrentAuth0User } = useAppStore()
 
   useEffect(() => {

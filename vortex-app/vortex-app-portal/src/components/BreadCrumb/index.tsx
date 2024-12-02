@@ -1,6 +1,5 @@
 import type { ReactElement, ReactNode } from 'react'
 import { Link, matchPath, useLocation } from 'react-router-dom'
-import { startCase } from 'lodash'
 import { styled } from 'styled-components'
 import { Breadcrumb as AntBreadcrumb } from 'antd'
 import type { BreadcrumbItemType, BreadcrumbSeparatorType } from 'antd/es/breadcrumb/Breadcrumb'
@@ -68,14 +67,6 @@ const getBreadCrumbName = (path: string, routes: IRouteObject[]): string => {
   return dynamicSegment ? `${dynamicSegment}` : path
 }
 
-const beautifyBreadcrumbName = (name: string) => {
-  let result = name
-  if (result.startsWith('/')) {
-    result = result.slice(1)
-  }
-  return startCase(result)
-}
-
 const BreadCrumb = (): ReactElement => {
   const location = useLocation()
   const { mainColor } = useAppStore()
@@ -87,7 +78,7 @@ const BreadCrumb = (): ReactElement => {
       : pathSegments.map((_, index) => {
           const url = `/${pathSegments.slice(0, index + 1).join('/')}`
           return {
-            breadcrumbName: beautifyBreadcrumbName(decodeURIComponent(getBreadCrumbName(url, routes))),
+            breadcrumbName: decodeURIComponent(getBreadCrumbName(url, routes)),
             path: url
           }
         })

@@ -11,11 +11,11 @@ window.portalConfig = ENV
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   return (
     <Auth0Provider
-      domain={ENV.AUTH0_DOMAIN!}
-      clientId={ENV.AUTH0_CLIENT_ID!}
+      domain={ENV.RESELLER_AUTH0_DOMAIN!}
+      clientId={ENV.RESELLER_AUTH0_CLIENT_ID!}
       authorizationParams={{
         redirect_uri: window.location.origin,
-        audience: ENV.AUTH0_AUDIENCE
+        audience: ENV.RESELLER_AUTH0_AUDIENCE
       }}
     >
       {children}

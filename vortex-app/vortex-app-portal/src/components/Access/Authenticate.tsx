@@ -1,13 +1,13 @@
-import { Spin } from 'antd'
 import React, { useEffect, ReactNode, useCallback } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { filter, get } from 'lodash'
-import { useGetUserAuthDetail, useGetUserRole } from '@/hooks/user'
-import { getOrg, storeToken } from '@/utils/helpers/token'
+import { Spin } from 'antd'
 import { ENV } from '@/constant'
+import { useGetUserAuthDetail, useGetUserRole } from '@/hooks/user'
 import { useAppStore } from '@/stores/app.store'
 import type { AuthUser } from '@/stores/type'
+import { getOrg, storeToken } from '@/utils/helpers/token'
 
 interface AuthenticateProps {
   children: ReactNode
@@ -43,7 +43,7 @@ const Authenticate = ({ children }: AuthenticateProps) => {
 
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {
-      const org = getOrg() || ENV.AUTH0_MGMT_ORG_ID
+      const org = getOrg() ?? ENV.RESELLER_AUTH0_MGMT_ORG_ID
       navigate(`${org}/login`)
     }
     if (isAuthenticated) {

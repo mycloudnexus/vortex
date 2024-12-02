@@ -37,6 +37,6 @@ describe('Authenticate component', () => {
       .mockReturnValue({ isAuthenticated: false, isLoading: false, getAccessTokenSilently: jest.fn() } as any)
     await act(async () => render(<AuthenticateDom />))
     expect(mockedUsedNavigate).toHaveBeenCalledTimes(1)
-    expect(mockedUsedNavigate).toHaveBeenCalledWith(`${ENV.AUTH0_MGMT_ORG_ID}/login`)
+    expect(mockedUsedNavigate).toHaveBeenCalledWith(`${ENV.RESELLER_AUTH0_MGMT_ORG_ID}/login`)
   })
 })

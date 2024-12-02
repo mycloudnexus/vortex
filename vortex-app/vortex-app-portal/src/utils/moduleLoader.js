@@ -1,8 +1,9 @@
 /* eslint-disable no-undef */
 import React from 'react'
+import { ENV } from '@/constant'
 
 function parseModules() {
-  const modules = process.env.VORTEX_MODULES
+  const modules = ENV.VORTEX_MODULES
   const parsedModules = []
   if (typeof modules === 'string') {
     const urls = modules.split(',')

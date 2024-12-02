@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Headroom from 'react-headroom'
 import { useBoolean } from 'usehooks-ts'
@@ -61,6 +61,83 @@ const Layout = () => {
     }
   }, [isMobile])
 
+  const items = useMemo(
+    () => [
+      {
+        key: '1',
+        icon: <DashboardIcon />,
+        label: 'Dashboard',
+        regex: /^\/dashboard(\/.*)?$/,
+        onClick: () => {
+          navigate('/')
+        }
+      },
+      {
+        key: '2',
+        icon: <DCIcon />,
+        label: 'DC Ports',
+        regex: /^\/ports(\/.*)?$/,
+        children: [
+          {
+            key: '2-1',
+            label: 'View all',
+            regex: /^\/ports(\/.*)?$/,
+            onClick: () => {
+              navigate('/ports')
+            }
+          },
+          {
+            key: '2-2',
+            label: 'Add new',
+            regex: /^\/ports\/create(\/.*)?$/,
+            onClick: () => {
+              navigate('/ports/create')
+            }
+          }
+        ]
+      },
+      {
+        key: '3',
+        icon: <L2Icon />,
+        label: 'L2 Connections'
+      },
+      {
+        key: '4',
+        icon: <L3Icon />,
+        label: 'L3 connections'
+      },
+      {
+        key: '5',
+        icon: <CRIcon />,
+        label: 'CloudRouter'
+      },
+      {
+        key: '6',
+        icon: <SettingIcon />,
+        label: 'Settings',
+        children: [
+          {
+            key: '6-1',
+            label: 'Users',
+            regex: undefined,
+            onClick: () => {
+              navigate('/settings/users')
+            }
+          },
+          {
+            key: '6-2',
+            label: 'Customer company',
+            regex: undefined,
+            onClick: () => {
+              navigate('/settings/customer-company')
+            }
+          }
+        ]
+      }
+    ],
+    [navigate]
+  )
+
   useEffect(() => {
     if (location.pathname === '/') {
       setActiveKeys(['1'])
@@ -69,89 +146,17 @@ const Layout = () => {
     for (const m of items) {
       if (m?.regex?.test(location.pathname)) {
         setActiveKeys([m.key])
-        if (m.children) {
-          setOpenKeys([m.key])
-          for (const c of m.children) {
-            if ((c as any).regex?.test(location.pathname)) {
-              setActiveKeys([m.key, c.key])
-            }
+      }
+      if (m.children) {
+        for (const c of m.children) {
+          if (c?.regex?.test(location.pathname)) {
+            setOpenKeys([m.key])
+            setActiveKeys([m.key, c.key])
           }
         }
       }
     }
-  }, [location])
-
-  const items = [
-    {
-      key: '1',
-      icon: <DashboardIcon />,
-      label: 'Dashboard',
-      regex: /^\/dashboard(\/.*)?$/,
-      onClick: () => {
-        navigate('/')
-      }
-    },
-    {
-      key: '2',
-      icon: <DCIcon />,
-      label: 'DC Ports',
-      regex: /^\/ports(\/.*)?$/,
-      children: [
-        {
-          key: '2-1',
-          label: 'View all',
-          regex: /^\/ports(\/.*)?$/,
-          onClick: () => {
-            navigate('/ports')
-          }
-        },
-        {
-          key: '2-2',
-          label: 'Add new',
-          regex: /^\/ports\/create(\/.*)?$/,
-          onClick: () => {
-            navigate('/ports/create')
-          }
-        }
-      ]
-    },
-    {
-      key: '3',
-      icon: <L2Icon />,
-      label: 'L2 Connections'
-    },
-    {
-      key: '4',
-      icon: <L3Icon />,
-      label: 'L3 connections'
-    },
-    {
-      key: '5',
-      icon: <CRIcon />,
-      label: 'CloudRouter'
-    },
-    {
-      key: '6',
-      icon: <SettingIcon />,
-      label: 'Settings',
-      children: [
-        {
-          key: '6-1',
-          label: 'Users',
-          onClick: () => {
-            navigate('/settings/users')
-          }
-        },
-        {
-          key: '6-2',
-          label: 'Customer company',
-          onClick: () => {
-            navigate('/settings/customer-company')
-          }
-        }
-      ]
-    }
-  ]
+  }, [location, items])
 
   const [navSize, navRef] = useElementSize()
 
