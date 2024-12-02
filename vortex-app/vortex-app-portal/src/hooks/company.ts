@@ -1,9 +1,10 @@
-import { createOrganization, getCompanyList } from '@/services'
+import { createOrganization, getCompanyList, updateOrganization } from '@/services'
 import {
   CreateOrganizationRequestBody,
   CreateOrganizationResponse,
   IOrganization,
-  RequestResponse
+  RequestResponse,
+  UpdateOrganizationRequestBody
 } from '@/services/types'
 import { useMutation, useQuery, UseQueryOptions, UseQueryResult } from 'react-query'
 
@@ -16,5 +17,11 @@ export const useGetCompanyList = (
 export const useAddOrganization = () => {
   return useMutation<CreateOrganizationResponse, Error, CreateOrganizationRequestBody>(
     (req: CreateOrganizationRequestBody) => createOrganization(req)
+  )
+}
+
+export const useUpdateOrganization = () => {
+  return useMutation<CreateOrganizationResponse, Error, UpdateOrganizationRequestBody>(
+    (req: UpdateOrganizationRequestBody) => updateOrganization(req)
   )
 }
