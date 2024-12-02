@@ -37,6 +37,7 @@ const CustomerCompanyModal = <T extends object>({
       open={isModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}
+      destroyOnClose
       {...rest}
     >
       <Form form={form} name={name} initialValues={initialValues} layout='vertical' style={{ padding: '20px' }}>
@@ -87,7 +88,8 @@ const CustomerCompanyModal = <T extends object>({
             {
               validator: async (_, value) => {
                 const exist = companies.some((company) => company.name === value)
-                if (exist) {
+                const isUpdate = type !== 'update'
+                if (exist && isUpdate) {
                   return Promise.reject(new Error('Customer shortname cannot be duplicated'))
                 }
                 return Promise.resolve()
