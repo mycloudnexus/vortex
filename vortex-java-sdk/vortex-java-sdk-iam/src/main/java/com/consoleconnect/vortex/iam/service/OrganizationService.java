@@ -728,8 +728,7 @@ public class OrganizationService {
   }
 
   public void deleteMember(String orgId, String memberId, String requestedBy) {
-    log.info(
-        "updateMemberName, orgId:{}, memberId:{}, requestedBy:{}", orgId, memberId, requestedBy);
+    log.info("deleteMember, orgId:{}, memberId:{}, requestedBy:{}", orgId, memberId, requestedBy);
     Member member =
         findMemberById(orgId, memberId)
             .orElseThrow(() -> VortexException.badRequest("Member not found."));
@@ -737,7 +736,7 @@ public class OrganizationService {
       this.auth0Client.getMgmtClient().users().delete(member.getUserId()).execute().getBody();
     } catch (Auth0Exception e) {
       throw badRequest(
-          e, String.format("Delete member(%s) info for orgId:%s, error:", memberId, orgId));
+          e, String.format("Delete a member(%s) for orgId:%s, error:", memberId, orgId));
     }
   }
 }
