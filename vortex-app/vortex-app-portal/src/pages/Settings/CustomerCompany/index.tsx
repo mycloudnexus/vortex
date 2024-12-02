@@ -241,7 +241,21 @@ const CustomerCompany = (): ReactElement => {
     setIsUpdateModalOpen(false)
   }
   const handleActivate = (key: string): void => {
-    setKey(key)
+    updateMutate(
+      {
+        id: key,
+        request_body: {
+          status: 'ACTIVE'
+        }
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries('getCompanyList')
+          handleSuccessDeactivate('activated')
+        },
+        onError: (error) => console.log(error)
+      }
+    )
   }
   const handleDeactivate = (key: string): void => {
     setKey(key)
@@ -253,9 +267,9 @@ const CustomerCompany = (): ReactElement => {
     }
     showModal()
   }
-  const handleSuccessDeactivate = (): void => {
+  const handleSuccessDeactivate = (status: string): void => {
     api.success({
-      message: 'Customer company name deactivated',
+      message: `Customer company name ${status}.`,
       placement: 'top',
       showProgress: true,
       pauseOnHover: true,
@@ -269,9 +283,22 @@ const CustomerCompany = (): ReactElement => {
 
   const handleDeactivateSubmit = (): void => {
     try {
-      console.log(key, 'inactive')
-      handleCloseDeactivate()
-      handleSuccessDeactivate()
+      updateMutate(
+        {
+          id: key,
+          request_body: {
+            status: 'INACTIVE'
+          }
+        },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries('getCompanyList')
+            handleCloseDeactivate()
+            handleSuccessDeactivate('deactivated')
+          },
+          onError: (error) => console.log(error, 'deactivate error')
+        }
+      )
     } catch (error) {
       console.log(error)
     }

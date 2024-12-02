@@ -47,6 +47,6 @@ export interface RequestResponse<Data> {
 }
 
 export interface UpdateOrganizationRequestBody {
-  request_body: { display_name: string }
+  request_body: { display_name?: string; status?: string }
   id: string
 }

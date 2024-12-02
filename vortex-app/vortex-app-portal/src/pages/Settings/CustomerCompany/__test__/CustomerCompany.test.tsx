@@ -345,4 +345,98 @@ describe('Customer Company Page', () => {
     expect(mockMutate).toHaveBeenCalledTimes(1)
     consoleLogSpy.mockRestore()
   })
+
+  describe('deactivate and activate test', () => {
+    let mockMutate: jest.Mock
+    let consoleLogSpy: jest.SpyInstance
+
+    beforeEach(() => {
+      mockMutate = jest.fn()
+      mockedUseUpdateOrganization.mockReturnValue({ mutate: mockMutate })
+    })
+
+    afterEach(() => {
+      jest.clearAllMocks()
+      if (consoleLogSpy) consoleLogSpy.mockRestore()
+    })
+
+    const openModalAndSubmit = async (
+      getByTestId: (id: string) => HTMLElement,
+      getByText: (id: string) => HTMLElement,
+      modalTestId: string,
+      buttonText: string
+    ) => {
+      const openModalButton = getByTestId(modalTestId)
+      fireEvent.click(openModalButton)
+      await waitFor(() => {
+        expect(getByTestId('deactivate-modal')).toBeInTheDocument()
+      })
+      const submitButton = getByText(buttonText)
+      fireEvent.click(submitButton)
+    }
+
+    const verifyMutateCall = async (expectedId: string, expectedStatus: 'ACTIVE' | 'INACTIVE') => {
+      await waitFor(() => {
+        expect(mockMutate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: expectedId,
+            request_body: {
+              status: expectedStatus
+            }
+          }),
+          expect.objectContaining({
+            onSuccess: expect.any(Function),
+            onError: expect.any(Function)
+          })
+        )
+      })
+      expect(mockMutate).toHaveBeenCalledTimes(1)
+    }
+
+    it('should update the status of the data to INACTIVE', async () => {
+      mockMutate.mockImplementation((_data: unknown, { onSuccess }: { onSuccess: () => void }) => onSuccess())
+      const { getByTestId, getByText } = render(component)
+
+      await openModalAndSubmit(getByTestId, getByText, 'handle-deactivate', 'Yes, continue')
+      await verifyMutateCall('org_D4ES55BSeeAHystq', 'INACTIVE')
+    })
+
+    it('should throw an error when updating to INACTIVE', async () => {
+      mockMutate.mockImplementation((_data: unknown, { onError }: { onError: (err: Error) => void }) =>
+        onError(new Error('Network error'))
+      )
+      consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+      const { getByTestId, getByText } = render(component)
+
+      await openModalAndSubmit(getByTestId, getByText, 'handle-deactivate', 'Yes, continue')
+      await verifyMutateCall('org_D4ES55BSeeAHystq', 'INACTIVE')
+
+      await waitFor(() => {
+        expect(consoleLogSpy).toHaveBeenCalledWith(expect.any(Error), 'deactivate error')
+      })
+    })
+
+    it('should update the status of the data to ACTIVE', async () => {
+      mockMutate.mockImplementation((_data: unknown, { onSuccess }: { onSuccess: () => void }) => onSuccess())
+      const { getByTestId } = render(component)
+
+      fireEvent.click(getByTestId('handle-activate'))
+      await verifyMutateCall('org_AeltT2tTQsOFNvCC', 'ACTIVE')
+    })
+
+    it('should throw an error when updating to ACTIVE', async () => {
+      mockMutate.mockImplementation((_data: unknown, { onError }: { onError: (err: Error) => void }) =>
+        onError(new Error('Network error'))
+      )
+      consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+      const { getByTestId } = render(component)
+
+      fireEvent.click(getByTestId('handle-activate'))
+      await verifyMutateCall('org_AeltT2tTQsOFNvCC', 'ACTIVE')
+
+      await waitFor(() => {
+        expect(consoleLogSpy).toHaveBeenCalledWith(expect.any(Error))
+      })
+    })
+  })
 })
