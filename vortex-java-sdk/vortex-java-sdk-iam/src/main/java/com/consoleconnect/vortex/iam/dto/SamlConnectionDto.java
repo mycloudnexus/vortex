@@ -2,12 +2,13 @@ package com.consoleconnect.vortex.iam.dto;
 
 import java.util.Map;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
 public class SamlConnectionDto {
   private String signInEndpoint;
   private String userIdAttribute;
-  private String signingCert;
+  @ToString.Exclude private String signingCert;
 
   private Boolean debug;
   private Boolean disableSignout;

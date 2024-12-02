@@ -4,7 +4,6 @@
   "display_name": "customer org",
   "metadata": {
     "status": "ACTIVE",
-    "strategy": "samlp",
-    "connectionId": "con_YNEZH8rgZ8sQz9Fq"
+    "strategy": "undefined"
   }
 }

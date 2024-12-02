@@ -1,14 +1,14 @@
 package com.consoleconnect.vortex.iam.controller;
 
+import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.organizations.Invitation;
-import com.auth0.json.mgmt.organizations.Organization;
 import com.auth0.json.mgmt.roles.Role;
 import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
 import com.consoleconnect.vortex.iam.dto.*;
-import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
+import com.consoleconnect.vortex.iam.service.AuthTokenService;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,10 +29,11 @@ import reactor.core.publisher.Mono;
 public class MgmtOrganizationController {
 
   private final OrganizationService service;
+  private final AuthTokenService authTokenService;
 
   @Operation(summary = "List all existing organizations")
   @GetMapping("")
-  public Mono<HttpResponse<Paging<Organization>>> search(
+  public Mono<HttpResponse<Paging<OrganizationInfo>>> search(
       @RequestParam(value = "page", required = false, defaultValue = PagingHelper.DEFAULT_PAGE_STR)
           int page,
       @RequestParam(value = "size", required = false, defaultValue = PagingHelper.DEFAULT_SIZE_STR)
@@ -43,16 +44,17 @@ public class MgmtOrganizationController {
 
   @Operation(summary = "Create a new organization")
   @PostMapping("")
-  public Mono<HttpResponse<Organization>> create(
-      @RequestBody CreateOrganizationDto request, JwtAuthenticationToken authenticationToken) {
+  public Mono<HttpResponse<OrganizationInfo>> create(
+      @Validated @RequestBody CreateOrganizationDto request,
+      JwtAuthenticationToken authenticationToken) {
     return Mono.just(HttpResponse.ok(service.create(request, authenticationToken.getName())));
   }
 
   @Operation(summary = "update a organization")
   @PatchMapping("/{orgId}")
-  public Mono<HttpResponse<Organization>> update(
+  public Mono<HttpResponse<OrganizationInfo>> update(
       @PathVariable String orgId,
-      @RequestBody UpdateOrganizationDto request,
+      @Validated @RequestBody UpdateOrganizationDto request,
       JwtAuthenticationToken authenticationToken) {
     return Mono.just(
         HttpResponse.ok(service.update(orgId, request, authenticationToken.getName())));
@@ -60,19 +62,13 @@ public class MgmtOrganizationController {
 
   @Operation(summary = "Retrieve an organization by id")
   @GetMapping("/{orgId}")
-  public Mono<HttpResponse<Organization>> findOne(@PathVariable String orgId) {
+  public Mono<HttpResponse<OrganizationInfo>> findOne(@PathVariable String orgId) {
     return Mono.just(HttpResponse.ok(service.findOne(orgId)));
-  }
-
-  @Operation(summary = "List all existing connections")
-  @GetMapping("/{orgId}/connection")
-  public Mono<HttpResponse<OrganizationConnection>> getOneConnection(@PathVariable String orgId) {
-    return Mono.just(HttpResponse.ok(service.getOneConnection(orgId)));
   }
 
   @Operation(summary = "Setup a connection")
   @PostMapping("/{orgId}/connection")
-  public Mono<HttpResponse<OrganizationConnection>> createConnection(
+  public Mono<HttpResponse<Connection>> createConnection(
       @PathVariable String orgId,
       @RequestBody CreateConnectionDto request,
       JwtAuthenticationToken authenticationToken) {
@@ -93,18 +89,20 @@ public class MgmtOrganizationController {
 
   @Operation(summary = "Create a new invitation")
   @PostMapping("/{orgId}/invitations")
-  public Mono<HttpResponse<Invitation>> create(
+  public Mono<HttpResponse<Invitation>> createInvitation(
       @PathVariable String orgId,
       @Validated @RequestBody CreateInvitationDto request,
       JwtAuthenticationToken jwtAuthenticationToken) {
+
     return Mono.just(
         HttpResponse.ok(
-            service.createInvitation(orgId, request, jwtAuthenticationToken.getName())));
+            service.createInvitation(
+                orgId, request, authTokenService.getAuthToken(jwtAuthenticationToken))));
   }
 
   @Operation(summary = "Retrieve an invitation by id")
   @GetMapping("/{orgId}/invitations/{invitationId}")
-  public Mono<HttpResponse<Invitation>> findOne(
+  public Mono<HttpResponse<Invitation>> findInvitationById(
       @PathVariable String orgId, @PathVariable String invitationId) {
     return Mono.just(HttpResponse.ok(service.getInvitationById(orgId, invitationId)));
   }
@@ -120,6 +118,25 @@ public class MgmtOrganizationController {
     return Mono.just(HttpResponse.ok(service.listMembers(orgId, page, size)));
   }
 
+  @Operation(summary = "Retrieve a member details")
+  @GetMapping("/{orgId}/members/{memberId}")
+  public Mono<HttpResponse<User>> findMemberById(
+      @PathVariable String orgId, @PathVariable String memberId) {
+    return Mono.just(HttpResponse.ok(service.findUserById(orgId, memberId)));
+  }
+
+  @Operation(summary = "Update a member")
+  @PatchMapping("/{orgId}/members/{memberId}")
+  public Mono<HttpResponse<User>> updateMember(
+      @PathVariable String orgId,
+      @PathVariable String memberId,
+      @RequestBody UpdateMemberDto request,
+      JwtAuthenticationToken jwtAuthenticationToken) {
+    return Mono.just(
+        HttpResponse.ok(
+            service.updateMember(orgId, memberId, request, jwtAuthenticationToken.getName())));
+  }
+
   @Operation(summary = "List all roles")
   @GetMapping("/{orgId}/roles")
   public Mono<HttpResponse<Paging<Role>>> listRoles(
@@ -132,24 +149,14 @@ public class MgmtOrganizationController {
   }
 
   @Operation(summary = "Update a connection")
-  @PatchMapping("/{orgId}/connections")
-  public Mono<HttpResponse<OrganizationConnection>> updateConnection(
+  @PatchMapping("/{orgId}/connection")
+  public Mono<HttpResponse<Connection>> updateConnection(
       @PathVariable String orgId,
       @Valid @RequestBody UpdateConnectionDto updateConnectionDto,
       JwtAuthenticationToken authenticationToken) {
     return Mono.just(
         HttpResponse.ok(
             service.updateConnection(orgId, updateConnectionDto, authenticationToken.getName())));
-  }
-
-  @Operation(summary = "Update the status of a organization")
-  @PatchMapping("/{orgId}/status")
-  public Mono<HttpResponse<Organization>> updateStatus(
-      @PathVariable String orgId,
-      @RequestParam OrgStatusEnum status,
-      JwtAuthenticationToken authenticationToken) {
-    return Mono.just(
-        HttpResponse.ok(service.updateStatus(orgId, status, authenticationToken.getName())));
   }
 
   @Operation(summary = "Revoke an invitation by id")
@@ -171,30 +178,5 @@ public class MgmtOrganizationController {
       JwtAuthenticationToken jwtAuthenticationToken) {
     return Mono.just(
         HttpResponse.ok(service.resetPassword(orgId, memberId, jwtAuthenticationToken.getName())));
-  }
-
-  @Operation(summary = "Block/Unblock a user by id")
-  @PatchMapping("/{orgId}/members/{memberId}/change-status")
-  public Mono<HttpResponse<User>> changeMemberStatus(
-      @PathVariable String orgId,
-      @PathVariable String memberId,
-      @RequestParam boolean block,
-      JwtAuthenticationToken jwtAuthenticationToken) {
-    return Mono.just(
-        HttpResponse.ok(
-            service.changeMemberStatus(orgId, memberId, block, jwtAuthenticationToken.getName())));
-  }
-
-  @Operation(summary = "Update the member info.")
-  @PatchMapping("/{orgId}/members/{memberId}/info")
-  public Mono<HttpResponse<User>> updateMemberInfo(
-      @PathVariable String orgId,
-      @PathVariable String memberId,
-      @Validated @RequestBody MemberInfoUpdateDto memberInfoUpdateDto,
-      JwtAuthenticationToken jwtAuthenticationToken) {
-    return Mono.just(
-        HttpResponse.ok(
-            service.updateMemberInfo(
-                orgId, memberId, memberInfoUpdateDto, jwtAuthenticationToken.getName())));
   }
 }

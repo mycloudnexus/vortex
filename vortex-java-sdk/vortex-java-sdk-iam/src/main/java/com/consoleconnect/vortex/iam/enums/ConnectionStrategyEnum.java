@@ -41,7 +41,7 @@ public enum ConnectionStrategyEnum {
   public static ConnectionStrategyEnum from(String value) {
     Optional<ConnectionStrategyEnum> enumOptional =
         Arrays.stream(ConnectionStrategyEnum.values())
-            .filter(e -> e.value.equals(value))
+            .filter(e -> e.value.equalsIgnoreCase(value))
             .findFirst();
     if (enumOptional.isPresent()) {
       return enumOptional.get();
