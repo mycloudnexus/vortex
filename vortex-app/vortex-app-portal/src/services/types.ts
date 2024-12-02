@@ -24,7 +24,6 @@ interface Colors {
 
 export interface CreateOrganizationRequestBody {
   name: string
-  metadata: MetaData
   display_name: string
 }
 
@@ -45,4 +44,9 @@ export interface RequestResponse<Data> {
   code: number
   message: string
   data: Data
+}
+
+export interface UpdateOrganizationRequestBody {
+  request_body: { display_name?: string; status?: string }
+  id: string
 }
