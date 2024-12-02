@@ -26,7 +26,7 @@ spring:
                     transformer: RESOURCES_LIST_AND_FILTER
                     resource-type: ORDER_PORT
                     response-data-path: $.results
-                    hooks:
+                    after-transform-hooks:
                       - name: Sync resource's resourceId
                         id: SYNC_RESOURCE_ID
                         options:
@@ -43,15 +43,17 @@ spring:
                       filter: "#data.?[#resourceIds.contains(id)]"
                   - when: "#userType == 'CUSTOMER_USER'"
                     http-method: GET
-                    http-path: /downstream/api/company/${app.iam.downstream.company.username}/ports/*/connections
+                    http-path: /downstream/api/company/${app.iam.downstream.company.username}/ports/{portId}/connections
                     transformer: RESOURCES_LIST_AND_MODIFY
-                    resource-type: CONNECTION
+                    resource-type: ORDER_PORT
                     response-data-path: $.results
                     options:
-                      destCompany:
-                        name: "#customerName"
-                        company:
-                          registeredName: "#customerName"
+                      when: "#resourceIds.contains(#portId)"
+                      modifier:
+                        destCompany:
+                          name: "#customerName"
+                          company:
+                            registeredName: "#customerName"
 
 
 app:

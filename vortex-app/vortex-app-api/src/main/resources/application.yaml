@@ -100,7 +100,7 @@ spring:
                     response-data-path: $.results
                     options:
                       filter: "#data.?[#orderIds.contains(id)]"
-                    hooks:
+                    after-transform-hooks:
                       - name: Sync order's resourceId
                         id: SYNC_RESOURCE_ID
                         options:
@@ -117,15 +117,17 @@ spring:
 
                   - when: "#userType == 'CUSTOMER_USER'"
                     http-method: GET
-                    http-path: ${app.iam.downstream.path-prefix}/api/company/${app.iam.downstream.company.username}/ports/*/connections
+                    http-path: ${app.iam.downstream.path-prefix}/api/company/${app.iam.downstream.company.username}/ports/{portId}/connections
                     transformer: RESOURCES_LIST_AND_MODIFY
                     resource-type: L2
                     response-data-path: $.results
                     options:
-                      destCompany:
-                        name: "#customerName"
-                        company:
-                          registeredName: "#customerName"
+                      when: "#resourceIds.contains(#portId)"
+                      modifier:
+                        destCompany:
+                          name: "#customerName"
+                          company:
+                            registeredName: "#customerName"
 
                   - http-method: GET
                     http-path: ${app.iam.downstream.path-prefix}/api/v2/company/${app.iam.downstream.company.username}/connections

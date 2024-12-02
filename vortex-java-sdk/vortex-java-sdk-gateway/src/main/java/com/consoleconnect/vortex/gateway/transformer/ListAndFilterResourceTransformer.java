@@ -30,6 +30,7 @@ public class ListAndFilterResourceTransformer
     DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
     // data to be filtered, it MUST be a list
     List<Object> data = ctx.read(context.getSpecification().getResponseDataPath());
+    context.setData(data);
 
     Object filteredData =
         this.filterData(
@@ -42,7 +43,6 @@ public class ListAndFilterResourceTransformer
       ctx.set(context.getSpecification().getResponseDataPath(), filteredData);
     }
 
-    afterTransform(data, context);
     return ctx.jsonString();
   }
 

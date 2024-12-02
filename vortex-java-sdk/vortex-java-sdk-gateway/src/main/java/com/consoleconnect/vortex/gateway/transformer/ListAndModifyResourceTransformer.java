@@ -10,11 +10,9 @@ import com.consoleconnect.vortex.gateway.toolkit.SpelExpressionEngine;
 import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.jayway.jsonpath.DocumentContext;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -38,9 +36,19 @@ public class ListAndModifyResourceTransformer
     OrganizationInfo org = organizationService.findOne(context.getCustomerId());
     context.getVariables().put(VAR_CUSTOMER_NAME, org.getName());
 
+    Options options = context.getSpecification().getOptions();
+    if (options.getWhen() != null) {
+      if (Boolean.FALSE.equals(
+          SpelExpressionEngine.evaluate(
+              options.getWhen(), context.getVariables(), Boolean.class))) {
+        log.info("variables:{}", context.getVariables());
+        log.info("Skip modify resource, as when condition is not met,{}", options.getWhen());
+        return responseBody;
+      }
+    }
+
     for (int i = 0; i < data.size(); i++) {
-      for (Map.Entry<String, Object> property :
-          context.getSpecification().getOptions().entrySet()) {
+      for (Map.Entry<String, Object> property : options.getModifier().entrySet()) {
         String path =
             String.format(
                 "%s[%d].%s",
@@ -66,6 +74,8 @@ public class ListAndModifyResourceTransformer
   }
 
   @Data
-  @EqualsAndHashCode(callSuper = true)
-  public static class Options extends HashMap<String, Object> {}
+  public static class Options {
+    private String when;
+    private Map<String, Object> modifier;
+  }
 }

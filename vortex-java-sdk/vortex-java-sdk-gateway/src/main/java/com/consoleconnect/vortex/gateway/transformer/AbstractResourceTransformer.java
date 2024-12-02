@@ -17,6 +17,7 @@ import com.consoleconnect.vortex.iam.service.OrganizationService;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
@@ -35,6 +36,8 @@ public abstract class AbstractResourceTransformer<T> {
 
   protected final ResourceService resourceService;
   protected final OrganizationService organizationService;
+
+  private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
   protected AbstractResourceTransformer(
       Class<T> cls, OrganizationService organizationService, ResourceService resourceService) {
@@ -56,6 +59,8 @@ public abstract class AbstractResourceTransformer<T> {
       TransformerSpecification<T> specificationInternal = specification.copy(cls);
       String responseBodyJsonStr = new String(responseBody, StandardCharsets.UTF_8);
       TransformerContext<T> context = new TransformerContext<>();
+      context.setHttpMethod(exchange.getRequest().getMethod());
+      context.setPath(exchange.getRequest().getURI().getPath());
       context.setCustomerId(customerId);
       context.setSpecification(specificationInternal);
       context.setLoginUserType(userType);
@@ -63,6 +68,7 @@ public abstract class AbstractResourceTransformer<T> {
       byte[] result = responseBody;
       if (canTransform(context)) {
         result = doTransform(responseBodyJsonStr, context).getBytes(StandardCharsets.UTF_8);
+        afterTransform(context.getData(), context); // update resource id
       } else {
         log.info("Skip transform,condition not met.");
       }
@@ -102,10 +108,15 @@ public abstract class AbstractResourceTransformer<T> {
 
   public Map<String, Object> buildVariables(TransformerContext<T> context) {
     // filter resource by customerId and resourceType
+    log.info(
+        "build variables:customerId:{},resourceType:{}",
+        context.getCustomerId(),
+        context.getSpecification().getResourceType());
     List<ResourceEntity> resources =
         resourceService.findAllByCustomerIdAndResourceType(
             context.getCustomerId(), context.getSpecification().getResourceType());
 
+    log.info("resources:{}", resources.size());
     List<String> orderIds =
         resources.stream().map(ResourceEntity::getOrderId).filter(Objects::nonNull).toList();
 
@@ -119,6 +130,10 @@ public abstract class AbstractResourceTransformer<T> {
     variables.put(VAR_CUSTOMER_ID, context.getCustomerId());
     variables.put(VAR_USER_TYPE, context.getLoginUserType().name());
 
+    variables.putAll(
+        pathMatcher.extractUriTemplateVariables(
+            context.getSpecification().getHttpPath(), context.getPath()));
+
     return variables;
   }
 
@@ -129,16 +144,26 @@ public abstract class AbstractResourceTransformer<T> {
   @SuppressWarnings("unchecked")
   protected void afterTransform(List<Object> data, TransformerContext<T> context) {
     log.info("afterTransform:{}", data);
-    if (context.getSpecification().getHooks() == null
-        || context.getSpecification().getHooks().isEmpty()) {
-      log.info("No hooks,skip.");
+    if (data == null || data.isEmpty()) {
+      log.info("No data to transform,skip.");
+      return;
+    }
+    if (context.getSpecification().getAfterTransformHooks() == null
+        || context.getSpecification().getAfterTransformHooks().isEmpty()) {
+      log.info("No afterTransform hooks,skip.");
       return;
     }
 
-    List<ResourceEntity> resources =
-        (List<ResourceEntity>) context.getVariables().get(VAR_RESOURCES);
+    runHooks(
+        data,
+        (List<ResourceEntity>) context.getVariables().get(VAR_RESOURCES),
+        context.getSpecification().getAfterTransformHooks());
+  }
 
-    for (Hook.Default hook : context.getSpecification().getHooks()) {
+  private void runHooks(
+      List<Object> data, List<ResourceEntity> resources, List<Hook.Default> hooks) {
+
+    for (Hook.Default hook : hooks) {
       log.info("Hook:{}", hook);
       if ("SYNC_RESOURCE_ID".equalsIgnoreCase(hook.getId())) {
         syncResourceId(data, resources, hook);

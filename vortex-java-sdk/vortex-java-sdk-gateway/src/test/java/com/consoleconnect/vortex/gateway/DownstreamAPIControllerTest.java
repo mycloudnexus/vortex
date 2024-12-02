@@ -353,7 +353,7 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
         200,
         res -> {
           Assertions.assertNotNull(res);
-
+          log.info("Response:{}", res);
           ListResponse listResponse = JsonToolkit.fromJson(res, ListResponse.class);
           Assertions.assertNotNull(listResponse);
           Assertions.assertEquals(1, listResponse.getResults().size());
@@ -489,7 +489,16 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
     org.setName("Customer Company");
     Mockito.doReturn(org).when(organizationService).findOne(Mockito.anyString());
 
+    String orderId = UUID.randomUUID().toString();
     String portId = UUID.randomUUID().toString();
+    // create a order and set the portId
+    CreateResourceRequest request = new CreateResourceRequest();
+    request.setCustomerId(AuthContextConstants.CUSTOMER_COMPANY_ID);
+    request.setResourceType(ResourceTypeEnum.ORDER_PORT.name());
+    request.setResourceId(portId);
+    request.setOrderId(orderId);
+    resourceService.create(request);
+
     String endpoint =
         String.format(
             "/downstream/api/company/%s/ports/%s/connections",
@@ -534,6 +543,15 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
         String.format(
             "/downstream/api/company/%s/ports/%s/connections",
             AuthContextConstants.MGMT_COMPANY_USERNAME, portId);
+
+    String orderId = UUID.randomUUID().toString();
+    // create a order and set the portId
+    CreateResourceRequest request = new CreateResourceRequest();
+    request.setCustomerId(AuthContextConstants.CUSTOMER_COMPANY_ID);
+    request.setResourceType(ResourceTypeEnum.ORDER_PORT.name());
+    request.setResourceId(portId);
+    request.setOrderId(orderId);
+    resourceService.create(request);
 
     // companyName should be changed to Customer Company
     mgmtUser.requestAndVerify(

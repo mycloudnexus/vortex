@@ -22,7 +22,8 @@ public class TransformerSpecification<T> {
   private String resourceInstanceId = "id";
   private String responseDataPath = JSON_ROOT;
 
-  private List<Hook.Default> hooks;
+  private List<Hook.Default> beforeTransformHooks;
+  private List<Hook.Default> afterTransformHooks;
 
   private T options;
 
@@ -39,7 +40,8 @@ public class TransformerSpecification<T> {
     transformerSpecification.setResourceInstanceId(this.getResourceInstanceId());
     transformerSpecification.setResponseDataPath(this.getResponseDataPath());
     transformerSpecification.setWhen(this.getWhen());
-    transformerSpecification.setHooks(this.getHooks());
+    transformerSpecification.setBeforeTransformHooks(this.getBeforeTransformHooks());
+    transformerSpecification.setAfterTransformHooks(this.getAfterTransformHooks());
     if (this.getOptions() == null) {
       return transformerSpecification;
     }

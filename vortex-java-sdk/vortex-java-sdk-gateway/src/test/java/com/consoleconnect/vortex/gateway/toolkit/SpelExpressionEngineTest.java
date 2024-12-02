@@ -100,4 +100,20 @@ class SpelExpressionEngineTest {
         Boolean.TRUE,
         SpelExpressionEngine.evaluate("#customerName == 'admin'", variables, Boolean.class));
   }
+
+  @Test
+  void testArrayContains() {
+    Map<String, Object> variables = new HashMap<>();
+    variables.put("resourceIds", List.of("1", "3", "5", "6"));
+    variables.put("portId", "3");
+
+    Assertions.assertEquals(
+        Boolean.TRUE,
+        SpelExpressionEngine.evaluate("#resourceIds.contains(#portId)", variables, Boolean.class));
+
+    variables.put("portId", "10");
+    Assertions.assertEquals(
+        Boolean.FALSE,
+        SpelExpressionEngine.evaluate("#resourceIds.contains(#portId)", variables, Boolean.class));
+  }
 }
