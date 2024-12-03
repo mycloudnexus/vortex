@@ -16,6 +16,8 @@ import org.springframework.http.HttpMethod;
 @Slf4j
 public class MockServerHelper {
 
+  private MockServerHelper() {}
+
   public static ObjectMapper createObjectMapper() {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -44,15 +46,24 @@ public class MockServerHelper {
   }
 
   public static void verify(int count, String url, String accessToken) {
-    WireMock.verify(
-        count,
-        getRequestedFor(urlEqualTo(url))
-            .withHeader("Authorization", equalTo("Bearer " + accessToken)));
+    verify(count, HttpMethod.GET, url, accessToken);
   }
 
   public static void verify(int count, String url) {
+    verify(count, HttpMethod.GET, url, null);
+  }
 
-    WireMock.verify(count, getRequestedFor(urlEqualTo(url)).withHeader("Authorization", absent()));
+  public static void verify(int count, HttpMethod httpMethod, String url) {
+    verify(count, httpMethod, url, null);
+  }
+
+  public static void verify(int count, HttpMethod httpMethod, String url, String accessToken) {
+    WireMock.verify(
+        count,
+        WireMock.requestedFor(httpMethod.name(), urlEqualTo(url))
+            .withHeader(
+                "Authorization",
+                accessToken == null ? absent() : equalTo("Bearer " + accessToken)));
   }
 
   @Data

@@ -39,7 +39,7 @@ spring:
           time_zone: UTC
   flyway:
     baseline-on-migrate: true
-    enabled: false
+    enabled: true
   cloud:
     gateway:
       default-filters:
@@ -113,6 +113,8 @@ logging:
 
 
 app:
+  loginUrl: ${APP_LOGIN_URL:http://localhost:3000}
+  productName: ${APP_PRODUCT_NAME:Vortex}
   iam:
     auth0:
       mgmt-api:
@@ -125,13 +127,15 @@ app:
     email:
       enabled: ${IAM_EMAIL_ENABLED:false}
       provider: ${IAM_EMAIL_PROVIDER:sendgrid}
+      support-email: ${IAM_EMAIL_SUPPORT_EMAIL:support-email-address}
       send-grid:
         api-key: ${SENDGRID_API_KEY:}
         from:
           name: ${SENDGRID_FROM_NAME:}
           email: ${SENDGRID_FROM_EMAIL:}
         templates:
-          invite-org-member: ${SENDGRID_TEMPLATE_ID_ORG_INVITE:}
+          user-invitation: ${SENDGRID_TEMPLATE_ID_USER_INVITATION:d-46d8384818644728943afbdd13563545}
+          org-member-invitation: ${SENDGRID_TEMPLATE_ID_ORG_MEMBER_INVITATION:}
     resource-server:
       trusted-issuers:
         - issuer: ${IAM_MGMT_TOKEN_ISSUER_URI:https://login.consoleconnect.com/}
@@ -169,6 +173,40 @@ app:
           http-methods:
             - GET
           roles:
+            - ORG_ADMIN
+            - ORG_MEMBER
+        - path: /auth/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+            - ORG_ADMIN
+            - ORG_MEMBER
+        - path: /actuator/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+        - path: ${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
             - ORG_ADMIN
             - ORG_MEMBER
     downstream:

@@ -1,0 +1,10 @@
+{
+  "id": "org_0bcbzk1UJV9CvwAU",
+  "name": "customer-org",
+  "display_name": "customer org",
+  "metadata": {
+    "status": "INACTIVE",
+    "strategy": "samlp",
+    "connectionId": "con_YNEZH8rgZ8sQz9Fq"
+  }
+}

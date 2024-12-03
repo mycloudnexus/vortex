@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @AllArgsConstructor
 @Slf4j
@@ -28,8 +29,7 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
   private final ResourceServerProperty.TrustedIssuer trustedIssuer;
   private final UserRepository userRepository;
 
-  @Override
-  public Mono<Authentication> authenticate(Authentication authentication) {
+  private Authentication doAuthentication(Authentication authentication) {
     String jwtToken = authentication.getCredentials().toString();
 
     Jwt jwt = null;
@@ -38,7 +38,7 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
     } catch (Exception e) {
       log.error("Error: {}", e.getMessage());
       authentication.setAuthenticated(false);
-      return Mono.just(authentication);
+      return authentication;
     }
 
     List<String> resourceRoles =
@@ -51,9 +51,9 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
 
       Optional<UserEntity> userEntity = userRepository.findOneByUserId(userId);
       if (userEntity.isEmpty() || userEntity.get().getStatus() != UserStatusEnum.ACTIVE) {
-        log.error("User is not allowed to access this service {}", userId);
-        authentication.setAuthenticated(false);
-        return Mono.just(authentication);
+        log.warn("User is not allowed to access this service {}", userId);
+        // no need to set authenticated to false, as it will be forbidden without roles
+        return new JwtAuthenticationToken(jwt, List.of());
       }
       if (resourceRoles == null || resourceRoles.isEmpty()) {
         resourceRoles = userEntity.get().getRoles();
@@ -70,6 +70,12 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
             .collect(toSet());
 
     log.info("grantedAuthorities:{}", grantedAuthorities);
-    return Mono.just(new JwtAuthenticationToken(jwt, grantedAuthorities));
+    return new JwtAuthenticationToken(jwt, grantedAuthorities);
+  }
+
+  @Override
+  public Mono<Authentication> authenticate(Authentication authentication) {
+    return Mono.fromCallable(() -> this.doAuthentication(authentication))
+        .subscribeOn(Schedulers.boundedElastic());
   }
 }

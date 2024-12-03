@@ -7,13 +7,12 @@ import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
-import com.consoleconnect.vortex.test.AuthContextConstants;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
 import com.consoleconnect.vortex.test.WebTestClientHelper;
+import com.consoleconnect.vortex.test.user.TestUser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
@@ -31,10 +30,16 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @Slf4j
 class MgmtRoleControllerTest extends AbstractIntegrationTest {
 
-  private final WebTestClientHelper webTestClient;
+  private final TestUser mgmtUser;
+  private final TestUser anonymousUser;
+  private final TestUser customerUser;
 
   public MgmtRoleControllerTest(@Autowired WebTestClient webTestClient) {
-    this.webTestClient = new WebTestClientHelper(webTestClient);
+    WebTestClientHelper webTestClientHelper = new WebTestClientHelper(webTestClient);
+
+    mgmtUser = TestUser.loginAsMgmtUser(webTestClientHelper);
+    customerUser = TestUser.loginAsCustomerUser(webTestClientHelper);
+    anonymousUser = TestUser.login(webTestClientHelper, null);
   }
 
   @BeforeAll
@@ -44,9 +49,9 @@ class MgmtRoleControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenNoAccessToken_whenListRoles_thenReturn401() {
+  void givenAnonymousUser_whenListRoles_thenReturn401() {
 
-    webTestClient.requestAndVerify(
+    anonymousUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/mgmt/roles").build(),
         401,
@@ -54,13 +59,21 @@ class MgmtRoleControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  void givenMgmtAccessToken_whenListRoles_thenReturn200() {
+  void givenCustomerUser_whenListRoles_thenReturn403() {
 
-    webTestClient.requestAndVerify(
+    customerUser.requestAndVerify(
         HttpMethod.GET,
         uriBuilder -> uriBuilder.path("/mgmt/roles").build(),
-        Map.of("Authorization", "Bearer " + AuthContextConstants.MGMT_ACCESS_TOKEN),
-        null,
+        403,
+        Assertions::assertNull);
+  }
+
+  @Test
+  void givenMgmtAccessToken_whenListRoles_thenReturn200() {
+
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/mgmt/roles").build(),
         200,
         response -> {
           HttpResponse<List<RoleEnum>> res =

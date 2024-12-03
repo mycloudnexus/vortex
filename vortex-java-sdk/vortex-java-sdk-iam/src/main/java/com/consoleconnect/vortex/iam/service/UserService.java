@@ -1,6 +1,8 @@
 package com.consoleconnect.vortex.iam.service;
 
 import com.auth0.json.mgmt.organizations.Invitation;
+import com.auth0.json.mgmt.organizations.Invitee;
+import com.auth0.json.mgmt.organizations.Inviter;
 import com.consoleconnect.vortex.cc.ConsoleConnectClient;
 import com.consoleconnect.vortex.cc.model.Member;
 import com.consoleconnect.vortex.cc.model.UserInfo;
@@ -98,8 +100,12 @@ public class UserService {
     userEntity = userRepository.save(userEntity);
     if (dto.isSendEmail()) {
       // send email
-      Invitation invitation = new Invitation(null, null, null);
-      emailService.sendInvitation(invitation);
+      Member loginUser = getMemberById(userContext, userContext.getUserId());
+      Inviter inviter = new Inviter(loginUser.getName());
+      Invitee invitee = new Invitee(member.getEmail());
+      Invitation invitation =
+          new Invitation(inviter, invitee, iamProperty.getAuth0().getApp().getClientId());
+      emailService.sendInvitation(invitation, member.getName(), true);
     }
     return toUser(userEntity, member, userContext.getOrgId());
   }
