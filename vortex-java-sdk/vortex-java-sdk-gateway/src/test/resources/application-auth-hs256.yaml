@@ -41,7 +41,7 @@ spring:
                     response-data-path: $.results
                     options:
                       filter: "#data.?[#resourceIds.contains(id)]"
-                  - when: "#userType == 'CUSTOMER_USER'"
+                  - when: "#customerType == 'CUSTOMER'"
                     http-method: GET
                     http-path: /downstream/api/company/${app.iam.downstream.company.username}/ports/{portId}/connections
                     transformer: RESOURCES_LIST_AND_MODIFY

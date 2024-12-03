@@ -11,6 +11,7 @@ import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
 import com.consoleconnect.vortex.gateway.service.ResourceService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.gateway.toolkit.SpelExpressionEngine;
+import com.consoleconnect.vortex.iam.enums.CustomerTypeEnum;
 import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
@@ -31,6 +32,7 @@ public abstract class AbstractResourceTransformer<T> {
   public static final String VAR_CUSTOMER_NAME = "customerName";
   public static final String VAR_USER_TYPE = "userType";
   public static final String VAR_USER_ID = "userId";
+  public static final String VAR_CUSTOMER_TYPE = "customerType";
 
   private final Class<T> cls;
 
@@ -53,8 +55,11 @@ public abstract class AbstractResourceTransformer<T> {
     log.info("Start to transform,specification:{}", specification);
     long start = System.currentTimeMillis();
     try {
-      String customerId = exchange.getAttribute(IamConstants.X_VORTEX_CUSTOMER_ID);
+
+      String userId = exchange.getAttribute(IamConstants.X_VORTEX_USER_ID);
       UserTypeEnum userType = exchange.getAttribute(IamConstants.X_VORTEX_USER_TYPE);
+      String customerId = exchange.getAttribute(IamConstants.X_VORTEX_CUSTOMER_ID);
+      CustomerTypeEnum customerType = exchange.getAttribute(IamConstants.X_VORTEX_CUSTOMER_TYPE);
 
       TransformerSpecification<T> specificationInternal = specification.copy(cls);
       String responseBodyJsonStr = new String(responseBody, StandardCharsets.UTF_8);
@@ -62,8 +67,10 @@ public abstract class AbstractResourceTransformer<T> {
       context.setHttpMethod(exchange.getRequest().getMethod());
       context.setPath(exchange.getRequest().getURI().getPath());
       context.setCustomerId(customerId);
+      context.setCustomerType(customerType);
       context.setSpecification(specificationInternal);
-      context.setLoginUserType(userType);
+      context.setUserId(userId);
+      context.setUserType(userType);
       context.setVariables(buildVariables(context));
       byte[] result = responseBody;
       if (canTransform(context)) {
@@ -92,7 +99,7 @@ public abstract class AbstractResourceTransformer<T> {
   }
 
   public boolean canTransform(TransformerContext<T> context) {
-    log.info("Check if can transform,context:{}", context.getLoginUserType());
+    log.info("Check if can transform,context:{}", context.getUserType());
     if (context.getSpecification().getWhen() == null
         || context.getSpecification().getWhen().isEmpty()) {
       log.info("No condition,transform directly.");
@@ -127,8 +134,10 @@ public abstract class AbstractResourceTransformer<T> {
     variables.put(VAR_ORDER_IDS, orderIds);
     variables.put(VAR_RESOURCE_IDS, resourceIds);
     variables.put(VAR_RESOURCES, resources);
+    variables.put(VAR_CUSTOMER_TYPE, context.getCustomerType().name());
     variables.put(VAR_CUSTOMER_ID, context.getCustomerId());
-    variables.put(VAR_USER_TYPE, context.getLoginUserType().name());
+    variables.put(VAR_USER_TYPE, context.getUserType().name());
+    variables.put(VAR_USER_ID, context.getUserId());
 
     variables.putAll(
         pathMatcher.extractUriTemplateVariables(

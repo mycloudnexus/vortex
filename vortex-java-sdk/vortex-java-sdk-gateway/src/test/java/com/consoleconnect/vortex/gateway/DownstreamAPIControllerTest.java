@@ -530,6 +530,56 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
   @Test
   @Order(4)
   void
+      givenConnectionCreated_whenMgmtUserListPorConnectionsForACustomer_thenConnectionDestCompanyNameChanged() {
+
+    OrganizationInfo org = new OrganizationInfo();
+    org.setId(AuthContextConstants.CUSTOMER_COMPANY_ID);
+    org.setName("Customer Company");
+    Mockito.doReturn(org).when(organizationService).findOne(Mockito.anyString());
+
+    String orderId = UUID.randomUUID().toString();
+    String portId = UUID.randomUUID().toString();
+    // create a order and set the portId
+    CreateResourceRequest request = new CreateResourceRequest();
+    request.setCustomerId(AuthContextConstants.CUSTOMER_COMPANY_ID);
+    request.setResourceType(ResourceTypeEnum.ORDER_PORT.name());
+    request.setResourceId(portId);
+    request.setOrderId(orderId);
+    resourceService.create(request, null);
+
+    String endpoint =
+        String.format(
+            "/downstream/api/company/%s/ports/%s/connections",
+            AuthContextConstants.MGMT_COMPANY_USERNAME, portId);
+
+    // companyName should be changed to Customer Company
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path(endpoint).build(),
+        Map.of(IamConstants.X_VORTEX_CUSTOMER_ID, AuthContextConstants.CUSTOMER_COMPANY_ID),
+        null,
+        200,
+        res -> {
+          Assertions.assertNotNull(res);
+          Assertions.assertEquals(
+              org.getName(), JsonPathToolkit.read(res, "$.results[0].destCompany.name"));
+          Assertions.assertEquals(
+              org.getName(),
+              JsonPathToolkit.read(res, "$.results[0].destCompany.company.registeredName"));
+        });
+
+    MockServerHelper.verify(
+        1,
+        HttpMethod.GET,
+        String.format(
+            "/api/company/%s/ports/%s/connections",
+            AuthContextConstants.MGMT_COMPANY_USERNAME, portId),
+        AuthContextConstants.MGMT_ACCESS_TOKEN);
+  }
+
+  @Test
+  @Order(4)
+  void
       givenConnectionCreated_whenMgmtUserListPorConnections_thenConnectionDestCompanyNameNotChanged() {
 
     OrganizationInfo org = new OrganizationInfo();
