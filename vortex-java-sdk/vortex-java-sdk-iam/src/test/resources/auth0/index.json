@@ -128,5 +128,10 @@
     "method": "GET",
     "endpoint": "/api/v2/users",
     "data": "get_api_v2_users.json"
+  },
+  {
+    "method": "DELETE",
+    "endpoint": "/api/v2/users/{id}",
+    "data": "delete_api_v2_users_{id}.json"
   }
 ]

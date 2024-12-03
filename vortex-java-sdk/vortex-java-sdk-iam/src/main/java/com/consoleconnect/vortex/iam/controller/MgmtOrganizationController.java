@@ -179,4 +179,14 @@ public class MgmtOrganizationController {
     return Mono.just(
         HttpResponse.ok(service.resetPassword(orgId, memberId, jwtAuthenticationToken.getName())));
   }
+
+  @Operation(summary = "Delete a member.")
+  @DeleteMapping("/{orgId}/members/{memberId}")
+  public Mono<HttpResponse<User>> deleteMember(
+      @PathVariable String orgId,
+      @PathVariable String memberId,
+      JwtAuthenticationToken jwtAuthenticationToken) {
+    service.deleteMember(orgId, memberId, jwtAuthenticationToken.getName());
+    return Mono.just(HttpResponse.ok(null));
+  }
 }
