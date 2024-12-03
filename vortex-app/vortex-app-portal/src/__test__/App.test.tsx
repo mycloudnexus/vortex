@@ -1,7 +1,17 @@
-import App from '@/App'
-import { render } from '@testing-library/react'
+import { render } from '@/test/setupTest'
+import App from '../App'
 
-test('App component', async () => {
-  const { container } = render(<App />)
-  expect(container).toBeInTheDocument()
+jest.mock('@auth0/auth0-react', () => ({
+  Auth0Provider: jest.fn()
+}))
+
+describe('App test', () => {
+  it('renders  app ', () => {
+    const { container } = render(<App />)
+    expect(container).toBeInTheDocument()
+  })
+  it('renders  with favicon ', () => {
+    const { container } = render(<App />)
+    expect(container.firstChild).toMatchSnapshot()
+  })
 })
