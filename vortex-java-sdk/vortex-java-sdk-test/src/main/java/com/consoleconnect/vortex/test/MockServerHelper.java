@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 
 @Slf4j
 public class MockServerHelper {
@@ -39,7 +40,7 @@ public class MockServerHelper {
           WireMock.request(data.method.name(), urlPathTemplate(data.endpoint))
               .willReturn(
                   WireMock.aResponse()
-                      .withStatus(200)
+                      .withStatus(HttpStatus.OK.value())
                       .withHeader("Content-Type", "application/json")
                       .withBody(jsonData)));
     }
@@ -64,6 +65,16 @@ public class MockServerHelper {
             .withHeader(
                 "Authorization",
                 accessToken == null ? absent() : equalTo("Bearer " + accessToken)));
+  }
+
+  public static void requestException(HttpMethod httpMethod, String url) {
+    WireMock.stubFor(
+        WireMock.request(httpMethod.name(), urlPathTemplate(url))
+            .willReturn(
+                WireMock.aResponse()
+                    .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{}")));
   }
 
   @Data
