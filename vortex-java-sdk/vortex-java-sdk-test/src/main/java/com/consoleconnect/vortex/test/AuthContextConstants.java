@@ -3,9 +3,10 @@ package com.consoleconnect.vortex.test;
 public class AuthContextConstants {
   private AuthContextConstants() {}
 
-  public static final String MGMT_COMPANY_ID = "65a4f18aec61ae42ae9606dfx0000";
-
   // reseller-user1
+  public static final String MGMT_COMPANY_ID = "65a4f18aec61ae42ae9606dfx0000";
+  public static final String MGMT_COMPANY_USERNAME = "reseller-username";
+
   public static final String MGMT_USER_NAME = "First Last";
   public static final String MGMT_USER_ID = "5d773f33c7e294000b763af6";
   public static final String MGMT_USERNAME = "user_unique_username";
