@@ -5,10 +5,7 @@ import { ENV } from '@/constant'
 export const useAppStore = create<AppStore>()((set) => ({
   appLogo: '',
   setAppLogo: (appLogo: string) => set({ appLogo }),
-  currentCompany: {
-    id: 'po',
-    name: 'poping'
-  },
+  currentCompany: undefined,
   setCurrentCompany: (currentCompany) => set({ currentCompany }),
   setCurrentAuth0User: (currentAuth0User) => set({ currentAuth0User }),
   currentAuth0User: null,

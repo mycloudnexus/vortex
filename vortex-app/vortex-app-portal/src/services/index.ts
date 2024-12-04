@@ -7,7 +7,7 @@ import {
   UpdateOrganizationRequestBody
 } from './types'
 
-import { DOWNSTREAM_USER_INFO, DOWNSTREAM_DOWNSTREAM_USER_INFO, DOWNSTREAM_USER_ROLE } from './api'
+import { DOWNSTREAM_USER_INFO, DOWNSTREAM_DOWNSTREAM_USER_INFO, DOWNSTREAM_USER_ROLE, ORGANIZATIONS } from './api'
 
 export const getUserDetail = (name: string) => {
   return request(`${DOWNSTREAM_USER_INFO}/${name}`, {})

@@ -32,20 +32,6 @@ const SettingsMenu = () => {
   } = useAppStore()
   const { logout } = useAuth0()
 
-  const items = [
-    {
-      label: 'po',
-      key: '0',
-      onClick: () => {}
-    },
-    {
-      label: 'ping',
-      key: '1',
-      onClick: () => {}
-    }
-  ]
-
-  console.log('cutomerCompaniescutomerCompanies', customerCompanies)
   useEffect(() => {
     if (!userType) return
     if (!downstreamUser && !customerUser) return
@@ -96,6 +82,7 @@ const SettingsMenu = () => {
   const isCustomer = useMemo(() => {
     return userType === 'customer'
   }, [userType])
+  console.log('currentCompany', currentCompany)
 
   useEffect(() => {
     const customerCompany = {
@@ -146,20 +133,22 @@ const SettingsMenu = () => {
         </div>
       ) : (
         <Flex align='center' id='nav' gap={24} justify='flex-end' style={{ color: 'red' }}>
-          <Flex gap={8}>
-            <Text.LightMedium color='rgba(255, 255, 255, 0.50)'>Viewing as</Text.LightMedium>
-            <Dropdown
-              menu={{ items: isCustomer ? [] : companyItems }}
-              getPopupContainer={() => document.getElementById('nav') as HTMLDivElement}
-              overlayClassName={styles.settingDropdown}
-              open
-            >
-              <Flex gap={4}>
-                <Text.LightMedium color='#fff'>{currentCompany?.name}</Text.LightMedium>
-                {!isCustomer && <DownOutlined style={{ color: '#fff', fontSize: 10 }} />}
-              </Flex>
-            </Dropdown>
-          </Flex>
+          {currentCompany?.name && (
+            <Flex gap={8}>
+              <Text.LightMedium color='rgba(255, 255, 255, 0.50)'>Viewing as</Text.LightMedium>
+              <Dropdown
+                menu={{ items: isCustomer ? [] : companyItems }}
+                getPopupContainer={() => document.getElementById('nav') as HTMLDivElement}
+                overlayClassName={styles.settingDropdown}
+              >
+                <Flex gap={4}>
+                  <Text.LightMedium color='#fff'>{currentCompany?.name}</Text.LightMedium>
+                  {!isCustomer && <DownOutlined style={{ color: '#fff', fontSize: 10 }} />}
+                </Flex>
+              </Dropdown>
+            </Flex>
+          )}
+
           <Dropdown
             menu={{ items: [] }}
             getPopupContainer={() => document.getElementById('nav') as HTMLDivElement}
