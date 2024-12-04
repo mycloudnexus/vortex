@@ -1,5 +1,5 @@
 import request from '@/utils/helpers/request'
-import { createOrganization, getCompanyList, updateOrganization } from '..'
+import { createOrganization, getCompanyList, getOrganizationById, updateOrganization } from '..'
 import type {
   CreateOrganizationRequestBody,
   CreateOrganizationResponse,
@@ -152,6 +152,49 @@ describe('Api calls', () => {
       mockGet.mockRejectedValueOnce(mockError)
       await expect(getCompanyList()).rejects.toThrow(mockError)
       expect(mockGet).toHaveBeenCalledWith(ORGANIZATIONS, { params: { size: 200 } })
+    })
+  })
+
+  describe('get organization by id', () => {
+    let mockGetById = jest.fn()
+    beforeEach(() => {
+      jest.clearAllMocks()
+      mockGetById = request as unknown as jest.Mock
+    })
+    it('should get a organization data', async () => {
+      const mockResponse: CreateOrganizationResponse = {
+        code: 200,
+        message: 'OK',
+        data: {
+          name: '',
+          id: 'org_DhF9POe3xRfNvXtO',
+          display_name: '',
+          metadata: {
+            loginType: '',
+            status: '',
+            type: ''
+          },
+          branding: {
+            colors: {
+              page_background: '',
+              primary: ''
+            },
+            logo_url: ''
+          }
+        }
+      }
+      mockGetById.mockResolvedValueOnce({ data: mockResponse })
+      const result = await getOrganizationById('org_DhF9POe3xRfNvXtO')
+
+      expect(mockGetById).toHaveBeenCalledWith(`${ORGANIZATIONS}/org_DhF9POe3xRfNvXtO`)
+      expect(result).toEqual(mockResponse)
+    })
+
+    it('should throw an error', async () => {
+      const mockError = new Error('Network Error')
+      mockGetById.mockRejectedValueOnce(mockError)
+      await expect(getOrganizationById('org_DhF9POe3xRfNvXtO')).rejects.toThrow(mockError)
+      expect(mockGetById).toHaveBeenCalledWith(`${ORGANIZATIONS}/org_DhF9POe3xRfNvXtO`)
     })
   })
 })
