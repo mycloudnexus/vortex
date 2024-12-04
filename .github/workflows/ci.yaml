@@ -44,54 +44,57 @@ jobs:
           gh pr comment $PR_NUMBER -F table.txt
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  java-unit-test:
-    name: java-unit-test
+  unit-test:
+    name: unit-test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-      - name: Set up JDK 17
+      - uses: marceloprado/has-changed-path@v1.0.1
+        id: portal-changed
+        with:
+          paths: vortex-app/vortex-app-portal docker/app-portal
+
+      - if: steps.portal-changed.outputs.changed == 'false'
+        name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: 'zulu' # Alternative distribution options are available.
 
-      - name: Cache Maven packages
+      - if: steps.portal-changed.outputs.changed == 'false'
+        name: Cache Maven packages
         uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build and analyze SDK
+      - if: steps.portal-changed.outputs.changed == 'false'
+        name: Build and analyze SDK
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }} -Dsonar.projectKey=${{ vars.SONAR_JAVA_PROJECT_KEY }}
 
-  nodejs-unit-test:
-    name: nodejs-unit-test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-
-      - name: Setup Node.js
+      - if: steps.portal-changed.outputs.changed == 'true'
+        name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.12
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Get npm cache directory
+      - if: steps.portal-changed.outputs.changed == 'true'
+        name: Get npm cache directory
         id: npm-cache-dir
         shell: bash
         working-directory: ./vortex-app/vortex-app-portal
         run: echo "dir=$(npm config get cache)" >> "${GITHUB_OUTPUT}"
 
-      - uses: actions/cache@v3
+      - if: steps.portal-changed.outputs.changed == 'true'
+        uses: actions/cache@v3
         id: npm-cache  # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
         with:
           path: ${{ steps.npm-cache-dir.outputs.dir }}
@@ -99,23 +102,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - uses: browser-actions/setup-chrome@latest
+      - if: steps.portal-changed.outputs.changed == 'true'
+        uses: browser-actions/setup-chrome@latest
 
-
-      # Skip post-install scripts here, as a malicious
-      # script could steal NODE_AUTH_TOKEN.
-      - run: npm ci --ignore-scripts --legacy-peer-deps
+      - if: steps.portal-changed.outputs.changed == 'true'
+        run: npm ci --ignore-scripts --legacy-peer-deps
         working-directory: ./vortex-app/vortex-app-portal
 
-      - run: npm run build --if-present
+      - if: steps.portal-changed.outputs.changed == 'true'
+        run: npm run build --if-present
         working-directory: ./vortex-app/vortex-app-portal
 
-      # some repos don't have unit test now, need to add in future.
-      - run: CHROME_BIN=$(which chrome) npm run test:coverage -- -u
+      - if: steps.portal-changed.outputs.changed == 'true'
+        run: CHROME_BIN=$(which chrome) npm run test:coverage -- -u
         working-directory: ./vortex-app/vortex-app-portal
 
-      - name: SonarCloud Scan
-        if: success() || failure()
+      - if: steps.portal-changed.outputs.changed == 'true'
+        name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
@@ -124,33 +127,3 @@ jobs:
           args: >
             -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
             -Dsonar.projectKey=${{ vars.SONAR_NODEJS_PROJECT_KEY }}
-  build-docker-images:
-    name: Build docker images
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build vortex-app-api container
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./docker/app-api/Dockerfile
-          push: false
-          tags: cloudnexusopsdockerhub/vortex-app-api:latest
-
-      - name: Build vortex-app-portal container
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./docker/app-portal/Dockerfile
-          push: false
-          tags: cloudnexusopsdockerhub/vortex-app-portal:latest
