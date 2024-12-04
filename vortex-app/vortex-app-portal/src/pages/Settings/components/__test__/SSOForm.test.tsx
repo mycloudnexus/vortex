@@ -11,12 +11,30 @@ global.matchMedia = jest.fn().mockImplementation((query) => ({
   removeListener: jest.fn()
 }))
 jest.mock('@/assets/icon/warning-circle.svg', () => ({
-  ReactComponent: () => <svg data-testid></svg>
+  ReactComponent: () => <svg data-testid='close'></svg>
 }))
+
+const uploadFile = async (uploadInput: HTMLInputElement, file: File) => {
+  expect(uploadInput).toBeInTheDocument()
+  await act(async () => {
+    fireEvent.change(uploadInput, { target: { files: [file] } })
+  })
+  expect(uploadInput.files?.[0]).toEqual(file)
+  expect(uploadInput.files?.[0]?.name).toBe(file.name)
+}
+
+const enterSSOUrl = async (ssoUrlInput: HTMLInputElement, url: string) => {
+  await act(async () => {
+    fireEvent.change(ssoUrlInput, { target: { value: url } })
+  })
+  expect(ssoUrlInput.value).toBe(url)
+}
 
 describe('SSO Form', () => {
   let component: ReactElement
   const queryClient = new QueryClient()
+  const file = new File(['dummy content'], 'example.pem', { type: 'application/x-pem-file' })
+
   beforeEach(() => {
     component = (
       <QueryClientProvider client={queryClient}>
@@ -33,38 +51,21 @@ describe('SSO Form', () => {
 
   it('should fire event on upload', async () => {
     const { getByTestId } = render(component)
-    const file = new File(['dummy content'], 'example.pem', { type: 'application/x-pem-file' })
     const uploadInput = getByTestId('upload-docs') as HTMLInputElement
-
-    expect(uploadInput).toBeInTheDocument()
-
-    await act(async () => {
-      fireEvent.change(uploadInput, { target: { files: [file] } })
-    })
-    expect(uploadInput.files?.[0]).toEqual(file)
-    expect(uploadInput.files?.[0]?.name).toBe('example.pem')
+    await uploadFile(uploadInput, file)
   })
 
-  it('should enable submit button', async () => {
+  it('should enable and disable submit button', async () => {
     const { getByTestId } = render(component)
     const submitButton = getByTestId('submit-button')
-    expect(submitButton).toBeDisabled()
     const ssoUrlInput = getByTestId('sso-url') as HTMLInputElement
-
-    await act(async () => {
-      fireEvent.change(ssoUrlInput, { target: { value: 'https://example.com/sso' } })
-    })
-
-    expect(ssoUrlInput.value).toBe('https://example.com/sso')
-    const file = new File(['dummy content'], 'example.pem', { type: 'application/x-pem-file' })
     const uploadInput = getByTestId('upload-docs') as HTMLInputElement
 
-    expect(uploadInput).toBeInTheDocument()
-    await act(async () => {
-      fireEvent.change(uploadInput, { target: { files: [file] } })
-    })
-    expect(uploadInput.files?.[0]).toEqual(file)
-    expect(uploadInput.files?.[0]?.name).toBe('example.pem')
+    expect(submitButton).toBeDisabled()
+
+    await enterSSOUrl(ssoUrlInput, 'https://example.com/sso')
+    await uploadFile(uploadInput, file)
+
     expect(submitButton).toBeEnabled()
 
     await act(async () => {
@@ -82,29 +83,21 @@ describe('SSO Form', () => {
       </QueryClientProvider>
     )
     const submitButton = getByTestId('submit-button')
-    expect(submitButton).toBeDisabled()
     const ssoUrlInput = getByTestId('sso-url') as HTMLInputElement
-
-    await act(async () => {
-      fireEvent.change(ssoUrlInput, { target: { value: 'https://example.com/sso' } })
-    })
-
-    expect(ssoUrlInput.value).toBe('https://example.com/sso')
-    const file = new File(['dummy content'], 'example.pem', { type: 'application/x-pem-file' })
     const uploadInput = getByTestId('upload-docs') as HTMLInputElement
 
-    expect(uploadInput).toBeInTheDocument()
-    await act(async () => {
-      fireEvent.change(uploadInput, { target: { files: [file] } })
-    })
-    expect(uploadInput.files?.[0]).toEqual(file)
-    expect(uploadInput.files?.[0]?.name).toBe('example.pem')
+    expect(submitButton).toBeDisabled()
+
+    await enterSSOUrl(ssoUrlInput, 'https://example.com/sso')
+    await uploadFile(uploadInput, file)
+
     expect(submitButton).toBeEnabled()
 
     await act(async () => {
       fireEvent.click(submitButton)
     })
     expect(getByTestId('warning-modal')).toBeInTheDocument()
+
     const modalSubmit = getByText(/Yes, continue/i)
     await act(async () => {
       fireEvent.click(modalSubmit)
