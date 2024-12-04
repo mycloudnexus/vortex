@@ -12,6 +12,7 @@ import { StyledInfoTab, StyledTabs, StyledWrapper } from '../components/styled'
 import Text from '@/components/Text'
 import { useLocation } from 'react-router-dom'
 import { useGetOrganizationById } from '@/hooks/company'
+import SSOForm from '../components/SSOForm'
 
 const CompanyPage = (): ReactElement => {
   const { mainColor } = useAppStore()
@@ -21,6 +22,7 @@ const CompanyPage = (): ReactElement => {
     enabled: !!orgId
   })
   const loginMethod = data?.data?.metadata?.loginType
+  console.log(data?.data?.metadata?.loginType)
   const items: TabsProps['items'] = [
     {
       key: '1',
@@ -75,7 +77,7 @@ const CompanyPage = (): ReactElement => {
               Set up SSO
             </Typography.Title>
           </Flex>
-          form
+          <SSOForm loginMethod={data?.data?.metadata?.loginType} />
         </Flex>
       )
     }
