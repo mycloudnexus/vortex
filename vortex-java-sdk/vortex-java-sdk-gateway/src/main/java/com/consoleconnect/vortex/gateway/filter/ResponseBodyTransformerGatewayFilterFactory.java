@@ -2,12 +2,10 @@ package com.consoleconnect.vortex.gateway.filter;
 
 import static java.util.function.Function.identity;
 
-import com.consoleconnect.vortex.gateway.config.TransformerApiProperty;
+import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
+import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
 import com.consoleconnect.vortex.gateway.transformer.AbstractResourceTransformer;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -42,12 +40,12 @@ public class ResponseBodyTransformerGatewayFilterFactory
   private final Map<String, MessageBodyEncoder> messageBodyEncoders;
 
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
-  private final List<AbstractResourceTransformer> transformers;
+  private final Map<TransformerIdentityEnum, AbstractResourceTransformer<?>> transformerMap;
 
   public ResponseBodyTransformerGatewayFilterFactory(
       Set<MessageBodyDecoder> messageBodyDecoders,
       Set<MessageBodyEncoder> messageBodyEncoders,
-      List<AbstractResourceTransformer> transformers) {
+      List<AbstractResourceTransformer<?>> transformers) {
     super(Config.class);
     this.messageBodyDecoders =
         messageBodyDecoders.stream()
@@ -55,14 +53,9 @@ public class ResponseBodyTransformerGatewayFilterFactory
     this.messageBodyEncoders =
         messageBodyEncoders.stream()
             .collect(Collectors.toMap(MessageBodyEncoder::encodingType, identity()));
-    this.transformers = transformers;
-  }
-
-  public Optional<AbstractResourceTransformer> findTransformer(String transformer) {
-    if (transformer == null) {
-      return Optional.empty();
-    }
-    return transformers.stream().filter(t -> t.getTransformerId().equals(transformer)).findFirst();
+    this.transformerMap =
+        transformers.stream()
+            .collect(Collectors.toMap(AbstractResourceTransformer::getTransformerId, identity()));
   }
 
   @Override
@@ -72,39 +65,33 @@ public class ResponseBodyTransformerGatewayFilterFactory
 
   public class ResponseBodyTransformerGatewayFilter implements GatewayFilter, Ordered {
 
-    private Map<String, TransformerApiProperty> apiTransformers;
+    private final List<TransformerSpecification.Default> transformerSpecifications;
 
     public ResponseBodyTransformerGatewayFilter(Config config) {
-      this.apiTransformers =
-          config.getApis().stream()
-              .filter(
-                  t -> {
-                    if (check(t)) {
-                      throw new IllegalArgumentException(
-                          "transformer api properties cannot be empty.");
-                    }
-                    return Boolean.TRUE;
-                  })
-              .collect(
-                  Collectors.toMap(t -> buildFullPath(t.getHttpMethod(), t.getHttpPath()), x -> x));
+      if (config.getSpecifications().stream()
+          .anyMatch(
+              specification ->
+                  !specification.isValidated()
+                      || !transformerMap.containsKey(specification.getTransformer()))) {
+        log.error("transformer specification are invalid.");
+        throw new IllegalArgumentException("transformer specification are invalid.");
+      }
+      transformerSpecifications = config.getSpecifications();
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
       // Step 1: match transformer
-      TransformerApiProperty apiProperty = match(exchange);
-      if (apiProperty == null) {
+      List<TransformerSpecification.Default> specifications =
+          findTransformerSpecifications(exchange);
+      if (specifications.isEmpty()) {
+        log.info(
+            "{} {},no matched transformer specification, skip transform.",
+            exchange.getRequest().getMethod(),
+            exchange.getRequest().getURI().getPath());
         return chain.filter(exchange);
       }
 
-      final Optional<AbstractResourceTransformer> transformer =
-          findTransformer(apiProperty.getTransformer());
-      if (transformer.isEmpty()) {
-        return chain.filter(exchange);
-      }
-
-      log.info(
-          "match transformer:{}, property:{}", transformer.get().getClass().getName(), apiProperty);
       return chain.filter(
           exchange
               .mutate()
@@ -133,10 +120,8 @@ public class ResponseBodyTransformerGatewayFilterFactory
                                       content = extractBody(exchange, content);
 
                                       // Step 4: process the response body with the transformer
-                                      byte[] resBody =
-                                          transformer
-                                              .get()
-                                              .transform(exchange, content, apiProperty);
+
+                                      byte[] resBody = transform(exchange, content, specifications);
 
                                       // Step 5: encode
                                       return bufferFactory().wrap(writeBody(exchange, resBody));
@@ -152,13 +137,29 @@ public class ResponseBodyTransformerGatewayFilterFactory
 
       List<String> encodingHeaders =
           exchange.getResponse().getHeaders().getOrEmpty(HttpHeaders.CONTENT_ENCODING);
+
       for (String encoding : encodingHeaders) {
         MessageBodyDecoder decoder = messageBodyDecoders.get(encoding);
-        log.info("extractBody encoding: {}, decoder{}", encoding, decoder.getClass());
         if (decoder != null) {
+          log.info("extractBody encoding: {}, decoder{}", encoding, decoder.getClass());
           return decoder.decode(resBytes);
         }
       }
+      return resBytes;
+    }
+
+    private byte[] transform(
+        ServerWebExchange exchange,
+        byte[] resBytes,
+        List<TransformerSpecification.Default> specifications) {
+
+      for (TransformerSpecification.Default specification : specifications) {
+        resBytes =
+            transformerMap
+                .get(specification.getTransformer())
+                .transform(exchange, resBytes, specification);
+      }
+
       return resBytes;
     }
 
@@ -181,34 +182,22 @@ public class ResponseBodyTransformerGatewayFilterFactory
       return NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1;
     }
 
-    private boolean check(TransformerApiProperty t) {
-      return t.getHttpMethod() == null
-          || t.getHttpPath() == null
-          || t.getTransformer() == null
-          || t.getResourceType() == null;
-    }
+    public List<TransformerSpecification.Default> findTransformerSpecifications(
+        ServerWebExchange exchange) {
 
-    public TransformerApiProperty match(ServerWebExchange exchange) {
-      String key =
-          buildFullPath(
-              exchange.getRequest().getMethod(), exchange.getRequest().getURI().getPath());
+      HttpMethod method = exchange.getRequest().getMethod();
+      String path = exchange.getRequest().getURI().getPath();
 
-      for (Map.Entry<String, TransformerApiProperty> entry : apiTransformers.entrySet()) {
-        if (pathMatcher.match(entry.getKey(), key)) {
-          return entry.getValue();
-        }
-      }
-      return null;
-    }
-
-    private String buildFullPath(HttpMethod method, String httpPath) {
-      return method.name() + " " + httpPath;
+      log.info("findTransformerSpecification method:{}, path:{}", method, path);
+      return transformerSpecifications.stream()
+          .filter(t -> t.getHttpMethod() == method && pathMatcher.match(t.getHttpPath(), path))
+          .toList();
     }
   }
 
   @Data
   public static class Config {
 
-    private List<TransformerApiProperty> apis;
+    private List<TransformerSpecification.Default> specifications = new ArrayList<>();
   }
 }

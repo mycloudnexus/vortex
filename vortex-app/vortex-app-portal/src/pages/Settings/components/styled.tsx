@@ -1,5 +1,5 @@
 import { styled } from 'styled-components'
-import { Button, Input, Modal, Table, TableProps } from 'antd'
+import { Button, Card, Input, Modal, Table, TableProps, Tabs } from 'antd'
 import { ICompany } from '@/services/types'
 
 export const StyledModal = styled(Modal).withConfig({
@@ -59,5 +59,28 @@ export const StyledTable = styled(Table)<TableProps<ICompany>>`
   }
   .ant-table-thead > tr > th::before {
     width: unset !important;
+  }
+`
+
+export const StyledTabs = styled(Tabs).withConfig({
+  shouldForwardProp: (props) => !props.startsWith('$')
+})<{ $mainColor: string }>`
+  width: 100%;
+  .ant-tabs-tab-active .ant-card {
+    border-color: ${({ $mainColor }) => $mainColor};
+  }
+
+  .ant-card {
+    width: 300px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+  }
+`
+
+export const StyledInfoTab = styled(Card)`
+  border: unset;
+  .ant-card-body {
+    padding: 0;
   }
 `
