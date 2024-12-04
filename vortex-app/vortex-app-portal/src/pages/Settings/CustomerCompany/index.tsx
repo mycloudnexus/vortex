@@ -18,7 +18,9 @@ import { Button, Flex, Form, notification, Space, TableProps, Typography } from 
 import { StyledButton, StyledModal, StyledTable, StyledWrapper } from '../components/styled'
 import CustomerCompanyModal from '../components/CustomerModal'
 import Tooltip from '../components/Tooltip'
-import { useAddOrganization, useGetCompanyList } from '@/hooks/company'
+
+import { useAddOrganization } from '@/hooks/company'
+
 import { useQueryClient } from 'react-query'
 
 const createColumns = (
@@ -133,11 +135,11 @@ const createColumns = (
 
 const CustomerCompany = (): ReactElement => {
   const queryClient = useQueryClient()
+  const { customerCompanies, customerCompaniesLoading } = useAppStore()
   const [addForm] = Form.useForm<CreateOrganizationRequestBody>()
   const [editForm] = Form.useForm()
   const [api, contextHolder] = notification.useNotification({ top: 80 })
-  const { data, isLoading } = useGetCompanyList()
-  const companies = data?.data?.data ?? []
+
   const { mutate } = useAddOrganization()
   const { mainColor } = useAppStore()
   const navigate = useNavigate()
@@ -241,7 +243,7 @@ const CustomerCompany = (): ReactElement => {
     handleOpenDeactivate()
   }
   const handleClick = (): void => {
-    if (companies.length > 200) {
+    if (customerCompanies?.length > 200) {
       return handleOpenWarning()
     }
     showModal()
@@ -290,13 +292,13 @@ const CustomerCompany = (): ReactElement => {
       </Flex>
 
       <StyledTable
-        loading={isLoading}
+        loading={customerCompaniesLoading}
         columns={createColumns(
           (record) => openUpdateModal(record),
           (key) => handleActivate(key),
           (key) => handleDeactivate(key)
         )}
-        dataSource={companies}
+        dataSource={customerCompanies}
         pagination={false}
         onRow={(record) => {
           return {
@@ -319,7 +321,7 @@ const CustomerCompany = (): ReactElement => {
       <CustomerCompanyModal
         title='Add customer company'
         name='add_customer_company'
-        companies={companies}
+        companies={customerCompanies}
         form={addForm}
         handleCancel={handleCancel}
         handleOk={handleOk}
@@ -331,7 +333,7 @@ const CustomerCompany = (): ReactElement => {
       <CustomerCompanyModal
         title='Modify Customer company'
         name='modify_customer_company'
-        companies={companies}
+        companies={customerCompanies}
         form={editForm}
         handleCancel={closeUpdateModal}
         handleOk={handleUpdate}

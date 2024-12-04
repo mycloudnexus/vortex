@@ -1,17 +1,19 @@
 import request from '@/utils/helpers/request'
-import { USER_INFO, AUTH_TOKEN, USER_ROLE, ORGANIZATIONS } from './api'
+
 import { CreateOrganizationRequestBody, CreateOrganizationResponse, IOrganization, RequestResponse } from './types'
 
+import { DOWNSTREAM_USER_INFO, DOWNSTREAM_DOWNSTREAM_USER_INFO, DOWNSTREAM_USER_ROLE, ORGANIZATIONS } from './api'
+
 export const getUserDetail = (name: string) => {
-  return request(`${USER_INFO}/${name}`, {})
+  return request(`${DOWNSTREAM_USER_INFO}/${name}`, {})
 }
 
 export const getUserAuthToken = () => {
-  return request(AUTH_TOKEN)
+  return request(DOWNSTREAM_DOWNSTREAM_USER_INFO)
 }
 
 export const getUserRole = () => {
-  return request(USER_ROLE)
+  return request(DOWNSTREAM_USER_ROLE)
 }
 
 export const getCompanyList = async (): Promise<RequestResponse<IOrganization>> => {

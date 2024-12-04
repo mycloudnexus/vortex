@@ -10,9 +10,12 @@ const request = axios.create({
 })
 request.interceptors.request.use((config: any) => {
   const token = getToken()
+  const currentCompany = window.localStorage.getItem('currentCompany')
   if (token) {
-    // TODO for test , we should replace with CC token currently
     config.headers.Authorization = `Bearer ${getToken()}`
+  }
+  if (currentCompany) {
+    config.headers['x-vortex-customer-org-id'] = currentCompany
   }
   return config
 })
