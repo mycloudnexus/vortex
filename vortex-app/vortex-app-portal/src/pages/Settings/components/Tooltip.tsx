@@ -7,9 +7,8 @@ import { Tooltip as AntTooltip, TooltipProps, Typography } from 'antd'
 type CustomToolTipProps = { message?: string; orgId?: string }
 type TooltipPropsCustom = CustomToolTipProps & TooltipProps
 
+const UrlGenerate = (val: string): string => `${window.location.origin}/${val}/login`
 const Tooltip = ({ message = '', orgId = '', ...rest }: TooltipPropsCustom): ReactElement => {
-  const UrlGenerate = (val: string): string => `${window.location.origin}/${val}/login`
-
   return (
     <AntTooltip
       title={
