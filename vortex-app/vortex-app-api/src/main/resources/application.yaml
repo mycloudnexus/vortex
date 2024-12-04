@@ -39,14 +39,7 @@ spring:
           time_zone: UTC
   flyway:
     baseline-on-migrate: true
-    enabled: false
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${app.iam.jwt.issuer-uri}
-          jwk-set-uri: ${app.iam.jwt.jwk-set-uri}
-          audiences: ${app.iam.jwt.audience}
+    enabled: true
   cloud:
     gateway:
       default-filters:
@@ -54,7 +47,7 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins: ${app.gateway.cors.allowed-origins}
+            allowedOrigins: ${GATEWAY_CORS_ALLOWED_ORIGINS:*}
             allowedHeaders: "*"
             allowedMethods:
               - GET
@@ -64,17 +57,87 @@ spring:
               - OPTIONS
       routes:
         - id: downstream-api
-          uri: ${app.gateway.downstream.base-url}
+          uri: ${app.iam.downstream.base-url}
           predicates:
-            - Path=${app.gateway.downstream.path-prefix}/**
+            - Path=${app.iam.downstream.path-prefix}/**
           filters:
-            - RewritePath=${app.gateway.downstream.path-prefix}/(?<path>.*), /$\{path}
+            - RewritePath=${app.iam.downstream.path-prefix}/(?<path>.*), /$\{path}
             - RemoveRequestHeader=Authorization
             - name: SetAPIKey
+            - name: ResponseBodyTransformer
               args:
-                keyName: Authorization
-                adminKey: Bearer ${app.gateway.downstream.admin-api-key}
-                userKey: Bearer ${app.gateway.downstream.user-api-key}
+                specifications:
+                  - http-method: PUT
+                    http-path: ${app.iam.downstream.path-prefix}/api/company/${app.iam.downstream.company.username}/ports/orders
+                    transformer: RESOURCE_CREATE
+                    resource-type: ORDER_PORT
+                    response-data-path: $
+                    options:
+                      orderId: id
+
+                  - http-method: PUT
+                    http-path: ${app.iam.downstream.path-prefix}/api/v2/company/${app.iam.downstream.company.username}/connections/layer2
+                    transformer: RESOURCE_CREATE
+                    resource-type: L2
+                    response-data-path: $
+                    options:
+                      orderId: id
+                      resourceId: id
+
+                  - http-method: PUT
+                    http-path: ${app.iam.downstream.path-prefix}/api/v2/company/${app.iam.downstream.company.username}/connections/directConnectPartner/*/layer2
+                    transformer: RESOURCE_CREATE
+                    resource-type: L2
+                    response-data-path: $
+                    options:
+                      orderId: id
+                      resourceId: id
+
+                  - http-method: GET
+                    http-path: ${app.iam.downstream.path-prefix}/api/company/${app.iam.downstream.company.username}/ports/orders
+                    transformer: RESOURCES_LIST_AND_FILTER
+                    resource-type: ORDER_PORT
+                    response-data-path: $.results
+                    options:
+                      filter: "#data.?[#orderIds.contains(id)]"
+                    after-transform-hooks:
+                      - name: Sync order's resourceId
+                        id: SYNC_RESOURCE_ID
+                        options:
+                          orderId: id
+                          resourceId: createdPortId
+
+                  - http-method: GET
+                    http-path: ${app.iam.downstream.path-prefix}/api/company/${app.iam.downstream.company.username}/ports
+                    transformer: RESOURCES_LIST_AND_FILTER
+                    resource-type: ORDER_PORT
+                    response-data-path: $.results
+                    options:
+                      filter: "#data.?[#resourceIds.contains(id)]"
+
+                  - when: "#customerType == 'CUSTOMER'"
+                    http-method: GET
+                    http-path: ${app.iam.downstream.path-prefix}/api/company/${app.iam.downstream.company.username}/ports/{portId}/connections
+                    transformer: RESOURCES_LIST_AND_MODIFY
+                    resource-type: L2
+                    response-data-path: $.results
+                    options:
+                      when: "#resourceIds.contains(#portId)"
+                      modifier:
+                        destCompany:
+                          name: "#customerName"
+                          company:
+                            registeredName: "#customerName"
+
+                  - http-method: GET
+                    http-path: ${app.iam.downstream.path-prefix}/api/v2/company/${app.iam.downstream.company.username}/connections
+                    transformer: RESOURCES_LIST_AND_FILTER
+                    resource-type: L2
+                    response-data-path: $.results
+                    options:
+                      filter: "#data.?[#resourceIds.contains(id)]"
+
+
 management:
   endpoint:
     health:
@@ -107,43 +170,56 @@ springdoc:
   servers:
     - url: http://localhost:8000
       description: localhost
+reactor:
+  netty:
+    http:
+      client:
+        secure:
+          logging:
+            maskedHeaders: Authorization
 logging:
   level:
     com.consoleconnect.vortex: DEBUG
     org.springframework.security: DEBUG
     org.springframework.cloud.gateway: DEBUG
 
+
 app:
-  route-adapters:
+  loginUrl: ${APP_LOGIN_URL:http://localhost:3000}
+  productName: ${APP_PRODUCT_NAME:Vortex}
   iam:
-    jwt:
-      issuer-uri: ${IAM_JWT_ISSUER_URI:https://partner.consoleconnect.com}
-      audience: ${IAM_JWT_AUDIENCES:https://partner.consoleconnect.com/api}
-      jwk-set-uri: ${IAM_JWT_JWK_SET_URI:http://localhost:8000/.well-known/jwks.json}
-      custom-claims:
-        orgId: ${IAM_JWT_CUSTOM_CLAIMS_ORG_ID:org_id}
-        roles: ${IAM_JWT_CUSTOM_CLAIMS_ROLES:org_roles}
-        permissions: ${IAM_JWT_CUSTOM_CLAIMS_PERMISSIONS:permissions}
     auth0:
       mgmt-api:
-        domain: ${IAM_AUTH0_MGMT_API_DOMAIN:consoleconnect.auth0.com}
+        domain: ${IAM_AUTH0_MGMT_API_DOMAIN:http://localhost:3032}
         client-id: ${IAM_AUTH0_MGMT_API_CLIENT_ID:mgmt-api-client-id}
         client-secret: ${IAM_AUTH0_MGMT_API_CLIENT_SECRET:mgmt-api-client-secret}
-        audience: ${IAM_AUTH0_MGMT_API_AUDIENCE:https://partner.consoleconnect.com/api}
+        audience: ${IAM_AUTH0_MGMT_API_AUDIENCE:http://localhost:3032/api}
       app:
         client-id: ${IAM_AUTH0_APP_CLIENT_ID:app-client-id}
-      mgmt-org-id: ${IAM_AUTH0_MGMT_ORG_ID:}
     email:
       enabled: ${IAM_EMAIL_ENABLED:false}
       provider: ${IAM_EMAIL_PROVIDER:sendgrid}
+      support-email: ${IAM_EMAIL_SUPPORT_EMAIL:support-email-address}
       send-grid:
         api-key: ${SENDGRID_API_KEY:}
         from:
           name: ${SENDGRID_FROM_NAME:}
           email: ${SENDGRID_FROM_EMAIL:}
         templates:
-          invite-org-member: ${SENDGRID_TEMPLATE_ID_ORG_INVITE:}
+          user-invitation: ${SENDGRID_TEMPLATE_ID_USER_INVITATION:d-46d8384818644728943afbdd13563545}
+          org-member-invitation: ${SENDGRID_TEMPLATE_ID_ORG_MEMBER_INVITATION:}
     resource-server:
+      trusted-issuers:
+        - issuer: ${IAM_MGMT_TOKEN_ISSUER_URI:https://login.consoleconnect.com/}
+          mgmt: true
+          user-id-prefix: ${IAM_MGMT_TOKEN_ISSUER_USER_ID_PREFIX:auth0|}
+          default-roles:
+            - PLATFORM_ADMIN
+          default-org-id: ${GATEWAY_DOWN_STREAM_COMPANY_ID:65a4f18aec61ae42ae9606dfx0000}
+        - issuer: ${IAM_CUSTOMER_TOKEN_ISSUER_URI:https://vortex-dev.au.auth0.com/}
+          mgmt: false
+          default-roles:
+            - ORG_MEMBER
       path-permissions:
         - path: /mgmt/**
           http-methods:
@@ -171,18 +247,45 @@ app:
           roles:
             - ORG_ADMIN
             - ORG_MEMBER
+        - path: /auth/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+            - ORG_ADMIN
+            - ORG_MEMBER
+        - path: /actuator/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+        - path: ${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}/**
+          http-methods:
+            - GET
+            - POST
+            - PATCH
+            - PUT
+            - DELETE
+          roles:
+            - PLATFORM_ADMIN
+            - PLATFORM_MEMBER
+            - ORG_ADMIN
+            - ORG_MEMBER
     downstream:
-      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
-      admin-api-key-name: Authorization
-      admin-api-key: Bearer ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
-      role: ${IAM_DOWN_STREAM_VORTEX_ROLE:VORTEX_ADMIN}
-      company-username: ${IAM_DOWN_STREAM_COMPANY_USERNAME:test}
-      role-endpoint: ${IAM_DOWN_STREAM_ROLE_PATH:/api/company/%s/memberships/%s/roles/%s}
-  gateway:
-    cors:
-      allowed-origins: ${GATEWAY_CORS_ALLOWED_ORIGINS:*}
-    downstream:
-      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3000}
+      base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3001}
       path-prefix: ${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}
-      admin-api-key: ${GATEWAY_DOWN_STREAM_ADMIN_API_KEY:api-key-has-admin-role}
-      user-api-key: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
+      token: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
+      company:
+        id: ${GATEWAY_DOWN_STREAM_COMPANY_ID:company-uuid}
+        username: ${GATEWAY_DOWN_STREAM_COMPANY_USERNAME:company-unique-key}
+        admin-user-id: ${GATEWAY_DOWN_STREAM_COMPANY_ADMIN_USER_ID:company-admin-uuid}

@@ -1,0 +1,21 @@
+[
+  {
+    "id": "uinv_WuhQogrsLDMF8L8y",
+    "connection_id": "con_YNEZH8rgZ8sQz9Fq",
+    "client_id": "QeRiQhUHAw8xfVgNNCvKppDwb1IMjZGP",
+    "inviter": {
+      "name": "fake customer"
+    },
+    "invitee": {
+      "email": "fake-2@fake.com"
+    },
+    "invitation_url": "https://10.10.10.10:8000/invite?invitation=abcdedfgx1249dkjd&organization=org_0bcbzk1UJV9CvwAU&organization_name=xxxx",
+    "ticket_id": "abcdedfgx1249dkjd",
+    "created_at": "2024-11-14T02:31:35.731Z",
+    "expires_at": "2024-11-21T02:31:35.731Z",
+    "organization_id": "org_0bcbzk1UJV9CvwAU",
+    "roles": [
+      "rol_WR61rSAJ7canXaGx"
+    ]
+  }
+]

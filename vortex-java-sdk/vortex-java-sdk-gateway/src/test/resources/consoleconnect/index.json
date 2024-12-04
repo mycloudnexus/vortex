@@ -1,0 +1,27 @@
+[
+  {
+    "method": "GET",
+    "endpoint": "/auth/token",
+    "data": "get_auth_token.json"
+  },
+  {
+    "method": "PUT",
+    "endpoint": "/api/company/{companyName}/ports/orders",
+    "data": "put_api_company_{companyName}_ports_orders.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/company/{companyName}/ports/orders",
+    "data": "get_api_company_{companyName}_ports_orders.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/company/{companyName}/ports",
+    "data": "get_api_company_{companyName}_ports.json"
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/company/{companyName}/ports/{portId}/connections",
+    "data": "get_api_company_{companyName}_ports_{portId}_connections.json"
+  }
+]

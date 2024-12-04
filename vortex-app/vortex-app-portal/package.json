@@ -48,6 +48,8 @@
     "@types/react-headroom": "^3.2.3",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
     "@typescript-eslint/parser": "^8.8.1",
+    "ajv": "^8.17.1",
+    "babel-jest": "^29.7.0",
     "babel-loader": "^9.2.1",
     "clean-webpack-plugin": "^4.0.0",
     "compression-webpack-plugin": "^11.1.0",
@@ -70,11 +72,13 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "jest-transformer-svg": "^2.0.2",
     "mini-css-extract-plugin": "^2.9.1",
     "prettier": "^3.3.3",
     "sass": "^1.79.5",
     "sass-loader": "^16.0.2",
     "serve": "^14.2.3",
+    "ts-jest": "^29.2.5",
     "typescript": "^5.6.3",
     "webpack": "^5.95.0",
     "webpack-bundle-analyzer": "^4.10.2",
@@ -82,16 +86,25 @@
     "webpack-dev-server": "^5.1.0"
   },
   "jest": {
+    "preset": "ts-jest",
     "setupFilesAfterEnv": [
       "<rootDir>/src/test/setupTest.tsx"
     ],
     "moduleNameMapper": {
       "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-      "^@/(.*)$": "<rootDir>/src/$1"
+      "\\.(jpg|jpeg|png)$": "<rootDir>/src/test/fileMock.ts",
+      "^@/(.*)$": "<rootDir>/src/$1",
+      "^.+\\.svg$": "jest-transformer-svg"
+    },
+    "transform": {
+      "\\.[jt]sx?$": "babel-jest",
+      "^.+\\.svg$": "jest-transformer-svg"
     },
     "testEnvironment": "jsdom"
   },
   "overrides": {
-    "path-to-regexp": "3.3.0"
+    "path-to-regexp": "3.3.0",
+    "@eslint/plugin-kit": "0.2.3",
+    "cross-spawn": "7.0.5"
   }
 }

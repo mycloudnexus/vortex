@@ -1,8 +1,11 @@
 {
-  "user_id": "#string",
-  "name": "#string",
-  "email": "#string",
-  "email_verified": "#boolean",
-  "picture": "#string",
-  "sid": "#string"
+  "userId": "#string",
+  "roles": "#array",
+  "mgmt": "#boolean",
+  "orgId": "#string",
+  "userInfo": {
+    "username": "#string",
+    "name": "#string",
+    "email": "#string"
+  }
 }

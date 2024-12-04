@@ -38,6 +38,13 @@ public class Auth0Client {
         .build();
   }
 
+  public AuthAPI getAuthClient() {
+    return AuthAPI.newBuilder(
+            auth0Property.getMgmtApi().getDomain(), this.auth0Property.getApp().getClientId())
+        .withHttpClient(auth0HttpClient)
+        .build();
+  }
+
   private String getAccessToken() {
     // Check if token is null or expired
     if (tokenHolder == null || new Date().after(tokenHolder.getExpiresAt())) {

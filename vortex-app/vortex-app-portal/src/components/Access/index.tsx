@@ -1,6 +1,7 @@
-import * as React from 'react'
+import React from 'react'
 import { Auth0Provider } from '@auth0/auth0-react'
-import { ENV } from '@/constant'
+import { ENV, CUSTOMER_AUTH0, RESELLER_AUTH0 } from '@/constant'
+import { useAppStore } from '@/stores/app.store'
 
 interface AuthProviderProps {
   defaultReturnTo?: string
@@ -9,16 +10,22 @@ interface AuthProviderProps {
 window.portalConfig = ENV
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  return (
-    <Auth0Provider
-      domain={ENV.AUTH0_DOMAIN!}
-      clientId={ENV.AUTH0_CLIENT_ID!}
-      authorizationParams={{
-        redirect_uri: window.location.origin,
-        audience: ENV.AUTH0_AUDIENCE
-      }}
-    >
-      {children}
-    </Auth0Provider>
-  )
+  const { userType } = useAppStore()
+  if (!userType) {
+    return null
+  }
+  if (userType === 'reseller') {
+    return (
+      <Auth0Provider key={userType} {...RESELLER_AUTH0}>
+        {children}
+      </Auth0Provider>
+    )
+  }
+  if (userType === 'customer') {
+    return (
+      <Auth0Provider key={userType} {...CUSTOMER_AUTH0}>
+        {children}
+      </Auth0Provider>
+    )
+  }
 }

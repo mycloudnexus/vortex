@@ -1,110 +1,204 @@
 package com.consoleconnect.vortex.iam.service;
 
-import com.auth0.client.mgmt.UsersEntity;
-import com.auth0.client.mgmt.filter.UserFilter;
-import com.auth0.exception.Auth0Exception;
-import com.auth0.json.mgmt.organizations.Organization;
-import com.auth0.json.mgmt.permissions.Permission;
-import com.auth0.json.mgmt.roles.Role;
-import com.auth0.json.mgmt.users.User;
+import com.auth0.json.mgmt.organizations.Invitation;
+import com.auth0.json.mgmt.organizations.Invitee;
+import com.auth0.json.mgmt.organizations.Inviter;
+import com.consoleconnect.vortex.cc.ConsoleConnectClient;
+import com.consoleconnect.vortex.cc.model.Member;
+import com.consoleconnect.vortex.cc.model.UserInfo;
 import com.consoleconnect.vortex.core.exception.VortexException;
-import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
+import com.consoleconnect.vortex.core.toolkit.DateTime;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
-import com.consoleconnect.vortex.iam.auth0.Auth0Client;
-import com.consoleconnect.vortex.iam.dto.RoleInfo;
-import com.consoleconnect.vortex.iam.dto.UserInfo;
+import com.consoleconnect.vortex.iam.dto.CreateUserDto;
+import com.consoleconnect.vortex.iam.dto.UpdateUserDto;
+import com.consoleconnect.vortex.iam.dto.User;
+import com.consoleconnect.vortex.iam.entity.UserEntity;
+import com.consoleconnect.vortex.iam.enums.RoleEnum;
+import com.consoleconnect.vortex.iam.enums.UserStatusEnum;
 import com.consoleconnect.vortex.iam.mapper.UserMapper;
+import com.consoleconnect.vortex.iam.model.IamProperty;
+import com.consoleconnect.vortex.iam.model.UserContext;
+import com.consoleconnect.vortex.iam.repo.UserRepository;
+import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
 @Service
 @Slf4j
 public class UserService {
-  private final Auth0Client auth0Client;
-  private final PermissionService permissionService;
+  private final UserRepository userRepository;
+  private final IamProperty iamProperty;
+  private final EmailService emailService;
+  private final UserContextService userContextService;
 
-  public Paging<Role> listRoles(int page, int size) {
-    try {
-      List<Role> items =
-          auth0Client.getMgmtClient().roles().list(null).execute().getBody().getItems();
-      return PagingHelper.toPage(items, page, size);
-    } catch (Auth0Exception ex) {
-      log.error("Failed to list roles", ex);
-      throw VortexException.internalError("Failed to list roles");
+  private static final String USER_NOT_FOUND = "User not found";
+
+  @Transactional
+  @PostConstruct
+  public void initialize() {
+    log.info("Initializing default platform admin");
+
+    if (iamProperty.getDownStream() != null
+        && iamProperty.getDownStream().getCompany() != null
+        && iamProperty.getDownStream().getCompany().getAdminUserId() != null) {
+
+      String userId = iamProperty.getDownStream().getCompany().getAdminUserId();
+      userRepository
+          .findOneByUserId(userId)
+          .ifPresentOrElse(
+              userEntity -> log.info("Platform Admin already exists"),
+              () -> {
+                log.info("Creating Platform Admin,userId:{}", userId);
+                UserEntity userEntity = new UserEntity();
+                userEntity.setUserId(userId);
+                userEntity.setStatus(UserStatusEnum.ACTIVE);
+                userEntity.setRoles(List.of(RoleEnum.PLATFORM_ADMIN.toString()));
+                userRepository.save(userEntity);
+                log.info("Platform Admin created,userId:{}", userId);
+              });
     }
   }
 
-  public RoleInfo getRoleById(String roleId) {
-    try {
-      Role role = auth0Client.getMgmtClient().roles().get(roleId).execute().getBody();
-      List<Permission> permissions = permissionService.listPermissions(roleId);
-      RoleInfo roleInfo = UserMapper.INSTANCE.toRoleInfo(role);
-      roleInfo.setPermissions(permissions);
-      return roleInfo;
-    } catch (Auth0Exception ex) {
-      log.error("Failed to get role", ex);
-      throw VortexException.internalError("Failed to get role");
-    }
+  private Member getMemberById(UserContext userContext, String userId) {
+    ConsoleConnectClient consoleConnectClient = userContext.getConsoleConnectClient();
+    return consoleConnectClient.listMembers(userContext.getOrgId()).stream()
+        .filter(member -> member.getId().equals(userId))
+        .findFirst()
+        .orElseThrow(() -> VortexException.notFound("Member not found"));
   }
 
-  public UserInfo getInfo(String userId) {
-    try {
-      UsersEntity userEntity = auth0Client.getMgmtClient().users();
-      User user = userEntity.get(userId, null).execute().getBody();
-      List<Organization> organizations =
-          userEntity.getOrganizations(userId, null).execute().getBody().getItems();
-      UserInfo userInfo = UserMapper.INSTANCE.toUserInfo(user);
-      if (organizations != null && !organizations.isEmpty()) {
-        if (organizations.size() > 1) {
-          log.warn("User {} belongs to multiple organizations", userId);
-        }
-        Organization org = organizations.get(0);
-        String orgId = org.getId();
-        List<Role> roles =
-            auth0Client
-                .getMgmtClient()
-                .organizations()
-                .getRoles(orgId, userId, null)
-                .execute()
-                .getBody()
-                .getItems();
-
-        UserInfo.UserOrganization userOrganization =
-            JsonToolkit.fromJson(JsonToolkit.toJson(org), UserInfo.UserOrganization.class);
-
-        userOrganization.setRoles(roles);
-        userInfo.setOrganization(userOrganization);
-      } else {
-        log.warn("User {} does not belong to any organization", userId);
-      }
-      return userInfo;
-    } catch (Auth0Exception ex) {
-      log.error("Failed to get user info", ex);
-      throw VortexException.internalError("Failed to get user info");
-    }
+  private UserInfo getUserInfo(UserContext userContext, String username) {
+    ConsoleConnectClient consoleConnectClient = userContext.getConsoleConnectClient();
+    return consoleConnectClient.getUserByUsername(username);
   }
 
-  public Paging<User> searchUsers(String q, String email, int page, int size) {
-    try {
-      UsersEntity userEntity = auth0Client.getMgmtClient().users();
-      List<User> items = null;
-      if (email != null) {
-        items = userEntity.listByEmail(email, null).execute().getBody();
-      } else {
-        UserFilter userFilter = new UserFilter();
-        if (q != null) userFilter.withQuery(q);
-        userFilter.withTotals(true);
-        userFilter.withSearchEngine("v2");
-        items = userEntity.list(userFilter).execute().getBody().getItems();
-      }
-      return PagingHelper.toPage(items, page, size);
-    } catch (Auth0Exception ex) {
-      log.error("Failed to search users", ex);
-      throw VortexException.internalError("Failed to search users");
+  public User create(CreateUserDto dto, JwtAuthenticationToken token) {
+    UserContext userContext = userContextService.createUserContext(token);
+    log.info("Creating user: {},createdBy:{}", dto, userContext.getUserId());
+
+    Member member = getMemberById(userContext, dto.getUserId());
+
+    UserEntity userEntity =
+        userRepository.findOneByUserId(dto.getUserId()).orElseGet(UserEntity::new);
+    userEntity.setStatus(UserStatusEnum.ACTIVE);
+    if (dto.getRoles() == null) {
+      dto.setRoles(userContext.getTrustedIssuer().getDefaultRoles());
     }
+    userEntity.setUserId(dto.getUserId());
+    userEntity.setRoles(dto.getRoles());
+    userEntity.setCreatedBy(userContext.getUserId());
+
+    userEntity = userRepository.save(userEntity);
+    if (dto.isSendEmail()) {
+      // send email
+      Member loginUser = getMemberById(userContext, userContext.getUserId());
+      Inviter inviter = new Inviter(loginUser.getName());
+      Invitee invitee = new Invitee(member.getEmail());
+      Invitation invitation =
+          new Invitation(inviter, invitee, iamProperty.getAuth0().getApp().getClientId());
+      emailService.sendInvitation(invitation, member.getName(), true);
+    }
+    return toUser(userEntity, member, userContext.getOrgId());
+  }
+
+  public User update(String userId, UpdateUserDto request, JwtAuthenticationToken token) {
+    UserContext userContext = userContextService.createUserContext(token);
+    log.info("Updating user: {},request:{},updatedBy:{}", userId, request, userContext.getUserId());
+    UserEntity userEntity =
+        userRepository
+            .findOneByUserId(userId)
+            .orElseThrow(() -> VortexException.notFound(USER_NOT_FOUND));
+    if (request.getStatus() != null) userEntity.setStatus(request.getStatus());
+    if (request.getRoles() != null) userEntity.setRoles(request.getRoles());
+    userEntity.setUpdatedBy(userContext.getUserId());
+    return toUser(userRepository.save(userEntity), null, userContext.getOrgId());
+  }
+
+  public User delete(String userId, JwtAuthenticationToken token) {
+    UserContext userContext = userContextService.createUserContext(token);
+    String deletedBy = userContext.getUserId();
+    log.info("Deleting user: {},deletedBy:{}", userId, deletedBy);
+    if (userId.equals(deletedBy)) {
+      throw VortexException.badRequest("Cannot delete self");
+    }
+    UserEntity userEntity =
+        userRepository
+            .findOneByUserId(userId)
+            .orElseThrow(() -> VortexException.notFound(USER_NOT_FOUND));
+    if (userEntity.getStatus() == UserStatusEnum.DELETED) {
+      throw VortexException.badRequest("User already deleted");
+    }
+    userEntity.setStatus(UserStatusEnum.DELETED);
+    userEntity.setDeletedBy(deletedBy);
+    userEntity.setDeletedAt(DateTime.nowInUTC());
+    return toUser(userRepository.save(userEntity), null, userContext.getOrgId());
+  }
+
+  public User getUserInfo(JwtAuthenticationToken token) {
+    return getUserInfo(null, token);
+  }
+
+  public User getUserInfo(String userId, JwtAuthenticationToken token) {
+    UserContext userContext = userContextService.createUserContext(token);
+    if (userId == null) {
+      userId = userContext.getUserId();
+    }
+    log.info("Getting user info,userId:{},searchBy:{}", userId, userContext.getUserId());
+    UserEntity userEntity =
+        userRepository
+            .findOneByUserId(userId)
+            .orElseThrow(() -> VortexException.notFound(USER_NOT_FOUND));
+    Member member = getMemberById(userContext, userId);
+    User user = toUser(userEntity, member, userContext.getOrgId());
+
+    UserInfo userInfo = getUserInfo(userContext, member.getUsername());
+
+    if (userInfo.getLinkUserCompany() != null
+        && userInfo.getLinkUserCompany().containsKey(user.getOrganizationId())) {
+      user.setOrganization(userInfo.getLinkUserCompany().get(user.getOrganizationId()));
+    } else {
+      log.warn("User {} does not belong to organization({})", userId, user.getOrganizationId());
+    }
+
+    return user;
+  }
+
+  public Paging<User> search(int page, int size, JwtAuthenticationToken token) {
+
+    final UserContext userContext = userContextService.createUserContext(token);
+    log.info("Searching users,page:{},size:{},searchBy:{}", page, size, userContext.getUserId());
+
+    final Map<String, Member> id2Member =
+        userContext.getConsoleConnectClient().listMembers(userContext.getOrgId()).stream()
+            .collect(Collectors.toMap(Member::getId, m -> m));
+
+    Page<UserEntity> userEntities = userRepository.search(PagingHelper.toPageable(page, size));
+
+    return PagingHelper.toPaging(
+        userEntities,
+        userEntity ->
+            toUser(userEntity, id2Member.get(userEntity.getUserId()), userContext.getOrgId()));
+  }
+
+  private User toUser(UserEntity userEntity, Member member, String orgId) {
+    User user = UserMapper.INSTANCE.toUser(userEntity);
+    user.setOrganizationId(orgId);
+
+    if (member != null) {
+      user.setName(member.getName());
+      user.setEmail(member.getEmail());
+      user.setUsername(member.getUsername());
+    }
+
+    return user;
   }
 }

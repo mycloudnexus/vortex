@@ -2,101 +2,140 @@ package com.consoleconnect.vortex;
 
 import com.consoleconnect.vortex.test.AbstractIntegrationTest;
 import com.consoleconnect.vortex.test.MockIntegrationTest;
-import java.util.Objects;
+import com.consoleconnect.vortex.test.WebTestClientHelper;
+import com.consoleconnect.vortex.test.user.TestUser;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+@ActiveProfiles("auth-hs256")
 @MockIntegrationTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureObservability
 class AppTest extends AbstractIntegrationTest {
 
-  @Autowired WebTestClient webTestClient;
+  private final TestUser mgmtUser;
+  private final TestUser customerUser;
+  private final TestUser anonymousUser;
 
-  @Test
-  void home() {
+  public AppTest(@Autowired WebTestClient webTestClient) {
+    WebTestClientHelper webTestClientHelper = new WebTestClientHelper(webTestClient);
 
-    WebTestClient.RequestBodySpec requestBodySpec =
-        webTestClient
-            .method(HttpMethod.GET)
-            .uri(uriBuilder -> uriBuilder.path("/").build())
-            .header("content-type", "application/json");
-    requestBodySpec
-        .exchange()
-        .expectStatus()
-        .isEqualTo(HttpStatus.PERMANENT_REDIRECT)
-        .expectBody()
-        .consumeWith(
-            response -> {
-              String location =
-                  Objects.requireNonNull(response.getResponseHeaders().get("Location")).get(0);
-              Assertions.assertEquals("/swagger-ui.html", location);
-            });
+    this.mgmtUser = TestUser.loginAsMgmtUser(webTestClientHelper);
+    this.customerUser = TestUser.loginAsCustomerUser(webTestClientHelper);
+    this.anonymousUser = TestUser.login(webTestClientHelper, null);
   }
 
   @Test
-  void getSwaggerUi() {
-    WebTestClient.RequestBodySpec requestBodySpec =
-        webTestClient
-            .method(HttpMethod.GET)
-            .uri(uriBuilder -> uriBuilder.path("/swagger-ui.html").build())
-            .header("content-type", "application/json");
-    requestBodySpec
-        .exchange()
-        .expectStatus()
-        .isEqualTo(HttpStatus.FOUND)
-        .expectBody()
-        .consumeWith(
-            response -> {
-              String location =
-                  Objects.requireNonNull(response.getResponseHeaders().get("Location")).get(0);
-              Assertions.assertEquals("/webjars/swagger-ui/index.html", location);
-              System.out.println(location);
-            });
+  void givenAnonymous_whenGetHome_thenReturnRedirect() {
+
+    anonymousUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/").build(),
+        HttpStatus.PERMANENT_REDIRECT.value(),
+        Assertions::assertNull);
   }
 
   @Test
-  void getActuator() {
-    webTestClient
-        .method(HttpMethod.GET)
-        .uri(uriBuilder -> uriBuilder.path("/actuator").build())
-        .exchange()
-        .expectStatus()
-        .isEqualTo(HttpStatus.OK);
+  void givenAnonymous_whenGetSwaggerUi_thenReturn200() {
+    anonymousUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/swagger-ui.html").build(),
+        HttpStatus.FOUND.value(),
+        Assertions::assertNull);
   }
 
   @Test
-  void getHealth() {
-    webTestClient
-        .method(HttpMethod.GET)
-        .uri(uriBuilder -> uriBuilder.path("/actuator/health").build())
-        .exchange()
-        .expectStatus()
-        .isEqualTo(HttpStatus.OK);
+  void givenAnonymous_whenGetHealth_thenReturn200() {
+    anonymousUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator/health").build(),
+        HttpStatus.OK.value(),
+        Assertions::assertNotNull);
   }
 
   @Test
-  void getInfo() {
-    webTestClient
-        .method(HttpMethod.GET)
-        .uri(uriBuilder -> uriBuilder.path("/actuator/info").build())
-        .exchange()
-        .expectStatus()
-        .isEqualTo(HttpStatus.OK);
+  void givenAnonymous_whenGetActuator_thenReturn401() {
+    anonymousUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator").build(),
+        HttpStatus.UNAUTHORIZED.value(),
+        Assertions::assertNull);
   }
 
   @Test
-  void getPrometheus() {
-    webTestClient
-        .method(HttpMethod.GET)
-        .uri(uriBuilder -> uriBuilder.path("/actuator/prometheus").build())
-        .header("accept", "text/plain;version=0.0.4;charset=utf-8")
-        .exchange()
-        .expectStatus()
-        .isEqualTo(HttpStatus.OK);
+  void givenMgmtUser_whenGetActuator_thenReturn200() {
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator").build(),
+        HttpStatus.OK.value(),
+        Assertions::assertNotNull);
+  }
+
+  @Test
+  void givenCustomerUser_whenGetActuator_thenReturn200() {
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator").build(),
+        HttpStatus.FORBIDDEN.value(),
+        Assertions::assertNull);
+  }
+
+  @Test
+  void givenAnonymous_whenGetInfo_thenReturn401() {
+    anonymousUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator/info").build(),
+        HttpStatus.UNAUTHORIZED.value(),
+        Assertions::assertNull);
+  }
+
+  @Test
+  void givenMgmtUser_whenGetInfo_thenReturn200() {
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator/info").build(),
+        HttpStatus.OK.value(),
+        Assertions::assertNotNull);
+  }
+
+  @Test
+  void givenCustomerUser_whenGetInfo_thenReturn200() {
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator/info").build(),
+        HttpStatus.FORBIDDEN.value(),
+        Assertions::assertNull);
+  }
+
+  @Test
+  void givenAnonymous_whenGetPrometheus_thenReturn401() {
+    anonymousUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator/prometheus").build(),
+        HttpStatus.UNAUTHORIZED.value(),
+        Assertions::assertNull);
+  }
+
+  @Test
+  void givenMgmtUser_whenGetPrometheus_thenReturn200() {
+    mgmtUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator/prometheus").build(),
+        HttpStatus.OK.value(),
+        Assertions::assertNotNull);
+  }
+
+  @Test
+  void givenCustomerUser_whenGetPrometheus_thenReturn200() {
+    customerUser.requestAndVerify(
+        HttpMethod.GET,
+        uriBuilder -> uriBuilder.path("/actuator/prometheus").build(),
+        HttpStatus.FORBIDDEN.value(),
+        Assertions::assertNull);
   }
 }

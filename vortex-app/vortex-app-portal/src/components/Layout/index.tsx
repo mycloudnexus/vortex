@@ -3,8 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Headroom from 'react-headroom'
 import NavMain from './NavMain'
 import * as styles from './index.module.scss'
-import Sider from 'antd/es/layout/Sider'
-import { Flex, Menu } from 'antd'
+import { Flex, Menu, Layout } from 'antd'
 import NetIcon from '@/assets/icon/network.svg'
 import { useAppStore } from '@/stores/app.store'
 import { DoubleLeftOutlined, DoubleRightOutlined, DownOutlined, RightOutlined } from '@ant-design/icons'
@@ -20,8 +19,10 @@ import { styled } from 'styled-components'
 import useDeviceDetect from '@/hooks/useDeviceDetect'
 import MainMenuMobileDrawer from './MainMenuMobileDrawer'
 import Authenticate from '../Access/Authenticate'
+import BreadCrumb from '../BreadCrumb'
+const { Sider } = Layout
 
-const Layout = () => {
+const BaseLayout = () => {
   const { mainColor } = useAppStore()
   const SliderCustom = styled(Sider)`
     .ant-menu-submenu-selected {
@@ -110,7 +111,23 @@ const Layout = () => {
     {
       key: '6',
       icon: <SettingIcon />,
-      label: 'Settings'
+      label: 'Settings',
+      children: [
+        {
+          key: '6-1',
+          label: 'Users',
+          onClick: () => {
+            navigate('/settings/users')
+          }
+        },
+        {
+          key: '6-2',
+          label: 'Customer company',
+          onClick: () => {
+            navigate('/settings/customer-company')
+          }
+        }
+      ]
     }
   ]
 
@@ -171,11 +188,14 @@ const Layout = () => {
               />
             </SliderCustom>
           )}
-          <Outlet />
+          <Flex vertical justify='start' align='start' style={{ width: '100%' }}>
+            <BreadCrumb />
+            <Outlet />
+          </Flex>
         </Flex>
       </Authenticate>
     </div>
   )
 }
 
-export default Layout
+export default BaseLayout

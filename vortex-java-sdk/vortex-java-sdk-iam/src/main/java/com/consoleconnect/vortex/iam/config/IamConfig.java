@@ -13,7 +13,7 @@ public class IamConfig {
 
   @Bean
   @ConfigurationProperties(prefix = "app.iam")
-  public IamProperty appProperty() {
+  public IamProperty iamProperty() {
     return new IamProperty();
   }
 

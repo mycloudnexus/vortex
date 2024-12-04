@@ -1,8 +1,10 @@
 package com.consoleconnect.vortex.iam.filter;
 
+import com.consoleconnect.vortex.iam.enums.CustomerTypeEnum;
+import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.model.IamConstants;
-import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.model.UserContext;
+import com.consoleconnect.vortex.iam.service.UserContextService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +20,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class UserContextWebFilter implements WebFilter, Ordered {
 
-  private final IamProperty iamProperty;
+  private final UserContextService userContextService;
 
   @Override
   public int getOrder() {
@@ -33,30 +35,42 @@ public class UserContextWebFilter implements WebFilter, Ordered {
               JwtAuthenticationToken jwtAuthenticationToken =
                   (JwtAuthenticationToken) securityContext.getAuthentication();
 
-              UserContext userContext = new UserContext();
-              userContext.setUserId(jwtAuthenticationToken.getName());
-              String orgId =
-                  jwtAuthenticationToken
-                      .getToken()
-                      .getClaimAsString(iamProperty.getJwt().getCustomClaims().getOrgId());
-              userContext.setOrgId(orgId);
-              userContext.setMgmt(iamProperty.getAuth0().getMgmtOrgId().equalsIgnoreCase(orgId));
-              String customerId = orgId;
-              if (userContext.isMgmt()
+              UserContext userContext =
+                  userContextService.createUserContext(jwtAuthenticationToken);
+
+              String customerId = userContext.getOrgId();
+              CustomerTypeEnum customerType =
+                  userContext.getUserType() == UserTypeEnum.CUSTOMER_USER
+                      ? CustomerTypeEnum.CUSTOMER
+                      : CustomerTypeEnum.MGMT;
+              if (userContext.getUserType() == UserTypeEnum.MGMT_USER
                   && exchange
                       .getRequest()
                       .getHeaders()
-                      .containsKey(IamConstants.X_VORTEX_CUSTOMER_ORG_ID)) {
+                      .containsKey(IamConstants.X_VORTEX_CUSTOMER_ID)) {
                 // customerId can be customized by the client in the header
                 customerId =
-                    exchange
-                        .getRequest()
-                        .getHeaders()
-                        .getFirst(IamConstants.X_VORTEX_CUSTOMER_ORG_ID);
+                    exchange.getRequest().getHeaders().getFirst(IamConstants.X_VORTEX_CUSTOMER_ID);
+                customerType = CustomerTypeEnum.CUSTOMER;
               }
               userContext.setCustomerId(customerId);
+              userContext.setCustomerType(customerType);
+
               log.info("user context:{}", userContext);
-              exchange.getAttributes().put(IamConstants.X_VORTEX_USER_CONTEXT, userContext);
+              exchange.getAttributes().put(IamConstants.X_VORTEX_USER_ID, userContext.getUserId());
+              exchange
+                  .getAttributes()
+                  .put(IamConstants.X_VORTEX_USER_TYPE, userContext.getUserType());
+              exchange
+                  .getAttributes()
+                  .put(IamConstants.X_VORTEX_CUSTOMER_ID, userContext.getCustomerId());
+              exchange
+                  .getAttributes()
+                  .put(IamConstants.X_VORTEX_CUSTOMER_TYPE, userContext.getCustomerType());
+              exchange
+                  .getAttributes()
+                  .put(IamConstants.X_VORTEX_ACCESS_TOKEN, userContext.getAccessToken());
+
               return Mono.just(jwtAuthenticationToken);
             })
         .then(chain.filter(exchange));

@@ -12,11 +12,13 @@ public class PagingHelper {
 
   private PagingHelper() {}
 
+  public static final int ALL = -1;
   public static final int DEFAULT_PAGE = 0;
   public static final int DEFAULT_SIZE = 20;
 
   public static final String DEFAULT_PAGE_STR = DEFAULT_PAGE + "";
   public static final String DEFAULT_SIZE_STR = DEFAULT_SIZE + "";
+  public static final String ALL_STR = ALL + "";
 
   public static <T> Paging<T> toPage(List<T> data, Integer page, Integer size) {
     return toPage(data, page, size, (long) data.size());
