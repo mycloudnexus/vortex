@@ -5,7 +5,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
   <div />
   <div>
     <div
-      class="ant-modal-root css-dev-only-do-not-override-ni1kz0"
+      class="ant-modal-root css-dev-only-do-not-override-49qm"
     >
       <div
         class="ant-modal-mask"
@@ -17,7 +17,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
         <div
           aria-labelledby="test-id"
           aria-modal="true"
-          class="ant-modal css-dev-only-do-not-override-ni1kz0 sc-blHHSb jFpWO ant-zoom-appear ant-zoom-appear-prepare ant-zoom"
+          class="ant-modal css-dev-only-do-not-override-49qm sc-blHHSb jFpWO ant-zoom-appear ant-zoom-appear-prepare ant-zoom"
           role="dialog"
           style="width: 520px;"
         >
@@ -72,18 +72,18 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                 class="ant-modal-body"
               >
                 <form
-                  class="ant-form ant-form-vertical css-dev-only-do-not-override-ni1kz0"
+                  class="ant-form ant-form-vertical css-dev-only-do-not-override-49qm"
                   id="modify_customer_company"
                   style="padding: 20px;"
                 >
                   <div
-                    class="ant-form-item css-dev-only-do-not-override-ni1kz0"
+                    class="ant-form-item css-dev-only-do-not-override-49qm"
                   >
                     <div
-                      class="ant-row ant-form-item-row css-dev-only-do-not-override-ni1kz0"
+                      class="ant-row ant-form-item-row css-dev-only-do-not-override-49qm"
                     >
                       <div
-                        class="ant-col ant-form-item-label css-dev-only-do-not-override-ni1kz0"
+                        class="ant-col ant-form-item-label css-dev-only-do-not-override-49qm"
                       >
                         <label
                           class=""
@@ -91,7 +91,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                           title=""
                         >
                           <div
-                            class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center"
+                            class="ant-flex css-dev-only-do-not-override-49qm ant-flex-align-center"
                             style="gap: 5px;"
                           >
                             Customer company name
@@ -104,7 +104,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                         </label>
                       </div>
                       <div
-                        class="ant-col ant-form-item-control css-dev-only-do-not-override-ni1kz0"
+                        class="ant-col ant-form-item-control css-dev-only-do-not-override-49qm"
                       >
                         <div
                           class="ant-form-item-control-input"
@@ -113,7 +113,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                             class="ant-form-item-control-input-content"
                           >
                             <input
-                              class="ant-input css-dev-only-do-not-override-ni1kz0 ant-input-outlined sc-gtLWhw jtrSU"
+                              class="ant-input css-dev-only-do-not-override-49qm ant-input-outlined sc-gtLWhw jtrSU"
                               data-testid="customer-name"
                               id="modify_customer_company_display_name"
                               maxlength="255"
@@ -127,13 +127,13 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                     </div>
                   </div>
                   <div
-                    class="ant-form-item css-dev-only-do-not-override-ni1kz0"
+                    class="ant-form-item css-dev-only-do-not-override-49qm"
                   >
                     <div
-                      class="ant-row ant-form-item-row css-dev-only-do-not-override-ni1kz0"
+                      class="ant-row ant-form-item-row css-dev-only-do-not-override-49qm"
                     >
                       <div
-                        class="ant-col ant-form-item-label css-dev-only-do-not-override-ni1kz0"
+                        class="ant-col ant-form-item-label css-dev-only-do-not-override-49qm"
                       >
                         <label
                           class=""
@@ -141,7 +141,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                           title=""
                         >
                           <div
-                            class="ant-flex css-dev-only-do-not-override-ni1kz0 ant-flex-align-center"
+                            class="ant-flex css-dev-only-do-not-override-49qm ant-flex-align-center"
                             style="gap: 5px;"
                           >
                             Customer company URL short name
@@ -160,7 +160,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                         </label>
                       </div>
                       <div
-                        class="ant-col ant-form-item-control css-dev-only-do-not-override-ni1kz0"
+                        class="ant-col ant-form-item-control css-dev-only-do-not-override-49qm"
                       >
                         <div
                           class="ant-form-item-control-input"
@@ -170,7 +170,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                           >
                             <input
                               aria-describedby="modify_customer_company_name_extra"
-                              class="ant-input css-dev-only-do-not-override-ni1kz0 ant-input-outlined sc-gtLWhw jtrSU"
+                              class="ant-input css-dev-only-do-not-override-49qm ant-input-outlined sc-gtLWhw jtrSU"
                               id="modify_customer_company_name"
                               maxlength="20"
                               placeholder="Please enter"
@@ -180,10 +180,14 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                           </div>
                         </div>
                         <div
-                          class="ant-form-item-extra"
-                          id="modify_customer_company_name_extra"
+                          class="ant-form-item-additional"
                         >
-                          Only lower case letters, numbers, - , allowed. No more than 20 characters in total
+                          <div
+                            class="ant-form-item-extra"
+                            id="modify_customer_company_name_extra"
+                          >
+                            Only lower case letters, numbers, - , allowed. No more than 20 characters in total
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -194,7 +198,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                 class="ant-modal-footer"
               >
                 <button
-                  class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-default ant-btn-color-default ant-btn-variant-outlined"
+                  class="ant-btn css-dev-only-do-not-override-49qm ant-btn-default ant-btn-color-default ant-btn-variant-outlined"
                   type="button"
                 >
                   <span>
@@ -202,7 +206,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                   </span>
                 </button>
                 <button
-                  class="ant-btn css-dev-only-do-not-override-ni1kz0 ant-btn-primary ant-btn-color-primary ant-btn-variant-solid"
+                  class="ant-btn css-dev-only-do-not-override-49qm ant-btn-primary ant-btn-color-primary ant-btn-variant-solid"
                   type="button"
                 >
                   <span>

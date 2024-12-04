@@ -3,13 +3,12 @@ import type { ReactElement } from 'react'
 import { ReactComponent as CCInfo } from '@/assets/icon/info.svg'
 
 import { Tooltip as AntTooltip, TooltipProps, Typography } from 'antd'
-import { ENV } from '@/constant'
 
 type CustomToolTipProps = { message?: string; orgId?: string }
 type TooltipPropsCustom = CustomToolTipProps & TooltipProps
 
 const Tooltip = ({ message = '', orgId = '', ...rest }: TooltipPropsCustom): ReactElement => {
-  const UrlGenerate = (val: string): string => `${ENV.API_BASE_URL}/${val}/login`
+  const UrlGenerate = (val: string): string => `${window.location.origin}/${val}/login`
 
   return (
     <AntTooltip
