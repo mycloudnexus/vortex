@@ -1,0 +1,7 @@
+[
+  {
+    "method": "GET",
+    "endpoint": "/api/company/{companyName}/ports/orders",
+    "data": "get_api_company_{companyName}_ports_orders.json"
+  }
+]

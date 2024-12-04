@@ -1,0 +1,110 @@
+{
+  "id": "66e28efa04a4727d5387da09",
+  "portName": "Demo Port",
+  "speed": {
+    "value": 1000,
+    "name": "1000 Mbps"
+  },
+  "paymentType": "invoice",
+  "discountId": null,
+  "billingId": "66e28efa04a4727d5387da06",
+  "externalId": null,
+  "salesRecordId": null,
+  "paymentTransactionId": null,
+  "payg": true,
+  "status": "created",
+  "loaStatus": "TODO",
+  "isEdgePort": false,
+  "cancelled": false,
+  "edgePayload": null,
+  "requestSource": "CONSOLE_API",
+  "createdBy": "",
+  "tags": [],
+  "type": "PHYSICAL",
+  "isManualCreate": false,
+  "dataCenterFacilityId": "5a94a7e2091e410012cdf0b4",
+  "metroId": "21ab4746f3ba6c3462def3e8",
+  "companyId": "5d4d056242fbd3000ab4c01d",
+  "crossConnectId": null,
+  "deleted": false,
+  "deletedAt": null,
+  "createdAt": "2024-09-12T06:49:30.052Z",
+  "updatedAt": "2024-09-12T06:49:30.354Z",
+  "durationUnit": "y",
+  "dataCenterFacility": {
+    "dataCenterFacility": {
+      "airportCodes": [],
+      "speeds": [
+        {
+          "name": "1000 Mbps",
+          "value": 1000
+        }
+      ],
+      "metroId": "21ab4746f3ba6c3462def3e8",
+      "ready": true,
+      "id": "05a75ed0-b35b-46bf-8019-22b0d2701913",
+      "nniReady": true,
+      "brandId": "5b4bda127abfb30014023a0b",
+      "canBundleCrossConnect": false
+    },
+    "overviewImage": null,
+    "businessRegistrationNumber": null,
+    "signedCompanyRefId": null,
+    "accountManagerEmail": null,
+    "accountManagerId": null,
+    "createdAt": "2018-02-27T00:35:46.210Z",
+    "updatedAt": "2024-08-30T01:32:52.940Z",
+    "username": "demodatacenter",
+    "deletedAt": null,
+    "deleted": false,
+    "verified": true,
+    "tags": [],
+    "status": "ACTIVE",
+    "displayOrder": -299,
+    "groups": [],
+    "location": null,
+    "summary": "",
+    "headline": null,
+    "background": null,
+    "avatarId": "5bfcd34eeed214000a023674",
+    "name": "Demo Data Center",
+    "type": "DATA_CENTER_FACILITY",
+    "popIds": [
+      "05a75ed0-b35b-46bf-8019-22b0d2701913"
+    ],
+    "provider": [
+      "PCCWGLOBAL"
+    ],
+    "destinationPortOnly": false,
+    "categories": [],
+    "nnis": null,
+    "isCloudProvider": false,
+    "verifiedIdentity": false,
+    "selectiveQinQTunnelProvider": [],
+    "bundleCrossConnectChargeId": null,
+    "signedCompanyVerified": false,
+    "companies": [],
+    "id": "5a94a7e2091e410012cdf0b4",
+    "online": false
+  },
+  "metro": {
+    "name": "London",
+    "code": "LHR",
+    "country": "de",
+    "rir": "RIPE",
+    "regionIds": [
+      "5a370b288f220300127f834d"
+    ],
+    "id": "21ab4746f3ba6c3462def3e8",
+    "deletedAt": null,
+    "createdAt": "2017-12-18T00:28:54.074Z",
+    "updatedAt": "2020-07-10T03:47:25.960Z",
+    "logo": null,
+    "description": "",
+    "ready": true,
+    "canCreateController": false,
+    "deleted": false,
+    "tags": []
+  },
+  "capabilities": {}
+}

@@ -1,0 +1,11 @@
+{
+  "destCompany": {
+    "id": "1",
+    "name": "Customer Name 2",
+    "company": {
+      "id": "1",
+      "registeredName": "Customer Name 2"
+    },
+    "extra": "extra"
+  }
+}

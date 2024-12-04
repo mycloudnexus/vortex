@@ -3,6 +3,7 @@ package com.consoleconnect.vortex.iam.service;
 import com.consoleconnect.vortex.iam.dto.AuthToken;
 import com.consoleconnect.vortex.iam.dto.MemberInfo;
 import com.consoleconnect.vortex.iam.dto.User;
+import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.model.UserContext;
 import lombok.AllArgsConstructor;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -21,10 +22,10 @@ public class AuthTokenService {
     AuthToken authToken = new AuthToken();
     authToken.setUserId(userContext.getUserId());
     authToken.setOrgId(userContext.getOrgId());
-    authToken.setMgmt(userContext.isMgmt());
+    authToken.setUserType(userContext.getUserType());
     authToken.setRoles(userContext.getRoles());
 
-    if (userContext.isMgmt()) {
+    if (userContext.getUserType() == UserTypeEnum.MGMT_USER) {
       User user = userService.getUserInfo(jwt);
 
       authToken.setName(user.getName());

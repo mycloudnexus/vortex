@@ -1,0 +1,7 @@
+{
+  "name": "#customerName",
+  "company":
+  {
+    "registeredName": "#customerName"
+  }
+}
