@@ -1,5 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+<<<<<<< HEAD
 exports[`Customer Company Page form renders correctly and modal opens 1`] = `
 <body>
   <div>
@@ -417,6 +418,8 @@ exports[`Customer Company Page form renders correctly and modal opens 1`] = `
 </body>
 `;
 
+=======
+>>>>>>> 0e2cc087a100c718af48bd0530daa1066565165f
 exports[`Customer Company Page should display inactive company data in table rows 1`] = `
 <body>
   <div>

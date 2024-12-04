@@ -1,0 +1,37 @@
+{
+  "results": [
+    {
+      "destPortId": "671b158f6eeec977ecee37b0",
+      "srcCompanyId": "65a4f18aec61ae42ae9606df",
+      "destCompanyId": "65a4f18aec61ae42ae9606df",
+      "version": 2,
+      "name": "Connection name",
+      "speed": {
+        "value": 10,
+        "name": "10 Mbps"
+      },
+      "status": "CREATING",
+      "type": "LAYER2",
+      "destPort": {
+        "name": "test port",
+        "speed": 1000,
+        "status": "ACTIVE",
+        "companyId": "65a4f18aec61ae42ae9606df",
+        "crossConnectId": null
+      },
+      "destCompany": {
+        "company": {
+          "registeredName": "dest company name"
+        },
+        "name": "dest company name",
+        "type": "COMPANY"
+      },
+      "srcCompany": {
+        "company": {
+          "registeredName": "src company name"
+        },
+        "name": "src company name"
+      }
+    }
+  ]
+}

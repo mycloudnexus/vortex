@@ -3,6 +3,8 @@ package com.consoleconnect.vortex.iam.model;
 import com.consoleconnect.vortex.cc.ConsoleConnectClient;
 import com.consoleconnect.vortex.cc.ConsoleConnectClientFactory;
 import com.consoleconnect.vortex.core.exception.VortexException;
+import com.consoleconnect.vortex.iam.enums.CustomerTypeEnum;
+import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import feign.Logger;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -16,7 +18,8 @@ import lombok.ToString;
 public class UserContext {
   private String userId;
   private String orgId;
-  private boolean mgmt;
+  private UserTypeEnum userType;
+  private CustomerTypeEnum customerType;
   private String customerId;
   private String apiServer;
   private List<String> roles;
