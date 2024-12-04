@@ -18,9 +18,7 @@ import { Button, Flex, Form, notification, Space, TableProps, Typography } from 
 import { StyledButton, StyledModal, StyledTable, StyledWrapper } from '../components/styled'
 import CustomerCompanyModal from '../components/CustomerModal'
 import Tooltip from '../components/Tooltip'
-
-import { useAddOrganization } from '@/hooks/company'
-
+import { useAddOrganization, useUpdateOrganization } from '@/hooks/company'
 import { useQueryClient } from 'react-query'
 
 const createColumns = (
@@ -139,8 +137,8 @@ const CustomerCompany = (): ReactElement => {
   const [addForm] = Form.useForm<CreateOrganizationRequestBody>()
   const [editForm] = Form.useForm()
   const [api, contextHolder] = notification.useNotification({ top: 80 })
-
   const { mutate } = useAddOrganization()
+  const { mutate: updateMutate } = useUpdateOrganization()
   const { mainColor } = useAppStore()
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
@@ -185,20 +183,11 @@ const CustomerCompany = (): ReactElement => {
         {
           ...values,
           display_name: values.display_name,
-          name: values.name
+          name: values.name.toLowerCase()
         },
         {
-          onSuccess: (data) => {
-            queryClient.setQueryData('getCompanyList', (oldData: any) => {
-              return {
-                ...oldData,
-                data: {
-                  ...oldData.data,
-                  data: [...oldData.data.data, data.data]
-                }
-              }
-            })
-            setUpdateValue(data.data)
+          onSuccess: async () => {
+            await queryClient.invalidateQueries('getCompanyList')
           },
           onError: (error) => {
             console.log(error, 'error adding')
@@ -221,11 +210,26 @@ const CustomerCompany = (): ReactElement => {
     setUpdateValue(record)
     setIsUpdateModalOpen(true)
   }
+
   const handleUpdate = async (): Promise<void> => {
     try {
       const values = await editForm.validateFields()
-      console.log(values)
-
+      updateMutate(
+        {
+          id: updateValue.id,
+          request_body: {
+            display_name: values.display_name
+          }
+        },
+        {
+          onSuccess: async () => {
+            await queryClient.invalidateQueries('getCompanyList')
+          },
+          onError: (error) => {
+            console.log(error, 'error update')
+          }
+        }
+      )
       closeUpdateModal()
     } catch (error) {
       console.log('Form validation failed:', error)
@@ -236,7 +240,21 @@ const CustomerCompany = (): ReactElement => {
     setIsUpdateModalOpen(false)
   }
   const handleActivate = (key: string): void => {
-    setKey(key)
+    updateMutate(
+      {
+        id: key,
+        request_body: {
+          status: 'ACTIVE'
+        }
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries('getCompanyList')
+          handleSuccessDeactivate('activated')
+        },
+        onError: (error) => console.log(error)
+      }
+    )
   }
   const handleDeactivate = (key: string): void => {
     setKey(key)
@@ -248,9 +266,9 @@ const CustomerCompany = (): ReactElement => {
     }
     showModal()
   }
-  const handleSuccessDeactivate = (): void => {
+  const handleSuccessDeactivate = (status: string): void => {
     api.success({
-      message: 'Customer company name deactivated',
+      message: `Customer company name ${status}.`,
       placement: 'top',
       showProgress: true,
       pauseOnHover: true,
@@ -264,9 +282,22 @@ const CustomerCompany = (): ReactElement => {
 
   const handleDeactivateSubmit = (): void => {
     try {
-      console.log(key, 'inactive')
-      handleCloseDeactivate()
-      handleSuccessDeactivate()
+      updateMutate(
+        {
+          id: key,
+          request_body: {
+            status: 'INACTIVE'
+          }
+        },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries('getCompanyList')
+            handleCloseDeactivate()
+            handleSuccessDeactivate('deactivated')
+          },
+          onError: (error) => console.log(error, 'deactivate error')
+        }
+      )
     } catch (error) {
       console.log(error)
     }

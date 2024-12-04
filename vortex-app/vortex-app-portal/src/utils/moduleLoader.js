@@ -2,7 +2,7 @@
 import React from 'react'
 
 function parseModules() {
-  const modules = process.env.VOTEX_MODULES
+  const modules = process.env.VORTEX_MODULES
   const parsedModules = []
   if (typeof modules === 'string') {
     const urls = modules.split(',')

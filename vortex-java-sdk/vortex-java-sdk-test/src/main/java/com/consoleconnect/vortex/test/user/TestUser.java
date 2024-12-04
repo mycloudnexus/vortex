@@ -33,12 +33,26 @@ public class TestUser {
       Object body,
       int statusCode,
       Consumer<String> verify) {
-    Map<String, String> headers = new HashMap<>();
+    return requestAndVerify(method, uriFunction, null, body, statusCode, verify);
+  }
+
+  public Optional<String> requestAndVerify(
+      HttpMethod method,
+      Function<UriBuilder, URI> uriFunction,
+      Map<String, String> headers,
+      Object body,
+      int statusCode,
+      Consumer<String> verify) {
+
+    Map<String, String> requestHeaders = new HashMap<>();
+    if (headers != null) {
+      requestHeaders.putAll(headers);
+    }
     if (getAccessToken() != null) {
-      headers.put("Authorization", "Bearer " + getAccessToken());
+      requestHeaders.put("Authorization", "Bearer " + getAccessToken());
     }
     return getWebTestClientHelper()
-        .requestAndVerify(method, uriFunction, headers, body, statusCode, verify);
+        .requestAndVerify(method, uriFunction, requestHeaders, body, statusCode, verify);
   }
 
   public static TestUser login(

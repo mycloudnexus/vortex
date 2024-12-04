@@ -15,8 +15,14 @@ const Authenticate = ({ children }: AuthenticateProps) => {
 
   const { isLoading, isAuthenticated, user, getAccessTokenSilently, error } = useAuth0()
 
-  const { currentAuth0User, setCurrentAuth0User } = useAppStore()
+  const { currentAuth0User, setCurrentAuth0User, setuserType } = useAppStore()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (window.localStorage.getItem('org')) {
+      setuserType('customer')
+    }
+  }, [])
 
   const saveToken = useCallback(async () => {
     const res = await getAccessTokenSilently()

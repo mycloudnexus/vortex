@@ -184,7 +184,7 @@ public class OrganizationService {
               }
             }));
 
-    return PagingHelper.toPage(
+    return PagingHelper.toPageNoSubList(
         organizationPaging.getData().stream()
             .map(OrganizationMapper.INSTANCE::toOrganizationInfo)
             .toList(),
@@ -265,10 +265,15 @@ public class OrganizationService {
   public Paging<MemberInfo> listMembers(String orgId, int page, int size) {
     log.info("list members, orgId:{}, size:{}", orgId, size);
 
-    Optional<Connection> connectionOptional = this.getOrganizationConnection(orgId);
+    Organization organization = findOrganizationAndThrow(orgId);
+    OrganizationMetadata organizationMetadata =
+        OrganizationMetadata.fromMap(organization.getMetadata());
+    Optional<Connection> connectionOptional =
+        getOrganizationConnection(organizationMetadata.getConnectionId());
     if (connectionOptional.isEmpty()) {
       return PagingHelper.toPage(List.of(), page, size);
     }
+
     Paging<Member> memberPaging =
         Auth0PageHelper.loadData(
             page,
@@ -549,7 +554,9 @@ public class OrganizationService {
     }
 
     // delete existing connection
-    doDeleteConnection(organization, metadata.getConnectionId());
+    if (StringUtils.isNotBlank(metadata.getConnectionId())) {
+      doDeleteConnection(organization, metadata.getConnectionId());
+    }
 
     // create a new connection
     Connection createdConnection = doCreateConnection(organization, connectionProvider, request);
@@ -717,6 +724,19 @@ public class OrganizationService {
     } catch (Auth0Exception e) {
       throw badRequest(
           e, String.format("update member(%s) info for orgId:%s, error:", memberId, orgId));
+    }
+  }
+
+  public void deleteMember(String orgId, String memberId, String requestedBy) {
+    log.info("deleteMember, orgId:{}, memberId:{}, requestedBy:{}", orgId, memberId, requestedBy);
+    Member member =
+        findMemberById(orgId, memberId)
+            .orElseThrow(() -> VortexException.badRequest("Member not found."));
+    try {
+      this.auth0Client.getMgmtClient().users().delete(member.getUserId()).execute().getBody();
+    } catch (Auth0Exception e) {
+      throw badRequest(
+          e, String.format("Delete a member(%s) for orgId:%s, error:", memberId, orgId));
     }
   }
 }
