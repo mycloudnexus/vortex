@@ -4,7 +4,7 @@ exports[`BreadCrumb Component BreadCrumb Component should handle missing breadcr
 <body>
   <div>
     <nav
-      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-ni1kz0"
+      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-49qm"
       style="font-size: 18px;"
     >
       <ol>
@@ -26,7 +26,7 @@ exports[`BreadCrumb Component should render breadcrumb for root path 1`] = `
 <body>
   <div>
     <nav
-      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-ni1kz0"
+      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-49qm"
       style="font-size: 18px;"
     >
       <ol>
@@ -48,7 +48,7 @@ exports[`BreadCrumb Component should render multiple breadcrumb levels 1`] = `
 <body>
   <div>
     <nav
-      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-ni1kz0"
+      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-49qm"
       style="font-size: 18px;"
     >
       <ol>
@@ -134,7 +134,7 @@ exports[`BreadCrumb Component should render nothing for a path with no matching 
 <body>
   <div>
     <nav
-      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-ni1kz0"
+      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-49qm"
       style="font-size: 18px;"
     >
       <ol>
@@ -154,7 +154,7 @@ exports[`BreadCrumb Component should render the breadcrumb correctly for a given
 <body>
   <div>
     <nav
-      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-ni1kz0"
+      class="ant-breadcrumb sc-gtLWhw jESsVZ css-dev-only-do-not-override-49qm"
       style="font-size: 18px;"
     >
       <ol>
