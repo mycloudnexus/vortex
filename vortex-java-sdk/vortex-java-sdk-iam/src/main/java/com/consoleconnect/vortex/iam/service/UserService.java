@@ -73,7 +73,7 @@ public class UserService {
     return consoleConnectClient.listMembers(userContext.getOrgId()).stream()
         .filter(member -> member.getId().equals(userId))
         .findFirst()
-        .orElseThrow(() -> VortexException.notFound("Member not found"));
+        .orElseThrow(VortexException::notFound);
   }
 
   private UserInfo getUserInfo(UserContext userContext, String username) {

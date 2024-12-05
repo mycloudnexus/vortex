@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class GatewayProperty {
-  private String pathPrefix = "/downstream";
+  private String pathPrefix;
 }

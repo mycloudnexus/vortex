@@ -9,7 +9,6 @@ import com.consoleconnect.vortex.gateway.dto.UpdatePathAccessRuleRequest;
 import com.consoleconnect.vortex.gateway.entity.PathAccessRuleEntity;
 import com.consoleconnect.vortex.gateway.enums.AccessActionEnum;
 import com.consoleconnect.vortex.gateway.mapper.PathAccessControlMapper;
-import com.consoleconnect.vortex.gateway.model.GatewayProperty;
 import com.consoleconnect.vortex.gateway.model.PathAccessRuleTable;
 import com.consoleconnect.vortex.gateway.repo.PathAccessRuleRepository;
 import com.consoleconnect.vortex.gateway.toolkit.PathMatcherToolkit;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Service;
 public class PathAccessRuleService {
 
   private final PathAccessRuleRepository repo;
-  private final GatewayProperty gatewayProperty;
 
   public Paging<PathAccessRule> search(
       String method, String path, AccessActionEnum action, int page, int size) {
@@ -51,7 +49,7 @@ public class PathAccessRuleService {
   public PathAccessRule findOne(String id) {
     return repo.findById(UUID.fromString(id))
         .map(PathAccessControlMapper.INSTANCE::toDto)
-        .orElseThrow(() -> VortexException.notFound("not found"));
+        .orElseThrow(VortexException::notFound);
   }
 
   private PathAccessRuleTable getPathAccessRuleTable(List<PathAccessRule> defaultRules) {
@@ -99,7 +97,7 @@ public class PathAccessRuleService {
   public PathAccessRule update(String id, UpdatePathAccessRuleRequest request, String updatedBy) {
     log.info("update, id:{}, updatedBy:{}", id, updatedBy);
     PathAccessRuleEntity entity =
-        repo.findById(UUID.fromString(id)).orElseThrow(() -> VortexException.notFound("not found"));
+        repo.findById(UUID.fromString(id)).orElseThrow(VortexException::notFound);
     if (request.getPath() != null) {
       entity.setPath(request.getPath());
     }
@@ -117,7 +115,7 @@ public class PathAccessRuleService {
   public PathAccessRule delete(String id, String deletedBy) {
     log.info("delete, id:{}, deletedBy:{}", id, deletedBy);
     PathAccessRuleEntity entity =
-        repo.findById(UUID.fromString(id)).orElseThrow(() -> VortexException.notFound("not found"));
+        repo.findById(UUID.fromString(id)).orElseThrow(VortexException::notFound);
     repo.delete(entity);
     return PathAccessControlMapper.INSTANCE.toDto(entity);
   }
