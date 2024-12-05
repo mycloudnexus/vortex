@@ -18,8 +18,6 @@
 }
 
 .container {
-  height: calc(100vh - 78px);
-
   :global {
     .ant-layout-sider-children {
       height: calc(100% + 200px);

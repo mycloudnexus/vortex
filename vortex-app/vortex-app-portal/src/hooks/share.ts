@@ -1,4 +1,5 @@
 import { useAppStore } from '@/stores/app.store'
+
 const useInitialData = () => {
   const { roleList, user, currentAuth0User } = useAppStore()
 

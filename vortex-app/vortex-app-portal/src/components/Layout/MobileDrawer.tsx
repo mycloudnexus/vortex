@@ -1,7 +1,7 @@
-import { Avatar, Col, Drawer, Flex, Row } from 'antd'
-import * as styles from './index.module.scss'
 import { Fragment } from 'react'
+import { Avatar, Col, Drawer, Flex, Row } from 'antd'
 import { CloseOutlined, LogoutOutlined } from '@ant-design/icons'
+import * as styles from './index.module.scss'
 
 type Props = {
   open: boolean
@@ -16,7 +16,11 @@ const MobileDrawer = ({ open, onClose }: Props) => {
   ]
   return (
     <Drawer
-      headerStyle={{ display: 'none' }}
+      styles={{
+        header: {
+          display: 'none'
+        }
+      }}
       className={styles.drawer}
       open={open}
       width={`calc(100vw - 145px)`}
