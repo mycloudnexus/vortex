@@ -50,7 +50,6 @@ describe('Authenticate component', () => {
     jest
       .spyOn(Auth0, 'useAuth0')
       .mockReturnValue({ isAuthenticated: false, isLoading: true, getAccessTokenSilently: jest.fn() } as any)
-    // .ant-skeleton
     const { container } = render(<AuthenticateDom />)
     const ele = container.querySelector('.ant-skeleton')
     expect(ele).toBeInTheDocument()

@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Layout component renders the Authenticate component with authenticated  1`] = `
+<div
+  class="ant-skeleton css-dev-only-do-not-override-49qm"
+>
+  <div
+    class="ant-skeleton-content"
+  >
+    <h3
+      class="ant-skeleton-title"
+      style="width: 38%;"
+    />
+    <ul
+      class="ant-skeleton-paragraph"
+    >
+      <li />
+      <li />
+      <li
+        style="width: 61%;"
+      />
+    </ul>
+  </div>
+</div>
+`;

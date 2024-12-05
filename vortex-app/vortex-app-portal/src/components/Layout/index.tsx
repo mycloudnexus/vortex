@@ -49,10 +49,11 @@ const BaseLayout = () => {
   `
   const { isMobile } = useDeviceDetect()
   const [activeKeys, setActiveKeys] = useState(['1'])
+  const [openKeys, setOpenKeys] = useState<string[]>()
   const { value: collapsed, setValue: setCollapsed, setTrue: trueCollapse, setFalse: falseCollapse } = useBoolean(false)
   const { value: mainMobileDrawer, toggle: toggleDrawer, setFalse: falseDrawer } = useBoolean(false)
   const location = useLocation()
-  const [openKeys, setOpenKeys] = useState<string[]>()
+
   const navigate = useNavigate()
   const { data: userData } = useGetUserAuthDetail()
   const { data: roleData } = useGetUserRole()

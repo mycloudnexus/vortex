@@ -11,7 +11,7 @@ jest.mock('react-router-dom', () => ({
 describe('NavMain component ', () => {
   it('NavMain render', () => {
     const { getByText } = render(<NavMain />)
-    const elem = getByText('goPartnerConnect')
+    const elem = getByText(/Console Connect Private Label/i)
     expect(elem).toBeInTheDocument()
   })
 })
