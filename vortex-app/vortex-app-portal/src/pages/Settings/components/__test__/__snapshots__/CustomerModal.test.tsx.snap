@@ -65,7 +65,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                   class="ant-modal-title"
                   id="test-id"
                 >
-                  Modify Customer company
+                  Modify customer
                 </div>
               </div>
               <div
@@ -94,7 +94,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                             class="ant-flex css-dev-only-do-not-override-49qm ant-flex-align-center"
                             style="gap: 5px;"
                           >
-                            Customer company name
+                            Customer name
                             <span
                               style="color: red;"
                             >
@@ -144,7 +144,7 @@ exports[`CustomerCompanyModal renders the modal correctly with title and inputs 
                             class="ant-flex css-dev-only-do-not-override-49qm ant-flex-align-center"
                             style="gap: 5px;"
                           >
-                            Customer company URL short name
+                            Customer URL short name
                             <span
                               data-testid="mocked-svg"
                               style="display: flex; justify-content: center;"
