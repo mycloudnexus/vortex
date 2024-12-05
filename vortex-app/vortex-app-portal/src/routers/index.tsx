@@ -32,6 +32,14 @@ export const routes: IRouteObject[] = [
         breadCrumbName: 'Dashboard'
       },
       {
+        path: 'ports/*',
+        element: <EdgeModuleContainer />
+      },
+      {
+        path: '/port',
+        element: <div>port</div>
+      },
+      {
         path: '/settings',
         element: <Outlet />,
         breadCrumbName: 'Settings',

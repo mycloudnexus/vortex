@@ -5,18 +5,21 @@ import { ENV } from '@/constant'
 export const useAppStore = create<AppStore>()((set) => ({
   appLogo: '',
   setAppLogo: (appLogo: string) => set({ appLogo }),
-  currentCompany: {
-    id: 'po',
-    name: 'poping'
-  },
+  currentCompany: undefined,
   setCurrentCompany: (currentCompany) => set({ currentCompany }),
   setCurrentAuth0User: (currentAuth0User) => set({ currentAuth0User }),
   currentAuth0User: null,
   mainColor: ENV.THEME_COLOR ?? '#FF7900',
-  user: null,
-  setUser: (user) => set({ user }),
+  downstreamUser: null,
+  setDownstreamUser: (downstreamUser) => set({ downstreamUser }),
   roleList: null,
   setRoleList: (roleList) => set({ roleList }),
   userType: 'reseller',
-  setuserType: (userType) => set({ userType })
+  setuserType: (userType) => set({ userType }),
+  customerUser: null,
+  setVortexUser: (customerUser) => set({ customerUser }),
+  customerCompanies: [],
+  setCustomerCompanies: (customerCompanies) => set({ customerCompanies }),
+  customerCompaniesLoading: false,
+  setCustomerCompaniesLoading: (customerCompaniesLoading) => set({ customerCompaniesLoading })
 }))

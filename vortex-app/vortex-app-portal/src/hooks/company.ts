@@ -11,7 +11,13 @@ import { useMutation, useQuery, UseQueryOptions, UseQueryResult } from 'react-qu
 export const useGetCompanyList = (
   config: UseQueryOptions<RequestResponse<IOrganization>, Error> = {}
 ): UseQueryResult<RequestResponse<IOrganization>, Error> => {
-  return useQuery<RequestResponse<IOrganization>, Error>(['getCompanyList'], () => getCompanyList(), config)
+  const haveOrg = Boolean(window.localStorage.getItem('org'))
+  return useQuery<RequestResponse<IOrganization>, Error>(['getCompanyList', config], () => {
+    return getCompanyList()
+  }, {
+    enabled: !haveOrg,
+    ...config
+  })
 }
 
 export const useAddOrganization = () => {
