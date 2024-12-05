@@ -11,11 +11,18 @@ spring:
             - name: PathAccessRestriction
               args:
                 customerType: CUSTOMER
-                defaultAction: ALLOWED
-                rules:
-                  method: GET
-                  path: /api/auth/token
-                  action: ALLOWED
+                defaultAction: DENIED
+                allowed:
+                  - path: /api/**
+                    methods:
+                      - GET
+                denies:
+                  - path: /api/**
+                    methods:
+                      - PUT
+                      - DELETE
+                      - POST
+                      - PATCH
             - RewritePath=${app.gateway.path-prefix}/(?<path>.*), /$\{path}
             - RemoveRequestHeader=Authorization
             - name: SetAPIKey

@@ -65,17 +65,17 @@ spring:
               args:
                 customerType: CUSTOMER
                 defaultAction: DENIED
-                rules:
-                  - method: GET
-                    path: /api/auth/token
-                    action: ALLOWED
-                  - method: PUT
-                    path: /api/company/${app.iam.downstream.company.username}/ports/orders
-                    action: ALLOWED
-                  - method: GET
-                    path: /api/company/${app.iam.downstream.company.username}/ports/orders
-                    action: ALLOWED
-                  - method: PUT
+                allowed:
+                  - path: /api/**
+                    methods:
+                      - GET
+                denied:
+                  - path: /api/**
+                    methods:
+                      - POST
+                      - PUT
+                      - PATCH
+                      - DELETE
             - RewritePath=${app.gateway.path-prefix}/(?<path>.*), /$\{path}
             - RemoveRequestHeader=Authorization
             - name: SetAPIKey

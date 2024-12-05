@@ -6,6 +6,7 @@ import com.consoleconnect.vortex.gateway.model.GatewayProperty;
 import com.consoleconnect.vortex.gateway.service.PathAccessRuleService;
 import com.consoleconnect.vortex.iam.enums.CustomerTypeEnum;
 import com.consoleconnect.vortex.iam.model.IamConstants;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -68,8 +69,16 @@ public class PathAccessRestrictionGatewayFilterFactory
         path = path.substring(gatewayProperty.getPathPrefix().length());
       }
       log.info("making access decision on ,{} {}", method, path);
-      AccessActionEnum decision =
-          pathAccessRuleService.makeAccessDecision(method, path, config.getRules());
+      List<PathAccessRule> rules = new ArrayList<>();
+      rules.addAll(
+          config.getAllowed().stream()
+              .flatMap(p -> p.toPathAccessRules(AccessActionEnum.ALLOWED).stream())
+              .toList());
+      rules.addAll(
+          config.getDenied().stream()
+              .flatMap(p -> p.toPathAccessRules(AccessActionEnum.DENIED).stream())
+              .toList());
+      AccessActionEnum decision = pathAccessRuleService.makeAccessDecision(method, path, rules);
       if (decision == AccessActionEnum.UNDEFINED) {
         decision = config.getDefaultAction();
       }
@@ -92,6 +101,27 @@ public class PathAccessRestrictionGatewayFilterFactory
   public static class Config {
     private CustomerTypeEnum customerType = CustomerTypeEnum.CUSTOMER;
     private AccessActionEnum defaultAction = AccessActionEnum.ALLOWED;
-    private List<PathAccessRule> rules;
+
+    private List<PathDefinition> allowed = List.of();
+    private List<PathDefinition> denied = List.of();
+  }
+
+  @Data
+  public static class PathDefinition {
+    private String path;
+    private List<String> methods;
+
+    public List<PathAccessRule> toPathAccessRules(AccessActionEnum action) {
+      return methods.stream()
+          .map(
+              method -> {
+                PathAccessRule rule = new PathAccessRule();
+                rule.setMethod(method);
+                rule.setPath(path);
+                rule.setAction(action);
+                return rule;
+              })
+          .toList();
+    }
   }
 }
