@@ -22,7 +22,6 @@ const CompanyPage = (): ReactElement => {
     enabled: !!orgId
   })
   const loginMethod = data?.data?.metadata?.loginType
-  console.log(data?.data?.metadata?.loginType)
   const items: TabsProps['items'] = [
     {
       key: '1',

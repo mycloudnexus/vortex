@@ -1,10 +1,9 @@
 import Text from '@/components/Text'
 import { UploadOutlined } from '@ant-design/icons'
-import { Button, Flex, Form, Input, Select, Switch, Upload, UploadFile } from 'antd'
-import { Fragment, useEffect, useState, type ReactElement } from 'react'
+import { Button, Flex, Form, FormProps, Input, Select, Switch, Upload, UploadFile } from 'antd'
+import { Fragment, useState, type ReactElement } from 'react'
 import { StyledButton, StyledForm, StyledFormItem } from './styled'
 import { useAppStore } from '@/stores/app.store'
-import { useLocation } from 'react-router-dom'
 import ConfirmationModal from './ConfirmationModal'
 
 interface SSOForm {
@@ -24,27 +23,38 @@ interface SSOFormProps {
 const SSOForm = ({ loginMethod }: SSOFormProps): ReactElement => {
   const [form] = Form.useForm()
   const { mainColor } = useAppStore()
-  const location = useLocation()
-  const orgId = location?.state?.record?.id ?? ''
-  console.log(orgId)
   const [warning, setWarning] = useState<boolean>(false)
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
   const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true)
   const [showSignRequest, setShowSignRequest] = useState<boolean>(false)
   const [fileList, setFileList] = useState<UploadFile[]>([])
-  const changeValues = (changedValues: Partial<SSOForm>): void => {
-    if (changedValues.signRequest !== undefined) {
-      setShowSignRequest(changedValues.signRequest)
+  const changeValues: FormProps['onValuesChange'] = (
+    changedValues: Partial<SSOForm>,
+    allValues: Partial<SSOForm>
+  ): void => {
+    const { signRequest } = changedValues
+    if (signRequest !== undefined) {
+      setShowSignRequest(signRequest)
+    }
+
+    const { signInEndpoint, signingCert } = allValues
+
+    if (signInEndpoint && signingCert) {
+      form
+        .validateFields(['signInEndpoint', 'signingCert'], { validateOnly: true })
+        .then(() => setIsButtonDisabled(true))
+        .catch(() => setIsButtonDisabled(false))
+    } else {
+      setIsButtonDisabled(true)
     }
   }
+
   const handleCloseWarning = (): void => {
     form.resetFields()
     setWarning(false)
   }
   const handleOpenWarning = (): void => setWarning(true)
   const handleWarningSubmit = (): void => {
-    // removeAllUser(companyKey)
-    // updateLoginMethod(companyKey, 'sso-saml')
     setIsSubmitted(true)
     handleCloseWarning()
     setIsButtonDisabled(true)
@@ -52,8 +62,8 @@ const SSOForm = ({ loginMethod }: SSOFormProps): ReactElement => {
 
   const handleSubmit = async (): Promise<void> => {
     try {
-      const values = await form.validateFields()
-      console.log(values)
+      //This will be used on integration
+      // const values = await form.validateFields()
       if (loginMethod === 'email') {
         handleOpenWarning()
         return
@@ -65,15 +75,6 @@ const SSOForm = ({ loginMethod }: SSOFormProps): ReactElement => {
       console.log(error)
     }
   }
-
-  const values = Form.useWatch([], form)
-
-  useEffect(() => {
-    form
-      .validateFields({ validateOnly: true })
-      .then(() => setIsButtonDisabled(false))
-      .catch(() => setIsButtonDisabled(true))
-  }, [values, form])
 
   const handleRemove = () => {
     form.setFieldsValue({ signCertificate: undefined })
