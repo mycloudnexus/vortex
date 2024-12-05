@@ -1,5 +1,5 @@
 import request from '@/utils/helpers/request'
-import { USER_INFO, AUTH_TOKEN, USER_ROLE, ORGANIZATIONS } from './api'
+import { ORGANIZATIONS } from './api'
 import {
   CreateOrganizationRequestBody,
   CreateOrganizationResponse,
@@ -7,18 +7,6 @@ import {
   RequestResponse,
   UpdateOrganizationRequestBody
 } from './types'
-
-export const getUserDetail = (name: string) => {
-  return request(`${USER_INFO}/${name}`, {})
-}
-
-export const getUserAuthToken = () => {
-  return request(AUTH_TOKEN)
-}
-
-export const getUserRole = () => {
-  return request(USER_ROLE)
-}
 
 export const getCompanyList = async (): Promise<RequestResponse<IOrganization>> => {
   try {

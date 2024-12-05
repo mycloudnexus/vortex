@@ -18,7 +18,7 @@ import { Button, Flex, Form, notification, Space, TableProps, Typography } from 
 import { StyledButton, StyledModal, StyledTable, StyledWrapper } from '../components/styled'
 import CustomerCompanyModal from '../components/CustomerModal'
 import Tooltip from '../components/Tooltip'
-import { useAddOrganization, useGetCompanyList, useUpdateOrganization } from '@/hooks/company'
+import { useAddOrganization, useUpdateOrganization } from '@/hooks/company'
 import { useQueryClient } from 'react-query'
 
 const createColumns = (
@@ -136,8 +136,7 @@ const CustomerCompany = (): ReactElement => {
   const [addForm] = Form.useForm<CreateOrganizationRequestBody>()
   const [editForm] = Form.useForm()
   const [api, contextHolder] = notification.useNotification({ top: 80 })
-  const { data, isFetching } = useGetCompanyList()
-  const companies = data?.data?.data ?? []
+  const { customerCompanies, customerCompaniesLoading } = useAppStore()
   const { mutate } = useAddOrganization()
   const { mutate: updateMutate } = useUpdateOrganization()
   const { mainColor } = useAppStore()
@@ -262,7 +261,7 @@ const CustomerCompany = (): ReactElement => {
     handleOpenDeactivate()
   }
   const handleClick = (): void => {
-    if (companies.length > 200) {
+    if (customerCompanies.length > 200) {
       return handleOpenWarning()
     }
     showModal()
@@ -324,13 +323,13 @@ const CustomerCompany = (): ReactElement => {
       </Flex>
 
       <StyledTable
-        loading={isFetching}
+        loading={customerCompaniesLoading}
         columns={createColumns(
           (record) => openUpdateModal(record),
           (key) => handleActivate(key),
           (key) => handleDeactivate(key)
         )}
-        dataSource={companies}
+        dataSource={customerCompanies}
         pagination={false}
         onRow={(record) => {
           return {
@@ -353,7 +352,7 @@ const CustomerCompany = (): ReactElement => {
       <CustomerCompanyModal
         title='Add customer company'
         name='add_customer_company'
-        companies={companies}
+        companies={customerCompanies}
         form={addForm}
         handleCancel={handleCancel}
         handleOk={handleOk}
