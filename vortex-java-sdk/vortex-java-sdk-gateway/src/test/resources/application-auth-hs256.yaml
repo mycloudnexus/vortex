@@ -6,23 +6,31 @@ spring:
         - id: downstream-api
           uri: ${app.iam.downstream.base-url}
           predicates:
-            - Path=/downstream/**
+            - Path=${app.gateway.path-prefix}/**
           filters:
-            - RewritePath=/downstream/(?<path>.*), /$\{path}
+            - name: PathAccessRestriction
+              args:
+                customerType: CUSTOMER
+                defaultAction: ALLOWED
+                rules:
+                  method: GET
+                  path: /api/auth/token
+                  action: ALLOWED
+            - RewritePath=${app.gateway.path-prefix}/(?<path>.*), /$\{path}
             - RemoveRequestHeader=Authorization
             - name: SetAPIKey
             - name: ResponseBodyTransformer
               args:
                 specifications:
                   - http-method: PUT
-                    http-path: /downstream/api/company/${app.iam.downstream.company.username}/ports/orders
+                    http-path: /api/company/${app.iam.downstream.company.username}/ports/orders
                     transformer: RESOURCE_CREATE
                     resource-type: ORDER_PORT
                     response-data-path: $
                     options:
                       orderId: id
                   - http-method: GET
-                    http-path: /downstream/api/company/${app.iam.downstream.company.username}/ports/orders
+                    http-path: /api/company/${app.iam.downstream.company.username}/ports/orders
                     transformer: RESOURCES_LIST_AND_FILTER
                     resource-type: ORDER_PORT
                     response-data-path: $.results
@@ -35,7 +43,7 @@ spring:
                     options:
                       filter: "#data.?[#orderIds.contains(id)]"
                   - http-method: GET
-                    http-path: /downstream/api/company/${app.iam.downstream.company.username}/ports
+                    http-path: /api/company/${app.iam.downstream.company.username}/ports
                     transformer: RESOURCES_LIST_AND_FILTER
                     resource-type: ORDER_PORT
                     response-data-path: $.results
@@ -43,7 +51,7 @@ spring:
                       filter: "#data.?[#resourceIds.contains(id)]"
                   - when: "#customerType == 'CUSTOMER'"
                     http-method: GET
-                    http-path: /downstream/api/company/${app.iam.downstream.company.username}/ports/{portId}/connections
+                    http-path: /api/company/${app.iam.downstream.company.username}/ports/{portId}/connections
                     transformer: RESOURCES_LIST_AND_MODIFY
                     resource-type: ORDER_PORT
                     response-data-path: $.results
@@ -79,3 +87,5 @@ app:
         id: 65a4f18aec61ae42ae9606dfx0000
         username: reseller-username
         admin-user-id: 5d773f33c7e294000b763af6
+  gateway:
+    path-prefix: /downstream
