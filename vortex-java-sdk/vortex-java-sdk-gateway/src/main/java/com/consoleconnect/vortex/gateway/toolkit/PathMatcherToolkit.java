@@ -7,6 +7,8 @@ import org.springframework.util.PathMatcher;
 
 public class PathMatcherToolkit {
 
+  private PathMatcherToolkit() {}
+
   private static final PathMatcher pathMatcher =
       new AntPathMatcher(); // Default Spring implementation
 
