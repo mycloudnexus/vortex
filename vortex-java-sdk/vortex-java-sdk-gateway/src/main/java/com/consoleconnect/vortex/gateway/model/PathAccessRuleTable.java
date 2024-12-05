@@ -36,13 +36,4 @@ public class PathAccessRuleTable {
 
     return new PathAccessRuleTable(method2Rules);
   }
-
-  public void dump() {
-    System.out.println("total:" + method2Rules.size());
-    for (Map.Entry<String, List<PathAccessRule>> entry : method2Rules.entrySet()) {
-      for (PathAccessRule rule : entry.getValue()) {
-        System.out.println(rule.getMethod() + " " + rule.getPath() + ":" + rule.getAction());
-      }
-    }
-  }
 }

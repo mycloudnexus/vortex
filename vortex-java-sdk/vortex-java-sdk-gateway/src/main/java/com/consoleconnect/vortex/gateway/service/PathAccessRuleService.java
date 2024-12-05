@@ -74,10 +74,8 @@ public class PathAccessRuleService {
       String method, String path, List<PathAccessRule> defaultRules) {
     log.info("makeAccessDecision, method:{}, path:{}", method, path);
     PathAccessRuleTable table = getPathAccessRuleTable(defaultRules);
-    table.dump();
     // any denied rules
     List<String> deniedPathPatterns = table.getPaths(method, AccessActionEnum.DENIED);
-    deniedPathPatterns.forEach(System.out::println);
     Optional<String> matchedDeniedPath =
         PathMatcherToolkit.findFirstMatch(deniedPathPatterns, path);
     if (matchedDeniedPath.isPresent()) {
@@ -86,7 +84,6 @@ public class PathAccessRuleService {
     }
     // any allowed rules
     List<String> allowedPathPatterns = table.getPaths(method, AccessActionEnum.ALLOWED);
-    allowedPathPatterns.forEach(System.out::println);
     Optional<String> matchedAllowedPath =
         PathMatcherToolkit.findFirstMatch(allowedPathPatterns, path);
     if (matchedAllowedPath.isPresent()) {
