@@ -4,7 +4,7 @@ import com.consoleconnect.vortex.gateway.dto.PathAccessRule;
 import com.consoleconnect.vortex.gateway.enums.AccessActionEnum;
 import com.consoleconnect.vortex.gateway.model.GatewayProperty;
 import com.consoleconnect.vortex.gateway.service.PathAccessRuleService;
-import com.consoleconnect.vortex.iam.enums.CustomerTypeEnum;
+import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,10 +56,10 @@ public class PathAccessRestrictionGatewayFilterFactory
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-      CustomerTypeEnum customerType = exchange.getAttribute(IamConstants.X_VORTEX_CUSTOMER_TYPE);
-      log.info("PathAccessRuleFilter, customerType:{}", customerType);
+      UserTypeEnum userType = exchange.getAttribute(IamConstants.X_VORTEX_USER_TYPE);
+      log.info("PathAccessRuleFilter, userType:{}", userType);
 
-      if (customerType != config.getCustomerType()) {
+      if (userType != config.getUserType()) {
         return chain.filter(exchange);
       }
 
@@ -99,7 +99,7 @@ public class PathAccessRestrictionGatewayFilterFactory
 
   @Data
   public static class Config {
-    private CustomerTypeEnum customerType = CustomerTypeEnum.CUSTOMER;
+    private UserTypeEnum userType = UserTypeEnum.CUSTOMER_USER;
     private AccessActionEnum defaultAction = AccessActionEnum.ALLOWED;
 
     private List<PathDefinition> allowed = List.of();

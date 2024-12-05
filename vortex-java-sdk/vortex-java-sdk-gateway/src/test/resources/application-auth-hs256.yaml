@@ -10,9 +10,12 @@ spring:
           filters:
             - name: PathAccessRestriction
               args:
-                customerType: CUSTOMER
+                userType: CUSTOMER_USER
                 defaultAction: DENIED
                 allowed:
+                  - path: /auth/token
+                    methods:
+                      - GET
                   - path: /api/**
                     methods:
                       - GET
