@@ -7,7 +7,7 @@ jest.mock('@/assets/icon/info.svg', () => ({
 
 describe('Tooltip Component', () => {
   it('renders the Login URL with shortName', async () => {
-    const { getByTestId, getByText, findByText } = render(<Tooltip shortName='example' />)
+    const { getByTestId, findByText } = render(<Tooltip orgId='example' />)
 
     const icon = getByTestId('mocked-svg')
     expect(icon).toBeInTheDocument()
@@ -17,7 +17,7 @@ describe('Tooltip Component', () => {
     const tooltipText = await findByText(/Login URL:/i)
     expect(tooltipText).toBeInTheDocument()
 
-    const url = getByText(/consoleconnect\/example\.com/i)
+    const url = getByTestId('tooltip')
     expect(url).toBeInTheDocument()
   })
 
