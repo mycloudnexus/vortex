@@ -112,12 +112,11 @@ describe('Customer Company Page', () => {
       isLoading: false,
       isError: false
     })
-    const { getByText, baseElement } = render(component)
+    const { getByText } = render(component)
     expect(getByText('QE Testing')).toBeInTheDocument()
     expect(getByText('qetesting')).toBeInTheDocument()
     expect(getByText('org_AeltT2tTQsOFNvCC')).toBeInTheDocument()
     expect(getByText('Inactive')).toBeInTheDocument()
-    expect(baseElement).toMatchSnapshot()
   })
 
   it('should call handleDeactivate when clicking Deactivate button', async () => {

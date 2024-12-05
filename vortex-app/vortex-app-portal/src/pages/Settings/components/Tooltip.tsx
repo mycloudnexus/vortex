@@ -4,20 +4,23 @@ import { ReactComponent as CCInfo } from '@/assets/icon/info.svg'
 
 import { Tooltip as AntTooltip, TooltipProps, Typography } from 'antd'
 
-type CustomToolTipProps = { shortName?: string; message?: string }
+type CustomToolTipProps = { message?: string; orgId?: string }
 type TooltipPropsCustom = CustomToolTipProps & TooltipProps
 
-const Tooltip = ({ shortName = '', message = '', ...rest }: TooltipPropsCustom): ReactElement => {
-  const UrlGenerate = (val: string): string => `https://consoleconnect/${val}.com`
-
+const UrlGenerate = (val: string): string => `${window.location.origin}/${val}/login`
+const Tooltip = ({ message = '', orgId = '', ...rest }: TooltipPropsCustom): ReactElement => {
   return (
     <AntTooltip
       title={
-        shortName ? (
-          <Typography.Paragraph copyable={{ text: shortName }} style={{ display: 'flex', alignItems: 'flex-start' }}>
+        orgId ? (
+          <Typography.Paragraph
+            copyable={{ text: UrlGenerate(orgId) }}
+            style={{ display: 'flex', alignItems: 'flex-start' }}
+            data-testid='tooltip'
+          >
             Login URL:
             <br />
-            {UrlGenerate(shortName)}
+            {UrlGenerate(orgId)}
           </Typography.Paragraph>
         ) : (
           message
@@ -26,7 +29,7 @@ const Tooltip = ({ shortName = '', message = '', ...rest }: TooltipPropsCustom):
       arrow
       {...rest}
     >
-      <span data-testid='mocked-svg'>
+      <span data-testid='mocked-svg' style={{ display: 'flex', justifyContent: 'center' }}>
         <CCInfo />
       </span>
     </AntTooltip>

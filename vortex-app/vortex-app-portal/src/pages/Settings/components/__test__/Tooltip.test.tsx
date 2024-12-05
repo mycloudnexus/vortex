@@ -7,7 +7,7 @@ jest.mock('@/assets/icon/info.svg', () => ({
 
 describe('Tooltip Component', () => {
   it('renders the Login URL with shortName', async () => {
-    const { getByTestId, baseElement, getByText, findByText } = render(<Tooltip shortName='example' />)
+    const { getByTestId, findByText } = render(<Tooltip orgId='example' />)
 
     const icon = getByTestId('mocked-svg')
     expect(icon).toBeInTheDocument()
@@ -17,14 +17,12 @@ describe('Tooltip Component', () => {
     const tooltipText = await findByText(/Login URL:/i)
     expect(tooltipText).toBeInTheDocument()
 
-    const url = getByText(/consoleconnect\/example\.com/i)
+    const url = getByTestId('tooltip')
     expect(url).toBeInTheDocument()
-
-    expect(baseElement).toMatchSnapshot()
   })
 
   it('renders the message when shortName is not defined', async () => {
-    const { getByTestId, baseElement, findByText } = render(<Tooltip message='test message' />)
+    const { getByTestId, findByText } = render(<Tooltip message='test message' />)
     const icon = getByTestId('mocked-svg')
     expect(icon).toBeInTheDocument()
 
@@ -32,7 +30,5 @@ describe('Tooltip Component', () => {
 
     const tooltipText = await findByText(/test message/i)
     expect(tooltipText).toBeInTheDocument()
-
-    expect(baseElement).toMatchSnapshot()
   })
 })

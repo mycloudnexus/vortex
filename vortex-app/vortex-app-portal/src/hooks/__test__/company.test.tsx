@@ -1,13 +1,14 @@
 import { CreateOrganizationResponse, IOrganization, RequestResponse } from '@/services/types'
 import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { useAddOrganization, useGetCompanyList, useUpdateOrganization } from '../company'
-import { createOrganization, getCompanyList, updateOrganization } from '@/services'
+import { useAddOrganization, useGetCompanyList, useGetOrganizationById, useUpdateOrganization } from '../company'
+import { createOrganization, getCompanyList, getOrganizationById, updateOrganization } from '@/services'
 
 jest.mock('@/services', () => ({
   getCompanyList: jest.fn(),
   createOrganization: jest.fn(),
-  updateOrganization: jest.fn()
+  updateOrganization: jest.fn(),
+  getOrganizationById: jest.fn()
 }))
 
 describe('Customer hooks', () => {
@@ -118,5 +119,35 @@ describe('Customer hooks', () => {
     expect(result.current.isSuccess).toBe(true)
     expect(updateOrganization).toHaveBeenCalledTimes(1)
     expect(updateOrganization).toHaveBeenCalledWith(mockRequest)
+  })
+
+  it('should fetch org data', async () => {
+    const mockResponse: CreateOrganizationResponse = {
+      code: 200,
+      message: 'OK',
+      data: {
+        name: '',
+        id: 'org_DhF9POe3xRfNvXtO',
+        display_name: '',
+        metadata: {
+          loginType: '',
+          status: '',
+          type: ''
+        },
+        branding: {
+          colors: {
+            page_background: '',
+            primary: ''
+          },
+          logo_url: ''
+        }
+      }
+    }
+    ;(getOrganizationById as jest.Mock).mockResolvedValue(mockResponse)
+    const { result } = renderHook(() => useGetOrganizationById('org_DhF9POe3xRfNvXtO'), { wrapper })
+    expect(result.current.isLoading).toBe(true)
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data).toEqual(mockResponse)
+    expect(getOrganizationById).toHaveBeenCalledTimes(1)
   })
 })
