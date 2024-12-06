@@ -27,7 +27,7 @@ jest.mock('@/stores/app.store', () => ({
   }
 }))
 
-jest.mock('@/assets/icon/*.svg', () => ({
+jest.mock('@/assets/icon/setting.svg', () => ({
   ReactComponent: () => <svg />
 }))
 jest
