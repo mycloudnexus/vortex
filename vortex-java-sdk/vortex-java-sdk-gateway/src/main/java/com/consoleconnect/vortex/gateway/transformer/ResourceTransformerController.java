@@ -2,7 +2,6 @@ package com.consoleconnect.vortex.gateway.transformer;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
-import com.consoleconnect.vortex.gateway.dto.CreateResourceRequest;
 import com.consoleconnect.vortex.gateway.entity.ResourceEntity;
 import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
 import com.consoleconnect.vortex.gateway.model.Hook;
@@ -15,43 +14,49 @@ import com.consoleconnect.vortex.iam.enums.CustomerTypeEnum;
 import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
-public abstract class AbstractResourceTransformer<T> {
+@Service
+public class ResourceTransformerController {
 
   public static final String VAR_RESOURCES = "resources";
   public static final String VAR_ORDER_IDS = "orderIds";
   public static final String VAR_RESOURCE_IDS = "resourceIds";
-  public static final String VAR_DATA = "data";
   public static final String VAR_CUSTOMER_ID = "customerId";
-  public static final String VAR_CUSTOMER_NAME = "customerName";
   public static final String VAR_USER_TYPE = "userType";
   public static final String VAR_USER_ID = "userId";
   public static final String VAR_CUSTOMER_TYPE = "customerType";
-
-  private final Class<T> cls;
 
   protected final ResourceService resourceService;
   protected final OrganizationService organizationService;
 
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-  protected AbstractResourceTransformer(
-      Class<T> cls, OrganizationService organizationService, ResourceService resourceService) {
-    this.cls = cls;
+  private final Map<TransformerIdentityEnum, AbstractTransformerChain<?>> chainMap;
+
+  public ResourceTransformerController(
+      OrganizationService organizationService,
+      ResourceService resourceService,
+      List<AbstractTransformerChain> chains) {
     this.organizationService = organizationService;
     this.resourceService = resourceService;
+    this.chainMap =
+        chains.stream()
+            .collect(Collectors.toMap(chain -> chain.getTransformerId(), chain -> chain));
   }
 
   public final byte[] transform(
-      ServerWebExchange exchange,
-      byte[] responseBody,
-      TransformerSpecification.Default specification) {
+      ServerWebExchange exchange, byte[] responseBody, TransformerSpecification specification) {
     log.info("Start to transform,specification:{}", specification);
     long start = System.currentTimeMillis();
     try {
@@ -61,9 +66,9 @@ public abstract class AbstractResourceTransformer<T> {
       String customerId = exchange.getAttribute(IamConstants.X_VORTEX_CUSTOMER_ID);
       CustomerTypeEnum customerType = exchange.getAttribute(IamConstants.X_VORTEX_CUSTOMER_TYPE);
 
-      TransformerSpecification<T> specificationInternal = specification.copy(cls);
-      String responseBodyJsonStr = new String(responseBody, StandardCharsets.UTF_8);
-      TransformerContext<T> context = new TransformerContext<>();
+      TransformerSpecification specificationInternal = specification.copy();
+      //      String responseBodyJsonStr = new String(responseBody, StandardCharsets.UTF_8);
+      TransformerContext context = new TransformerContext();
       context.setHttpMethod(exchange.getRequest().getMethod());
       context.setPath(exchange.getRequest().getURI().getPath());
       context.setCustomerId(customerId);
@@ -74,8 +79,12 @@ public abstract class AbstractResourceTransformer<T> {
       context.setVariables(buildVariables(context));
       byte[] result = responseBody;
       if (canTransform(context)) {
-        result = doTransform(responseBodyJsonStr, context).getBytes(StandardCharsets.UTF_8);
-        afterTransform(context.getData(), context); // update resource id
+        // Run transform chains
+        for (TransformerSpecification.TransformerChain chain :
+            context.getSpecification().getTransformerChains()) {
+          result = chainMap.get(chain.getChainName()).doTransform(result, context, chain);
+          afterTransform(context.getData(), context, chain); // update resource id
+        }
       } else {
         log.info("Skip transform,condition not met.");
       }
@@ -88,17 +97,7 @@ public abstract class AbstractResourceTransformer<T> {
     }
   }
 
-  protected abstract String doTransform(String data, TransformerContext<T> context);
-
-  public abstract TransformerIdentityEnum getTransformerId();
-
-  protected String extraData(String responseBody, String responseDataPath) {
-    return TransformerSpecification.JSON_ROOT.equalsIgnoreCase(responseDataPath)
-        ? responseBody
-        : JsonToolkit.toJson(JsonPathToolkit.read(responseBody, responseDataPath, Object.class));
-  }
-
-  public boolean canTransform(TransformerContext<T> context) {
+  public boolean canTransform(TransformerContext context) {
     log.info("Check if can transform,context:{}", context.getUserType());
     if (context.getSpecification().getWhen() == null
         || context.getSpecification().getWhen().isEmpty()) {
@@ -113,7 +112,7 @@ public abstract class AbstractResourceTransformer<T> {
     return conditionOn != null && conditionOn;
   }
 
-  public Map<String, Object> buildVariables(TransformerContext<T> context) {
+  public Map<String, Object> buildVariables(TransformerContext context) {
     // filter resource by customerId and resourceType
     log.info(
         "build variables:customerId:{},resourceType:{}",
@@ -146,19 +145,18 @@ public abstract class AbstractResourceTransformer<T> {
     return variables;
   }
 
-  protected void createResource(CreateResourceRequest request) {
-    this.resourceService.create(request, null);
-  }
-
   @SuppressWarnings("unchecked")
-  protected void afterTransform(List<Object> data, TransformerContext<T> context) {
+  protected void afterTransform(
+      List<Object> data,
+      TransformerContext context,
+      TransformerSpecification.TransformerChain chain) {
     log.info("afterTransform:{}", data);
     if (data == null || data.isEmpty()) {
       log.info("No data to transform,skip.");
       return;
     }
-    if (context.getSpecification().getAfterTransformHooks() == null
-        || context.getSpecification().getAfterTransformHooks().isEmpty()) {
+
+    if (chain.getAfterTransformHooks() == null || chain.getAfterTransformHooks().isEmpty()) {
       log.info("No afterTransform hooks,skip.");
       return;
     }
@@ -166,7 +164,7 @@ public abstract class AbstractResourceTransformer<T> {
     runHooks(
         data,
         (List<ResourceEntity>) context.getVariables().get(VAR_RESOURCES),
-        context.getSpecification().getAfterTransformHooks());
+        chain.getAfterTransformHooks());
   }
 
   private void runHooks(
