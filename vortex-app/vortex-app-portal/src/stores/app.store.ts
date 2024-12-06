@@ -20,9 +20,8 @@ export const useAppStore = create<AppStore>()((set) => ({
   userType: 'reseller',
   setuserType: (userType) => set({ userType }),
   customerUser: null,
-  setVortexUser: (customerUser) => set({ customerUser }),
+  setCustomerUser: (customerUser) => set({ customerUser }),
   customerCompanies: [],
   setCustomerCompanies: (customerCompanies) => set({ customerCompanies }),
-  customerCompaniesLoading: false,
-  setCustomerCompaniesLoading: (customerCompaniesLoading) => set({ customerCompaniesLoading })
+
 }))

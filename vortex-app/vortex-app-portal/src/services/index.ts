@@ -15,7 +15,7 @@ export const getCompanyList = async (): Promise<RequestResponse<IOrganization>> 
         size: 200
       }
     })
-    return response.data
+    return response?.data
   } catch (error) {
     console.error(error)
     throw error

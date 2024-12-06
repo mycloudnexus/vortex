@@ -96,10 +96,9 @@ export type AppStore = {
   userType: VortexUserType | null
   setuserType: (c: VortexUserType) => void
   customerUser: CustomerUser | null,
-  setVortexUser: (c: CustomerUser) => void,
+  setCustomerUser: (c: CustomerUser) => void,
   customerCompanies: ICompany[],
   setCustomerCompanies: (c: ICompany[]) => void,
-  customerCompaniesLoading: boolean
-  setCustomerCompaniesLoading: (c: boolean) => void,
+
 
 }
