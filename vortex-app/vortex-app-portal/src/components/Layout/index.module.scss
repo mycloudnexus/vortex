@@ -36,14 +36,34 @@
 .settingDropdown {
   :global {
     .ant-dropdown-menu {
-      background: #16263f;
+      border-radius: 2px;
+      max-height: 500px;
+      overflow: scroll;
     }
-    .ant-dropdown-menu-title-content {
-      color: #fff;
-      &:hover {
-        color: #23e0f9;
-      }
+
+    .ant-dropdown-menu-title {
+      padding: 8px 12px !important;
     }
+  }
+
+  .companyItem {
+    display: flex;
+    align-items: center;
+    padding: 3px 0;
+
+    svg {
+      margin-right: 6px;
+    }
+
+    color: var(--Texts-Primary, rgba(0, 0, 0, 0.85));
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22px;
+  }
+
+  .reseller {
+    font-weight: 500;
   }
 }
 
@@ -70,6 +90,7 @@
   width: 100%;
   color: #fff;
   cursor: pointer;
+
   &:hover {
     color: #23e0f9;
   }
@@ -84,6 +105,7 @@
     .ant-drawer-body {
       padding: 10px;
     }
+
     .ant-drawer-body {
       background: #1a263d;
     }
@@ -124,14 +146,17 @@
   padding-top: 8px;
   height: 100%;
   background: #f2f5f6;
+
   :global {
     .ant-menu-item {
       margin: 0;
       width: 100%;
     }
+
     .ant-menu-item-selected {
       background-color: #fff;
     }
+
     .ant-menu-submenu-title {
       padding-right: 13px;
       margin: 0 !important;
@@ -145,6 +170,7 @@
     .ant-drawer-body {
       padding: 0;
     }
+
     .ant-drawer-content-wrapper {
       top: 127px;
     }
