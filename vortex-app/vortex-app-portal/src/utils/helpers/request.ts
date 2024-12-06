@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/no-unused-vars */
 import axios, { isCancel } from 'axios'
-import { getToken, getOrg } from '@/utils/helpers/token'
+import { getToken } from '@/utils/helpers/token'
 import _ from 'lodash'
 import { ENV } from '@/constant'
 
@@ -10,9 +10,12 @@ const request = axios.create({
 })
 request.interceptors.request.use((config: any) => {
   const token = getToken()
+  const currentCompany = window.localStorage.getItem('currentCompany')
   if (token) {
-    // TODO for test , we should replace with CC token currently
     config.headers.Authorization = `Bearer ${getToken()}`
+  }
+  if (currentCompany) {
+    config.headers['x-vortex-customer-org-id'] = currentCompany
   }
   return config
 })

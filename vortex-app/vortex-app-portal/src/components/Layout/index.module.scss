@@ -50,7 +50,15 @@
     display: flex;
     align-items: center;
     padding: 3px 0;
-
+    min-width: 260px;
+    max-width: 350px;
+  
+    .companyName{
+      width: calc(100% - 32px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
     svg {
       margin-right: 6px;
     }
