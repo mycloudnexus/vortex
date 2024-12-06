@@ -21,7 +21,7 @@ public class TransformerSpecification {
   private String resourceInstanceId = "id";
   private String responseDataPath = JSON_ROOT;
 
-  private List<TransformerChain> transformerChains;
+  private List<TransformerChain<?>> transformerChains;
 
   private String when;
 

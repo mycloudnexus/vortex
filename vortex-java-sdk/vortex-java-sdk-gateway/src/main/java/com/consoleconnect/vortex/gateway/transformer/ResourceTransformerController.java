@@ -67,7 +67,6 @@ public class ResourceTransformerController {
       CustomerTypeEnum customerType = exchange.getAttribute(IamConstants.X_VORTEX_CUSTOMER_TYPE);
 
       TransformerSpecification specificationInternal = specification.copy();
-      //      String responseBodyJsonStr = new String(responseBody, StandardCharsets.UTF_8);
       TransformerContext context = new TransformerContext();
       context.setHttpMethod(exchange.getRequest().getMethod());
       context.setPath(exchange.getRequest().getURI().getPath());
