@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactElement } from 'react'
 
-jest.mock('queryClient/lock.svg', () => ({
+jest.mock('@/assets/icon/lock.svg', () => ({
   ReactComponent: () => <svg data-testid='lock-icon'></svg>
 }))
 
