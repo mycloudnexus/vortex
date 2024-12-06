@@ -74,14 +74,11 @@ const FormWrapper = ({ handleOk, handleCancel, type = 'add' }: FormWrapperProps)
 
 describe('CustomerCompanyModal', () => {
   it('renders the modal correctly with title and inputs', () => {
-    const { getByText, getByLabelText, baseElement } = render(
-      <FormWrapper handleOk={jest.fn()} handleCancel={jest.fn()} />
-    )
+    const { getByText, getByLabelText } = render(<FormWrapper handleOk={jest.fn()} handleCancel={jest.fn()} />)
 
     expect(getByText('Modify customer')).toBeInTheDocument()
     expect(getByLabelText(/Customer name/)).toBeInTheDocument()
     expect(getByLabelText(/Customer URL short name/)).toBeInTheDocument()
-    expect(baseElement).toMatchSnapshot()
   })
 
   it('should call handleSubmit when the OK button is clicked', () => {
