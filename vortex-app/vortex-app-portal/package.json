@@ -93,7 +93,7 @@
     ],
     "moduleNameMapper": {
       "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-      "\\.(jpg|jpeg|png|svg)$": "<rootDir>/src/test/fileMock.ts",
+      "\\.(jpg|jpeg|png)$": "<rootDir>/src/test/fileMock.ts",
       "^@/(.*)$": "<rootDir>/src/$1",
       "^.+\\.svg$": "jest-transformer-svg"
     },
