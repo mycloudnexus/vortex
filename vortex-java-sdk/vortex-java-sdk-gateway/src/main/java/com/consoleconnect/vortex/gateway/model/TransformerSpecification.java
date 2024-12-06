@@ -11,42 +11,32 @@ import org.springframework.http.HttpMethod;
 
 @Data
 @Slf4j
-public class TransformerSpecification<T> {
+public class TransformerSpecification {
 
   public static final String JSON_ROOT = "$";
 
   private HttpMethod httpMethod;
   private String httpPath;
-  private TransformerIdentityEnum transformer;
   private String resourceType;
   private String resourceInstanceId = "id";
   private String responseDataPath = JSON_ROOT;
 
-  private List<Hook.Default> beforeTransformHooks;
-  private List<Hook.Default> afterTransformHooks;
-
-  private T options;
+  private List<TransformerChain<?>> transformerChains;
 
   private String when;
 
-  private List<String> required = List.of("httpMethod", "httpPath", "transformer", "resourceType");
+  private List<String> required = List.of("httpMethod", "httpPath", "resourceType");
 
-  public <R> TransformerSpecification<R> copy(Class<R> cls) {
-    TransformerSpecification<R> transformerSpecification = new TransformerSpecification<>();
+  public TransformerSpecification copy() {
+    TransformerSpecification transformerSpecification = new TransformerSpecification();
     transformerSpecification.setHttpMethod(this.getHttpMethod());
     transformerSpecification.setHttpPath(this.getHttpPath());
-    transformerSpecification.setTransformer(this.getTransformer());
     transformerSpecification.setResourceType(this.getResourceType());
     transformerSpecification.setResourceInstanceId(this.getResourceInstanceId());
     transformerSpecification.setResponseDataPath(this.getResponseDataPath());
     transformerSpecification.setWhen(this.getWhen());
-    transformerSpecification.setBeforeTransformHooks(this.getBeforeTransformHooks());
-    transformerSpecification.setAfterTransformHooks(this.getAfterTransformHooks());
-    if (this.getOptions() == null) {
-      return transformerSpecification;
-    }
-    R renderedOptions = JsonToolkit.fromJson(JsonToolkit.toJson(this.getOptions()), cls);
-    transformerSpecification.setOptions(renderedOptions);
+
+    transformerSpecification.setTransformerChains(this.transformerChains);
     return transformerSpecification;
   }
 
@@ -67,13 +57,15 @@ public class TransformerSpecification<T> {
     return true;
   }
 
-  public static class Default extends TransformerSpecification<Map<String, Object>> {
+  @Data
+  public static class TransformerChain<O> {
+    private TransformerIdentityEnum chainName;
+    private Map<String, Object> options;
+    private List<Hook.Default> beforeTransformHooks;
+    private List<Hook.Default> afterTransformHooks;
 
-    public Map<String, Object> getOptions() {
-      if (super.getOptions() == null) {
-        return Map.of();
-      }
-      return super.getOptions();
+    public O getChanOptions(Class<O> cls) {
+      return JsonToolkit.fromJson(JsonToolkit.toJson(this.getOptions()), cls);
     }
   }
 }

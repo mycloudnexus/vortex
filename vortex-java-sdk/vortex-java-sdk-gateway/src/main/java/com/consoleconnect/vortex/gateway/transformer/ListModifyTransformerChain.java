@@ -4,12 +4,14 @@ import com.consoleconnect.vortex.core.exception.VortexException;
 import com.consoleconnect.vortex.core.toolkit.JsonToolkit;
 import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
 import com.consoleconnect.vortex.gateway.model.TransformerContext;
+import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
 import com.consoleconnect.vortex.gateway.service.ResourceService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.gateway.toolkit.SpelExpressionEngine;
 import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.jayway.jsonpath.DocumentContext;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
@@ -18,25 +20,21 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ListAndModifyResourceTransformer
-    extends AbstractResourceTransformer<ListAndModifyResourceTransformer.Options> {
+public class ListModifyTransformerChain
+    extends AbstractTransformerChain<ListModifyTransformerChain.Options> {
 
-  public ListAndModifyResourceTransformer(
+  protected ListModifyTransformerChain(
       OrganizationService organizationService, ResourceService resourceService) {
-    super(Options.class, organizationService, resourceService);
+    super(organizationService, resourceService);
   }
 
   @Override
-  public String doTransform(String responseBody, TransformerContext<Options> context) {
+  public byte[] doTransform(
+      byte[] responseBody,
+      TransformerContext context,
+      TransformerSpecification.TransformerChain<ListModifyTransformerChain.Options> chain) {
 
-    DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
-    // data to be filtered, it MUST be a list
-    List<Object> data = ctx.read(context.getSpecification().getResponseDataPath());
-
-    OrganizationInfo org = organizationService.findOne(context.getCustomerId());
-    context.getVariables().put(VAR_CUSTOMER_NAME, org.getName());
-
-    Options options = context.getSpecification().getOptions();
+    Options options = chain.getChanOptions(Options.class);
     if (options.getWhen() != null
         && Boolean.FALSE.equals(
             SpelExpressionEngine.evaluate(
@@ -45,6 +43,14 @@ public class ListAndModifyResourceTransformer
       log.info("Skip modify resource, as when condition is not met,{}", options.getWhen());
       return responseBody;
     }
+
+    String responseBodyStr = new String(responseBody, StandardCharsets.UTF_8);
+    DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBodyStr);
+    // data to be filtered, it MUST be a list
+    List<Object> data = ctx.read(context.getSpecification().getResponseDataPath());
+
+    OrganizationInfo org = organizationService.findOne(context.getCustomerId());
+    context.getVariables().put(VAR_CUSTOMER_NAME, org.getName());
 
     for (int i = 0; i < data.size(); i++) {
       for (Map.Entry<String, Object> property : options.getModifier().entrySet()) {
@@ -64,7 +70,7 @@ public class ListAndModifyResourceTransformer
       }
     }
 
-    return ctx.jsonString();
+    return ctx.jsonString().getBytes(StandardCharsets.UTF_8);
   }
 
   @Override

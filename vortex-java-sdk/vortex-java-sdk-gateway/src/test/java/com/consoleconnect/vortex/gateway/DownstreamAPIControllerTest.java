@@ -490,7 +490,7 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
     Mockito.doReturn(org).when(organizationService).findOne(Mockito.anyString());
 
     String orderId = UUID.randomUUID().toString();
-    String portId = UUID.randomUUID().toString();
+    String portId = "d7ce4aa7-0c79-44ed-ae4b-edf533c0e666";
     // create a order and set the portId
     CreateResourceRequest request = new CreateResourceRequest();
     request.setCustomerId(AuthContextConstants.CUSTOMER_COMPANY_ID);
@@ -538,7 +538,7 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
     Mockito.doReturn(org).when(organizationService).findOne(Mockito.anyString());
 
     String orderId = UUID.randomUUID().toString();
-    String portId = UUID.randomUUID().toString();
+    String portId = "d7ce4aa7-0c79-44ed-ae4b-edf533c0e666";
     // create a order and set the portId
     CreateResourceRequest request = new CreateResourceRequest();
     request.setCustomerId(AuthContextConstants.CUSTOMER_COMPANY_ID);

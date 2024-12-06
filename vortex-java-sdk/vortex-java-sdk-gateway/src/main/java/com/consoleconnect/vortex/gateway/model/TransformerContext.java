@@ -8,14 +8,14 @@ import lombok.Data;
 import org.springframework.http.HttpMethod;
 
 @Data
-public class TransformerContext<T> {
+public class TransformerContext {
   private String userId;
   private UserTypeEnum userType;
 
   private String customerId;
   private CustomerTypeEnum customerType;
 
-  private TransformerSpecification<T> specification;
+  private TransformerSpecification specification;
   private Map<String, Object> variables;
 
   private HttpMethod httpMethod;

@@ -8,6 +8,7 @@ import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.gateway.toolkit.SpelExpressionEngine;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.jayway.jsonpath.DocumentContext;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
@@ -16,25 +17,29 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ListAndFilterResourceTransformer
-    extends AbstractResourceTransformer<ListAndFilterResourceTransformer.Options> {
+public class ListFilterTransformerChain
+    extends AbstractTransformerChain<ListFilterTransformerChain.Options> {
 
-  public ListAndFilterResourceTransformer(
+  protected ListFilterTransformerChain(
       OrganizationService organizationService, ResourceService resourceService) {
-    super(Options.class, organizationService, resourceService);
+    super(organizationService, resourceService);
   }
 
   @Override
-  public String doTransform(String responseBody, TransformerContext<Options> context) {
+  public byte[] doTransform(
+      byte[] responseBody,
+      TransformerContext context,
+      TransformerSpecification.TransformerChain<ListFilterTransformerChain.Options> chain) {
 
-    DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
+    DocumentContext ctx =
+        JsonPathToolkit.createDocCtx(new String(responseBody, StandardCharsets.UTF_8));
     // data to be filtered, it MUST be a list
     List<Object> data = ctx.read(context.getSpecification().getResponseDataPath());
     context.setData(data);
 
     Object filteredData =
         this.filterData(
-            data, context.getSpecification().getOptions().getFilter(), context.getVariables());
+            data, chain.getChanOptions(Options.class).getFilter(), context.getVariables());
 
     if (TransformerSpecification.JSON_ROOT.equals(
         context.getSpecification().getResponseDataPath())) {
@@ -43,7 +48,7 @@ public class ListAndFilterResourceTransformer
       ctx.set(context.getSpecification().getResponseDataPath(), filteredData);
     }
 
-    return ctx.jsonString();
+    return ctx.jsonString().getBytes(StandardCharsets.UTF_8);
   }
 
   private Object filterData(Object data, String filter, Map<String, Object> variables) {
