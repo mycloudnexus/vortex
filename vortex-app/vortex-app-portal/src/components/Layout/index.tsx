@@ -180,33 +180,6 @@ const BaseLayout = () => {
         </Suspense>
       </Headroom>
       <Flex vertical={isMobile} className={styles.container}>
-        <SliderCustom collapsible collapsed={collapsed} onCollapse={setCollapsed} className={styles.slider}>
-          <Flex vertical style={{ background: mainColor }} className={styles.network}>
-            <Flex justify='flex-end' className={styles.collapseBtn}>
-              {!collapsed ? (
-                <DoubleLeftOutlined onClick={trueCollapse} role='none' />
-              ) : (
-                <DoubleRightOutlined onClick={falseCollapse} role='none' />
-              )}
-            </Flex>
-            <Flex gap={12} align='center' style={{ marginTop: 16 }}>
-              <img src={NetIcon} alt='network' />
-              {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
-            </Flex>
-          </Flex>
-          <Menu
-            openKeys={openKeys}
-            onOpenChange={(k) => setOpenKeys(k)}
-            onSelect={(e) => {
-              setActiveKeys(e.selectedKeys)
-            }}
-            className={styles.menu}
-            selectedKeys={activeKeys}
-            mode='inline'
-            items={items}
-            expandIcon={(iconInfo) => (iconInfo.isOpen ? <DownOutlined /> : <RightOutlined />)}
-          />
-        </SliderCustom>
         {isMobile ? (
           <Flex
             role='none'

@@ -27,22 +27,7 @@ jest.mock('@/stores/app.store', () => ({
   }
 }))
 
-jest.mock('@/assets/icon/dashboard.svg', () => ({
-  ReactComponent: () => <svg />
-}))
-jest.mock('@/assets/icon/dcport.svg', () => ({
-  ReactComponent: () => <svg />
-}))
-jest.mock('@/assets/icon/cloudrouter.svg', () => ({
-  ReactComponent: () => <svg />
-}))
-jest.mock('@/assets/icon//l2.svg', () => ({
-  ReactComponent: () => <svg />
-}))
-jest.mock('@/assets/icon/l3.svg', () => ({
-  ReactComponent: () => <svg />
-}))
-jest.mock('@/assets/icon/setting.svg', () => ({
+jest.mock('@/assets/icon/*.svg', () => ({
   ReactComponent: () => <svg />
 }))
 jest
@@ -78,14 +63,14 @@ describe('Layout component with data', () => {
     expect(userEmail).toEqual(testEmail)
   })
 })
-// describe('Layout component', () => {
-//   beforeEach(() => {
-//     jest
-//       .spyOn(Auth0, 'useAuth0')
-//       .mockReturnValue({ isAuthenticated: true, isLoading: false, user: {}, getAccessTokenSilently: jest.fn() } as any)
-//   })
-//   it('renders the layout component with authenticated ', async () => {
-//     const { container } = await act(async () => render(<BaseLayout />))
-//     expect(container.firstChild).toMatchSnapshot()
-//   })
-// })
+describe('Layout component', () => {
+  beforeEach(() => {
+    jest
+      .spyOn(Auth0, 'useAuth0')
+      .mockReturnValue({ isAuthenticated: true, isLoading: false, user: {}, getAccessTokenSilently: jest.fn() } as any)
+  })
+  it('renders the layout component with authenticated ', async () => {
+    const { container } = await act(async () => render(<BaseLayout />))
+    expect(container.firstChild).toMatchSnapshot()
+  })
+})
