@@ -1,9 +1,8 @@
 import { render } from '@testing-library/react'
-import CompanyPage from '..'
 import { MemoryRouter } from 'react-router-dom'
-
-import { QueryClient, QueryClientProvider } from 'react-query'
+import CompanyPage from '..'
 import { ReactElement } from 'react'
+import { QueryClient, QueryClientProvider } from 'react-query'
 
 jest.mock('@/assets/icon/lock.svg', () => ({
   ReactComponent: () => <svg data-testid='lock-icon'></svg>
@@ -22,11 +21,7 @@ jest.mock('@/assets/icon/info.svg', () => ({
 }))
 
 jest.mock('@/assets/icon/warning-circle.svg', () => ({
-  ReactComponent: () => <svg data-testid='warning'></svg>
-}))
-
-jest.mock('@/assets/icon/close-circle.svg', () => ({
-  ReactComponent: () => <svg data-testid='close'></svg>
+  ReactComponent: () => <svg data-testid></svg>
 }))
 
 jest.mock('@/hooks/company', () => ({
@@ -49,7 +44,6 @@ const dummyData = {
     enabled_connections: []
   }
 }
-
 describe('Company Page Component', () => {
   let component: ReactElement
   let queryClient = new QueryClient()
