@@ -52,19 +52,17 @@ export type AuthUser = {
   sub: string
   updated_at: string
   user_id: string
-
 }
 export type AuthOrg = {
-  roles: string[],
-  id: string,
-  name: string,
-  display_name: string,
+  roles: string[]
+  id: string
+  name: string
+  display_name: string
   metadata: {
-    loginType: string,
-    status: string,
+    loginType: string
+    status: string
     type: string
   }
-
 }
 export type CustomerUser = {
   email: string
@@ -72,7 +70,7 @@ export type CustomerUser = {
   name: string
   orgId: string
   roles: string[]
-  userId: string,
+  userId: string
   userInfo: AuthUser & { organization: AuthOrg }
 }
 
@@ -95,10 +93,8 @@ export type AppStore = {
   setRoleList: (c: Role | null) => void
   userType: VortexUserType | null
   setuserType: (c: VortexUserType) => void
-  customerUser: CustomerUser | null,
-  setCustomerUser: (c: CustomerUser) => void,
-  customerCompanies: ICompany[],
-  setCustomerCompanies: (c: ICompany[]) => void,
-
-
+  customerUser: CustomerUser | null
+  setCustomerUser: (c: CustomerUser) => void
+  customerCompanies: ICompany[]
+  setCustomerCompanies: (c: ICompany[]) => void
 }
