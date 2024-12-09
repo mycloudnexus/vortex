@@ -83,13 +83,9 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
 
   private void fillValByKeyPath(
       TransformerContext context, Options options, int index, DocumentContext ctx) {
-    // clear
-    for (Map.Entry<String, String> e : options.getKeysPath().entrySet()) {
-      context.getVariables().remove(e.getKey());
-    }
 
-    // reset for each item keys
     for (Map.Entry<String, String> e : options.getKeysPath().entrySet()) {
+      // reset path-value for each item keys
       String path =
           String.format(
               JSON_ARRAY_PATH_FORMAT,
