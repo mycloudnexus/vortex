@@ -1,4 +1,4 @@
-import { render, renderHook, ac } from '@testing-library/react'
+import { render, renderHook, act } from '@testing-library/react'
 import { useAppStore } from '@/stores/app.store'
 
 import SettingMenu from '../SettingsMenu'
