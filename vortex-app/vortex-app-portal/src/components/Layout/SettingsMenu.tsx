@@ -52,6 +52,9 @@ const SettingsMenu = () => {
   }, [downstreamUser])
 
   const companyItems = useMemo(() => {
+    if (!customerCompanies?.length) {
+      return []
+    }
     return [downstreamCompany, ...customerCompanies].map((i, n) => {
       return {
         label: (
