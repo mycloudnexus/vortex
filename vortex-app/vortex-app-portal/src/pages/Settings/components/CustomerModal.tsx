@@ -45,7 +45,7 @@ const CustomerCompanyModal = <T extends object>({
           name='display_name'
           label={
             <Flex align='center' gap={5}>
-              Customer company name<span style={{ color: 'red' }}>*</span>
+              Customer name<span style={{ color: 'red' }}>*</span>
             </Flex>
           }
           required={false}
@@ -69,7 +69,7 @@ const CustomerCompanyModal = <T extends object>({
           name='name'
           label={
             <Flex gap={5} align='center'>
-              Customer company URL short name
+              Customer URL short name
               <Tooltip
                 title='This is used for login url generation. Please be careful as it cannot be changed once provided.'
                 color='black'
@@ -80,7 +80,7 @@ const CustomerCompanyModal = <T extends object>({
           }
           required={false}
           rules={[
-            { required: true, message: ' Customer company URL short name cannot be empty' },
+            { required: true, message: 'Customer URL short name cannot be empty' },
             {
               pattern: /^[a-z0-9-]{1,20}$/,
               message: 'Only lowercase letters, numbers, and hyphens are allowed. No more than 20 characters.'

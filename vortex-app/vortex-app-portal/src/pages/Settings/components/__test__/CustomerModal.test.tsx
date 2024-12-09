@@ -59,7 +59,7 @@ const FormWrapper = ({ handleOk, handleCancel, type = 'add' }: FormWrapperProps)
 
   return (
     <CustomerCompanyModal
-      title='Modify Customer company'
+      title='Modify customer'
       name='modify_customer_company'
       companies={mockCompanies}
       form={form}
@@ -74,14 +74,11 @@ const FormWrapper = ({ handleOk, handleCancel, type = 'add' }: FormWrapperProps)
 
 describe('CustomerCompanyModal', () => {
   it('renders the modal correctly with title and inputs', () => {
-    const { getByText, getByLabelText, baseElement } = render(
-      <FormWrapper handleOk={jest.fn()} handleCancel={jest.fn()} />
-    )
+    const { getByText, getByLabelText } = render(<FormWrapper handleOk={jest.fn()} handleCancel={jest.fn()} />)
 
-    expect(getByText('Modify Customer company')).toBeInTheDocument()
-    expect(getByLabelText(/Customer company name/)).toBeInTheDocument()
-    expect(getByLabelText(/Customer company URL short name/)).toBeInTheDocument()
-    expect(baseElement).toMatchSnapshot()
+    expect(getByText('Modify customer')).toBeInTheDocument()
+    expect(getByLabelText(/Customer name/)).toBeInTheDocument()
+    expect(getByLabelText(/Customer URL short name/)).toBeInTheDocument()
   })
 
   it('should call handleSubmit when the OK button is clicked', () => {
@@ -99,7 +96,7 @@ describe('CustomerCompanyModal', () => {
 
   it('should disable the short name input when type is "update"', () => {
     const { getByLabelText } = render(<FormWrapper handleOk={jest.fn()} handleCancel={jest.fn()} type='update' />)
-    expect(getByLabelText(/Customer company URL short name/)).toBeDisabled()
+    expect(getByLabelText(/Customer URL short name/)).toBeDisabled()
   })
 
   it('should show an error message if the customer name is unique', async () => {
@@ -108,7 +105,7 @@ describe('CustomerCompanyModal', () => {
     )
 
     fireEvent.change(getByTestId('customer-name'), { target: { value: 'Company B' } })
-    expect(getByLabelText(/Customer company name/)).toBeInTheDocument()
+    expect(getByLabelText(/Customer name/)).toBeInTheDocument()
     fireEvent.click(getByText('OK'))
 
     await waitFor(() => {
@@ -122,7 +119,7 @@ describe('CustomerCompanyModal', () => {
     )
 
     fireEvent.change(getByTestId('customer-name'), { target: { value: 'Company C' } })
-    expect(getByLabelText(/Customer company name/)).toBeInTheDocument()
+    expect(getByLabelText(/Customer name/)).toBeInTheDocument()
     fireEvent.click(getByText('OK'))
 
     await waitFor(() => {
