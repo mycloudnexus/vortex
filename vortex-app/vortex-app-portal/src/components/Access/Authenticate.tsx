@@ -4,9 +4,9 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { filter, get } from 'lodash'
 import { useGetUserAuthDetail, useGetUserRole } from '@/hooks/user'
-import { getOrg, storeToken } from '@/utils/helpers/token'
 import { useAppStore } from '@/stores/app.store'
 import type { AuthUser } from '@/stores/type'
+import { getOrg, storeToken } from '@/utils/helpers/token'
 
 interface AuthenticateProps {
   children: ReactNode
@@ -37,11 +37,13 @@ const Authenticate = ({ children }: AuthenticateProps) => {
     if (!userDetail) return
     const companyId = get(userDetail, 'companies[0].id', '')
     const roleIds = get(userDetail, ['linkUserCompany', companyId, 'roleIds'], [])
-    const accessRole = filter(roleList, (r) => roleIds.includes(r.id) || r.systemDefault)
+    const accessRoles = filter(roleList, (r) => roleIds.includes(r.id) || r.systemDefault)
+    const allUserDetail = { ...userDetail, accessRoles }
     window.portalAccessRoles = roleList
-    window.portalLoggedInUser = userDetail
+    window.portalLoggedInUser = allUserDetail
+
     setRoleList(roleList)
-    setUser({ ...userDetail, accessRole })
+    setUser(allUserDetail)
   }, [userData, roleData])
 
   useEffect(() => {

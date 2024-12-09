@@ -26,8 +26,7 @@ module.exports = (env, argv) => {
         '@': path.resolve(__dirname, 'src')
       }
     },
-    entry: [path.join(__dirname, 'src/index.tsx')
-    ],
+    entry: [path.join(__dirname, 'src/index.tsx')],
     module: {
       rules: [
         {
@@ -37,6 +36,7 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.(s[ac]ss|css)$/,
+          include: [`${__dirname}/src`],
           use: [
             MiniCssExtractPlugin.loader,
             {
