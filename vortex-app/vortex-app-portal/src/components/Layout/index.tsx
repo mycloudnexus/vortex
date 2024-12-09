@@ -149,14 +149,14 @@ const BaseLayout = () => {
       children: [
         {
           key: '6-1',
-          label: 'Users',
+          label: 'Users (reseller)',
           onClick: () => {
             navigate('/settings/users')
           }
         },
         {
           key: '6-2',
-          label: 'Customer company',
+          label: 'Customers',
           onClick: () => {
             navigate('/settings/customer-company')
           }

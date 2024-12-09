@@ -12,7 +12,7 @@ export const getCompanyList = async (): Promise<RequestResponse<IOrganization>> 
   try {
     const response = await request(ORGANIZATIONS, {
       params: {
-        size: 200
+        size: -1
       }
     })
     return response?.data

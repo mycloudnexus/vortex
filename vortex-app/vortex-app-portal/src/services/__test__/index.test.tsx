@@ -141,7 +141,7 @@ describe('Api calls', () => {
 
       expect(mockGet).toHaveBeenCalledWith(ORGANIZATIONS, {
         params: {
-          size: 200
+          size: -1
         }
       })
       expect(result).toEqual(mockResponse)
@@ -151,7 +151,7 @@ describe('Api calls', () => {
       const mockError = new Error('Network Error')
       mockGet.mockRejectedValueOnce(mockError)
       await expect(getCompanyList()).rejects.toThrow(mockError)
-      expect(mockGet).toHaveBeenCalledWith(ORGANIZATIONS, { params: { size: 200 } })
+      expect(mockGet).toHaveBeenCalledWith(ORGANIZATIONS, { params: { size: -1 } })
     })
   })
 
