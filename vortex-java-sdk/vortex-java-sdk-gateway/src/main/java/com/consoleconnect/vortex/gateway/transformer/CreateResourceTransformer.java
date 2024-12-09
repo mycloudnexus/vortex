@@ -14,10 +14,10 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class CreateResourceTransformerChain
-    extends AbstractTransformerChain<CreateResourceTransformerChain.Options> {
+public class CreateResourceTransformer
+    extends AbstractTransformer<CreateResourceTransformer.Options> {
 
-  public CreateResourceTransformerChain(
+  public CreateResourceTransformer(
       OrganizationService organizationService, ResourceService resourceService) {
     super(organizationService, resourceService);
   }
@@ -26,7 +26,7 @@ public class CreateResourceTransformerChain
   public byte[] doTransform(
       byte[] responseBody,
       TransformerContext context,
-      TransformerSpecification.TransformerChain<CreateResourceTransformerChain.Options> chain) {
+      TransformerSpecification.TransformerChain<CreateResourceTransformer.Options> chain) {
 
     CreateResourceRequest request = new CreateResourceRequest();
     request.setCustomerId(context.getCustomerId());

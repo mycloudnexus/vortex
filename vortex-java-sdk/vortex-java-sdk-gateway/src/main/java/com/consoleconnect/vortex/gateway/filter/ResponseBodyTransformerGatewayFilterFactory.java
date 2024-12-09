@@ -3,7 +3,7 @@ package com.consoleconnect.vortex.gateway.filter;
 import static java.util.function.Function.identity;
 
 import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
-import com.consoleconnect.vortex.gateway.transformer.ResourceTransformerController;
+import com.consoleconnect.vortex.gateway.transformer.TransformerChain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,12 +42,12 @@ public class ResponseBodyTransformerGatewayFilterFactory
   private final Map<String, MessageBodyEncoder> messageBodyEncoders;
 
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
-  private final ResourceTransformerController transformerController;
+  private final TransformerChain transformerChain;
 
   public ResponseBodyTransformerGatewayFilterFactory(
       Set<MessageBodyDecoder> messageBodyDecoders,
       Set<MessageBodyEncoder> messageBodyEncoders,
-      ResourceTransformerController transformerController) {
+      TransformerChain transformerChain) {
     super(Config.class);
     this.messageBodyDecoders =
         messageBodyDecoders.stream()
@@ -55,7 +55,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
     this.messageBodyEncoders =
         messageBodyEncoders.stream()
             .collect(Collectors.toMap(MessageBodyEncoder::encodingType, identity()));
-    this.transformerController = transformerController;
+    this.transformerChain = transformerChain;
   }
 
   @Override
@@ -150,7 +150,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
         List<TransformerSpecification> specifications) {
 
       for (TransformerSpecification specification : specifications) {
-        resBytes = transformerController.transform(exchange, resBytes, specification);
+        resBytes = transformerChain.transform(exchange, resBytes, specification);
       }
 
       return resBytes;

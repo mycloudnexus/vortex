@@ -21,6 +21,10 @@
         "crossConnectId": null
       },
       "destCompany": {
+        "directConnectPartner": {
+          "type": "NONE",
+          "verified": false
+        },
         "company": {
           "registeredName": "dest company name"
         },

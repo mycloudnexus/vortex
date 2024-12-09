@@ -17,10 +17,9 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ListFilterTransformerChain
-    extends AbstractTransformerChain<ListFilterTransformerChain.Options> {
+public class ListFilterTransformer extends AbstractTransformer<ListFilterTransformer.Options> {
 
-  protected ListFilterTransformerChain(
+  protected ListFilterTransformer(
       OrganizationService organizationService, ResourceService resourceService) {
     super(organizationService, resourceService);
   }
@@ -29,7 +28,7 @@ public class ListFilterTransformerChain
   public byte[] doTransform(
       byte[] responseBody,
       TransformerContext context,
-      TransformerSpecification.TransformerChain<ListFilterTransformerChain.Options> chain) {
+      TransformerSpecification.TransformerChain<ListFilterTransformer.Options> chain) {
 
     DocumentContext ctx =
         JsonPathToolkit.createDocCtx(new String(responseBody, StandardCharsets.UTF_8));

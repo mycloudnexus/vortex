@@ -11,7 +11,7 @@ import com.consoleconnect.vortex.iam.service.OrganizationService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class AbstractTransformerChain<T> {
+public abstract class AbstractTransformer<T> {
 
   public static final String VAR_DATA = "data";
   public static final String VAR_CUSTOMER_NAME = "customerName";
@@ -19,7 +19,7 @@ public abstract class AbstractTransformerChain<T> {
   protected final ResourceService resourceService;
   protected final OrganizationService organizationService;
 
-  protected AbstractTransformerChain(
+  protected AbstractTransformer(
       OrganizationService organizationService, ResourceService resourceService) {
     this.organizationService = organizationService;
     this.resourceService = resourceService;

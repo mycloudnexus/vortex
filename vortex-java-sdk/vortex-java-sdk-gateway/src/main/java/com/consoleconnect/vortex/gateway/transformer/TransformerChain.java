@@ -27,7 +27,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
 @Service
-public class ResourceTransformerController {
+public class TransformerChain {
 
   public static final String VAR_RESOURCES = "resources";
   public static final String VAR_ORDER_IDS = "orderIds";
@@ -42,12 +42,12 @@ public class ResourceTransformerController {
 
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-  private final Map<TransformerIdentityEnum, AbstractTransformerChain<?>> chainMap;
+  private final Map<TransformerIdentityEnum, AbstractTransformer<?>> chainMap;
 
-  public ResourceTransformerController(
+  public TransformerChain(
       OrganizationService organizationService,
       ResourceService resourceService,
-      List<AbstractTransformerChain> chains) {
+      List<AbstractTransformer> chains) {
     this.organizationService = organizationService;
     this.resourceService = resourceService;
     this.chainMap =

@@ -56,7 +56,9 @@ spring:
                           filter: "#data.?[#resourceIds.contains(id)]"
                       - chain-name: RESOURCES_LIST_AND_MODIFY
                         options:
-                          when: "#resourceIds.contains(#portId)"
+                          when: "#companyPartnerType == 'NONE'"
+                          keysPath:
+                            companyPartnerType: "destCompany.directConnectPartner.type"
                           modifier:
                             destCompany:
                               name: "#customerName"
