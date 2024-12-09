@@ -14,6 +14,7 @@ import com.consoleconnect.vortex.iam.enums.CustomerTypeEnum;
 import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,19 +77,22 @@ public class TransformerChain {
       context.setUserId(userId);
       context.setUserType(userType);
       context.setVariables(buildVariables(context));
-      byte[] result = responseBody;
-      if (canTransform(context)) {
-        // Run transform chains
-        for (TransformerSpecification.TransformerChain chain :
-            context.getSpecification().getTransformerChains()) {
-          result = chainMap.get(chain.getChainName()).doTransform(result, context, chain);
-          afterTransform(context.getData(), context, chain); // update resource id
-        }
-      } else {
-        log.info("Skip transform,condition not met.");
+
+      String responseBodyJsonStr = new String(responseBody, StandardCharsets.UTF_8);
+      if (!canTransform(context)) {
+        log.info("Skip transform, condition not met.");
+        return responseBody;
+      }
+
+      // Run transform chains
+      for (TransformerSpecification.TransformerChain chain :
+          context.getSpecification().getTransformerChains()) {
+        responseBodyJsonStr =
+            chainMap.get(chain.getChainName()).doTransform(responseBodyJsonStr, context, chain);
+        afterTransform(context.getData(), context, chain); // update resource id
       }
       log.info("Transform done, time: {} ms.", System.currentTimeMillis() - start);
-      return result;
+      return responseBodyJsonStr.getBytes(StandardCharsets.UTF_8);
     } catch (Exception e) {
       String errorMsg = "Failed to transform,error:{}" + e.getMessage();
       log.error("{}", errorMsg);

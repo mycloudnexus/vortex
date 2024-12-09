@@ -8,7 +8,6 @@ import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.gateway.toolkit.SpelExpressionEngine;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.jayway.jsonpath.DocumentContext;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
@@ -25,13 +24,12 @@ public class ListFilterTransformer extends AbstractTransformer<ListFilterTransfo
   }
 
   @Override
-  public byte[] doTransform(
-      byte[] responseBody,
+  public String doTransform(
+      String responseBody,
       TransformerContext context,
       TransformerSpecification.TransformerChain<ListFilterTransformer.Options> chain) {
 
-    DocumentContext ctx =
-        JsonPathToolkit.createDocCtx(new String(responseBody, StandardCharsets.UTF_8));
+    DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
     // data to be filtered, it MUST be a list
     List<Object> data = ctx.read(context.getSpecification().getResponseDataPath());
     context.setData(data);
@@ -47,7 +45,7 @@ public class ListFilterTransformer extends AbstractTransformer<ListFilterTransfo
       ctx.set(context.getSpecification().getResponseDataPath(), filteredData);
     }
 
-    return ctx.jsonString().getBytes(StandardCharsets.UTF_8);
+    return ctx.jsonString();
   }
 
   private Object filterData(Object data, String filter, Map<String, Object> variables) {

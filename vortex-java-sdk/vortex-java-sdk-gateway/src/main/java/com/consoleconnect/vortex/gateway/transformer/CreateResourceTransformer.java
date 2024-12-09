@@ -7,7 +7,6 @@ import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
 import com.consoleconnect.vortex.gateway.service.ResourceService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
-import java.nio.charset.StandardCharsets;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,8 +22,8 @@ public class CreateResourceTransformer
   }
 
   @Override
-  public byte[] doTransform(
-      byte[] responseBody,
+  public String doTransform(
+      String responseBody,
       TransformerContext context,
       TransformerSpecification.TransformerChain<CreateResourceTransformer.Options> chain) {
 
@@ -32,10 +31,7 @@ public class CreateResourceTransformer
     request.setCustomerId(context.getCustomerId());
     request.setResourceType(context.getSpecification().getResourceType());
 
-    String data =
-        extraData(
-            new String(responseBody, StandardCharsets.UTF_8),
-            context.getSpecification().getResponseDataPath());
+    String data = extraData(responseBody, context.getSpecification().getResponseDataPath());
 
     Options options = chain.getChanOptions(Options.class);
     if (options.getOrderId() != null) {

@@ -25,8 +25,8 @@ public abstract class AbstractTransformer<T> {
     this.resourceService = resourceService;
   }
 
-  protected abstract byte[] doTransform(
-      byte[] data, TransformerContext context, TransformerSpecification.TransformerChain<T> chain);
+  protected abstract String doTransform(
+      String data, TransformerContext context, TransformerSpecification.TransformerChain<T> chain);
 
   public abstract TransformerIdentityEnum getTransformerId();
 

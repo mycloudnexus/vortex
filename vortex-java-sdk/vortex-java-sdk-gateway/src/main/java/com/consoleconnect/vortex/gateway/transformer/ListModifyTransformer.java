@@ -11,7 +11,6 @@ import com.consoleconnect.vortex.gateway.toolkit.SpelExpressionEngine;
 import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.jayway.jsonpath.DocumentContext;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,15 +30,14 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
   }
 
   @Override
-  public byte[] doTransform(
-      byte[] responseBody,
+  public String doTransform(
+      String responseBody,
       TransformerContext context,
       TransformerSpecification.TransformerChain<ListModifyTransformer.Options> chain) {
 
     Options options = chain.getChanOptions(Options.class);
 
-    String responseBodyStr = new String(responseBody, StandardCharsets.UTF_8);
-    DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBodyStr);
+    DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
     // data to be filtered, it MUST be a list
     List<Object> data = ctx.read(context.getSpecification().getResponseDataPath());
 
@@ -75,7 +73,7 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
       }
     }
 
-    return ctx.jsonString().getBytes(StandardCharsets.UTF_8);
+    return ctx.jsonString();
   }
 
   @Override
