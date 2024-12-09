@@ -78,13 +78,13 @@ public class TransformerChain {
       context.setUserType(userType);
       context.setVariables(buildVariables(context));
 
-      String responseBodyJsonStr = new String(responseBody, StandardCharsets.UTF_8);
       if (!canTransform(context)) {
         log.info("Skip transform, condition not met.");
         return responseBody;
       }
 
-      // Run transform chains
+      String responseBodyJsonStr = new String(responseBody, StandardCharsets.UTF_8);
+      // Run transformer chains
       for (TransformerSpecification.TransformerChain chain :
           context.getSpecification().getTransformerChains()) {
         responseBodyJsonStr =
