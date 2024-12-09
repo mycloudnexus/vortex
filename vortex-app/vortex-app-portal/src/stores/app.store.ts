@@ -19,6 +19,5 @@ export const useAppStore = create<AppStore>()((set) => ({
   customerUser: null,
   setCustomerUser: (customerUser) => set({ customerUser }),
   customerCompanies: [],
-  setCustomerCompanies: (customerCompanies) => set({ customerCompanies }),
-
+  setCustomerCompanies: (customerCompanies) => set({ customerCompanies })
 }))

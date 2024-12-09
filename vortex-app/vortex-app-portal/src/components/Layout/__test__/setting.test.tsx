@@ -45,7 +45,7 @@ describe('NavMain component  with company', () => {
     expect(elem).toBeInTheDocument()
   })
   it('it shouls have have customer company list  ', async () => {
-    const { getByText, container } = render(<SettingMenu dropdownProps={{ open: true }} />)
+    const { getByText, container } = render(<SettingMenu open />)
     const items = container.querySelectorAll('.ant-dropdown-menu-item')
     const cusDom = getByText(mockCompanies[1].display_name)
     fireEvent.click(cusDom)
@@ -55,7 +55,7 @@ describe('NavMain component  with company', () => {
   })
 
   it('it should remove currentCompany when click reseller company  ', async () => {
-    const { container } = render(<SettingMenu dropdownProps={{ open: true }} />)
+    const { container } = render(<SettingMenu open />)
     const items = container.querySelectorAll('.ant-dropdown-menu-item')[0]
     fireEvent.click(items)
     const org = window.localStorage.getItem('currentCompany')

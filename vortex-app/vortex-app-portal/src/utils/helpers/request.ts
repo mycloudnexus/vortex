@@ -47,7 +47,6 @@ request.interceptors.response.use(
       } catch (err) {
         console.log('--tes-err', err)
       }
-
     }
 
     return Promise.reject(error)
