@@ -10,9 +10,15 @@ import { DefaultCompanyLogo } from './Icon'
 import Text from '../Text'
 import MobileDrawer from './MobileDrawer'
 import type { User, CustomerUser } from '@/stores/type'
+import type { DropDownProps } from 'antd'
+
 import * as styles from './index.module.scss'
 
-const SettingsMenu = () => {
+type SettingsMenuProps = {
+  dropdownProps?: DropDownProps
+}
+const SettingsMenu: React.FC<SettingsMenuProps> = (props) => {
+  const { dropdownProps } = props
   const [user, setUser] = useState<User | CustomerUser | null>()
   const [openDrawer, setOpenDrawer] = useState(false)
   const { isMobile } = useDeviceDetect()
@@ -140,9 +146,11 @@ const SettingsMenu = () => {
             <Flex gap={8}>
               <Text.LightMedium color='rgba(255, 255, 255, 0.50)'>Viewing as</Text.LightMedium>
               <Dropdown
+                {...dropdownProps}
                 menu={{ items: isCustomer ? [] : companyItems }}
                 getPopupContainer={() => document.getElementById('nav') as HTMLDivElement}
                 overlayClassName={styles.settingDropdown}
+                open
               >
                 <Flex gap={4}>
                   <Text.LightMedium color='#fff'>{currentCompany?.name}</Text.LightMedium>
