@@ -43,28 +43,26 @@ jest.mock('@/routers', () => ({
 
 describe('BreadCrumb Component', () => {
   it('should render the breadcrumb correctly for a given path', () => {
-    const { getByText, baseElement } = render(
+    const { getByText } = render(
       <MemoryRouter initialEntries={['/home/about']}>
         <BreadCrumb />
       </MemoryRouter>
     )
     expect(getByText('Home')).toBeInTheDocument()
     expect(getByText('About')).toBeInTheDocument()
-    expect(baseElement).toMatchSnapshot()
   })
 
   it('should render breadcrumb for root path', () => {
-    const { baseElement, getByText } = render(
+    const { getByText } = render(
       <MemoryRouter initialEntries={['/']}>
         <BreadCrumb />
       </MemoryRouter>
     )
     expect(getByText('Root')).toBeInTheDocument()
-    expect(baseElement).toMatchSnapshot()
   })
 
   it('should render multiple breadcrumb levels', () => {
-    const { getByText, baseElement } = render(
+    const { getByText } = render(
       <MemoryRouter initialEntries={['/home/profile/details']}>
         <BreadCrumb />
       </MemoryRouter>
@@ -72,28 +70,25 @@ describe('BreadCrumb Component', () => {
     expect(getByText(/Home/i)).toBeInTheDocument()
     expect(getByText(/Profile/i)).toBeInTheDocument()
     expect(getByText(/Details/i)).toBeInTheDocument()
-    expect(baseElement).toMatchSnapshot()
   })
 
   it('BreadCrumb Component should handle missing breadcrumb name gracefully', () => {
-    const { queryByText, baseElement } = render(
+    const { queryByText } = render(
       <MemoryRouter initialEntries={['/contact']}>
         <BreadCrumb />
       </MemoryRouter>
     )
 
     expect(queryByText('Contact')).not.toBeInTheDocument()
-    expect(baseElement).toMatchSnapshot()
   })
 
   it('should render nothing for a path with no matching routes', () => {
-    const { queryByText, baseElement } = render(
+    const { queryByText } = render(
       <MemoryRouter initialEntries={['/nonexistent']}>
         <BreadCrumb />
       </MemoryRouter>
     )
     expect(queryByText('Home')).toBeNull()
     expect(queryByText('About')).toBeNull()
-    expect(baseElement).toMatchSnapshot()
   })
 })

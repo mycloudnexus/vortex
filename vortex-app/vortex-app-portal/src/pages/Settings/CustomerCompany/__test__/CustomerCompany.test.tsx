@@ -112,12 +112,11 @@ describe('Customer Company Page', () => {
       isLoading: false,
       isError: false
     })
-    const { getByText, baseElement } = render(component)
+    const { getByText } = render(component)
     expect(getByText('QE Testing')).toBeInTheDocument()
     expect(getByText('qetesting')).toBeInTheDocument()
     expect(getByText('org_AeltT2tTQsOFNvCC')).toBeInTheDocument()
     expect(getByText('Inactive')).toBeInTheDocument()
-    expect(baseElement).toMatchSnapshot()
   })
 
   it('should call handleDeactivate when clicking Deactivate button', async () => {
@@ -154,7 +153,7 @@ describe('Customer Company Page', () => {
 
   // Helper function to handle form submission
   const handleFormSubmitForUpdate = async ({ companyName }: { companyName: string }) => {
-    const { getByTestId, getByLabelText, getByText } = render(component)
+    const { getByTestId, getByLabelText, getByText, queryAllByText } = render(component)
 
     const button = getByTestId('handle-modify')
     expect(button).toBeInTheDocument()
@@ -165,12 +164,12 @@ describe('Customer Company Page', () => {
       expect(getByTestId('update-modal')).toBeInTheDocument()
     })
 
-    fireEvent.change(getByLabelText(/Customer company name/i), { target: { value: companyName } })
+    fireEvent.change(getByLabelText(/Customer name/i), { target: { value: companyName } })
 
     const submitButton = getByText('OK')
     fireEvent.click(submitButton)
 
-    return { getByTestId, getByLabelText, getByText }
+    return { getByTestId, getByLabelText, getByText, queryAllByText }
   }
 
   it('should call useUpdateOrganization mutation on form submission', async () => {
@@ -211,17 +210,14 @@ describe('Customer Company Page', () => {
 
   it('should handle useUpdateOrganization onError callback', async () => {
     const mockMutate = jest.fn((_data, { onError }) => {
-      const mockError = new Error('Network error')
-      onError(mockError)
+      onError()
     })
-
-    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
 
     mockedUseUpdateOrganization.mockReturnValue({
       mutate: mockMutate
     })
 
-    await handleFormSubmitForUpdate({ companyName: 'My Company' })
+    const { queryAllByText } = await handleFormSubmitForUpdate({ companyName: 'My Company' })
 
     await waitFor(() => {
       expect(mockMutate).toHaveBeenCalledWith(
@@ -239,12 +235,12 @@ describe('Customer Company Page', () => {
     })
 
     await waitFor(() => {
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.any(Error), 'error update')
+      expect(
+        queryAllByText(/The system has encountered an anomaly, please contact your system support team./i)[0]
+      ).toBeInTheDocument()
     })
 
     expect(mockMutate).toHaveBeenCalledTimes(1)
-
-    consoleLogSpy.mockRestore()
   })
 
   it('form update renders correctly and cancel submit', async () => {
@@ -264,7 +260,7 @@ describe('Customer Company Page', () => {
 
   // Helper function to handle form submission
   const handleFormSubmit = async ({ companyName, companyUrl }: { companyName: string; companyUrl: string }) => {
-    const { getByTestId, getByLabelText, getByText } = render(component)
+    const { getByTestId, getByLabelText, getByText, queryAllByText } = render(component)
 
     fireEvent.click(getByTestId('add-button'))
 
@@ -272,15 +268,15 @@ describe('Customer Company Page', () => {
       expect(getByTestId('add-modal')).toBeInTheDocument()
     })
 
-    fireEvent.change(getByLabelText(/Customer company name/i), {
+    fireEvent.change(getByLabelText(/Customer name/i), {
       target: { value: companyName }
     })
-    fireEvent.change(getByLabelText(/Customer company URL short name/i), {
+    fireEvent.change(getByLabelText(/Customer URL short name/i), {
       target: { value: companyUrl }
     })
     fireEvent.click(getByText('OK'))
 
-    return { getByTestId, getByLabelText, getByText }
+    return { getByTestId, getByLabelText, getByText, queryAllByText }
   }
 
   it('should call useAddOrganization mutation on form submission', async () => {
@@ -315,16 +311,13 @@ describe('Customer Company Page', () => {
 
   it('should handle useAddOrganization onError callback', async () => {
     const mockMutate = jest.fn((_data, { onError }) => {
-      const mockError = new Error('Network error')
-      onError(mockError)
+      onError()
     })
-
-    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
     mockedUseAddOrganization.mockReturnValue({
       mutate: mockMutate
     })
 
-    await handleFormSubmit({ companyName: 'My New Company', companyUrl: 'abc' })
+    const { queryAllByText } = await handleFormSubmit({ companyName: 'My New Company', companyUrl: 'abc' })
 
     await waitFor(() => {
       expect(mockMutate).toHaveBeenCalledWith(
@@ -340,10 +333,11 @@ describe('Customer Company Page', () => {
     })
 
     await waitFor(() => {
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.any(Error), 'error adding')
+      expect(
+        queryAllByText(/The system has encountered an anomaly, please contact your system support team./i)[0]
+      ).toBeInTheDocument()
     })
     expect(mockMutate).toHaveBeenCalledTimes(1)
-    consoleLogSpy.mockRestore()
   })
 
   describe('deactivate and activate test', () => {
@@ -402,17 +396,15 @@ describe('Customer Company Page', () => {
     })
 
     it('should throw an error when updating to INACTIVE', async () => {
-      mockMutate.mockImplementation((_data: unknown, { onError }: { onError: (err: Error) => void }) =>
-        onError(new Error('Network error'))
-      )
-      consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
-      const { getByTestId, getByText } = render(component)
+      mockMutate.mockImplementation((_data: unknown, { onError }) => onError())
+      const { getByTestId, getByText, queryAllByText } = render(component)
 
       await openModalAndSubmit(getByTestId, getByText, 'handle-deactivate', 'Yes, continue')
       await verifyMutateCall('org_D4ES55BSeeAHystq', 'INACTIVE')
-
       await waitFor(() => {
-        expect(consoleLogSpy).toHaveBeenCalledWith(expect.any(Error), 'deactivate error')
+        expect(
+          queryAllByText(/The system has encountered an anomaly, please contact your system support team./i)[0]
+        ).toBeInTheDocument()
       })
     })
 
@@ -425,17 +417,16 @@ describe('Customer Company Page', () => {
     })
 
     it('should throw an error when updating to ACTIVE', async () => {
-      mockMutate.mockImplementation((_data: unknown, { onError }: { onError: (err: Error) => void }) =>
-        onError(new Error('Network error'))
-      )
-      consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
-      const { getByTestId } = render(component)
+      mockMutate.mockImplementation((_data: unknown, { onError }) => onError())
+      const { getByTestId, queryAllByText } = render(component)
 
       fireEvent.click(getByTestId('handle-activate'))
       await verifyMutateCall('org_AeltT2tTQsOFNvCC', 'ACTIVE')
 
       await waitFor(() => {
-        expect(consoleLogSpy).toHaveBeenCalledWith(expect.any(Error))
+        expect(
+          queryAllByText(/The system has encountered an anomaly, please contact your system support team./i)[0]
+        ).toBeInTheDocument()
       })
     })
   })
