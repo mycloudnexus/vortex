@@ -1,6 +1,7 @@
 {
   "results": [
     {
+      "id": "d7ce4aa7-0c79-44ed-ae4b-edf533c0e666",
       "destPortId": "671b158f6eeec977ecee37b0",
       "srcCompanyId": "65a4f18aec61ae42ae9606df",
       "destCompanyId": "65a4f18aec61ae42ae9606df",
@@ -20,6 +21,10 @@
         "crossConnectId": null
       },
       "destCompany": {
+        "directConnectPartner": {
+          "type": "NONE",
+          "verified": false
+        },
         "company": {
           "registeredName": "dest company name"
         },
