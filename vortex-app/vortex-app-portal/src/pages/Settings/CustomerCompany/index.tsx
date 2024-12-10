@@ -146,7 +146,7 @@ const CustomerCompany = (): ReactElement => {
   const [isConfigLogin, setIsConfigLogin] = useState<boolean>(false)
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false)
   const [isDeactivate, setIsDeactivate] = useState<boolean>(false)
-  const [updateValue, setUpdateValue] = useState<ICompany>({
+  const [updateValue, setUpdateValue] = useState<Partial<ICompany>>({
     branding: {
       colors: { page_background: '', primary: '' },
       logo_url: ''
@@ -154,9 +154,9 @@ const CustomerCompany = (): ReactElement => {
     display_name: '',
     id: '',
     metadata: {
-      loginType: '',
+      connectionId: '',
       status: '',
-      type: ''
+      strategy: ''
     },
     name: ''
   })
@@ -211,7 +211,7 @@ const CustomerCompany = (): ReactElement => {
     const values = await editForm.validateFields()
     updateMutate(
       {
-        id: updateValue.id,
+        id: updateValue.id as string,
         request_body: {
           display_name: values.display_name
         }
