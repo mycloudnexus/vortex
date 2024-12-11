@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/no-unused-vars */
-import axios, { isCancel } from 'axios'
+import axios, { AxiosError, AxiosResponse, isCancel } from 'axios'
 import { getToken, getOrg } from '@/utils/helpers/token'
 import _ from 'lodash'
 import { ENV } from '@/constant'
@@ -10,25 +10,29 @@ const request = axios.create({
 })
 request.interceptors.request.use((config: any) => {
   const token = getToken()
+  const currentCompany = window.localStorage.getItem('currentCompany')
   if (token) {
-    // TODO for test , we should replace with CC token currently
     config.headers.Authorization = `Bearer ${getToken()}`
+  }
+  if (currentCompany) {
+    config.headers['x-vortex-customer-org-id'] = currentCompany
   }
   return config
 })
 
 request.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  (response: AxiosResponse) => response,
+  (error: AxiosError) => {
     const status = _.get(error, 'response.status')
     const message = _.get(error, 'response.data.error.message')
     const principalId = _.get(error, 'response.data.error.details.principalId')
     const pbacErrorEmptyPrincipal =
       status === 401 && message === accessDenied && _.isPlainObject(principalId) && _.isEmpty(principalId)
-    const sessionExpired = status === 401 && invalidToken.includes(message)
+    const sessionExpired = status === 401 && invalidToken.includes(message!)
     if (pbacErrorEmptyPrincipal || sessionExpired) {
-      //TODO To prevent it jump login all the time
-      // window.location.href = `${getOrg()}/login`
+      const org = getOrg()
+      const origin = window.location.origin
+      window.location.href = origin + org ? `/${org}/login` : '/login'
     }
 
     /**
@@ -44,7 +48,6 @@ request.interceptors.response.use(
         console.log('--tes-err', err)
       }
 
-      console.log('--tes-errorDatat', errorData)
     }
 
     return Promise.reject(error)

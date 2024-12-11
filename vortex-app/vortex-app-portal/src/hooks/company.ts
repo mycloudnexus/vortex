@@ -12,8 +12,10 @@ export const useGetCompanyList = (
   config: UseQueryOptions<RequestResponse<IOrganization>, Error> = {}
 ): UseQueryResult<RequestResponse<IOrganization>, Error> => {
   const haveOrg = Boolean(window.localStorage.getItem('org'))
-
-  return useQuery<RequestResponse<IOrganization>, Error>(['getCompanyList'], () => getCompanyList(), { enabled: !haveOrg, ...config })
+  return useQuery<RequestResponse<IOrganization>, Error>(['getCompanyList'], () => getCompanyList(), {
+    enabled: !haveOrg,
+    ...config
+  })
 }
 
 export const useAddOrganization = () => {
