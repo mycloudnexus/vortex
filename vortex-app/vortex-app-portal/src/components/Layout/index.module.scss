@@ -52,6 +52,7 @@
     padding: 3px 0;
     min-width: 260px;
     max-width: 350px;
+
     .companyName {
       width: calc(100% - 32px);
       overflow: hidden;
@@ -73,6 +74,13 @@
   .reseller {
     font-weight: 500;
   }
+}
+
+.navCompanyName {
+  max-width: 50vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .avatarMenu {
