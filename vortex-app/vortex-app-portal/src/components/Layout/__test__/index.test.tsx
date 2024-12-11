@@ -22,7 +22,8 @@ jest.mock('@/stores/app.store', () => ({
       setRoleList: jest.fn(),
       setDownstreamUser: jest.fn(),
       setCustomerUser: jest.fn(),
-      setCustomerCompanies: jest.fn()
+      setCustomerCompanies: jest.fn(),
+      setCurrentCompany: jest.fn()
     }
   }
 }))
