@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Headroom from 'react-headroom'
+import { filter, get } from 'lodash'
 import NavMain from './NavMain'
 import * as styles from './index.module.scss'
 import { Flex, Menu, Layout } from 'antd'
@@ -15,6 +16,8 @@ import { ReactComponent as CRIcon } from '@/assets/icon/cloudrouter.svg'
 import { ReactComponent as L2Icon } from '@/assets/icon//l2.svg'
 import { ReactComponent as L3Icon } from '@/assets/icon/l3.svg'
 import { ReactComponent as SettingIcon } from '@/assets/icon/setting.svg'
+import { useGetUserAuthDetail, useGetUserRole, useGetVortexUser } from '@/hooks/user'
+import { useGetCompanyList } from '@/hooks/company'
 import { styled } from 'styled-components'
 import useDeviceDetect from '@/hooks/useDeviceDetect'
 import MainMenuMobileDrawer from './MainMenuMobileDrawer'
@@ -46,11 +49,42 @@ const BaseLayout = () => {
   `
   const { isMobile } = useDeviceDetect()
   const [activeKeys, setActiveKeys] = useState(['1'])
+  const [openKeys, setOpenKeys] = useState<string[]>()
   const { value: collapsed, setValue: setCollapsed, setTrue: trueCollapse, setFalse: falseCollapse } = useBoolean(false)
   const { value: mainMobileDrawer, toggle: toggleDrawer, setFalse: falseDrawer } = useBoolean(false)
   const location = useLocation()
-  const [openKeys, setOpenKeys] = useState<string[]>()
+
   const navigate = useNavigate()
+  const { data: userData } = useGetUserAuthDetail()
+  const { data: roleData } = useGetUserRole()
+  const { data: vortexUserData } = useGetVortexUser()
+  const { data } = useGetCompanyList()
+  const { setDownstreamUser, setRoleList, setCustomerUser, setCustomerCompanies } = useAppStore()
+
+  useEffect(() => {
+    const vUser = vortexUserData?.data?.data
+    if (vUser) {
+      setCustomerUser(vUser)
+    }
+  }, [vortexUserData])
+  useEffect(() => {
+    const l = data?.data?.data
+    if (!l?.length) return
+    setCustomerCompanies(l)
+  }, [data])
+
+  useEffect(() => {
+    const userDetail = userData?.data
+    const roleList = roleData?.data
+    if (!userDetail) return
+    const companyId = get(userDetail, 'companies[0].id', '')
+    const roleIds = get(userDetail, ['linkUserCompany', companyId, 'roleIds'], [])
+    const accessRole = filter(roleList, (r) => roleIds.includes(r.id) || r.systemDefault)
+    window.portalAccessRoles = roleList
+    window.portalLoggedInUser = userDetail
+    setRoleList(roleList)
+    setDownstreamUser({ ...userDetail, accessRole })
+  }, [userData, roleData])
 
   useEffect(() => {
     if (!isMobile) {
@@ -133,69 +167,72 @@ const BaseLayout = () => {
 
   return (
     <div className={styles.appWrapper}>
-      <Authenticate>
-        <MainMenuMobileDrawer
-          onClose={falseDrawer}
-          open={mainMobileDrawer}
-          items={items}
-          activeKeys={activeKeys}
-          setActiveKeys={setActiveKeys}
-        />
-        <Headroom disableInlineStyles>
-          <Suspense fallback=''>
-            <NavMain />
-          </Suspense>
-        </Headroom>
-        <Flex vertical={isMobile} className={styles.container}>
-          {isMobile ? (
-            <Flex
-              role='none'
-              style={{ background: mainColor, cursor: 'pointer' }}
-              className={styles.network}
-              gap={12}
-              align='center'
-              onClick={toggleDrawer}
-            >
-              <img src={NetIcon} alt='network' />
-              {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
-            </Flex>
-          ) : (
-            <SliderCustom collapsible collapsed={collapsed} onCollapse={setCollapsed} className={styles.slider}>
-              <Flex vertical style={{ background: mainColor }} className={styles.network}>
-                <Flex justify='flex-end' className={styles.collapseBtn}>
-                  {!collapsed ? (
-                    <DoubleLeftOutlined onClick={trueCollapse} role='none' />
-                  ) : (
-                    <DoubleRightOutlined onClick={falseCollapse} role='none' />
-                  )}
-                </Flex>
-                <Flex gap={12} align='center' style={{ marginTop: 16 }}>
-                  <img src={NetIcon} alt='network' />
-                  {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
-                </Flex>
-              </Flex>
-              <Menu
-                openKeys={openKeys}
-                onOpenChange={(k) => setOpenKeys(k)}
-                onSelect={(e) => {
-                  setActiveKeys(e.selectedKeys)
-                }}
-                className={styles.menu}
-                selectedKeys={activeKeys}
-                mode='inline'
-                items={items}
-                expandIcon={(iconInfo) => (iconInfo.isOpen ? <DownOutlined /> : <RightOutlined />)}
-              />
-            </SliderCustom>
-          )}
-          <Flex vertical justify='start' align='start' style={{ width: '100%' }}>
-            <BreadCrumb />
-            <Outlet />
+      <MainMenuMobileDrawer
+        onClose={falseDrawer}
+        open={mainMobileDrawer}
+        items={items}
+        activeKeys={activeKeys}
+        setActiveKeys={setActiveKeys}
+      />
+      <Headroom disableInlineStyles>
+        <Suspense fallback=''>
+          <NavMain />
+        </Suspense>
+      </Headroom>
+      <Flex vertical={isMobile} className={styles.container}>
+        {isMobile ? (
+          <Flex
+            role='none'
+            style={{ background: mainColor, cursor: 'pointer' }}
+            className={styles.network}
+            gap={12}
+            align='center'
+            onClick={toggleDrawer}
+          >
+            <img src={NetIcon} alt='network' />
+            {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
           </Flex>
+        ) : (
+          <SliderCustom collapsible collapsed={collapsed} onCollapse={setCollapsed} className={styles.slider}>
+            <Flex vertical style={{ background: mainColor }} className={styles.network}>
+              <Flex justify='flex-end' className={styles.collapseBtn}>
+                {!collapsed ? (
+                  <DoubleLeftOutlined onClick={trueCollapse} role='none' />
+                ) : (
+                  <DoubleRightOutlined onClick={falseCollapse} role='none' />
+                )}
+              </Flex>
+              <Flex gap={12} align='center' style={{ marginTop: 16 }}>
+                <img src={NetIcon} alt='network' />
+                {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
+              </Flex>
+            </Flex>
+            <Menu
+              openKeys={openKeys}
+              onOpenChange={(k) => setOpenKeys(k)}
+              onSelect={(e) => {
+                setActiveKeys(e.selectedKeys)
+              }}
+              className={styles.menu}
+              selectedKeys={activeKeys}
+              mode='inline'
+              items={items}
+              expandIcon={(iconInfo) => (iconInfo.isOpen ? <DownOutlined /> : <RightOutlined />)}
+            />
+          </SliderCustom>
+        )}
+        <Flex vertical justify='start' align='start' style={{ width: '100%' }}>
+          <BreadCrumb />
+          <Outlet />
         </Flex>
-      </Authenticate>
+      </Flex>
     </div>
   )
 }
+const LayoutWithAuthenticate = () => (
+  <Authenticate>
+    <BaseLayout />
+  </Authenticate>
+)
 
-export default BaseLayout
+export default LayoutWithAuthenticate
