@@ -48,7 +48,7 @@ const CompanyPage = (): ReactElement => {
         <CardTab
           title='Invite by email'
           description='User login by username and password'
-          isEnabled={loginMethod === 'email'}
+          isEnabled={loginMethod === 'auth0'}
           icon={<CPLock />}
         />
       ),
@@ -65,7 +65,7 @@ const CompanyPage = (): ReactElement => {
           title='SSO-'
           titleExtension='SAML 2.0'
           description='User login by configured SSO'
-          isEnabled={loginMethod === 'sso'}
+          isEnabled={loginMethod === 'samlp'}
           icon={<CPsso />}
         />
       ),

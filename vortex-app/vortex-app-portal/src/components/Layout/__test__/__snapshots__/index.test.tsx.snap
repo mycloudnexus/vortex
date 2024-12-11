@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Layout component with data renders the layout component with authenticated  1`] = `
+exports[`Layout component renders the layout component with authenticated  1`] = `
 <div>
   <div
     class="headroom-wrapper"
@@ -176,232 +176,7 @@ exports[`Layout component with data renders the layout component with authentica
     class="ant-flex css-dev-only-do-not-override-49qm"
   >
     <aside
-      class="ant-layout-sider ant-layout-sider-dark ant-layout-sider-has-trigger sc-cHqXqK hBFEEQ css-dev-only-do-not-override-49qm"
-      style="flex: 0 0 200px; max-width: 200px; min-width: 200px; width: 200px;"
-    >
-      <div
-        class="ant-layout-sider-children"
-      >
-        <div
-          class="ant-flex css-dev-only-do-not-override-49qm ant-flex-align-stretch ant-flex-vertical"
-        >
-          <div
-            class="ant-flex css-dev-only-do-not-override-49qm ant-flex-justify-flex-end"
-          >
-            <span
-              aria-label="double-left"
-              class="anticon anticon-double-left"
-              role="none"
-              tabindex="-1"
-            >
-              <svg
-                aria-hidden="true"
-                data-icon="double-left"
-                fill="currentColor"
-                focusable="false"
-                height="1em"
-                viewBox="64 64 896 896"
-                width="1em"
-              >
-                <path
-                  d="M272.9 512l265.4-339.1c4.1-5.2.4-12.9-6.3-12.9h-77.3c-4.9 0-9.6 2.3-12.6 6.1L186.8 492.3a31.99 31.99 0 000 39.5l255.3 326.1c3 3.9 7.7 6.1 12.6 6.1H532c6.7 0 10.4-7.7 6.3-12.9L272.9 512zm304 0l265.4-339.1c4.1-5.2.4-12.9-6.3-12.9h-77.3c-4.9 0-9.6 2.3-12.6 6.1L490.8 492.3a31.99 31.99 0 000 39.5l255.3 326.1c3 3.9 7.7 6.1 12.6 6.1H836c6.7 0 10.4-7.7 6.3-12.9L576.9 512z"
-                />
-              </svg>
-            </span>
-          </div>
-          <div
-            class="ant-flex css-dev-only-do-not-override-49qm ant-flex-align-center"
-            style="margin-top: 16px; gap: 12px;"
-          >
-            <img
-              alt="network"
-              src="[object Object]"
-            />
-            <span
-              style="font-size: 16px; font-weight: 500; color: rgb(255, 255, 255); font-style: normal;"
-            >
-              NETWORK
-            </span>
-          </div>
-        </div>
-        <ul
-          class="ant-menu ant-menu-root ant-menu-inline ant-menu-light css-dev-only-do-not-override-49qm"
-          data-menu-list="true"
-          role="menu"
-          tabindex="0"
-        >
-          <li
-            class="ant-menu-item ant-menu-item-selected"
-            data-menu-id="rc-menu-uuid-test-1"
-            regex="/^\\/dashboard(\\/.*)?$/"
-            role="menuitem"
-            style="padding-left: 24px;"
-            tabindex="-1"
-          >
-            <svg />
-            <span
-              class="ant-menu-title-content"
-            >
-              Dashboard
-            </span>
-          </li>
-          <li
-            class="ant-menu-submenu ant-menu-submenu-inline"
-            role="none"
-          >
-            <div
-              aria-controls="rc-menu-uuid-test-2-popup"
-              aria-expanded="false"
-              aria-haspopup="true"
-              class="ant-menu-submenu-title"
-              data-menu-id="rc-menu-uuid-test-2"
-              role="menuitem"
-              style="padding-left: 24px;"
-              tabindex="-1"
-            >
-              <svg />
-              <span
-                class="ant-menu-title-content"
-              >
-                DC Ports
-              </span>
-              <span
-                aria-label="right"
-                class="anticon anticon-right"
-                role="img"
-              >
-                <svg
-                  aria-hidden="true"
-                  data-icon="right"
-                  fill="currentColor"
-                  focusable="false"
-                  height="1em"
-                  viewBox="64 64 896 896"
-                  width="1em"
-                >
-                  <path
-                    d="M765.7 486.8L314.9 134.7A7.97 7.97 0 00302 141v77.3c0 4.9 2.3 9.6 6.1 12.6l360 281.1-360 281.1c-3.9 3-6.1 7.7-6.1 12.6V883c0 6.7 7.7 10.4 12.9 6.3l450.8-352.1a31.96 31.96 0 000-50.4z"
-                  />
-                </svg>
-              </span>
-            </div>
-          </li>
-          <li
-            class="ant-menu-item"
-            data-menu-id="rc-menu-uuid-test-3"
-            role="menuitem"
-            style="padding-left: 24px;"
-            tabindex="-1"
-          >
-            <svg />
-            <span
-              class="ant-menu-title-content"
-            >
-              L2 Connections
-            </span>
-          </li>
-          <li
-            class="ant-menu-item"
-            data-menu-id="rc-menu-uuid-test-4"
-            role="menuitem"
-            style="padding-left: 24px;"
-            tabindex="-1"
-          >
-            <svg />
-            <span
-              class="ant-menu-title-content"
-            >
-              L3 connections
-            </span>
-          </li>
-          <li
-            class="ant-menu-item"
-            data-menu-id="rc-menu-uuid-test-5"
-            role="menuitem"
-            style="padding-left: 24px;"
-            tabindex="-1"
-          >
-            <svg />
-            <span
-              class="ant-menu-title-content"
-            >
-              CloudRouter
-            </span>
-          </li>
-          <li
-            class="ant-menu-submenu ant-menu-submenu-inline"
-            role="none"
-          >
-            <div
-              aria-controls="rc-menu-uuid-test-6-popup"
-              aria-expanded="false"
-              aria-haspopup="true"
-              class="ant-menu-submenu-title"
-              data-menu-id="rc-menu-uuid-test-6"
-              role="menuitem"
-              style="padding-left: 24px;"
-              tabindex="-1"
-            >
-              <svg />
-              <span
-                class="ant-menu-title-content"
-              >
-                Settings
-              </span>
-              <span
-                aria-label="right"
-                class="anticon anticon-right"
-                role="img"
-              >
-                <svg
-                  aria-hidden="true"
-                  data-icon="right"
-                  fill="currentColor"
-                  focusable="false"
-                  height="1em"
-                  viewBox="64 64 896 896"
-                  width="1em"
-                >
-                  <path
-                    d="M765.7 486.8L314.9 134.7A7.97 7.97 0 00302 141v77.3c0 4.9 2.3 9.6 6.1 12.6l360 281.1-360 281.1c-3.9 3-6.1 7.7-6.1 12.6V883c0 6.7 7.7 10.4 12.9 6.3l450.8-352.1a31.96 31.96 0 000-50.4z"
-                  />
-                </svg>
-              </span>
-            </div>
-          </li>
-        </ul>
-        <div
-          aria-hidden="true"
-          style="display: none;"
-        />
-      </div>
-      <div
-        class="ant-layout-sider-trigger"
-        style="width: 200px;"
-      >
-        <span
-          aria-label="left"
-          class="anticon anticon-left"
-          role="img"
-        >
-          <svg
-            aria-hidden="true"
-            data-icon="left"
-            fill="currentColor"
-            focusable="false"
-            height="1em"
-            viewBox="64 64 896 896"
-            width="1em"
-          >
-            <path
-              d="M724 218.3V141c0-6.7-7.7-10.4-12.9-6.3L260.3 486.8a31.86 31.86 0 000 50.3l450.8 352.1c5.3 4.1 12.9.4 12.9-6.3v-77.3c0-4.9-2.3-9.6-6.1-12.6l-360-281 360-281.1c3.8-3 6.1-7.7 6.1-12.6z"
-            />
-          </svg>
-        </span>
-      </div>
-    </aside>
-    <aside
-      class="ant-layout-sider ant-layout-sider-dark ant-layout-sider-has-trigger sc-cHqXqK hBFEEQ css-dev-only-do-not-override-49qm"
+      class="ant-layout-sider ant-layout-sider-dark ant-layout-sider-has-trigger sc-dprtRQ dUEafh css-dev-only-do-not-override-49qm"
       style="flex: 0 0 200px; max-width: 200px; min-width: 200px; width: 200px;"
     >
       <div
@@ -630,13 +405,13 @@ exports[`Layout component with data renders the layout component with authentica
       style="width: 100%;"
     >
       <nav
-        class="ant-breadcrumb sc-ixGGxD hxPNnX css-dev-only-do-not-override-49qm"
+        class="ant-breadcrumb sc-dstKZu cCCkCF css-dev-only-do-not-override-49qm"
         style="font-size: 18px;"
       >
         <ol>
           <li>
             <a
-              class="sc-kLhKbu ddwwJv"
+              class="sc-khLCKb eYFRrJ"
               href="/"
             >
               Dashboard
