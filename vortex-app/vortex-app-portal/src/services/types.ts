@@ -2,14 +2,35 @@ export interface ICompany {
   name: string
   id: string
   display_name: string
+  connection: Connection
   metadata: MetaData
   branding: Branding
 }
 
+interface Connection {
+  name: string
+  strategy: string
+  display_name: string
+  options: {
+    additionalProp1: Object
+    additionalProp2: Object
+    additionalProp3: Object
+  }
+  id: string
+  enabled_clients: string[]
+  provisioning_ticket_url: string
+  metadata: {
+    additionalProp1: string
+    additionalProp2: string
+    additionalProp3: string
+  }
+  realms: string
+}
+
 interface MetaData {
-  loginType: string
   status: string
-  type: string
+  strategy: string
+  connectionId: string
 }
 
 interface Branding {

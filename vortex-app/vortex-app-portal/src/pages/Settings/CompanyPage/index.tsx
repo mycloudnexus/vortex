@@ -21,7 +21,7 @@ const CompanyPage = (): ReactElement => {
   const { isFetching, data } = useGetOrganizationById(orgId, {
     enabled: !!orgId
   })
-  const loginMethod = data?.data?.metadata?.loginType
+  const loginMethod = data?.data?.metadata?.strategy
   const items: TabsProps['items'] = [
     {
       key: '1',
@@ -76,7 +76,7 @@ const CompanyPage = (): ReactElement => {
               Set up SSO
             </Typography.Title>
           </Flex>
-          <SSOForm loginMethod={data?.data?.metadata?.loginType} />
+          <SSOForm loginMethod={data?.data?.metadata?.strategy} />
         </Flex>
       )
     }
