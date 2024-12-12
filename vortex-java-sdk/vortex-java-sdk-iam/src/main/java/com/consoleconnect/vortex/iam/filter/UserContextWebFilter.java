@@ -1,5 +1,7 @@
 package com.consoleconnect.vortex.iam.filter;
 
+import com.consoleconnect.vortex.iam.enums.CustomerTypeEnum;
+import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.model.IamConstants;
 import com.consoleconnect.vortex.iam.model.UserContext;
 import com.consoleconnect.vortex.iam.service.UserContextService;
@@ -37,7 +39,11 @@ public class UserContextWebFilter implements WebFilter, Ordered {
                   userContextService.createUserContext(jwtAuthenticationToken);
 
               String customerId = userContext.getOrgId();
-              if (userContext.isMgmt()
+              CustomerTypeEnum customerType =
+                  userContext.getUserType() == UserTypeEnum.CUSTOMER_USER
+                      ? CustomerTypeEnum.CUSTOMER
+                      : CustomerTypeEnum.MGMT;
+              if (userContext.getUserType() == UserTypeEnum.MGMT_USER
                   && exchange
                       .getRequest()
                       .getHeaders()
@@ -45,20 +51,26 @@ public class UserContextWebFilter implements WebFilter, Ordered {
                 // customerId can be customized by the client in the header
                 customerId =
                     exchange.getRequest().getHeaders().getFirst(IamConstants.X_VORTEX_CUSTOMER_ID);
+                customerType = CustomerTypeEnum.CUSTOMER;
               }
               userContext.setCustomerId(customerId);
+              userContext.setCustomerType(customerType);
+
               log.info("user context:{}", userContext);
               exchange.getAttributes().put(IamConstants.X_VORTEX_USER_ID, userContext.getUserId());
               exchange
                   .getAttributes()
-                  .put(IamConstants.X_VORTEX_USER_ORG_ID, userContext.getOrgId());
+                  .put(IamConstants.X_VORTEX_USER_TYPE, userContext.getUserType());
               exchange
                   .getAttributes()
                   .put(IamConstants.X_VORTEX_CUSTOMER_ID, userContext.getCustomerId());
               exchange
                   .getAttributes()
+                  .put(IamConstants.X_VORTEX_CUSTOMER_TYPE, userContext.getCustomerType());
+              exchange
+                  .getAttributes()
                   .put(IamConstants.X_VORTEX_ACCESS_TOKEN, userContext.getAccessToken());
-              exchange.getAttributes().put(IamConstants.X_VORTEX_MGMT_ORG, userContext.isMgmt());
+
               return Mono.just(jwtAuthenticationToken);
             })
         .then(chain.filter(exchange));

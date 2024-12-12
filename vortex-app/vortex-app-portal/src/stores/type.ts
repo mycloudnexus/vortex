@@ -51,6 +51,7 @@ export type AuthUser = {
   sub: string
   updated_at: string
 }
+export type VortexUserType = 'reseller' | 'customer'
 
 export type AppStore = {
   appLogo: string
@@ -67,4 +68,6 @@ export type AppStore = {
   setUser: (c: User | null) => void
   roleList: Role | null
   setRoleList: (c: Role | null) => void
+  userType: VortexUserType | null
+  setuserType: (c: VortexUserType) => void
 }

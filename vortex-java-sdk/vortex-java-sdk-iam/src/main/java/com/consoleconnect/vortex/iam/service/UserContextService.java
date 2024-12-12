@@ -1,6 +1,7 @@
 package com.consoleconnect.vortex.iam.service;
 
 import com.consoleconnect.vortex.core.exception.VortexException;
+import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.model.ResourceServerProperty;
 import com.consoleconnect.vortex.iam.model.UserContext;
@@ -40,7 +41,8 @@ public class UserContextService {
       throw VortexException.badRequest(errorMsg);
     }
     ResourceServerProperty.TrustedIssuer trustedIssuer = trustedIssuerOptional.get();
-    userContext.setMgmt(trustedIssuer.isMgmt());
+    userContext.setUserType(
+        trustedIssuer.isMgmt() ? UserTypeEnum.MGMT_USER : UserTypeEnum.CUSTOMER_USER);
     String orgId =
         jwtAuthenticationToken
             .getToken()

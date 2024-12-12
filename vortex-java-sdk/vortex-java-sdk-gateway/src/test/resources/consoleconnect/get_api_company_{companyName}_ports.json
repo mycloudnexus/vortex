@@ -1,0 +1,528 @@
+{
+  "results": [
+    {
+      "activeChangedAt": "2016-06-16T06:20:10.640Z",
+      "asn": {
+        "asn": "176251",
+        "createdAt": "2016-06-16T06:20:11.053Z",
+        "deleted": false,
+        "deletedAt": null,
+        "status": "VERIFIED",
+        "type": "ALLOCATED",
+        "updatedAt": "2016-06-16T06:20:11.053Z"
+      },
+      "capacity": {
+        "remaining": 900,
+        "total": 1000,
+        "utilised": 100
+      },
+      "company": {
+        "tags": [],
+        "avatar": null,
+        "avatarId": null,
+        "background": null,
+        "companies": null,
+        "company": {
+          "address": null,
+          "addresses": [],
+          "businessType": null,
+          "city": null,
+          "clientId": null,
+          "companySize": null,
+          "country": null,
+          "dateFounded": null,
+          "email": null,
+          "emailDomains": [],
+          "fax": null,
+          "first": null,
+          "industry": null,
+          "last": null,
+          "markets": {},
+          "phone": null,
+          "regionalInternetRegistry": null,
+          "state": null,
+          "website": null,
+          "zip": null
+        },
+        "createdAt": "2016-06-16T06:20:09.604Z",
+        "deleted": false,
+        "deletedAt": null,
+        "groups": null,
+        "headline": null,
+        "id": "5762451982894b9b1b1a5dbc",
+        "isSupport": false,
+        "isSynced": null,
+        "location": null,
+        "name": "corp",
+        "online": false,
+        "phone": null,
+        "social": null,
+        "stats": {
+          "articles": 0,
+          "events": 0,
+          "followers": 0,
+          "following": 0,
+          "interconnections": 0,
+          "members": 1,
+          "posts": 0,
+          "privateArticles": 0,
+          "privateEvents": 0,
+          "privatePosts": 0
+        },
+        "status": "ACTIVE",
+        "summary": null,
+        "type": "COMPANY",
+        "updatedAt": "2016-06-16T06:20:09.604Z",
+        "username": "corp",
+        "verified": false
+      },
+      "companyId": "5762451982894b9b1b1a5dbc",
+      "connections": [
+        {
+          "id": "5762451d82894b9b1b1a5dd2",
+          "name": "Sierra",
+          "status": "ACTIVE"
+        }
+      ],
+      "controllers": [
+        {
+          "activeChangedAt": "2016-06-16T06:20:11.458Z",
+          "asn": {
+            "asn": "54321",
+            "createdAt": "2016-06-16T06:20:11.460Z",
+            "deleted": false,
+            "deletedAt": null,
+            "status": "VERIFIED",
+            "type": "SYSTEM",
+            "updatedAt": "2016-06-16T06:20:11.460Z"
+          },
+          "createdAt": "2016-06-16T06:20:11.114Z",
+          "deleted": false,
+          "deletedAt": null,
+          "id": "5762451b82894b9b1b1a5dc6",
+          "ip": {
+            "ipv4": "198.51.100.1",
+            "ipv6": "2001:DB8::1111:1111:1111:1111"
+          },
+          "metro": {
+            "code": null,
+            "country": "USA",
+            "createdAt": "2016-02-12T09:01:33.840Z",
+            "deleted": false,
+            "deletedAt": null,
+            "description": null,
+            "id": "1232413986c08c061dd8c45f",
+            "logo": null,
+            "name": "SJC",
+            "ready": true,
+            "regionIds": [],
+            "updatedAt": "2016-02-12T09:01:33.840Z"
+          },
+          "metroId": "1232413986c08c061dd8c45f",
+          "name": "corp - Skyla",
+          "password": "",
+          "portIds": [
+            "5762451a82894b9b1b1a5dc2"
+          ],
+          "status": "ACTIVE",
+          "type": "USER",
+          "updatedAt": "2016-06-16T06:20:11.462Z",
+          "vlan": 200
+        }
+      ],
+      "createdAt": "2016-06-16T06:20:10.029Z",
+      "dataCenterFacility": {
+        "tags": [],
+        "avatar": null,
+        "avatarId": null,
+        "background": null,
+        "companies": null,
+        "company": {
+          "address": null,
+          "addresses": [
+            {
+              "address": "11 Great Oaks Boulevard",
+              "city": "San Jose",
+              "country": "USA",
+              "email": "",
+              "geo": {
+                "coordinates": [
+                  -121.78322,
+                  37.24162
+                ],
+                "type": "Point"
+              },
+              "phone": "",
+              "primary": true,
+              "state": "California",
+              "zip": "95119-1242"
+            }
+          ],
+          "businessType": null,
+          "city": null,
+          "clientId": null,
+          "companySize": null,
+          "country": null,
+          "dateFounded": null,
+          "email": null,
+          "emailDomains": [],
+          "fax": null,
+          "first": null,
+          "industry": null,
+          "last": null,
+          "markets": {},
+          "phone": null,
+          "regionalInternetRegistry": null,
+          "state": null,
+          "website": null,
+          "zip": null
+        },
+        "createdAt": "2015-11-04T06:07:12.785Z",
+        "dataCenterFacility": {
+          "id": "b3f5ac21-fec1-4418-9e1a-709d48da59fa",
+          "metroId": "1232413986c08c061dd8c45f",
+          "ready": true,
+          "speeds": [],
+          "canBundleCrossConnect": true
+        },
+        "deleted": false,
+        "deletedAt": "1970-01-01T00:00:00.000Z",
+        "groups": null,
+        "headline": null,
+        "id": "5126c9f1111e15a24a066130",
+        "isSupport": false,
+        "isSynced": null,
+        "location": null,
+        "name": "Equinix - SV1",
+        "online": false,
+        "phone": null,
+        "social": null,
+        "stats": {
+          "articles": 0,
+          "events": 0,
+          "followers": 0,
+          "following": 0,
+          "interconnections": 0,
+          "members": 0,
+          "posts": 0,
+          "privateArticles": 0,
+          "privateEvents": 0,
+          "privatePosts": 0
+        },
+        "status": "ACTIVE",
+        "summary": null,
+        "type": "DATA_CENTER_FACILITY",
+        "updatedAt": "2015-11-04T06:07:13.430Z",
+        "username": "equinix-sv1",
+        "verified": true
+      },
+      "dataCenterFacilityId": "5126c9f1111e15a24a066130",
+      "deleted": false,
+      "deletedAt": "1970-01-01T00:00:00.000Z",
+      "id": "5762451a82894b9b1b1a5dc2",
+      "ip": {
+        "ipv4": null,
+        "ipv6": null
+      },
+      "locationId": "b3f5ac21-fec1-4418-9e1a-709d48da59fa",
+      "crossConnectId": "68696464-b2f7-4c90-a342-293f7385469a",
+      "metro": {
+        "code": null,
+        "country": "USA",
+        "createdAt": "2016-02-12T09:01:33.840Z",
+        "deleted": false,
+        "deletedAt": null,
+        "description": null,
+        "id": "1232413986c08c061dd8c45f",
+        "logo": null,
+        "name": "SJC",
+        "ready": true,
+        "regionIds": [],
+        "updatedAt": "2016-02-12T09:01:33.840Z"
+      },
+      "metroId": "1232413986c08c061dd8c45f",
+      "name": "Vicente",
+      "networkServiceProviderId": null,
+      "partner": {
+        "regionNames": [],
+        "type": "NONE"
+      },
+      "portId": null,
+      "speed": {
+        "name": "1000 Mbps",
+        "value": 1000
+      },
+      "status": "ACTIVE",
+      "type": "PHYSICAL",
+      "updatedAt": "2016-06-16T06:20:11.116Z",
+      "vlanRanges": [
+        {
+          "end": 3699,
+          "start": 3600
+        }
+      ]
+    },
+    {
+      "activeChangedAt": "2016-06-16T06:20:10.640Z",
+      "asn": {
+        "asn": "176251",
+        "createdAt": "2016-06-16T06:20:11.053Z",
+        "deleted": false,
+        "deletedAt": null,
+        "status": "VERIFIED",
+        "type": "ALLOCATED",
+        "updatedAt": "2016-06-16T06:20:11.053Z"
+      },
+      "capacity": {
+        "remaining": 900,
+        "total": 1000,
+        "utilised": 100
+      },
+      "company": {
+        "tags": [],
+        "avatar": null,
+        "avatarId": null,
+        "background": null,
+        "companies": null,
+        "company": {
+          "address": null,
+          "addresses": [],
+          "businessType": null,
+          "city": null,
+          "clientId": null,
+          "companySize": null,
+          "country": null,
+          "dateFounded": null,
+          "email": null,
+          "emailDomains": [],
+          "fax": null,
+          "first": null,
+          "industry": null,
+          "last": null,
+          "markets": {},
+          "phone": null,
+          "regionalInternetRegistry": null,
+          "state": null,
+          "website": null,
+          "zip": null
+        },
+        "createdAt": "2016-06-16T06:20:09.604Z",
+        "deleted": false,
+        "deletedAt": null,
+        "groups": null,
+        "headline": null,
+        "id": "5762451982894b9b1b1a5dbc",
+        "isSupport": false,
+        "isSynced": null,
+        "location": null,
+        "name": "corp",
+        "online": false,
+        "phone": null,
+        "social": null,
+        "stats": {
+          "articles": 0,
+          "events": 0,
+          "followers": 0,
+          "following": 0,
+          "interconnections": 0,
+          "members": 1,
+          "posts": 0,
+          "privateArticles": 0,
+          "privateEvents": 0,
+          "privatePosts": 0
+        },
+        "status": "ACTIVE",
+        "summary": null,
+        "type": "COMPANY",
+        "updatedAt": "2016-06-16T06:20:09.604Z",
+        "username": "corp",
+        "verified": false
+      },
+      "companyId": "5762451982894b9b1b1a5dbc",
+      "connections": [
+        {
+          "id": "5762451d82894b9b1b1a5dd2",
+          "name": "Sierra",
+          "status": "ACTIVE"
+        }
+      ],
+      "controllers": [
+        {
+          "activeChangedAt": "2016-06-16T06:20:11.458Z",
+          "asn": {
+            "asn": "54321",
+            "createdAt": "2016-06-16T06:20:11.460Z",
+            "deleted": false,
+            "deletedAt": null,
+            "status": "VERIFIED",
+            "type": "SYSTEM",
+            "updatedAt": "2016-06-16T06:20:11.460Z"
+          },
+          "createdAt": "2016-06-16T06:20:11.114Z",
+          "deleted": false,
+          "deletedAt": null,
+          "id": "5762451b82894b9b1b1a5dc6",
+          "ip": {
+            "ipv4": "198.51.100.1",
+            "ipv6": "2001:DB8::1111:1111:1111:1111"
+          },
+          "metro": {
+            "code": null,
+            "country": "USA",
+            "createdAt": "2016-02-12T09:01:33.840Z",
+            "deleted": false,
+            "deletedAt": null,
+            "description": null,
+            "id": "1232413986c08c061dd8c45f",
+            "logo": null,
+            "name": "SJC",
+            "ready": true,
+            "regionIds": [],
+            "updatedAt": "2016-02-12T09:01:33.840Z"
+          },
+          "metroId": "1232413986c08c061dd8c45f",
+          "name": "corp - Skyla",
+          "password": "",
+          "portIds": [
+            "5762451a82894b9b1b1a5dc2"
+          ],
+          "status": "ACTIVE",
+          "type": "USER",
+          "updatedAt": "2016-06-16T06:20:11.462Z",
+          "vlan": 200
+        }
+      ],
+      "createdAt": "2016-06-16T06:20:10.029Z",
+      "dataCenterFacility": {
+        "tags": [],
+        "avatar": null,
+        "avatarId": null,
+        "background": null,
+        "companies": null,
+        "company": {
+          "address": null,
+          "addresses": [
+            {
+              "address": "11 Great Oaks Boulevard",
+              "city": "San Jose",
+              "country": "USA",
+              "email": "",
+              "geo": {
+                "coordinates": [
+                  -121.78322,
+                  37.24162
+                ],
+                "type": "Point"
+              },
+              "phone": "",
+              "primary": true,
+              "state": "California",
+              "zip": "95119-1242"
+            }
+          ],
+          "businessType": null,
+          "city": null,
+          "clientId": null,
+          "companySize": null,
+          "country": null,
+          "dateFounded": null,
+          "email": null,
+          "emailDomains": [],
+          "fax": null,
+          "first": null,
+          "industry": null,
+          "last": null,
+          "markets": {},
+          "phone": null,
+          "regionalInternetRegistry": null,
+          "state": null,
+          "website": null,
+          "zip": null
+        },
+        "createdAt": "2015-11-04T06:07:12.785Z",
+        "dataCenterFacility": {
+          "id": "b3f5ac21-fec1-4418-9e1a-709d48da59fa",
+          "metroId": "1232413986c08c061dd8c45f",
+          "ready": true,
+          "speeds": [],
+          "canBundleCrossConnect": true
+        },
+        "deleted": false,
+        "deletedAt": "1970-01-01T00:00:00.000Z",
+        "groups": null,
+        "headline": null,
+        "id": "5126c9f1111e15a24a066130",
+        "isSupport": false,
+        "isSynced": null,
+        "location": null,
+        "name": "Equinix - SV1",
+        "online": false,
+        "phone": null,
+        "social": null,
+        "stats": {
+          "articles": 0,
+          "events": 0,
+          "followers": 0,
+          "following": 0,
+          "interconnections": 0,
+          "members": 0,
+          "posts": 0,
+          "privateArticles": 0,
+          "privateEvents": 0,
+          "privatePosts": 0
+        },
+        "status": "ACTIVE",
+        "summary": null,
+        "type": "DATA_CENTER_FACILITY",
+        "updatedAt": "2015-11-04T06:07:13.430Z",
+        "username": "equinix-sv1",
+        "verified": true
+      },
+      "dataCenterFacilityId": "5126c9f1111e15a24a066130",
+      "deleted": false,
+      "deletedAt": "1970-01-01T00:00:00.000Z",
+      "id": "5762451a82894b9b1b1a5dc3",
+      "ip": {
+        "ipv4": null,
+        "ipv6": null
+      },
+      "locationId": "b3f5ac21-fec1-4418-9e1a-709d48da59fa",
+      "crossConnectId": "68696464-b2f7-4c90-a342-293f7385469a",
+      "metro": {
+        "code": null,
+        "country": "USA",
+        "createdAt": "2016-02-12T09:01:33.840Z",
+        "deleted": false,
+        "deletedAt": null,
+        "description": null,
+        "id": "1232413986c08c061dd8c45f",
+        "logo": null,
+        "name": "SJC",
+        "ready": true,
+        "regionIds": [],
+        "updatedAt": "2016-02-12T09:01:33.840Z"
+      },
+      "metroId": "1232413986c08c061dd8c45f",
+      "name": "Vicente",
+      "networkServiceProviderId": null,
+      "partner": {
+        "regionNames": [],
+        "type": "NONE"
+      },
+      "portId": null,
+      "speed": {
+        "name": "1000 Mbps",
+        "value": 1000
+      },
+      "status": "ACTIVE",
+      "type": "PHYSICAL",
+      "updatedAt": "2016-06-16T06:20:11.116Z",
+      "vlanRanges": [
+        {
+          "end": 3699,
+          "start": 3600
+        }
+      ]
+    }
+  ]
+}

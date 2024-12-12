@@ -13,12 +13,12 @@ import { ReactComponent as CCEmpty } from '@/assets/icon/customer-company-empty.
 import { ReactComponent as CCWarning } from '@/assets/icon/warning-circle.svg'
 import Text from '@/components/Text'
 
-import { Button, Flex, Form, notification, Space, TableProps, Typography } from 'antd'
+import { Button, Flex, Form, message, Space, TableProps, Typography } from 'antd'
 
-import { StyledButton, StyledModal, StyledTable, StyledWrapper } from '../components/styled'
+import { StyledModal, StyledTable, StyledWrapper } from '../components/styled'
 import CustomerCompanyModal from '../components/CustomerModal'
 import Tooltip from '../components/Tooltip'
-import { useAddOrganization, useGetCompanyList } from '@/hooks/company'
+import { useAddOrganization, useGetCompanyList, useUpdateOrganization } from '@/hooks/company'
 import { useQueryClient } from 'react-query'
 
 const createColumns = (
@@ -40,10 +40,10 @@ const createColumns = (
     title: 'Short name & URL',
     dataIndex: 'name',
     key: 'name',
-    render: (_, { name }) => (
+    render: (_, { name, id }) => (
       <Flex gap={5} align='center'>
-        {name}
-        <Tooltip shortName={name} color='#FFF' placement='topLeft' />
+        <Text.NormalMedium style={{ textOverflow: 'ellipsis', overflow: 'hidden' }}>{name}</Text.NormalMedium>
+        <Tooltip orgId={id} color='#FFF' placement='topLeft' />
       </Flex>
     )
   },
@@ -130,15 +130,15 @@ const createColumns = (
     }
   }
 ]
-
+const errorMessage = 'The system has encountered an anomaly, please contact your system support team.'
 const CustomerCompany = (): ReactElement => {
   const queryClient = useQueryClient()
   const [addForm] = Form.useForm<CreateOrganizationRequestBody>()
   const [editForm] = Form.useForm()
-  const [api, contextHolder] = notification.useNotification({ top: 80 })
-  const { data, isLoading } = useGetCompanyList()
+  const { data, isFetching } = useGetCompanyList()
   const companies = data?.data?.data ?? []
   const { mutate } = useAddOrganization()
+  const { mutate: updateMutate } = useUpdateOrganization()
   const { mainColor } = useAppStore()
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
@@ -177,37 +177,24 @@ const CustomerCompany = (): ReactElement => {
   }
 
   const handleOk = async (): Promise<void> => {
-    try {
-      const values = await addForm.validateFields()
-      mutate(
-        {
-          ...values,
-          display_name: values.display_name,
-          name: values.name
+    const values = await addForm.validateFields()
+    mutate(
+      {
+        ...values,
+        display_name: values.display_name,
+        name: values.name.toLowerCase()
+      },
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries('getCompanyList')
+          handleCancel()
+          handleOpenModal(values)
         },
-        {
-          onSuccess: (data) => {
-            queryClient.setQueryData('getCompanyList', (oldData: any) => {
-              return {
-                ...oldData,
-                data: {
-                  ...oldData.data,
-                  data: [...oldData.data.data, data.data]
-                }
-              }
-            })
-            setUpdateValue(data.data)
-          },
-          onError: (error) => {
-            console.log(error, 'error adding')
-          }
+        onError: () => {
+          message.error(errorMessage, 2)
         }
-      )
-      handleCancel()
-      handleOpenModal(values)
-    } catch (error) {
-      console.log('Form validation failed:', error)
-    }
+      }
+    )
   }
   const handleCancel = () => {
     addForm.resetFields()
@@ -219,22 +206,49 @@ const CustomerCompany = (): ReactElement => {
     setUpdateValue(record)
     setIsUpdateModalOpen(true)
   }
-  const handleUpdate = async (): Promise<void> => {
-    try {
-      const values = await editForm.validateFields()
-      console.log(values)
 
-      closeUpdateModal()
-    } catch (error) {
-      console.log('Form validation failed:', error)
-    }
+  const handleUpdate = async (): Promise<void> => {
+    const values = await editForm.validateFields()
+    updateMutate(
+      {
+        id: updateValue.id,
+        request_body: {
+          display_name: values.display_name
+        }
+      },
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries('getCompanyList')
+        },
+        onError: () => {
+          message.error(errorMessage)
+        }
+      }
+    )
+    closeUpdateModal()
   }
   const closeUpdateModal = (): void => {
     editForm.resetFields()
     setIsUpdateModalOpen(false)
   }
   const handleActivate = (key: string): void => {
-    setKey(key)
+    updateMutate(
+      {
+        id: key,
+        request_body: {
+          status: 'ACTIVE'
+        }
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries('getCompanyList')
+          showSuccessMessage('activated')
+        },
+        onError: () => {
+          message.error(errorMessage, 2)
+        }
+      }
+    )
   }
   const handleDeactivate = (key: string): void => {
     setKey(key)
@@ -246,28 +260,33 @@ const CustomerCompany = (): ReactElement => {
     }
     showModal()
   }
-  const handleSuccessDeactivate = (): void => {
-    api.success({
-      message: 'Customer company name deactivated',
-      placement: 'top',
-      showProgress: true,
-      pauseOnHover: true,
-      closeIcon: false,
-      duration: 2
-    })
+  const showSuccessMessage = (status: string): void => {
+    message.success(`The customer was ${status} successfully`, 2)
   }
 
   const handleCloseDeactivate = (): void => setIsDeactivate(false)
   const handleOpenDeactivate = (): void => setIsDeactivate(true)
 
   const handleDeactivateSubmit = (): void => {
-    try {
-      console.log(key, 'inactive')
-      handleCloseDeactivate()
-      handleSuccessDeactivate()
-    } catch (error) {
-      console.log(error)
-    }
+    updateMutate(
+      {
+        id: key,
+        request_body: {
+          status: 'INACTIVE'
+        }
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries('getCompanyList')
+          handleCloseDeactivate()
+          showSuccessMessage('deactivated')
+        },
+        onError: () => {
+          message.error(errorMessage, 2)
+          handleCloseDeactivate()
+        }
+      }
+    )
   }
   const handleOnRowClick = (record: ICompany): void => {
     const { display_name } = record
@@ -281,16 +300,16 @@ const CustomerCompany = (): ReactElement => {
             <CCIcon />
           </StyledWrapper>
           <Typography.Title level={3} style={{ margin: 0 }}>
-            Customer Company
+            Customers
           </Typography.Title>
         </Flex>
-        <StyledButton variant='solid' $backgroundColor={mainColor} onClick={handleClick} data-testid='add-button'>
-          Add customer company
-        </StyledButton>
+        <Button variant='solid' color='primary' onClick={handleClick} data-testid='add-button'>
+          Add customer
+        </Button>
       </Flex>
 
       <StyledTable
-        loading={isLoading}
+        loading={isFetching}
         columns={createColumns(
           (record) => openUpdateModal(record),
           (key) => handleActivate(key),
@@ -309,7 +328,7 @@ const CustomerCompany = (): ReactElement => {
           emptyText: (
             <Flex align='center' justify='center' vertical>
               <CCEmpty />
-              <Text.NormalLarge color='#000'>No customer company</Text.NormalLarge>
+              <Text.NormalLarge color='#000'>No customer</Text.NormalLarge>
             </Flex>
           )
         }}
@@ -317,7 +336,7 @@ const CustomerCompany = (): ReactElement => {
       />
 
       <CustomerCompanyModal
-        title='Add customer company'
+        title='Add customer'
         name='add_customer_company'
         companies={companies}
         form={addForm}
@@ -329,7 +348,7 @@ const CustomerCompany = (): ReactElement => {
       />
 
       <CustomerCompanyModal
-        title='Modify Customer company'
+        title='Modify customer'
         name='modify_customer_company'
         companies={companies}
         form={editForm}
@@ -346,7 +365,7 @@ const CustomerCompany = (): ReactElement => {
           <Flex align='center' gap={5}>
             <CCClose />
             <Text.NormalMedium style={{ fontSize: '16px', fontWeight: 'bold' }}>
-              Cannot create more customer company
+              Cannot create more customer
             </Text.NormalMedium>
           </Flex>
         }
@@ -382,8 +401,8 @@ const CustomerCompany = (): ReactElement => {
       >
         <Flex gap={10} vertical>
           <Text.NormalMedium>
-            Users from this customer company cannot login Vortex yet. <br /> You can select user login method for the
-            customer company and invite user or configure SSO accordingly
+            Users from this customer cannot login Vortex yet. <br /> You can select user login method for the customer
+            and invite user or configure SSO accordingly
           </Text.NormalMedium>
         </Flex>
       </StyledModal>
@@ -394,7 +413,7 @@ const CustomerCompany = (): ReactElement => {
           <Flex align='center' gap={5}>
             <CCWarning />
             <Text.NormalMedium style={{ fontSize: '16px', fontWeight: 'bold' }}>
-              Are you sure to deactivate this customer company?
+              Are you sure to deactivate this customer?
             </Text.NormalMedium>
           </Flex>
         }
@@ -417,7 +436,6 @@ const CustomerCompany = (): ReactElement => {
           </Text.NormalMedium>
         </Flex>
       </StyledModal>
-      {contextHolder}
     </Flex>
   )
 }

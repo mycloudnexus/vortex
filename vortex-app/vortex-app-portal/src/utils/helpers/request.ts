@@ -1,14 +1,17 @@
 import axios, { isCancel } from 'axios'
 import _ from 'lodash'
 import { ENV } from '@/constant'
+import { getToken } from './token'
 
 const request = axios.create({
   timeout: 50000,
   baseURL: ENV.API_BASE_URL
 })
 request.interceptors.request.use((config: any) => {
-  const token = window.portalToken
-  config.headers.Authorization = `Bearer ${token}`
+  const token = getToken()
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
   return config
 })
 
