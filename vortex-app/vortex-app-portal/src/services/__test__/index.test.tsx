@@ -7,7 +7,7 @@ import type {
   RequestResponse,
   UpdateOrganizationRequestBody
 } from '../types'
-import { connectionRequestBody, connectionResponse, organizationResponse } from '../../__mocks__/api'
+import { connectionRequestBody, connectionResponse, organizationResponse } from '../../utils/dummyData'
 
 jest.mock('@/utils/helpers/request')
 
@@ -46,6 +46,7 @@ describe('Api calls', () => {
 
       expect(mockPatch).toHaveBeenCalledWith(`${ORGANIZATIONS}/${req.id}`, req.request_body)
       expect(result).toEqual(mockResponseData)
+      expect(organizationResponse).toBeDefined()
     })
 
     it('should throw an error if the API call fails', async () => {

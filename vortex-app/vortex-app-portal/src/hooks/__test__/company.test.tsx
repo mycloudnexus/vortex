@@ -15,7 +15,7 @@ import {
   getOrganizationById,
   updateOrganization
 } from '@/services'
-import { connectionRequestBody, connectionResponse, organizationResponse } from '@/__mocks__/api'
+import { connectionRequestBody, connectionResponse, organizationResponse } from '@/utils/dummyData'
 
 jest.mock('@/services', () => ({
   getCompanyList: jest.fn(),
