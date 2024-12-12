@@ -112,7 +112,7 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
     try {
       return ctx.read(path);
     } catch (PathNotFoundException e) {
-      log.warn("path:{} not found", path, e);
+      log.warn("path:{} not found", path);
       return null;
     }
   }
