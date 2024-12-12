@@ -1,14 +1,28 @@
 import { CreateOrganizationResponse, IOrganization, RequestResponse } from '@/services/types'
 import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { useAddOrganization, useGetCompanyList, useGetOrganizationById, useUpdateOrganization } from '../company'
-import { createOrganization, getCompanyList, getOrganizationById, updateOrganization } from '@/services'
+import {
+  useAddOrganization,
+  useCreateConnection,
+  useGetCompanyList,
+  useGetOrganizationById,
+  useUpdateOrganization
+} from '../company'
+import {
+  createConnection,
+  createOrganization,
+  getCompanyList,
+  getOrganizationById,
+  updateOrganization
+} from '@/services'
+import { connectionRequestBody, connectionResponse, organizationResponse } from '@/__mocks__/api'
 
 jest.mock('@/services', () => ({
   getCompanyList: jest.fn(),
   createOrganization: jest.fn(),
   updateOrganization: jest.fn(),
-  getOrganizationById: jest.fn()
+  getOrganizationById: jest.fn(),
+  createConnection: jest.fn()
 }))
 
 describe('Customer hooks', () => {
@@ -47,23 +61,16 @@ describe('Customer hooks', () => {
     }
 
     const mockResponse: CreateOrganizationResponse = {
-      code: 200,
-      message: 'OK',
+      ...organizationResponse,
       data: {
+        ...organizationResponse.data,
         id: '123',
         name: 'addorg',
         display_name: 'add org',
         metadata: {
           status: 'ACTIVE',
-          type: 'CUSTOMER',
-          loginType: 'undefined'
-        },
-        branding: {
-          colors: {
-            primary: '',
-            page_background: ''
-          },
-          logo_url: ''
+          connectionId: 'CUSTOMER',
+          strategy: 'undefined'
         }
       }
     }
@@ -89,23 +96,16 @@ describe('Customer hooks', () => {
     }
 
     const mockResponse: CreateOrganizationResponse = {
-      code: 200,
-      message: 'OK',
+      ...organizationResponse,
       data: {
+        ...organizationResponse.data,
         id: '123',
         name: 'add org',
         display_name: 'update',
         metadata: {
           status: 'ACTIVE',
-          type: 'CUSTOMER',
-          loginType: 'undefined'
-        },
-        branding: {
-          colors: {
-            primary: '',
-            page_background: ''
-          },
-          logo_url: ''
+          connectionId: 'CUSTOMER',
+          strategy: 'undefined'
         }
       }
     }
@@ -123,24 +123,10 @@ describe('Customer hooks', () => {
 
   it('should fetch org data', async () => {
     const mockResponse: CreateOrganizationResponse = {
-      code: 200,
-      message: 'OK',
+      ...organizationResponse,
       data: {
-        name: '',
-        id: 'org_DhF9POe3xRfNvXtO',
-        display_name: '',
-        metadata: {
-          loginType: '',
-          status: '',
-          type: ''
-        },
-        branding: {
-          colors: {
-            page_background: '',
-            primary: ''
-          },
-          logo_url: ''
-        }
+        ...organizationResponse.data,
+        id: 'org_DhF9POe3xRfNvXtO'
       }
     }
     ;(getOrganizationById as jest.Mock).mockResolvedValue(mockResponse)
@@ -149,5 +135,19 @@ describe('Customer hooks', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(result.current.data).toEqual(mockResponse)
     expect(getOrganizationById).toHaveBeenCalledTimes(1)
+  })
+
+  it('should add a connection successfully', async () => {
+    ;(createConnection as jest.Mock).mockResolvedValue(connectionResponse)
+    const { result } = renderHook(() => useCreateConnection(), { wrapper })
+
+    await waitFor(() =>
+      result.current.mutateAsync({ orgId: '', req: connectionRequestBody }).then((response) => {
+        expect(response).toEqual(connectionResponse)
+      })
+    )
+
+    expect(createConnection).toHaveBeenCalledTimes(1)
+    expect(createConnection).toHaveBeenCalledWith('', connectionRequestBody)
   })
 })

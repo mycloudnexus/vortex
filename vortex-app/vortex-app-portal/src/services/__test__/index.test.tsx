@@ -1,5 +1,5 @@
 import request from '@/utils/helpers/request'
-import { createOrganization, getCompanyList, getOrganizationById, updateOrganization } from '..'
+import { createOrganization, getCompanyList, getOrganizationById, updateOrganization, createConnection } from '..'
 import type {
   CreateOrganizationRequestBody,
   CreateOrganizationResponse,
@@ -7,6 +7,7 @@ import type {
   RequestResponse,
   UpdateOrganizationRequestBody
 } from '../types'
+import { connectionRequestBody, connectionResponse, organizationResponse } from '../../__mocks__/api'
 
 jest.mock('@/utils/helpers/request')
 
@@ -21,23 +22,16 @@ describe('Api calls', () => {
     })
     it('should successfully update an organization and return the response data', async () => {
       const mockResponseData: CreateOrganizationResponse = {
-        code: 200,
-        message: 'OK',
+        ...organizationResponse,
         data: {
+          ...organizationResponse.data,
           id: '123',
           name: 'Updated Org',
           display_name: 'Updated Org',
           metadata: {
             status: 'ACTIVE',
-            type: 'CUSTOMER',
-            loginType: 'undefined'
-          },
-          branding: {
-            colors: {
-              primary: '',
-              page_background: ''
-            },
-            logo_url: ''
+            connectionId: 'CUSTOMER',
+            strategy: 'undefined'
           }
         }
       }
@@ -75,23 +69,16 @@ describe('Api calls', () => {
 
     it('should create a organization', async () => {
       const mockResponse: CreateOrganizationResponse = {
-        code: 200,
-        message: 'OK',
+        ...organizationResponse,
         data: {
+          ...organizationResponse.data,
           id: '123',
           name: 'adding1',
           display_name: 'adding1',
           metadata: {
             status: 'ACTIVE',
-            type: 'CUSTOMER',
-            loginType: 'undefined'
-          },
-          branding: {
-            colors: {
-              primary: '',
-              page_background: ''
-            },
-            logo_url: ''
+            strategy: '',
+            connectionId: 'undefined'
           }
         }
       }
@@ -163,24 +150,10 @@ describe('Api calls', () => {
     })
     it('should get a organization data', async () => {
       const mockResponse: CreateOrganizationResponse = {
-        code: 200,
-        message: 'OK',
+        ...organizationResponse,
         data: {
-          name: '',
-          id: 'org_DhF9POe3xRfNvXtO',
-          display_name: '',
-          metadata: {
-            loginType: '',
-            status: '',
-            type: ''
-          },
-          branding: {
-            colors: {
-              page_background: '',
-              primary: ''
-            },
-            logo_url: ''
-          }
+          ...organizationResponse.data,
+          id: 'org_DhF9POe3xRfNvXtO'
         }
       }
       mockGetById.mockResolvedValueOnce({ data: mockResponse })
@@ -195,6 +168,37 @@ describe('Api calls', () => {
       mockGetById.mockRejectedValueOnce(mockError)
       await expect(getOrganizationById('org_DhF9POe3xRfNvXtO')).rejects.toThrow(mockError)
       expect(mockGetById).toHaveBeenCalledWith(`${ORGANIZATIONS}/org_DhF9POe3xRfNvXtO`)
+    })
+  })
+
+  describe('add connection', () => {
+    let mockAddConnection = jest.fn()
+    beforeEach(() => {
+      jest.clearAllMocks()
+      mockAddConnection = request.post as jest.Mock
+    })
+
+    it('should create connection', async () => {
+      mockAddConnection.mockResolvedValueOnce({ data: connectionResponse })
+
+      const result = await createConnection('org_JqMlLhQYpEwDO68Z', connectionRequestBody)
+
+      expect(mockAddConnection).toHaveBeenCalledWith(
+        `${ORGANIZATIONS}/org_JqMlLhQYpEwDO68Z/connection`,
+        connectionRequestBody
+      )
+      expect(result).toEqual(connectionResponse)
+    })
+
+    it('should throw an error when creating a connection', async () => {
+      const mockError = new Error('Network Error')
+      mockAddConnection.mockRejectedValueOnce(mockError)
+
+      await expect(createConnection('org_JqMlLhQYpEwDO68Z', connectionRequestBody)).rejects.toThrow(mockError)
+      expect(mockAddConnection).toHaveBeenCalledWith(
+        `${ORGANIZATIONS}/org_JqMlLhQYpEwDO68Z/connection`,
+        connectionRequestBody
+      )
     })
   })
 })

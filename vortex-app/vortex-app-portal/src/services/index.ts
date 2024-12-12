@@ -1,6 +1,8 @@
 import request from '@/utils/helpers/request'
 import { ORGANIZATIONS } from './api'
 import {
+  AddConnectionRequestBody,
+  AddConnectionResponse,
   CreateOrganizationRequestBody,
   CreateOrganizationResponse,
   IOrganization,
@@ -46,6 +48,19 @@ export const updateOrganization = async (req: UpdateOrganizationRequestBody): Pr
 export const getOrganizationById = async (orgId: string): Promise<CreateOrganizationResponse> => {
   try {
     const response = await request(`${ORGANIZATIONS}/${orgId}`)
+    return response.data
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
+export const createConnection = async (
+  orgId: string,
+  req: AddConnectionRequestBody
+): Promise<RequestResponse<AddConnectionResponse>> => {
+  try {
+    const response = await request.post(`${ORGANIZATIONS}/${orgId}/connection`, req)
     return response.data
   } catch (error) {
     console.error(error)
