@@ -1,4 +1,9 @@
-import { CreateOrganizationResponse } from '@/services/types'
+import {
+  AddConnectionRequestBody,
+  AddConnectionResponse,
+  CreateOrganizationResponse,
+  RequestResponse
+} from '@/services/types'
 
 export const getOrganizationResponse = (): CreateOrganizationResponse => {
   return {
@@ -39,6 +44,53 @@ export const getOrganizationResponse = (): CreateOrganizationResponse => {
         realms: '',
         strategy: ''
       }
+    }
+  }
+}
+
+export const getConnectionResponse = (): RequestResponse<AddConnectionResponse> => {
+  return {
+    code: 200,
+    message: 'OK',
+    data: {
+      name: 'riejantest-samlp-oBzndE',
+      strategy: 'samlp',
+      options: {
+        signInEndpoint: '',
+        signingCert: '',
+        debug: true,
+        signOutEndpoint: '',
+        signSAMLRequest: false,
+        digestAlgorithm: '',
+        signatureAlgorithm: '',
+        fieldsMap: {},
+        expires: new Date('2036-12-25T22:32:54.000Z'),
+        subject: {
+          commonName: ''
+        },
+        thumbprints: [''],
+        cert: ''
+      },
+      id: '',
+      enabled_clients: [''],
+      provisioning_ticket_url: '',
+      realms: ['']
+    }
+  }
+}
+
+export const getConnectionRequestBody = (): AddConnectionRequestBody => {
+  return {
+    strategy: 'samlp',
+    saml: {
+      signingCert: '',
+      signSAMLRequest: true,
+      signatureAlgorithm: '',
+      digestAlgorithm: '',
+      fieldsMap: {},
+      signInEndpoint: '',
+      signOutEndpoint: '',
+      debug: true
     }
   }
 }
