@@ -84,7 +84,7 @@ const BaseLayout = () => {
     const roleIds = get(userDetail, ['linkUserCompany', companyId, 'roleIds'], [])
     const accessRole = filter(roleList, (r) => roleIds.includes(r.id) || r.systemDefault)
     window.portalAccessRoles = roleList
-    window.portalLoggedInUser = userDetail
+    window.portalLoggedInUser = { ...userDetail, accessRole }
     setRoleList(roleList)
     setDownstreamUser({ ...userDetail, accessRole })
   }, [userData, roleData])
