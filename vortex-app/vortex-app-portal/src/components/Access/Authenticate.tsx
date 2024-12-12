@@ -26,6 +26,7 @@ const Authenticate = ({ children }: AuthenticateProps) => {
 
   const saveToken = useCallback(async () => {
     const res = await getAccessTokenSilently()
+    window.portalToken = res
     storeToken(res)
     setHaveToken(true)
   }, [getAccessTokenSilently, setHaveToken])
