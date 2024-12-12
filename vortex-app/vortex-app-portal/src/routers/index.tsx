@@ -1,5 +1,5 @@
 import { createBrowserRouter, Outlet, RouteObject } from 'react-router-dom'
-import ModulePortContainer from '@/components/Modules/ModulePortContainer'
+import ModulePortContainer from '@/pages/Modules/ModulePortContainer'
 import Layout from '@/components/Layout'
 import Dashboard from '@/pages/Dashboard'
 import EdgeModuleContainer from '@/pages/ExampleMicroModule'

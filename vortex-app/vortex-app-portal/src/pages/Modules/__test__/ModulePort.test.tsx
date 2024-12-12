@@ -1,4 +1,4 @@
-import ModulePortContainer from '@/components/Modules/ModulePortContainer'
+import ModulePortContainer from '@/pages/Modules/ModulePortContainer'
 import { render } from '@/test/setupTest'
 
 test('Modules/ModulePortContainer component', async () => {
