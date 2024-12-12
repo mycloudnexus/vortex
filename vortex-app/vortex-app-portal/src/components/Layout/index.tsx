@@ -82,11 +82,11 @@ const BaseLayout = () => {
     if (!userDetail) return
     const companyId = get(userDetail, 'companies[0].id', '')
     const roleIds = get(userDetail, ['linkUserCompany', companyId, 'roleIds'], [])
-    const accessRole = filter(roleList, (r) => roleIds.includes(r.id) || r.systemDefault)
+    const accessRoles = filter(roleList, (r) => roleIds.includes(r.id) || r.systemDefault)
     window.portalAccessRoles = roleList
-    window.portalLoggedInUser = { ...userDetail, accessRole }
+    window.portalLoggedInUser = { ...userDetail, accessRoles }
     setRoleList(roleList)
-    setDownstreamUser({ ...userDetail, accessRole })
+    setDownstreamUser({ ...userDetail, accessRoles })
   }, [userData, roleData])
 
   useEffect(() => {
