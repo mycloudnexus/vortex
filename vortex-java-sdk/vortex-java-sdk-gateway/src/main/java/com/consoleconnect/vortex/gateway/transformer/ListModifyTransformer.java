@@ -8,9 +8,9 @@ import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
 import com.consoleconnect.vortex.gateway.service.ResourceService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.gateway.toolkit.SpelExpressionEngine;
-import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.PathNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +40,6 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
     DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
     // data to be filtered, it MUST be a list
     List<Object> data = ctx.read(context.getSpecification().getResponseDataPath());
-
-    OrganizationInfo org = organizationService.findOne(context.getCustomerId());
-    context.getVariables().put(VAR_CUSTOMER_NAME, org.getName());
 
     for (int i = 0; i < data.size(); i++) {
 
@@ -86,14 +83,37 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
 
     for (Map.Entry<String, String> e : options.getKeysPath().entrySet()) {
       // reset path-value for each item keys
+
+      String[] pathValArr = e.getValue().split(":");
+      String keyPath = e.getValue();
+      if (pathValArr.length == 2) {
+        keyPath = pathValArr[0];
+      }
+
       String path =
           String.format(
               JSON_ARRAY_PATH_FORMAT,
               context.getSpecification().getResponseDataPath(),
               index,
-              e.getValue());
+              keyPath);
       log.info("fillValByKeyPath path:{}", path);
-      context.getVariables().put(e.getKey(), ctx.read(path));
+
+      Object value = readWithNull(ctx, path);
+
+      if (value == null && pathValArr.length == 2) {
+        value = pathValArr[1]; // default value
+      }
+
+      context.getVariables().put(e.getKey(), value);
+    }
+  }
+
+  private Object readWithNull(DocumentContext ctx, String path) {
+    try {
+      return ctx.read(path);
+    } catch (PathNotFoundException e) {
+      log.warn("path:{} not found", path, e);
+      return null;
     }
   }
 
