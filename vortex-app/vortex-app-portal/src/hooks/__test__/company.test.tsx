@@ -1,4 +1,10 @@
-import { CreateOrganizationResponse, IOrganization, RequestResponse } from '@/services/types'
+import {
+  AddConnectionRequestBody,
+  AddConnectionResponse,
+  CreateOrganizationResponse,
+  IOrganization,
+  RequestResponse
+} from '@/services/types'
 import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import {
@@ -15,7 +21,6 @@ import {
   getOrganizationById,
   updateOrganization
 } from '@/services'
-import { connectionRequestBody, connectionResponse, organizationResponse } from '@/__mocks__/mockData'
 
 jest.mock('@/services', () => ({
   getCompanyList: jest.fn(),
@@ -61,9 +66,9 @@ describe('Customer hooks', () => {
     }
 
     const mockResponse: CreateOrganizationResponse = {
-      ...organizationResponse,
+      code: 200,
+      message: 'OK',
       data: {
-        ...organizationResponse.data,
         id: '123',
         name: 'addorg',
         display_name: 'add org',
@@ -71,6 +76,32 @@ describe('Customer hooks', () => {
           status: 'ACTIVE',
           connectionId: 'CUSTOMER',
           strategy: 'undefined'
+        },
+        branding: {
+          colors: {
+            primary: '',
+            page_background: ''
+          },
+          logo_url: ''
+        },
+        connection: {
+          display_name: '',
+          enabled_clients: [],
+          id: '',
+          metadata: {
+            additionalProp1: '',
+            additionalProp2: '',
+            additionalProp3: ''
+          },
+          name: '',
+          options: {
+            additionalProp1: {},
+            additionalProp2: {},
+            additionalProp3: {}
+          },
+          provisioning_ticket_url: '',
+          realms: '',
+          strategy: ''
         }
       }
     }
@@ -96,9 +127,9 @@ describe('Customer hooks', () => {
     }
 
     const mockResponse: CreateOrganizationResponse = {
-      ...organizationResponse,
+      code: 200,
+      message: 'OK',
       data: {
-        ...organizationResponse.data,
         id: '123',
         name: 'add org',
         display_name: 'update',
@@ -106,6 +137,32 @@ describe('Customer hooks', () => {
           status: 'ACTIVE',
           connectionId: 'CUSTOMER',
           strategy: 'undefined'
+        },
+        branding: {
+          colors: {
+            primary: '',
+            page_background: ''
+          },
+          logo_url: ''
+        },
+        connection: {
+          display_name: '',
+          enabled_clients: [],
+          id: '',
+          metadata: {
+            additionalProp1: '',
+            additionalProp2: '',
+            additionalProp3: ''
+          },
+          name: '',
+          options: {
+            additionalProp1: {},
+            additionalProp2: {},
+            additionalProp3: {}
+          },
+          provisioning_ticket_url: '',
+          realms: '',
+          strategy: ''
         }
       }
     }
@@ -123,10 +180,43 @@ describe('Customer hooks', () => {
 
   it('should fetch org data', async () => {
     const mockResponse: CreateOrganizationResponse = {
-      ...organizationResponse,
+      code: 200,
+      message: 'OK',
       data: {
-        ...organizationResponse.data,
-        id: 'org_DhF9POe3xRfNvXtO'
+        id: 'org_DhF9POe3xRfNvXtO',
+        name: '',
+        display_name: '',
+        metadata: {
+          status: '',
+          connectionId: '',
+          strategy: ''
+        },
+        branding: {
+          colors: {
+            primary: '',
+            page_background: ''
+          },
+          logo_url: ''
+        },
+        connection: {
+          display_name: '',
+          enabled_clients: [],
+          id: '',
+          metadata: {
+            additionalProp1: '',
+            additionalProp2: '',
+            additionalProp3: ''
+          },
+          name: '',
+          options: {
+            additionalProp1: {},
+            additionalProp2: {},
+            additionalProp3: {}
+          },
+          provisioning_ticket_url: '',
+          realms: '',
+          strategy: ''
+        }
       }
     }
     ;(getOrganizationById as jest.Mock).mockResolvedValue(mockResponse)
@@ -138,6 +228,47 @@ describe('Customer hooks', () => {
   })
 
   it('should add a connection successfully', async () => {
+    const connectionResponse: RequestResponse<AddConnectionResponse> = {
+      code: 200,
+      message: 'OK',
+      data: {
+        name: 'riejantest-samlp-oBzndE',
+        strategy: 'samlp',
+        options: {
+          signInEndpoint: '',
+          signingCert: '',
+          debug: true,
+          signOutEndpoint: '',
+          signSAMLRequest: false,
+          digestAlgorithm: '',
+          signatureAlgorithm: '',
+          fieldsMap: {},
+          expires: new Date('2036-12-25T22:32:54.000Z'),
+          subject: {
+            commonName: ''
+          },
+          thumbprints: [''],
+          cert: ''
+        },
+        id: '',
+        enabled_clients: [''],
+        provisioning_ticket_url: '',
+        realms: ['']
+      }
+    }
+    const connectionRequestBody: AddConnectionRequestBody = {
+      strategy: 'samlp',
+      saml: {
+        signingCert: '',
+        signSAMLRequest: true,
+        signatureAlgorithm: '',
+        digestAlgorithm: '',
+        fieldsMap: {},
+        signInEndpoint: '',
+        signOutEndpoint: '',
+        debug: true
+      }
+    }
     ;(createConnection as jest.Mock).mockResolvedValue(connectionResponse)
     const { result } = renderHook(() => useCreateConnection(), { wrapper })
 

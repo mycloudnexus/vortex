@@ -1,13 +1,14 @@
 import request from '@/utils/helpers/request'
-import { createOrganization, getCompanyList, getOrganizationById, updateOrganization, createConnection } from '..'
+import { createConnection, createOrganization, getCompanyList, getOrganizationById, updateOrganization } from '..'
 import type {
+  AddConnectionRequestBody,
+  AddConnectionResponse,
   CreateOrganizationRequestBody,
   CreateOrganizationResponse,
   IOrganization,
   RequestResponse,
   UpdateOrganizationRequestBody
 } from '../types'
-import { connectionRequestBody, connectionResponse, organizationResponse } from '@/__mocks__/mockData'
 
 jest.mock('@/utils/helpers/request')
 
@@ -22,9 +23,9 @@ describe('Api calls', () => {
     })
     it('should successfully update an organization and return the response data', async () => {
       const mockResponseData: CreateOrganizationResponse = {
-        ...organizationResponse,
+        code: 200,
+        message: 'OK',
         data: {
-          ...organizationResponse.data,
           id: '123',
           name: 'Updated Org',
           display_name: 'Updated Org',
@@ -32,6 +33,32 @@ describe('Api calls', () => {
             status: 'ACTIVE',
             connectionId: 'CUSTOMER',
             strategy: 'undefined'
+          },
+          branding: {
+            colors: {
+              primary: '',
+              page_background: ''
+            },
+            logo_url: ''
+          },
+          connection: {
+            display_name: '',
+            enabled_clients: [],
+            id: '',
+            metadata: {
+              additionalProp1: '',
+              additionalProp2: '',
+              additionalProp3: ''
+            },
+            name: '',
+            options: {
+              additionalProp1: {},
+              additionalProp2: {},
+              additionalProp3: {}
+            },
+            provisioning_ticket_url: '',
+            realms: '',
+            strategy: ''
           }
         }
       }
@@ -69,16 +96,42 @@ describe('Api calls', () => {
 
     it('should create a organization', async () => {
       const mockResponse: CreateOrganizationResponse = {
-        ...organizationResponse,
+        code: 200,
+        message: 'OK',
         data: {
-          ...organizationResponse.data,
           id: '123',
           name: 'adding1',
           display_name: 'adding1',
           metadata: {
             status: 'ACTIVE',
-            strategy: '',
-            connectionId: 'undefined'
+            connectionId: 'CUSTOMER',
+            strategy: 'undefined'
+          },
+          branding: {
+            colors: {
+              primary: '',
+              page_background: ''
+            },
+            logo_url: ''
+          },
+          connection: {
+            display_name: '',
+            enabled_clients: [],
+            id: '',
+            metadata: {
+              additionalProp1: '',
+              additionalProp2: '',
+              additionalProp3: ''
+            },
+            name: '',
+            options: {
+              additionalProp1: {},
+              additionalProp2: {},
+              additionalProp3: {}
+            },
+            provisioning_ticket_url: '',
+            realms: '',
+            strategy: ''
           }
         }
       }
@@ -150,10 +203,43 @@ describe('Api calls', () => {
     })
     it('should get a organization data', async () => {
       const mockResponse: CreateOrganizationResponse = {
-        ...organizationResponse,
+        code: 200,
+        message: 'OK',
         data: {
-          ...organizationResponse.data,
-          id: 'org_DhF9POe3xRfNvXtO'
+          name: '',
+          id: 'org_DhF9POe3xRfNvXtO',
+          display_name: '',
+          metadata: {
+            strategy: '',
+            status: '',
+            connectionId: ''
+          },
+          branding: {
+            colors: {
+              page_background: '',
+              primary: ''
+            },
+            logo_url: ''
+          },
+          connection: {
+            display_name: '',
+            enabled_clients: [],
+            id: '',
+            metadata: {
+              additionalProp1: '',
+              additionalProp2: '',
+              additionalProp3: ''
+            },
+            name: '',
+            options: {
+              additionalProp1: {},
+              additionalProp2: {},
+              additionalProp3: {}
+            },
+            provisioning_ticket_url: '',
+            realms: '',
+            strategy: ''
+          }
         }
       }
       mockGetById.mockResolvedValueOnce({ data: mockResponse })
@@ -179,6 +265,48 @@ describe('Api calls', () => {
     })
 
     it('should create connection', async () => {
+      const connectionResponse: RequestResponse<AddConnectionResponse> = {
+        code: 200,
+        message: 'OK',
+        data: {
+          name: 'riejantest-samlp-oBzndE',
+          strategy: 'samlp',
+          options: {
+            signInEndpoint: '',
+            signingCert: '',
+            debug: true,
+            signOutEndpoint: '',
+            signSAMLRequest: false,
+            digestAlgorithm: '',
+            signatureAlgorithm: '',
+            fieldsMap: {},
+            expires: new Date('2036-12-25T22:32:54.000Z'),
+            subject: {
+              commonName: ''
+            },
+            thumbprints: [''],
+            cert: ''
+          },
+          id: '',
+          enabled_clients: [''],
+          provisioning_ticket_url: '',
+          realms: ['']
+        }
+      }
+
+      const connectionRequestBody: AddConnectionRequestBody = {
+        strategy: 'samlp',
+        saml: {
+          signingCert: '',
+          signSAMLRequest: true,
+          signatureAlgorithm: '',
+          digestAlgorithm: '',
+          fieldsMap: {},
+          signInEndpoint: '',
+          signOutEndpoint: '',
+          debug: true
+        }
+      }
       mockAddConnection.mockResolvedValueOnce({ data: connectionResponse })
 
       const result = await createConnection('org_JqMlLhQYpEwDO68Z', connectionRequestBody)
@@ -192,6 +320,19 @@ describe('Api calls', () => {
 
     it('should throw an error when creating a connection', async () => {
       const mockError = new Error('Network Error')
+      const connectionRequestBody: AddConnectionRequestBody = {
+        strategy: 'samlp',
+        saml: {
+          signingCert: '',
+          signSAMLRequest: true,
+          signatureAlgorithm: '',
+          digestAlgorithm: '',
+          fieldsMap: {},
+          signInEndpoint: '',
+          signOutEndpoint: '',
+          debug: true
+        }
+      }
       mockAddConnection.mockRejectedValueOnce(mockError)
 
       await expect(createConnection('org_JqMlLhQYpEwDO68Z', connectionRequestBody)).rejects.toThrow(mockError)
