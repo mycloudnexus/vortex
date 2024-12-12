@@ -13,9 +13,11 @@ const NavMain = forwardRef<any, any>((_, ref) => {
       <nav>
         <Flex align='center' gap={16} className={styles.pageNav}>
           <Link to={''}>{ENV.COMPANY_LOGO_URL ? <img src={ENV.COMPANY_LOGO_URL} alt='logo' /> : <DefaultLogo />}</Link>
-          <Link to={''}>
-            <h3>goPartnerConnect</h3>
-          </Link>
+          {!ENV.COMPANY_LOGO_URL && (
+            <Link to={''}>
+              <h3>Console Connect Private Label</h3>
+            </Link>
+          )}
         </Flex>
       </nav>
 

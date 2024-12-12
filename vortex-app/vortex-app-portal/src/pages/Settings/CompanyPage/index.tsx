@@ -21,7 +21,7 @@ const CompanyPage = (): ReactElement => {
   const { isFetching, data } = useGetOrganizationById(orgId, {
     enabled: !!orgId
   })
-  const loginMethod = data?.data?.metadata?.loginType
+  const loginMethod = data?.data?.metadata?.strategy
   const items: TabsProps['items'] = [
     {
       key: '1',
@@ -48,7 +48,7 @@ const CompanyPage = (): ReactElement => {
         <CardTab
           title='Invite by email'
           description='User login by username and password'
-          isEnabled={loginMethod === 'email'}
+          isEnabled={loginMethod === 'auth0'}
           icon={<CPLock />}
         />
       ),
@@ -65,7 +65,7 @@ const CompanyPage = (): ReactElement => {
           title='SSO-'
           titleExtension='SAML 2.0'
           description='User login by configured SSO'
-          isEnabled={loginMethod === 'sso'}
+          isEnabled={loginMethod === 'samlp'}
           icon={<CPsso />}
         />
       ),
@@ -76,7 +76,7 @@ const CompanyPage = (): ReactElement => {
               Set up SSO
             </Typography.Title>
           </Flex>
-          <SSOForm loginMethod={data?.data?.metadata?.loginType} />
+          <SSOForm loginMethod={data?.data?.metadata?.strategy} />
         </Flex>
       )
     }

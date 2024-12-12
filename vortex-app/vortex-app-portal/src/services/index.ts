@@ -1,5 +1,5 @@
 import request from '@/utils/helpers/request'
-import { DOWNSTREAM_AUTH_TOKEN, DOWNSTREAM_USER_ROLE, ORGANIZATIONS, USER_INFO } from './api'
+import { ORGANIZATIONS } from './api'
 import {
   CreateOrganizationRequestBody,
   CreateOrganizationResponse,
@@ -8,18 +8,6 @@ import {
   UpdateOrganizationRequestBody
 } from './types'
 
-export const getUserDetail = (name: string) => {
-  return request(`${USER_INFO}/${name}`, {})
-}
-
-export const getUserAuthToken = () => {
-  return request(DOWNSTREAM_AUTH_TOKEN)
-}
-
-export const getUserRole = () => {
-  return request(DOWNSTREAM_USER_ROLE)
-}
-
 export const getCompanyList = async (): Promise<RequestResponse<IOrganization>> => {
   try {
     const response = await request(ORGANIZATIONS, {
@@ -27,7 +15,7 @@ export const getCompanyList = async (): Promise<RequestResponse<IOrganization>> 
         size: -1
       }
     })
-    return response.data
+    return response?.data
   } catch (error) {
     console.error(error)
     throw error

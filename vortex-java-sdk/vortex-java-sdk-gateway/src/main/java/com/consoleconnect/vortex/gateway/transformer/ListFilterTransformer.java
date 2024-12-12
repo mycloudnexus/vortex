@@ -16,16 +16,18 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ListAndFilterResourceTransformer
-    extends AbstractResourceTransformer<ListAndFilterResourceTransformer.Options> {
+public class ListFilterTransformer extends AbstractTransformer<ListFilterTransformer.Options> {
 
-  public ListAndFilterResourceTransformer(
+  protected ListFilterTransformer(
       OrganizationService organizationService, ResourceService resourceService) {
-    super(Options.class, organizationService, resourceService);
+    super(organizationService, resourceService);
   }
 
   @Override
-  public String doTransform(String responseBody, TransformerContext<Options> context) {
+  public String doTransform(
+      String responseBody,
+      TransformerContext context,
+      TransformerSpecification.TransformerChain<ListFilterTransformer.Options> chain) {
 
     DocumentContext ctx = JsonPathToolkit.createDocCtx(responseBody);
     // data to be filtered, it MUST be a list
@@ -34,7 +36,7 @@ public class ListAndFilterResourceTransformer
 
     Object filteredData =
         this.filterData(
-            data, context.getSpecification().getOptions().getFilter(), context.getVariables());
+            data, chain.getChanOptions(Options.class).getFilter(), context.getVariables());
 
     if (TransformerSpecification.JSON_ROOT.equals(
         context.getSpecification().getResponseDataPath())) {

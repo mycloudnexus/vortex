@@ -44,11 +44,11 @@ export const routes: IRouteObject[] = [
             breadCrumbName: 'Users'
           },
           {
-            path: '/settings/customer-company',
+            path: '/settings/customers',
             element: <CustomerCompany />,
-            breadCrumbName: 'Customer Company'
+            breadCrumbName: 'Customers'
           },
-          { path: '/settings/customer-company/:id', element: <CompanyPage /> }
+          { path: '/settings/customers/:id', element: <CompanyPage /> }
         ]
       },
       {
