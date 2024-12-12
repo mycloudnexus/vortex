@@ -46,7 +46,6 @@ describe('Api calls', () => {
 
       expect(mockPatch).toHaveBeenCalledWith(`${ORGANIZATIONS}/${req.id}`, req.request_body)
       expect(result).toEqual(mockResponseData)
-      expect(organizationResponse).toBeDefined()
     })
 
     it('should throw an error if the API call fails', async () => {
