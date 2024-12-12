@@ -166,7 +166,7 @@ const CustomerCompany = (): ReactElement => {
 
   const handleSubmitConfigLogin = (): void => {
     setIsConfigLogin(false)
-    navigate(`/settings/customer-company/${updateValue.display_name}`, { state: { record: updateValue } })
+    navigate(`/settings/customers/${updateValue.display_name}`, { state: { record: updateValue } })
   }
   const handleCloseConfigModal = (): void => setIsConfigLogin(false)
 
@@ -290,7 +290,7 @@ const CustomerCompany = (): ReactElement => {
   }
   const handleOnRowClick = (record: ICompany): void => {
     const { display_name } = record
-    navigate(`/settings/customer-company/${display_name}`, { state: { record: record } })
+    navigate(`/settings/customers/${display_name}`, { state: { record: record } })
   }
   return (
     <Flex style={{ width: '70%', margin: '0 auto' }} vertical justify='start' align='center' gap={20}>

@@ -158,7 +158,7 @@ const BaseLayout = () => {
           key: '6-2',
           label: 'Customers',
           onClick: () => {
-            navigate('/settings/customer-company')
+            navigate('/settings/customers')
           }
         }
       ]
