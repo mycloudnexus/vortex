@@ -2,7 +2,6 @@ package com.consoleconnect.vortex.gateway.filter;
 
 import static java.util.function.Function.identity;
 
-import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
 import com.consoleconnect.vortex.gateway.model.GatewayProperty;
 import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
 import com.consoleconnect.vortex.gateway.transformer.TransformerChain;
