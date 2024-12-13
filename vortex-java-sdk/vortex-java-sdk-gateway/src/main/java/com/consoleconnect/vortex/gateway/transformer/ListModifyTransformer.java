@@ -8,9 +8,9 @@ import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
 import com.consoleconnect.vortex.gateway.service.ResourceService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.gateway.toolkit.SpelExpressionEngine;
-import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.PathNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,12 +41,9 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
     // data to be filtered, it MUST be a list
     List<Object> data = ctx.read(context.getSpecification().getResponseDataPath());
 
-    OrganizationInfo org = organizationService.findOne(context.getCustomerId());
-    context.getVariables().put(VAR_CUSTOMER_NAME, org.getName());
-
     for (int i = 0; i < data.size(); i++) {
 
-      fillValByKeyPath(context, options, i, ctx);
+      fillValByValuePath(context, options, i, ctx);
 
       if (options.getWhen() != null
           && Boolean.TRUE.equals(
@@ -81,26 +78,46 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
     return TransformerIdentityEnum.RESOURCES_LIST_AND_MODIFY;
   }
 
-  private void fillValByKeyPath(
+  private void fillValByValuePath(
       TransformerContext context, Options options, int index, DocumentContext ctx) {
 
-    for (Map.Entry<String, String> e : options.getKeysPath().entrySet()) {
+    for (Map.Entry<String, VariableOption> e : options.getVariables().entrySet()) {
       // reset path-value for each item keys
+
+      VariableOption vo = e.getValue();
       String path =
           String.format(
               JSON_ARRAY_PATH_FORMAT,
               context.getSpecification().getResponseDataPath(),
               index,
-              e.getValue());
-      log.info("fillValByKeyPath path:{}", path);
-      context.getVariables().put(e.getKey(), ctx.read(path));
+              vo.getValuePath());
+      log.info("fillValByValuePath path:{}", path);
+
+      Object value = readWithNull(ctx, path);
+
+      context.getVariables().put(e.getKey(), value != null ? value : vo.getDefaultValue());
+    }
+  }
+
+  private Object readWithNull(DocumentContext ctx, String path) {
+    try {
+      return ctx.read(path);
+    } catch (PathNotFoundException e) {
+      log.warn("path:{} not found", path);
+      return null;
     }
   }
 
   @Data
   public static class Options {
     private String when;
-    private Map<String, String> keysPath = new HashMap<>();
+    private Map<String, VariableOption> variables = new HashMap<>();
     private Map<String, Object> modifier;
+  }
+
+  @Data
+  public static class VariableOption {
+    private String valuePath;
+    private String defaultValue;
   }
 }

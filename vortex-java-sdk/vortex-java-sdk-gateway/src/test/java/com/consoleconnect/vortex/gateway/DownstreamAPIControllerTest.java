@@ -46,6 +46,8 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
 
   @SpyBean private OrganizationService organizationService;
 
+  private OrganizationInfo orgInfo;
+
   @Autowired
   public DownstreamAPIControllerTest(WebTestClient webTestClient) {
 
@@ -62,6 +64,11 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
 
   @BeforeEach
   void setUpEach() {
+    orgInfo = new OrganizationInfo();
+    orgInfo.setId(AuthContextConstants.CUSTOMER_COMPANY_ID);
+    orgInfo.setName("Customer Company");
+    Mockito.doReturn(orgInfo).when(organizationService).findOne(Mockito.anyString());
+
     MockServerHelper.setupMock("consoleconnect");
     resourceRepository.deleteAll();
   }
@@ -484,14 +491,11 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
   void
       givenConnectionCreated_whenCustomerUserListPorConnections_thenConnectionDestCompanyNameChanged() {
 
-    OrganizationInfo org = new OrganizationInfo();
-    org.setId(AuthContextConstants.CUSTOMER_COMPANY_ID);
-    org.setName("Customer Company");
-    Mockito.doReturn(org).when(organizationService).findOne(Mockito.anyString());
+    OrganizationInfo org = orgInfo;
 
     String orderId = UUID.randomUUID().toString();
     String portId = "d7ce4aa7-0c79-44ed-ae4b-edf533c0e666";
-    // create a order and set the portId
+    // create an order and set the portId
     CreateResourceRequest request = new CreateResourceRequest();
     request.setCustomerId(AuthContextConstants.CUSTOMER_COMPANY_ID);
     request.setResourceType(ResourceTypeEnum.ORDER_PORT.name());
@@ -532,10 +536,7 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
   void
       givenConnectionCreated_whenMgmtUserListPorConnectionsForACustomer_thenConnectionDestCompanyNameChanged() {
 
-    OrganizationInfo org = new OrganizationInfo();
-    org.setId(AuthContextConstants.CUSTOMER_COMPANY_ID);
-    org.setName("Customer Company");
-    Mockito.doReturn(org).when(organizationService).findOne(Mockito.anyString());
+    OrganizationInfo org = orgInfo;
 
     String orderId = UUID.randomUUID().toString();
     String portId = "d7ce4aa7-0c79-44ed-ae4b-edf533c0e666";
@@ -582,22 +583,18 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
   void
       givenConnectionCreated_whenMgmtUserListPorConnections_thenConnectionDestCompanyNameNotChanged() {
 
-    OrganizationInfo org = new OrganizationInfo();
-    org.setId(AuthContextConstants.CUSTOMER_COMPANY_ID);
-    org.setName("Customer Company");
-    Mockito.doReturn(org).when(organizationService).findOne(Mockito.anyString());
-
     String companyName = "dest company name";
-    String portId = UUID.randomUUID().toString();
+    String portId = "d7ce4aa7-0c79-44ed-ae4b-edf533c0e666";
     String endpoint =
         String.format(
             "/downstream/api/company/%s/ports/%s/connections",
             AuthContextConstants.MGMT_COMPANY_USERNAME, portId);
 
     String orderId = UUID.randomUUID().toString();
-    // create a order and set the portId
+    // create an order and set the portId
     CreateResourceRequest request = new CreateResourceRequest();
-    request.setCustomerId(AuthContextConstants.CUSTOMER_COMPANY_ID);
+    request.setCustomerId(
+        "65a4f18aec61ae42ae9606dfx0000"); // AuthContextConstants.CUSTOMER_COMPANY_ID
     request.setResourceType(ResourceTypeEnum.ORDER_PORT.name());
     request.setResourceId(portId);
     request.setOrderId(orderId);
