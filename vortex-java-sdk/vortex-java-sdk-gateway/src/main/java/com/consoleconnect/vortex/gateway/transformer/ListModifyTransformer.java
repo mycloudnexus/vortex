@@ -43,7 +43,7 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
 
     for (int i = 0; i < data.size(); i++) {
 
-      fillValByKeyPath(context, options, i, ctx);
+      fillValByValuePath(context, options, i, ctx);
 
       if (options.getWhen() != null
           && Boolean.TRUE.equals(
@@ -78,7 +78,7 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
     return TransformerIdentityEnum.RESOURCES_LIST_AND_MODIFY;
   }
 
-  private void fillValByKeyPath(
+  private void fillValByValuePath(
       TransformerContext context, Options options, int index, DocumentContext ctx) {
 
     for (Map.Entry<String, VariableOption> e : options.getVariables().entrySet()) {
@@ -91,7 +91,7 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
               context.getSpecification().getResponseDataPath(),
               index,
               vo.getValuePath());
-      log.info("fillValByKeyPath path:{}", path);
+      log.info("fillValByValuePath path:{}", path);
 
       Object value = readWithNull(ctx, path);
 
