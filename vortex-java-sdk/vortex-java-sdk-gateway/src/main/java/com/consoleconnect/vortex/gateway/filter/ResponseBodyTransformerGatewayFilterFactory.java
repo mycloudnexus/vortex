@@ -5,8 +5,11 @@ import static java.util.function.Function.identity;
 import com.consoleconnect.vortex.gateway.enums.TransformerIdentityEnum;
 import com.consoleconnect.vortex.gateway.model.GatewayProperty;
 import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
-import com.consoleconnect.vortex.gateway.transformer.AbstractResourceTransformer;
-import java.util.*;
+import com.consoleconnect.vortex.gateway.transformer.TransformerChain;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -41,14 +44,14 @@ public class ResponseBodyTransformerGatewayFilterFactory
   private final Map<String, MessageBodyEncoder> messageBodyEncoders;
 
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
-  private final Map<TransformerIdentityEnum, AbstractResourceTransformer<?>> transformerMap;
+  private final TransformerChain transformerChain;
 
   private final GatewayProperty gatewayProperty;
 
   public ResponseBodyTransformerGatewayFilterFactory(
       Set<MessageBodyDecoder> messageBodyDecoders,
       Set<MessageBodyEncoder> messageBodyEncoders,
-      List<AbstractResourceTransformer<?>> transformers,
+      TransformerChain transformerChain,
       GatewayProperty gatewayProperty) {
     super(Config.class);
     this.gatewayProperty = gatewayProperty;
@@ -58,9 +61,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
     this.messageBodyEncoders =
         messageBodyEncoders.stream()
             .collect(Collectors.toMap(MessageBodyEncoder::encodingType, identity()));
-    this.transformerMap =
-        transformers.stream()
-            .collect(Collectors.toMap(AbstractResourceTransformer::getTransformerId, identity()));
+    this.transformerChain = transformerChain;
   }
 
   @Override
@@ -70,14 +71,11 @@ public class ResponseBodyTransformerGatewayFilterFactory
 
   public class ResponseBodyTransformerGatewayFilter implements GatewayFilter, Ordered {
 
-    private final List<TransformerSpecification.Default> transformerSpecifications;
+    private final List<TransformerSpecification> transformerSpecifications;
 
     public ResponseBodyTransformerGatewayFilter(Config config) {
       if (config.getSpecifications().stream()
-          .anyMatch(
-              specification ->
-                  !specification.isValidated()
-                      || !transformerMap.containsKey(specification.getTransformer()))) {
+          .anyMatch(specification -> !specification.isValidated())) {
         log.error("transformer specification are invalid.");
         throw new IllegalArgumentException("transformer specification are invalid.");
       }
@@ -90,8 +88,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
       // Step 1: match transformer
-      List<TransformerSpecification.Default> specifications =
-          findTransformerSpecifications(exchange);
+      List<TransformerSpecification> specifications = findTransformerSpecifications(exchange);
       if (specifications.isEmpty()) {
         log.info(
             "{} {},no matched transformer specification, skip transform.",
@@ -159,13 +156,10 @@ public class ResponseBodyTransformerGatewayFilterFactory
     private byte[] transform(
         ServerWebExchange exchange,
         byte[] resBytes,
-        List<TransformerSpecification.Default> specifications) {
+        List<TransformerSpecification> specifications) {
 
-      for (TransformerSpecification.Default specification : specifications) {
-        resBytes =
-            transformerMap
-                .get(specification.getTransformer())
-                .transform(exchange, resBytes, specification);
+      for (TransformerSpecification specification : specifications) {
+        resBytes = transformerChain.transform(exchange, resBytes, specification);
       }
 
       return resBytes;
@@ -190,7 +184,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
       return NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1;
     }
 
-    public List<TransformerSpecification.Default> findTransformerSpecifications(
+    public List<TransformerSpecification> findTransformerSpecifications(
         ServerWebExchange exchange) {
 
       HttpMethod method = exchange.getRequest().getMethod();
@@ -206,6 +200,6 @@ public class ResponseBodyTransformerGatewayFilterFactory
   @Data
   public static class Config {
 
-    private List<TransformerSpecification.Default> specifications = new ArrayList<>();
+    private List<TransformerSpecification> specifications = new ArrayList<>();
   }
 }

@@ -146,7 +146,7 @@ const CustomerCompany = (): ReactElement => {
   const [isConfigLogin, setIsConfigLogin] = useState<boolean>(false)
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false)
   const [isDeactivate, setIsDeactivate] = useState<boolean>(false)
-  const [updateValue, setUpdateValue] = useState<ICompany>({
+  const [updateValue, setUpdateValue] = useState<Partial<ICompany>>({
     branding: {
       colors: { page_background: '', primary: '' },
       logo_url: ''
@@ -154,9 +154,9 @@ const CustomerCompany = (): ReactElement => {
     display_name: '',
     id: '',
     metadata: {
-      loginType: '',
+      connectionId: '',
       status: '',
-      type: ''
+      strategy: ''
     },
     name: ''
   })
@@ -166,7 +166,7 @@ const CustomerCompany = (): ReactElement => {
 
   const handleSubmitConfigLogin = (): void => {
     setIsConfigLogin(false)
-    navigate(`/settings/customer-company/${updateValue.display_name}`, { state: { record: updateValue } })
+    navigate(`/settings/customers/${updateValue.display_name}`, { state: { record: updateValue } })
   }
   const handleCloseConfigModal = (): void => setIsConfigLogin(false)
 
@@ -211,7 +211,7 @@ const CustomerCompany = (): ReactElement => {
     const values = await editForm.validateFields()
     updateMutate(
       {
-        id: updateValue.id,
+        id: updateValue.id as string,
         request_body: {
           display_name: values.display_name
         }
@@ -290,7 +290,7 @@ const CustomerCompany = (): ReactElement => {
   }
   const handleOnRowClick = (record: ICompany): void => {
     const { display_name } = record
-    navigate(`/settings/customer-company/${display_name}`, { state: { record: record } })
+    navigate(`/settings/customers/${display_name}`, { state: { record: record } })
   }
   return (
     <Flex style={{ width: '70%', margin: '0 auto' }} vertical justify='start' align='center' gap={20}>

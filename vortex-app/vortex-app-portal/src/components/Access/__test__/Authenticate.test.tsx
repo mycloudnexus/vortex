@@ -46,4 +46,12 @@ describe('Authenticate component', () => {
     expect(mockedUsedNavigate).toHaveBeenCalledTimes(1)
     expect(mockedUsedNavigate).toHaveBeenCalledWith(`login`)
   })
+  it('renders the Authenticate component with Skeleton ', async () => {
+    jest
+      .spyOn(Auth0, 'useAuth0')
+      .mockReturnValue({ isAuthenticated: false, isLoading: true, getAccessTokenSilently: jest.fn() } as any)
+    const { container } = render(<AuthenticateDom />)
+    const ele = container.querySelector('.ant-skeleton')
+    expect(ele).toBeInTheDocument()
+  })
 })

@@ -34,44 +34,54 @@ spring:
                 specifications:
                   - http-method: PUT
                     http-path: /api/company/${app.iam.downstream.company.username}/ports/orders
-                    transformer: RESOURCE_CREATE
                     resource-type: ORDER_PORT
                     response-data-path: $
-                    options:
-                      orderId: id
-                  - http-method: GET
-                    http-path: /api/company/${app.iam.downstream.company.username}/ports/orders
-                    transformer: RESOURCES_LIST_AND_FILTER
-                    resource-type: ORDER_PORT
-                    response-data-path: $.results
-                    after-transform-hooks:
-                      - name: Sync resource's resourceId
-                        id: SYNC_RESOURCE_ID
+                    transformer-chains:
+                      - chain-name: RESOURCE_CREATE
                         options:
                           orderId: id
-                          resourceId: createdPortId
-                    options:
-                      filter: "#data.?[#orderIds.contains(id)]"
+                  - http-method: GET
+                    http-path: /api/company/${app.iam.downstream.company.username}/ports/orders
+                    resource-type: ORDER_PORT
+                    response-data-path: $.results
+                    transformer-chains:
+                      - chain-name: RESOURCES_LIST_AND_FILTER
+                        after-transform-hooks:
+                          - name: Sync resource's resourceId
+                            id: SYNC_RESOURCE_ID
+                            options:
+                              orderId: id
+                              resourceId: createdPortId
+                        options:
+                          filter: "#data.?[#orderIds.contains(id)]"
                   - http-method: GET
                     http-path: /api/company/${app.iam.downstream.company.username}/ports
                     transformer: RESOURCES_LIST_AND_FILTER
                     resource-type: ORDER_PORT
                     response-data-path: $.results
-                    options:
-                      filter: "#data.?[#resourceIds.contains(id)]"
+                    transformer-chains:
+                      - chain-name: RESOURCES_LIST_AND_FILTER
+                        options:
+                          filter: "#data.?[#resourceIds.contains(id)]"
                   - when: "#customerType == 'CUSTOMER'"
                     http-method: GET
                     http-path: /api/company/${app.iam.downstream.company.username}/ports/{portId}/connections
-                    transformer: RESOURCES_LIST_AND_MODIFY
                     resource-type: ORDER_PORT
                     response-data-path: $.results
-                    options:
-                      when: "#resourceIds.contains(#portId)"
-                      modifier:
-                        destCompany:
-                          name: "#customerName"
-                          company:
-                            registeredName: "#customerName"
+                    transformer-chains:
+                      - chain-name: RESOURCES_LIST_AND_FILTER
+                        options:
+                          filter: "#data.?[#resourceIds.contains(id)]"
+                      - chain-name: RESOURCES_LIST_AND_MODIFY
+                        options:
+                          when: "#companyPartnerType == 'NONE'"
+                          keysPath:
+                            companyPartnerType: "destCompany.directConnectPartner.type"
+                          modifier:
+                            destCompany:
+                              name: "#customerName"
+                              company:
+                                registeredName: "#customerName"
 
 
 app:
