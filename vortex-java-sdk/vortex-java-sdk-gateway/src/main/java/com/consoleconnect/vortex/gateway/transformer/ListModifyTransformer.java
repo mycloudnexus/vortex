@@ -95,11 +95,7 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
 
       Object value = readWithNull(ctx, path);
 
-      if (value == null && vo.getDefaultValue() != null) {
-        value = vo.getDefaultValue(); // default value
-      }
-
-      context.getVariables().put(e.getKey(), value);
+      context.getVariables().put(e.getKey(), value != null ? value : vo.getDefaultValue());
     }
   }
 
