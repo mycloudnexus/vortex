@@ -138,8 +138,7 @@ spring:
                         options:
                           filter: "#data.?[#resourceIds.contains(id)]"
 
-                  - when: "#customerType == 'CUSTOMER'"
-                    http-method: GET
+                  - http-method: GET
                     http-path: /api/company/${app.iam.downstream.company.username}/ports/{portId}/connections
                     resource-type: L2
                     response-data-path: $.results
@@ -149,9 +148,11 @@ spring:
                           filter: "#data.?[#resourceIds.contains(id)]"
                       - chain-name: RESOURCES_LIST_AND_MODIFY
                         options:
-                          when: "#companyPartnerType == 'NONE'"
-                          keysPath:
-                            companyPartnerType: "destCompany.directConnectPartner.type"
+                          when: "#customerType == 'CUSTOMER' and #companyPartnerType == 'NONE'"
+                          variables:
+                            companyPartnerType:
+                              valuePath: destCompany.directConnectPartner.type
+                              defaultValue: NONE
                           modifier:
                             destCompany:
                               name: "#customerName"
@@ -166,7 +167,6 @@ spring:
                       - chain-name: RESOURCES_LIST_AND_FILTER
                         options:
                           filter: "#data.?[#resourceIds.contains(id)]"
-
 
 management:
   endpoint:
