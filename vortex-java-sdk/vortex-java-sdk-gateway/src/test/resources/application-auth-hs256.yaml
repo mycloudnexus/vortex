@@ -56,14 +56,15 @@ spring:
                       - chain-name: RESOURCES_LIST_AND_MODIFY
                         options:
                           when: "#customerType == 'CUSTOMER' and #companyPartnerType == 'NONE'"
-                          keysPath:
-                            companyPartnerType: "destCompany.directConnectPartner.type:NONE"
+                          variables:
+                            companyPartnerType:
+                              valuePath: destCompany.directConnectPartner.type
+                              defaultValue: NONE
                           modifier:
                             destCompany:
                               name: "#customerName"
                               company:
                                 registeredName: "#customerName"
-
 
 app:
   iam:

@@ -81,27 +81,22 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
   private void fillValByKeyPath(
       TransformerContext context, Options options, int index, DocumentContext ctx) {
 
-    for (Map.Entry<String, String> e : options.getKeysPath().entrySet()) {
+    for (Map.Entry<String, VariableOption> e : options.getVariables().entrySet()) {
       // reset path-value for each item keys
 
-      String[] pathValArr = e.getValue().split(":");
-      String keyPath = e.getValue();
-      if (pathValArr.length == 2) {
-        keyPath = pathValArr[0];
-      }
-
+      VariableOption vo = e.getValue();
       String path =
           String.format(
               JSON_ARRAY_PATH_FORMAT,
               context.getSpecification().getResponseDataPath(),
               index,
-              keyPath);
+              vo.getValuePath());
       log.info("fillValByKeyPath path:{}", path);
 
       Object value = readWithNull(ctx, path);
 
-      if (value == null && pathValArr.length == 2) {
-        value = pathValArr[1]; // default value
+      if (value == null && vo.getDefaultValue() != null) {
+        value = vo.getDefaultValue(); // default value
       }
 
       context.getVariables().put(e.getKey(), value);
@@ -120,7 +115,13 @@ public class ListModifyTransformer extends AbstractTransformer<ListModifyTransfo
   @Data
   public static class Options {
     private String when;
-    private Map<String, String> keysPath = new HashMap<>();
+    private Map<String, VariableOption> variables = new HashMap<>();
     private Map<String, Object> modifier;
+  }
+
+  @Data
+  public static class VariableOption {
+    private String valuePath;
+    private String defaultValue;
   }
 }
