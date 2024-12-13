@@ -65,7 +65,7 @@ spring:
                           filter: "#data.?[#resourceIds.contains(id)]"
                   
                   - http-method: GET
-                    http-path: /downstream/api/company/${app.iam.downstream.company.username}/ports/{portId}/connections
+                    http-path: /api/company/${app.iam.downstream.company.username}/ports/{portId}/connections
                     resource-type: ORDER_PORT
                     response-data-path: $.results
                     transformer-chains:
