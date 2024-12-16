@@ -35,6 +35,6 @@ public class UserContext {
     if (apiServer == null || accessToken == null) {
       throw VortexException.badRequest("apiServer or apiAccessToken is null");
     }
-    return ConsoleConnectClientFactory.create(apiServer, accessToken, Logger.Level.FULL);
+    return ConsoleConnectClientFactory.create(apiServer, accessToken, Logger.Level.BASIC);
   }
 }
