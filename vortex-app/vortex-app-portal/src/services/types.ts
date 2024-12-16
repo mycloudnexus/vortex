@@ -71,3 +71,50 @@ export interface UpdateOrganizationRequestBody {
   request_body: { display_name?: string; status?: string }
   id: string
 }
+
+interface Samlp {
+  signingCert: string
+  signSAMLRequest: boolean
+  signatureAlgorithm: string
+  digestAlgorithm: string
+  fieldsMap: Object
+  signInEndpoint: string
+  signOutEndpoint: string
+  debug: boolean
+}
+
+export interface AddConnectionRequestBody {
+  strategy: string
+  saml: Samlp
+}
+
+export interface AddConnectionResponse {
+  name: string
+  strategy: string
+  options: Options
+  id: string
+  enabled_clients: string[]
+  provisioning_ticket_url: string
+  realms: string[]
+}
+
+export interface Options {
+  signInEndpoint: string
+  signingCert: string
+  debug: boolean
+  signOutEndpoint: string
+  signSAMLRequest: boolean
+  digestAlgorithm: string
+  signatureAlgorithm: string
+  fieldsMap: FieldsMap
+  expires: Date
+  subject: Subject
+  thumbprints: string[]
+  cert: string
+}
+
+export interface FieldsMap {}
+
+export interface Subject {
+  commonName: string
+}
