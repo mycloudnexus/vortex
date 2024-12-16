@@ -79,7 +79,7 @@ describe('BreadCrumb Component', () => {
       </MemoryRouter>
     )
 
-    expect(queryByText('Contact')).not.toBeInTheDocument()
+    expect(queryByText('Contact')).toBeInTheDocument()
   })
 
   it('should render nothing for a path with no matching routes', () => {

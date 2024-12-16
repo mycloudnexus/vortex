@@ -12,7 +12,7 @@ request.interceptors.request.use((config: any) => {
   const token = getToken()
   const currentCompany = window.localStorage.getItem('currentCompany')
   if (token) {
-    config.headers.Authorization = `Bearer ${getToken()}`
+    config.headers.Authorization = `Bearer ${token}`
   }
   if (currentCompany) {
     config.headers['x-vortex-customer-org-id'] = currentCompany
@@ -43,7 +43,6 @@ request.interceptors.response.use(
 
       try {
         errorData = JSON.stringify(error.response.data)
-        // eslint-disable-next-line no-empty
       } catch (err) {
         console.log('--tes-err', err)
       }
