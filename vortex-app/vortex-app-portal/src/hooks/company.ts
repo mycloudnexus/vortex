@@ -1,5 +1,13 @@
-import { createOrganization, getCompanyList, getOrganizationById, updateOrganization } from '@/services'
 import {
+  createConnection,
+  createOrganization,
+  getCompanyList,
+  getOrganizationById,
+  updateOrganization
+} from '@/services'
+import {
+  AddConnectionRequestBody,
+  AddConnectionResponse,
   CreateOrganizationRequestBody,
   CreateOrganizationResponse,
   IOrganization,
@@ -38,5 +46,11 @@ export const useGetOrganizationById = (
     ['getCompanyById', orgId],
     () => getOrganizationById(orgId),
     config
+  )
+}
+
+export const useCreateConnection = () => {
+  return useMutation<RequestResponse<AddConnectionResponse>, Error, { orgId: string; req: AddConnectionRequestBody }>(
+    ({ orgId, req }) => createConnection(orgId, req)
   )
 }

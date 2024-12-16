@@ -1,4 +1,4 @@
-/* eslint-disable no-param-reassign,no-undef,camelcase,consistent-return */
+/* eslint-disable no-undef */
 import React from 'react'
 
 function parseModules() {
@@ -44,7 +44,6 @@ async function loadModule(name, address, scope) {
     console.log(error)
   }
 
-  // eslint-disable-next-line prefer-promise-reject-errors
   return Promise.reject(`Error when loading external module ${name}`)
 }
 

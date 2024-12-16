@@ -2,58 +2,60 @@ import { Suspense, useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Headroom from 'react-headroom'
 import { filter, get } from 'lodash'
-import NavMain from './NavMain'
-import * as styles from './index.module.scss'
-import { Flex, Menu, Layout } from 'antd'
-import NetIcon from '@/assets/icon/network.svg'
-import { useAppStore } from '@/stores/app.store'
-import { DoubleLeftOutlined, DoubleRightOutlined, DownOutlined, RightOutlined } from '@ant-design/icons'
 import { useBoolean } from 'usehooks-ts'
-import Text from '../Text'
+import { styled } from 'styled-components'
+import { Flex, Menu, Layout as AntdLayout } from 'antd'
+import { DoubleLeftOutlined, DoubleRightOutlined, DownOutlined, RightOutlined } from '@ant-design/icons'
+import NetIcon from '@/assets/icon/network.svg'
 import { ReactComponent as DashboardIcon } from '@/assets/icon/dashboard.svg'
 import { ReactComponent as DCIcon } from '@/assets/icon/dcport.svg'
 import { ReactComponent as CRIcon } from '@/assets/icon/cloudrouter.svg'
 import { ReactComponent as L2Icon } from '@/assets/icon//l2.svg'
 import { ReactComponent as L3Icon } from '@/assets/icon/l3.svg'
 import { ReactComponent as SettingIcon } from '@/assets/icon/setting.svg'
+import useDeviceDetect from '@/hooks/useDeviceDetect'
+import useElementSize from '@/hooks/useElementSize'
 import { useGetUserAuthDetail, useGetUserRole, useGetVortexUser } from '@/hooks/user'
 import { useGetCompanyList } from '@/hooks/company'
-import { styled } from 'styled-components'
-import useDeviceDetect from '@/hooks/useDeviceDetect'
-import MainMenuMobileDrawer from './MainMenuMobileDrawer'
-import Authenticate from '../Access/Authenticate'
+import { useAppStore } from '@/stores/app.store'
 import BreadCrumb from '../BreadCrumb'
-const { Sider } = Layout
+import Text from '../Text'
+import Authenticate from '../Access/Authenticate'
+import MainMenuMobileDrawer from './MainMenuMobileDrawer'
+import NavMain from './NavMain'
+import * as styles from './index.module.scss'
 
+const { Sider } = AntdLayout
+
+export const SliderCustom = styled(Sider)<{ $mainColor: string }>`
+  .ant-menu-submenu-selected {
+    svg {
+      path {
+        stroke: ${(props) => props.$mainColor};
+      }
+    }
+  }
+  .ant-menu-item-selected {
+    svg {
+      path {
+        fill: ${(props) => props.$mainColor};
+        stroke: ${(props) => props.$mainColor};
+      }
+      circle {
+        stroke: ${(props) => props.$mainColor};
+      }
+    }
+  }
+`
 const BaseLayout = () => {
   const { mainColor } = useAppStore()
-  const SliderCustom = styled(Sider)`
-    .ant-menu-submenu-selected {
-      svg {
-        path {
-          stroke: ${mainColor};
-        }
-      }
-    }
-    .ant-menu-item-selected {
-      svg {
-        path {
-          fill: ${mainColor};
-          stroke: ${mainColor};
-        }
-        circle {
-          stroke: ${mainColor};
-        }
-      }
-    }
-  `
+
   const { isMobile } = useDeviceDetect()
   const [activeKeys, setActiveKeys] = useState(['1'])
   const [openKeys, setOpenKeys] = useState<string[]>()
   const { value: collapsed, setValue: setCollapsed, setTrue: trueCollapse, setFalse: falseCollapse } = useBoolean(false)
   const { value: mainMobileDrawer, toggle: toggleDrawer, setFalse: falseDrawer } = useBoolean(false)
   const location = useLocation()
-
   const navigate = useNavigate()
   const { data: userData } = useGetUserAuthDetail()
   const { data: roleData } = useGetUserRole()
@@ -67,6 +69,7 @@ const BaseLayout = () => {
       setCustomerUser(vUser)
     }
   }, [vortexUserData])
+
   useEffect(() => {
     const l = data?.data?.data
     if (!l?.length) return
@@ -79,11 +82,11 @@ const BaseLayout = () => {
     if (!userDetail) return
     const companyId = get(userDetail, 'companies[0].id', '')
     const roleIds = get(userDetail, ['linkUserCompany', companyId, 'roleIds'], [])
-    const accessRole = filter(roleList, (r) => roleIds.includes(r.id) || r.systemDefault)
+    const accessRoles = filter(roleList, (r) => roleIds.includes(r.id) || r.systemDefault)
     window.portalAccessRoles = roleList
-    window.portalLoggedInUser = userDetail
+    window.portalLoggedInUser = { ...userDetail, accessRoles }
     setRoleList(roleList)
-    setDownstreamUser({ ...userDetail, accessRole })
+    setDownstreamUser({ ...userDetail, accessRoles })
   }, [userData, roleData])
 
   useEffect(() => {
@@ -100,11 +103,12 @@ const BaseLayout = () => {
     for (const m of items) {
       if (m?.regex?.test(location.pathname)) {
         setActiveKeys([m.key])
-      }
-      if (m.children) {
-        for (const c of m.children) {
-          if ((c as any).regex?.test(location.pathname)) {
-            setActiveKeys([m.key, c.key])
+        if (m.children) {
+          setOpenKeys([m.key])
+          for (const c of m.children) {
+            if ((c as any).regex?.test(location.pathname)) {
+              setActiveKeys([m.key, c.key])
+            }
           }
         }
       }
@@ -125,7 +129,25 @@ const BaseLayout = () => {
       key: '2',
       icon: <DCIcon />,
       label: 'DC Ports',
-      children: [{ key: '2-1', label: 'View all' }]
+      regex: /^\/ports(\/.*)?$/,
+      children: [
+        {
+          key: '2-1',
+          label: 'View all',
+          regex: /^\/ports(\/.*)?$/,
+          onClick: () => {
+            navigate('/ports')
+          }
+        },
+        {
+          key: '2-2',
+          label: 'Add new',
+          regex: /^\/ports\/create(\/.*)?$/,
+          onClick: () => {
+            navigate('/ports/create')
+          }
+        }
+      ]
     },
     {
       key: '3',
@@ -165,6 +187,8 @@ const BaseLayout = () => {
     }
   ]
 
+  const [navSize, navRef] = useElementSize()
+
   return (
     <div className={styles.appWrapper}>
       <MainMenuMobileDrawer
@@ -176,10 +200,16 @@ const BaseLayout = () => {
       />
       <Headroom disableInlineStyles>
         <Suspense fallback=''>
-          <NavMain />
+          <NavMain ref={navRef} />
         </Suspense>
       </Headroom>
-      <Flex vertical={isMobile} className={styles.container}>
+      <Flex
+        vertical={isMobile}
+        className={styles.container}
+        style={{
+          height: `calc(100vh - ${navSize.height + 20}px)`
+        }}
+      >
         {isMobile ? (
           <Flex
             role='none'
@@ -193,7 +223,13 @@ const BaseLayout = () => {
             {!collapsed && <Text.NormalLarge color='#fff'>NETWORK</Text.NormalLarge>}
           </Flex>
         ) : (
-          <SliderCustom collapsible collapsed={collapsed} onCollapse={setCollapsed} className={styles.slider}>
+          <SliderCustom
+            collapsible
+            collapsed={collapsed}
+            onCollapse={setCollapsed}
+            className={styles.slider}
+            $mainColor={mainColor}
+          >
             <Flex vertical style={{ background: mainColor }} className={styles.network}>
               <Flex justify='flex-end' className={styles.collapseBtn}>
                 {!collapsed ? (
