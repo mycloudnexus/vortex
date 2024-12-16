@@ -1,7 +1,8 @@
+import { createBrowserRouter, Outlet, RouteObject } from 'react-router-dom'
+import ModulePortContainer from '@/pages/Modules/ModulePortContainer'
 import Layout from '@/components/Layout'
 import Dashboard from '@/pages/Dashboard'
 import EdgeModuleContainer from '@/pages/ExampleMicroModule'
-import { createBrowserRouter, Outlet, RouteObject } from 'react-router-dom'
 import Login from '@/pages/Login'
 import Users from '@/pages/Settings/Users'
 import CompanyPage from '@/pages/Settings/CompanyPage'
@@ -53,6 +54,10 @@ export const routes: IRouteObject[] = [
       {
         path: 'example/*',
         element: <EdgeModuleContainer />
+      },
+      {
+        path: 'ports/*',
+        element: <ModulePortContainer />
       }
     ]
   }
