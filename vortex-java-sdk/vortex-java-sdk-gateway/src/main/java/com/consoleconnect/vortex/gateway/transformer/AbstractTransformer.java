@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractTransformer<T> {
 
   public static final String VAR_DATA = "data";
-  public static final String VAR_CUSTOMER_NAME = "customerName";
 
   protected final ResourceService resourceService;
   protected final OrganizationService organizationService;
