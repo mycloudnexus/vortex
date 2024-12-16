@@ -10,6 +10,7 @@ import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
 import com.consoleconnect.vortex.gateway.service.ResourceService;
 import com.consoleconnect.vortex.gateway.toolkit.JsonPathToolkit;
 import com.consoleconnect.vortex.gateway.toolkit.SpelExpressionEngine;
+import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
 import com.consoleconnect.vortex.iam.enums.CustomerTypeEnum;
 import com.consoleconnect.vortex.iam.enums.UserTypeEnum;
 import com.consoleconnect.vortex.iam.model.IamConstants;
@@ -37,6 +38,7 @@ public class TransformerChain {
   public static final String VAR_USER_TYPE = "userType";
   public static final String VAR_USER_ID = "userId";
   public static final String VAR_CUSTOMER_TYPE = "customerType";
+  public static final String VAR_CUSTOMER_NAME = "customerName";
 
   protected final ResourceService resourceService;
   protected final OrganizationService organizationService;
@@ -95,7 +97,7 @@ public class TransformerChain {
       return responseBodyJsonStr.getBytes(StandardCharsets.UTF_8);
     } catch (Exception e) {
       String errorMsg = "Failed to transform,error:{}" + e.getMessage();
-      log.error("{}", errorMsg);
+      log.error("{}", errorMsg, e);
       throw VortexException.badRequest(errorMsg);
     }
   }
@@ -145,6 +147,10 @@ public class TransformerChain {
         pathMatcher.extractUriTemplateVariables(
             context.getSpecification().getHttpPath(), context.getPath()));
 
+    if (CustomerTypeEnum.CUSTOMER == context.getCustomerType()) {
+      OrganizationInfo org = organizationService.findOne(context.getCustomerId());
+      variables.put(VAR_CUSTOMER_NAME, org.getName());
+    }
     return variables;
   }
 
