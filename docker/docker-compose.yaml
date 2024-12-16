@@ -13,13 +13,12 @@ services:
       POSTGRES_DB: vortex
     volumes:
       - './postgres_db_data/data-plane:/var/lib/postgresql/data:z'
-    command: postgres -c 'max_connections=1000'
+    command: postgres -c 'max_connections=100'
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      retries: 5
-      start_period: 30s
+      test: pg_isready -h localhost -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 5s
       timeout: 10s
+      retries: 120
     networks:
       - vortex-dev
   vortex-app-portal:
@@ -28,17 +27,54 @@ services:
       - '3000:8080'
     environment:
       RUNTIME_API_BASE_URL: http://localhost:8000
+      RUNTIME_AUTH0_DOMAIN: https://login.consoleconnect.com
+      RUNTIME_AUTH0_CLIENT_ID: TBD
+      RUNTIME_AUTH0_AUDIENCE: https://api.consoleconnect.com/
+      RUNTIME_AUTH0_MGMT_ORG_ID: TBD
+      RUNTIME_CUSTOMER_AUTH0_DOMAIN: https://TBD.auth0.com
+      RUNTIME_CUSTOMER_AUTH0_CLIENT_ID: TBD
+      RUNTIME_CUSTOMER_AUTH0_AUDIENCE: TBD
+      RUNTIME_DOWNSTREAM_API_PREFIX: /consoleconnect
     networks:
       - vortex-dev
   vortex-app-api:
     image: cloudnexusopsdockerhub/vortex-app-api:latest
-    volumes:
-      - >-
-        ./app-api/application-default.yaml:/opt/app/config/application-default.yaml:ro
     ports:
       - '8000:8080'
     links:
       - db
+    environment:
+      PORT: 8080
+      DB_URL: jdbc:postgresql://db:5432/vortex
+      DB_USERNAME: postgresql
+      DB_PASSWORD: password
+      APP_LOGIN_URL: http://localhost:3000
+      IAM_AUTH0_MGMT_API_DOMAIN: https://TBD.auth0.com
+      IAM_AUTH0_MGMT_API_CLIENT_ID: TBD
+      IAM_AUTH0_MGMT_API_CLIENT_SECRET: TBD
+      IAM_AUTH0_MGMT_API_AUDIENCE: https://TBD.auth0.com/api/v2/
+      IAM_AUTH0_APP_CLIENT_ID: TBD
+
+      IAM_MGMT_TOKEN_ISSUER_URI: https://login.consoleconnect.com/
+      IAM_MGMT_TOKEN_ISSUER_USER_ID_PREFIX: auth0|
+      IAM_CUSTOMER_TOKEN_ISSUER_URI: https://TBD.auth0.com/
+
+      IAM_EMAIL_ENABLED: false
+      SENDGRID_FROM_EMAIL: TBD
+      SENDGRID_API_KEY: TBD
+      SENDGRID_TEMPLATE_ID_USER_INVITATION: TBD
+      SENDGRID_TEMPLATE_ID_ORG_MEMBER_INVITATION: TBD
+
+      GATEWAY_DOWN_STREAM_BASE_URL: https://api.consoleconnect.com
+      GATEWAY_DOWN_STREAM_PATH_PREFIX: /consoleconnect
+      GATEWAY_DOWN_STREAM_USER_API_KEY: TBD
+      GATEWAY_DOWN_STREAM_COMPANY_USERNAME: TBD
+      GATEWAY_DOWN_STREAM_COMPANY_ID: TBD
+      GATEWAY_DOWN_STREAM_COMPANY_ADMIN_USER_ID: TBD
+
+      GATEWAY_MEF_BASE_URL: https://api.consoleconnect.com
+      GATEWAY_MEF_BUYER_KEY: x-sonata-buyer-key
+      GATEWAY_MEF_BUYER_KEY_VALUE: TBD
     depends_on:
       db:
         condition: service_healthy
