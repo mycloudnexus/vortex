@@ -67,16 +67,34 @@ spring:
         - id: downstream-api
           uri: ${app.iam.downstream.base-url}
           predicates:
-            - Path=${app.iam.downstream.path-prefix}/**
+            - Path=${app.gateway.path-prefix}/**
           filters:
-            - RewritePath=${app.iam.downstream.path-prefix}/(?<path>.*), /$\{path}
+            - name: PathAccessRestriction
+              args:
+                userType: CUSTOMER_USER
+                defaultAction: DENIED
+                allowed:
+                  - path: /auth/token
+                    methods:
+                      - GET
+                  - path: /api/**
+                    methods:
+                      - GET
+                denied:
+                  - path: /api/**
+                    methods:
+                      - POST
+                      - PUT
+                      - PATCH
+                      - DELETE
+            - RewritePath=${app.gateway.path-prefix}/(?<path>.*), /$\{path}
             - RemoveRequestHeader=Authorization
             - name: SetAPIKey
             - name: ResponseBodyTransformer
               args:
                 specifications:
                   - http-method: PUT
-                    http-path: ${app.iam.downstream.path-prefix}/api/company/${app.iam.downstream.company.username}/ports/orders
+                    http-path: /api/company/${app.iam.downstream.company.username}/ports/orders
                     resource-type: ORDER_PORT
                     response-data-path: $
                     transformer-chains:
@@ -85,7 +103,7 @@ spring:
                           orderId: id
 
                   - http-method: PUT
-                    http-path: ${app.iam.downstream.path-prefix}/api/v2/company/${app.iam.downstream.company.username}/connections/layer2
+                    http-path: /api/v2/company/${app.iam.downstream.company.username}/connections/layer2
                     resource-type: L2
                     response-data-path: $
                     transformer-chains:
@@ -95,7 +113,7 @@ spring:
                           resourceId: id
 
                   - http-method: PUT
-                    http-path: ${app.iam.downstream.path-prefix}/api/v2/company/${app.iam.downstream.company.username}/connections/directConnectPartner/*/layer2
+                    http-path: /api/v2/company/${app.iam.downstream.company.username}/connections/directConnectPartner/*/layer2
                     resource-type: L2
                     response-data-path: $
                     transformer-chains:
@@ -105,7 +123,7 @@ spring:
                           resourceId: id
 
                   - http-method: GET
-                    http-path: ${app.iam.downstream.path-prefix}/api/company/${app.iam.downstream.company.username}/ports/orders
+                    http-path: /api/company/${app.iam.downstream.company.username}/ports/orders
                     resource-type: ORDER_PORT
                     response-data-path: $.results
                     transformer-chains:
@@ -120,7 +138,7 @@ spring:
                               resourceId: createdPortId
 
                   - http-method: GET
-                    http-path: ${app.iam.downstream.path-prefix}/api/company/${app.iam.downstream.company.username}/ports
+                    http-path: /api/company/${app.iam.downstream.company.username}/ports
                     resource-type: ORDER_PORT
                     response-data-path: $.results
                     transformer-chains:
@@ -129,7 +147,7 @@ spring:
                           filter: "#data.?[#resourceIds.contains(id)]"
 
                   - http-method: GET
-                    http-path: ${app.iam.downstream.path-prefix}/api/company/${app.iam.downstream.company.username}/ports/{portId}/connections
+                    http-path: /api/company/${app.iam.downstream.company.username}/ports/{portId}/connections
                     resource-type: L2
                     response-data-path: $.results
                     transformer-chains:
@@ -150,7 +168,7 @@ spring:
                                 registeredName: "#customerName"
 
                   - http-method: GET
-                    http-path: ${app.iam.downstream.path-prefix}/api/v2/company/${app.iam.downstream.company.username}/connections
+                    http-path: /api/v2/company/${app.iam.downstream.company.username}/connections
                     resource-type: L2
                     response-data-path: $.results
                     transformer-chains:
@@ -182,7 +200,7 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
-    supported-submit-methods: [ "get", "post", "patch", "delete" ]
+    supported-submit-methods: ["get", "post", "patch", "delete"]
     config-url: /v3/api-docs/swagger-config
     urls:
       - url: /v3/api-docs
@@ -289,7 +307,7 @@ app:
           roles:
             - PLATFORM_ADMIN
             - PLATFORM_MEMBER
-        - path: ${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}/**
+        - path: ${app.gateway.path-prefix}/**
           http-methods:
             - GET
             - POST
@@ -303,9 +321,10 @@ app:
             - ORG_MEMBER
     downstream:
       base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3001}
-      path-prefix: ${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}
       token: ${GATEWAY_DOWN_STREAM_USER_API_KEY:api-key-has-readonly-role}
       company:
         id: ${GATEWAY_DOWN_STREAM_COMPANY_ID:company-uuid}
         username: ${GATEWAY_DOWN_STREAM_COMPANY_USERNAME:company-unique-key}
         admin-user-id: ${GATEWAY_DOWN_STREAM_COMPANY_ADMIN_USER_ID:company-admin-uuid}
+  gateway:
+    path-prefix: ${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}
