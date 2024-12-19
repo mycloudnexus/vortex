@@ -54,6 +54,8 @@ public class OrganizationService {
       OrganizationsEntity organizationsEntity = this.auth0Client.getMgmtClient().organizations();
       Organization organization = new Organization(request.getName());
       organization.setDisplayName(request.getDisplayName());
+      // remove createdAt
+      request.getMetadata().setCreatedAt(null);
       organization.setMetadata(OrganizationMetadata.toMap(request.getMetadata()));
       return OrganizationMapper.INSTANCE.toOrganizationInfo(
           organizationsEntity.create(organization).execute().getBody());
