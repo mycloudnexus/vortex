@@ -741,4 +741,28 @@ public class OrganizationService {
           e, String.format("Delete a member(%s) for orgId:%s, error:", memberId, orgId));
     }
   }
+
+  public List<DashboardOrganizationInfo> search() {
+    Paging<Organization> organizationPaging =
+        Auth0PageHelper.loadData(
+            0,
+            -1,
+            (pageFilterParameters -> {
+              try {
+                return this.auth0Client
+                    .getMgmtClient()
+                    .organizations()
+                    .list(pageFilterParameters.toPageFilter())
+                    .execute()
+                    .getBody();
+              } catch (Auth0Exception e) {
+                throw badRequest(e, "dashboard search organizations,error:");
+              }
+            }));
+
+    log.info("dashboard: search organizations, total:{}", organizationPaging.getTotal());
+    return organizationPaging.getData().stream()
+        .map(OrganizationMapper.INSTANCE::toDashboardOrganizationInfo)
+        .toList();
+  }
 }

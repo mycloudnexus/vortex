@@ -59,6 +59,8 @@ public class OrganizationMetadata {
     }
     if (metadata.getCreatedAt() == null) {
       map.put(META_CREATED_AT, DateTime.nowInUTCString());
+    } else {
+      map.put(META_CREATED_AT, metadata.getCreatedAt().toInstant().toString());
     }
     return map;
   }
