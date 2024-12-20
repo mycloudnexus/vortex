@@ -49,8 +49,8 @@ public class UserContextWebFilter implements WebFilter, Ordered {
                   exchange.getRequest().getHeaders().getFirst(IamConstants.X_VORTEX_CUSTOMER_ID);
 
               if (userContext.getUserType() == UserTypeEnum.MGMT_USER
-                  && !userContext.getOrgId().equals(headerCustomerId)
-                  && StringUtils.isNotBlank(headerCustomerId)) {
+                  && StringUtils.isNotBlank(headerCustomerId)
+                  && !userContext.getOrgId().equals(headerCustomerId)) {
                 // customerId can be customized by the client in the header
                 customerId = headerCustomerId;
                 customerType = CustomerTypeEnum.CUSTOMER;
