@@ -120,12 +120,7 @@ public class ResponseBodyTransformerGatewayFilterFactory
                                       byte[] resBody = transform(exchange, content, specifications);
 
                                       // Step 5: encode
-                                      resBody = writeBody(exchange, resBody);
-                                      exchange
-                                          .getResponse()
-                                          .getHeaders()
-                                          .setContentLength(resBody.length);
-                                      return bufferFactory().wrap(resBody);
+                                      return bufferFactory().wrap(writeBody(exchange, resBody));
                                     }));
                       }
                       return super.writeWith(body);
