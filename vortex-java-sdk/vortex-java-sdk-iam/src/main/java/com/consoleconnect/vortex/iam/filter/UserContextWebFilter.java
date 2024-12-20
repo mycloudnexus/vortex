@@ -7,6 +7,7 @@ import com.consoleconnect.vortex.iam.model.UserContext;
 import com.consoleconnect.vortex.iam.service.UserContextService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.Ordered;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -43,14 +44,15 @@ public class UserContextWebFilter implements WebFilter, Ordered {
                   userContext.getUserType() == UserTypeEnum.CUSTOMER_USER
                       ? CustomerTypeEnum.CUSTOMER
                       : CustomerTypeEnum.MGMT;
+
+              String headerCustomerId =
+                  exchange.getRequest().getHeaders().getFirst(IamConstants.X_VORTEX_CUSTOMER_ID);
+
               if (userContext.getUserType() == UserTypeEnum.MGMT_USER
-                  && exchange
-                      .getRequest()
-                      .getHeaders()
-                      .containsKey(IamConstants.X_VORTEX_CUSTOMER_ID)) {
+                  && !userContext.getOrgId().equals(headerCustomerId)
+                  && StringUtils.isNotBlank(headerCustomerId)) {
                 // customerId can be customized by the client in the header
-                customerId =
-                    exchange.getRequest().getHeaders().getFirst(IamConstants.X_VORTEX_CUSTOMER_ID);
+                customerId = headerCustomerId;
                 customerType = CustomerTypeEnum.CUSTOMER;
               }
               userContext.setCustomerId(customerId);
