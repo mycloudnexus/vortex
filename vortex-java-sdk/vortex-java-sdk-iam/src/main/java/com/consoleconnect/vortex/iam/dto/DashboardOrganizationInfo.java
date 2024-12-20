@@ -15,14 +15,18 @@ public class DashboardOrganizationInfo {
   @JsonProperty("display_name")
   private String displayName;
 
+  @JsonProperty("status")
   private OrgStatusEnum status;
 
+  @JsonProperty("createdAt")
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC")
   private ZonedDateTime createdAt;
 
+  @JsonProperty("billingDate")
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC")
-  private ZonedDateTime lastBillingDate;
+  private ZonedDateTime billingDate;
 
+  @JsonProperty("nextBillingDate")
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC")
   private ZonedDateTime nextBillingDate;
 }
