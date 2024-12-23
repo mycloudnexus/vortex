@@ -57,9 +57,7 @@ public class ResourceService {
     log.info("update resource,id:{},{},updatedBy:{}", id, request, updatedBy);
 
     ResourceEntity entity =
-        resourceRepository
-            .findById(UUID.fromString(id))
-            .orElseThrow(() -> VortexException.notFound("Resource not found"));
+        resourceRepository.findById(UUID.fromString(id)).orElseThrow(VortexException::notFound);
 
     if (request.getCustomerId() != null) {
       entity.setCustomerId(request.getCustomerId());
@@ -80,9 +78,7 @@ public class ResourceService {
 
   public Resource findOne(String id) {
     ResourceEntity entity =
-        resourceRepository
-            .findById(UUID.fromString(id))
-            .orElseThrow(() -> VortexException.notFound("Resource not found"));
+        resourceRepository.findById(UUID.fromString(id)).orElseThrow(VortexException::notFound);
     return ResourceMapper.INSTANCE.toDto(entity);
   }
 
@@ -108,7 +104,7 @@ public class ResourceService {
     ResourceEntity resource =
         resourceRepository
             .findOneByCustomerIdAndResourceTypeAndOrderId(customerId, resourceType, orderId)
-            .orElseThrow(() -> VortexException.notFound("Resource not found"));
+            .orElseThrow(VortexException::notFound);
     resource.setResourceId(resourceId);
     resourceRepository.save(resource);
   }

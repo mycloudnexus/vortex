@@ -2,6 +2,7 @@ package com.consoleconnect.vortex.gateway.filter;
 
 import static java.util.function.Function.identity;
 
+import com.consoleconnect.vortex.gateway.model.GatewayProperty;
 import com.consoleconnect.vortex.gateway.model.TransformerSpecification;
 import com.consoleconnect.vortex.gateway.transformer.TransformerChain;
 import java.util.ArrayList;
@@ -44,11 +45,15 @@ public class ResponseBodyTransformerGatewayFilterFactory
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
   private final TransformerChain transformerChain;
 
+  private final GatewayProperty gatewayProperty;
+
   public ResponseBodyTransformerGatewayFilterFactory(
       Set<MessageBodyDecoder> messageBodyDecoders,
       Set<MessageBodyEncoder> messageBodyEncoders,
-      TransformerChain transformerChain) {
+      TransformerChain transformerChain,
+      GatewayProperty gatewayProperty) {
     super(Config.class);
+    this.gatewayProperty = gatewayProperty;
     this.messageBodyDecoders =
         messageBodyDecoders.stream()
             .collect(Collectors.toMap(MessageBodyDecoder::encodingType, identity()));
@@ -73,7 +78,10 @@ public class ResponseBodyTransformerGatewayFilterFactory
         log.error("transformer specification are invalid.");
         throw new IllegalArgumentException("transformer specification are invalid.");
       }
-      transformerSpecifications = config.getSpecifications();
+      transformerSpecifications =
+          config.getSpecifications().stream()
+              .peek(spec -> spec.setHttpPath(gatewayProperty.getPathPrefix() + spec.getHttpPath()))
+              .toList();
     }
 
     @Override

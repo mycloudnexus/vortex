@@ -6,9 +6,9 @@ spring:
         - id: test-api
           uri: ${app.iam.downstream.base-url}
           predicates:
-            - Path=/downstream/**
+            - Path=${app.gateway.path-prefix}/**
           filters:
-            - RewritePath=/downstream/(?<path>.*), /$\{path}
+            - RewritePath=${app.gateway.path-prefix}/(?<path>.*), /$\{path}
             - RemoveRequestHeader=Authorization
             - name: SetAPIKey
             - name: ResponseBodyTransformer
@@ -35,3 +35,5 @@ app:
         id: 65a4f18aec61ae42ae9606dfx0000
         username: test-company
         admin-user-id: 5d773f33c7e294000b763af6
+  gateway:
+    path-prefix: /downstream

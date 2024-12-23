@@ -20,6 +20,10 @@ public class VortexException extends RuntimeException {
     return new VortexException(HttpStatus.NOT_FOUND.value(), message);
   }
 
+  public static VortexException notFound() {
+    return new VortexException(HttpStatus.NOT_FOUND.value(), "Resource not found");
+  }
+
   public static VortexException notFound(String message, Throwable cause) {
     return new VortexException(HttpStatus.NOT_FOUND.value(), message, cause);
   }
