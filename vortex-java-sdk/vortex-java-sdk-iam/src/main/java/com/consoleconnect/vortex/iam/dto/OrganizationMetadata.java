@@ -3,6 +3,7 @@ package com.consoleconnect.vortex.iam.dto;
 import com.consoleconnect.vortex.core.toolkit.DateTime;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
 import com.consoleconnect.vortex.iam.enums.OrgStatusEnum;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,8 @@ public class OrganizationMetadata {
   private OrgStatusEnum status = OrgStatusEnum.ACTIVE;
   private ConnectionStrategyEnum strategy = ConnectionStrategyEnum.UNDEFINED;
   private String connectionId;
+
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC")
   private ZonedDateTime createdAt;
 
   public static OrganizationMetadata fromMap(Map<String, Object> map) {
@@ -59,6 +62,8 @@ public class OrganizationMetadata {
     }
     if (metadata.getCreatedAt() == null) {
       map.put(META_CREATED_AT, DateTime.nowInUTCString());
+    } else {
+      map.put(META_CREATED_AT, metadata.getCreatedAt().toInstant().toString());
     }
     return map;
   }
