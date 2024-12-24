@@ -16,4 +16,3 @@ declare interface Window {
   portalAccessRoles: Record<string, unknown>
   portalToken: string
 }
-

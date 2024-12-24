@@ -1,5 +1,7 @@
 import { render, fireEvent } from '@testing-library/react'
 import { useAuth0 } from '@auth0/auth0-react'
+import { MemoryRouter } from 'react-router-dom'
+
 import Login from '..'
 
 jest.mock('@auth0/auth0-react')
@@ -12,6 +14,14 @@ jest.mock('react-router-dom', () => ({
 }))
 
 const fn = useAuth0 as any
+const LoginWithRouter = () => {
+  return (
+    <MemoryRouter>
+      <Login />
+    </MemoryRouter>
+  )
+}
+
 describe('Login page', () => {
   it('login as a reseller', () => {
     const url = 'https://www.test.com'
@@ -27,7 +37,7 @@ describe('Login page', () => {
       isAuthenticated: false,
       error: false
     })
-    const { getByText } = render(<Login />)
+    const { getByText } = render(<LoginWithRouter />)
     const loginBtn = getByText('Log in')
     expect(loginBtn).toBeTruthy()
     fireEvent.click(loginBtn)
@@ -58,7 +68,7 @@ describe('Login page', () => {
       isAuthenticated: false,
       error: false
     })
-    const { getByText } = render(<Login />)
+    const { getByText } = render(<LoginWithRouter />)
     const loginBtn = getByText('Log in')
     expect(loginBtn).toBeTruthy()
     fireEvent.click(loginBtn)
@@ -73,8 +83,19 @@ describe('Login page', () => {
 
   it('should redirect index page if have user', () => {
     fn.mockReturnValue({ isAuthenticated: true, user: {}, getAccessTokenSilently: jest.fn() } as any)
-    render(<Login />)
+    render(<LoginWithRouter />)
     expect(mockedUsedNavigate).toHaveBeenCalledTimes(1)
     expect(mockedUsedNavigate).toHaveBeenCalledWith(`/`)
+  })
+
+  it('should show Skeleton if url includes code search params ', () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={['/login?code=123']}>
+        <Login />
+      </MemoryRouter>
+    )
+    const ele = container.querySelector('.ant-skeleton')
+    expect(container.firstChild).toMatchSnapshot()
+    expect(ele).toBeTruthy()
   })
 })

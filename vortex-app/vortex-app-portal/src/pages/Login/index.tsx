@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
-import { Flex, Button } from 'antd'
+import { Flex, Button, Skeleton } from 'antd'
 import { storeOrg } from '@/utils/helpers/token'
 import { useAppStore } from '@/stores/app.store'
 import { Logo } from './Icon'
@@ -13,6 +13,8 @@ const Login = () => {
   const navigate = useNavigate()
   const { organization } = useParams()
   const { setCurrentAuth0User, setuserType } = useAppStore()
+  const { search } = useLocation()
+  const searchParams = new URLSearchParams(search?.slice(1))
 
   useEffect(() => {
     if (organization) {
@@ -37,6 +39,10 @@ const Login = () => {
 
   if (error) {
     return <div>{error.message}</div>
+  }
+
+  if (searchParams.get('code')) {
+    return <Skeleton />
   }
 
   return (
