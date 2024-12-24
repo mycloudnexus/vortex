@@ -8,6 +8,7 @@ import com.consoleconnect.vortex.iam.config.EmailServiceMockHelper;
 import com.consoleconnect.vortex.iam.config.TestApplication;
 import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
 import com.consoleconnect.vortex.iam.dto.UpdateMemberDto;
+import com.consoleconnect.vortex.iam.dto.UserSignupDto;
 import com.consoleconnect.vortex.iam.enums.RoleEnum;
 import com.consoleconnect.vortex.iam.model.IamProperty;
 import com.consoleconnect.vortex.iam.service.EmailService;
@@ -326,5 +327,94 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
         "/api/v2/users/"
             + UriUtils.encodePath(AuthContextConstants.CUSTOMER_USER_ID, StandardCharsets.UTF_8),
         AuthContextConstants.AUTH0_ACCESS_TOKEN);
+  }
+
+  @Test
+  @Order(9)
+  void givenCustomerUser_whenSignup_thenReturn200() {
+    MockServerHelper.setupMock("auth0/signup/success");
+
+    UserSignupDto userSignupDto = new UserSignupDto();
+    userSignupDto.setEmail("fake-2@fake.com");
+    userSignupDto.setPassword("11111a00000A");
+    userSignupDto.setOrgId("org_0bcbzk1UJV9CvwAU");
+    userSignupDto.setInvitationId("uinv_WuhQogrsLDMF8L8y");
+    userSignupDto.setGivenName("fake");
+    userSignupDto.setFamilyName("name");
+
+    customerUser.requestAndVerify(
+        HttpMethod.POST,
+        uriBuilder -> uriBuilder.path("/organization/signup").build(),
+        userSignupDto,
+        200,
+        Assertions::assertNotNull);
+
+    MockServerHelper.verify(
+        1, HttpMethod.POST, "/api/v2/users", AuthContextConstants.AUTH0_ACCESS_TOKEN);
+  }
+
+  @Test
+  @Order(9)
+  void givenCustomerUser_whenSignup_thenReturnExpired() {
+    UserSignupDto userSignupDto = new UserSignupDto();
+    userSignupDto.setEmail("fake-2@fake.com");
+    userSignupDto.setPassword("11111a00000A");
+    userSignupDto.setOrgId("org_0bcbzk1UJV9CvwAU");
+    userSignupDto.setInvitationId("uinv_WuhQogrsLDMF8L8y");
+    userSignupDto.setGivenName("fake");
+    userSignupDto.setFamilyName("name");
+
+    customerUser.requestAndVerify(
+        HttpMethod.POST,
+        uriBuilder -> uriBuilder.path("/organization/signup").build(),
+        userSignupDto,
+        400,
+        Assertions::assertNotNull);
+  }
+
+  @Test
+  @Order(9)
+  void givenCustomerUser_whenSignup_inactiveOrganization_thenReturn400() {
+    MockServerHelper.setupMock("auth0/signup/success");
+    MockServerHelper.setupMock("auth0/signup/inactive_organization");
+
+    UserSignupDto userSignupDto = new UserSignupDto();
+    userSignupDto.setEmail("fake-2@fake.com");
+    userSignupDto.setPassword("11111a00000A");
+    userSignupDto.setOrgId("org_0bcbzk1UJV9CvwAU");
+    userSignupDto.setInvitationId("uinv_WuhQogrsLDMF8L8y");
+    userSignupDto.setGivenName("fake");
+    userSignupDto.setFamilyName("name");
+
+    customerUser.requestAndVerify(
+        HttpMethod.POST,
+        uriBuilder -> uriBuilder.path("/organization/signup").build(),
+        userSignupDto,
+        400,
+        Assertions::assertNotNull);
+  }
+
+  @Test
+  @Order(9)
+  void givenCustomerUser_whenSignup_auth0_exception_thenReturn400() {
+    UserSignupDto userSignupDto = new UserSignupDto();
+    userSignupDto.setEmail("fake-2@fake.com");
+    userSignupDto.setPassword("11111a00000A");
+    userSignupDto.setOrgId("org_0bcbzk1UJV9CvwAU");
+    userSignupDto.setInvitationId("uinv_WuhQogrsLDMF8L8y");
+    userSignupDto.setGivenName("fake");
+    userSignupDto.setFamilyName("name");
+
+    MockServerHelper.requestException(
+        HttpMethod.DELETE,
+        String.format(
+            "api/v2/organizations/%s", UriUtils.encodePath(userSignupDto.getOrgId(), "UTF-8")));
+
+    customerUser.requestAndVerify(
+        HttpMethod.POST,
+        uriBuilder -> uriBuilder.path("/organization/signup").build(),
+        userSignupDto,
+        400,
+        Assertions::assertNotNull);
   }
 }

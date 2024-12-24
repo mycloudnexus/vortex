@@ -1,0 +1,13 @@
+[
+  {
+    "id": "org_0bcbzk1UJV9CvwAU",
+    "name": "customer-org",
+    "display_name": "customer org",
+    "metadata": {
+      "status": "ACTIVE",
+      "strategy": "auth0",
+      "connectionId": "con_YNEZH8rgZ8sQz9Fq",
+      "createdAt": "2024-12-19T07:48:54.749932691Z"
+    }
+  }
+]
