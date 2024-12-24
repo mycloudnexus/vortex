@@ -194,6 +194,7 @@ class DownstreamAPIControllerTest extends AbstractIntegrationTest {
     mgmtUser.requestAndVerify(
         HttpMethod.PUT,
         uriBuilder -> uriBuilder.path(endpoint).build(),
+        Map.of(IamConstants.X_VORTEX_CUSTOMER_ID, AuthContextConstants.MGMT_COMPANY_ID),
         requestPayload,
         200,
         res -> {
