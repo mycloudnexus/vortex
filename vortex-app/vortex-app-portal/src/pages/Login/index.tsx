@@ -40,7 +40,7 @@ const Login = () => {
   if (error) {
     return <div>{error.message}</div>
   }
-  console.log('-searchParams.g', search, window.location.href, 'search', searchParams.get('code'))
+
   if (searchParams.get('code')) {
     return <Skeleton />
   }
