@@ -335,7 +335,6 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
     MockServerHelper.setupMock("auth0/signup/success");
 
     UserSignupDto userSignupDto = new UserSignupDto();
-    userSignupDto.setEmail("fake-2@fake.com");
     userSignupDto.setPassword("11111a00000A");
     userSignupDto.setOrgId("org_0bcbzk1UJV9CvwAU");
     userSignupDto.setInvitationId("uinv_WuhQogrsLDMF8L8y");
@@ -357,7 +356,6 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   @Order(9)
   void givenCustomerUser_whenSignup_thenReturnExpired() {
     UserSignupDto userSignupDto = new UserSignupDto();
-    userSignupDto.setEmail("fake-2@fake.com");
     userSignupDto.setPassword("11111a00000A");
     userSignupDto.setOrgId("org_0bcbzk1UJV9CvwAU");
     userSignupDto.setInvitationId("uinv_WuhQogrsLDMF8L8y");
@@ -379,7 +377,6 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
     MockServerHelper.setupMock("auth0/signup/inactive_organization");
 
     UserSignupDto userSignupDto = new UserSignupDto();
-    userSignupDto.setEmail("fake-2@fake.com");
     userSignupDto.setPassword("11111a00000A");
     userSignupDto.setOrgId("org_0bcbzk1UJV9CvwAU");
     userSignupDto.setInvitationId("uinv_WuhQogrsLDMF8L8y");
@@ -398,7 +395,6 @@ class OrganizationControllerTest extends AbstractIntegrationTest {
   @Order(9)
   void givenCustomerUser_whenSignup_auth0_exception_thenReturn400() {
     UserSignupDto userSignupDto = new UserSignupDto();
-    userSignupDto.setEmail("fake-2@fake.com");
     userSignupDto.setPassword("11111a00000A");
     userSignupDto.setOrgId("org_0bcbzk1UJV9CvwAU");
     userSignupDto.setInvitationId("uinv_WuhQogrsLDMF8L8y");

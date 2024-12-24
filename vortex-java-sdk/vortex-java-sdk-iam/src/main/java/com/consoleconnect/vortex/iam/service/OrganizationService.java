@@ -775,7 +775,12 @@ public class OrganizationService {
           this.getOrganizationConnection(organizationMetadata.getConnectionId());
 
       // 3. sign up in Auth0
-      User user = doSignup(userSignupDto, optionalConnection.get(), managementAPI.users());
+      User user =
+          doSignup(
+              userSignupDto,
+              invitation.getInvitee().getEmail(),
+              optionalConnection.get(),
+              managementAPI.users());
 
       // 4. add a member
       organizationsEntity
@@ -800,13 +805,17 @@ public class OrganizationService {
     }
   }
 
-  private User doSignup(UserSignupDto userSignupDto, Connection connection, UsersEntity usersEntity)
+  private User doSignup(
+      UserSignupDto userSignupDto,
+      String inviteeEmail,
+      Connection connection,
+      UsersEntity usersEntity)
       throws Auth0Exception {
     User user = new User();
     // Define a new variable to avoid sonar issue.
     char[] password = userSignupDto.getPassword().toCharArray();
     user.setPassword(password);
-    user.setEmail(userSignupDto.getEmail());
+    user.setEmail(inviteeEmail);
     user.setFamilyName(userSignupDto.getFamilyName());
     user.setGivenName(userSignupDto.getGivenName());
     user.setName(

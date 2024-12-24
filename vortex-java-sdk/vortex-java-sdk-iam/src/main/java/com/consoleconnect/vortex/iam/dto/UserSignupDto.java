@@ -1,7 +1,6 @@
 package com.consoleconnect.vortex.iam.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -9,9 +8,6 @@ import lombok.Data;
 
 @Data
 public class UserSignupDto {
-  @Email(message = "Not a validated email address.")
-  private String email;
-
   @NotBlank(message = "Password must not be blank.")
   @Size(min = 10, max = 20, message = "The length of password must between 10 to 20 characters.")
   @Pattern(
