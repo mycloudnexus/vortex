@@ -301,6 +301,9 @@ app:
             - PLATFORM_MEMBER
             - ORG_ADMIN
             - ORG_MEMBER
+      allowed-paths:
+        - /organization/signup
+        - /*/api/user/*/avatarNoResize
     downstream:
       base-url: ${GATEWAY_DOWN_STREAM_BASE_URL:http://localhost:3001}
       path-prefix: ${GATEWAY_DOWN_STREAM_PATH_PREFIX:/downstream}

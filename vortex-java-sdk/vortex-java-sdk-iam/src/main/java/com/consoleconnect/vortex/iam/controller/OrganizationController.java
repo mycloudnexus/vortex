@@ -6,15 +6,13 @@ import com.auth0.json.mgmt.users.User;
 import com.consoleconnect.vortex.core.model.HttpResponse;
 import com.consoleconnect.vortex.core.toolkit.Paging;
 import com.consoleconnect.vortex.core.toolkit.PagingHelper;
-import com.consoleconnect.vortex.iam.dto.CreateInvitationDto;
-import com.consoleconnect.vortex.iam.dto.MemberInfo;
-import com.consoleconnect.vortex.iam.dto.OrganizationInfo;
-import com.consoleconnect.vortex.iam.dto.UpdateMemberDto;
+import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.service.AuthTokenService;
 import com.consoleconnect.vortex.iam.service.OrganizationService;
 import com.consoleconnect.vortex.iam.service.UserContextService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -127,5 +125,11 @@ public class OrganizationController {
                         jwtAuthenticationToken.getName(),
                         updateMemberDto,
                         jwtAuthenticationToken.getName())));
+  }
+
+  @Operation(description = "Signup", summary = "Signup")
+  @PostMapping("/signup")
+  public HttpResponse<User> signUp(@Valid @RequestBody UserSignupDto userSignupDto) {
+    return HttpResponse.ok(service.signUp(userSignupDto));
   }
 }
