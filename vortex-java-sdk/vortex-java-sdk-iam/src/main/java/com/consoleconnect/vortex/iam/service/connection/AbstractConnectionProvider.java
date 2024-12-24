@@ -5,7 +5,7 @@ import com.auth0.json.mgmt.organizations.Organization;
 import com.consoleconnect.vortex.iam.auth0.Auth0Client;
 import com.consoleconnect.vortex.iam.dto.*;
 import com.consoleconnect.vortex.iam.enums.ConnectionStrategyEnum;
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -36,7 +36,13 @@ public abstract class AbstractConnectionProvider {
             RandomStringUtils.random(6, true, false));
     log.info("Connection name: {}", name);
     Connection connection = new Connection(name, getConnectionStrategy().getValue());
-    connection.setEnabledClients(List.of(auth0Client.getAuth0Property().getApp().getClientId()));
+    ImmutableList.Builder<String> enabledClients = ImmutableList.builder();
+    enabledClients.add(auth0Client.getAuth0Property().getApp().getClientId());
+    if (ConnectionStrategyEnum.AUTH0 == request.getStrategy()) {
+      // It's needed when signing up a new user using mgmt API.
+      enabledClients.add(auth0Client.getAuth0Property().getMgmtApi().getClientId());
+    }
+    connection.setEnabledClients(enabledClients.build());
     connection.setOptions(createConnectionOptions(request));
     return connection;
   }

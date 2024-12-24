@@ -1,9 +1,12 @@
 package com.consoleconnect.vortex.iam.service;
 
+import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.client.mgmt.OrganizationsEntity;
 import com.auth0.client.mgmt.RolesEntity;
+import com.auth0.client.mgmt.UsersEntity;
 import com.auth0.client.mgmt.filter.InvitationsFilter;
 import com.auth0.client.mgmt.filter.UserFilter;
+import com.auth0.exception.APIException;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.mgmt.connections.Connection;
 import com.auth0.json.mgmt.organizations.*;
@@ -740,5 +743,75 @@ public class OrganizationService {
       throw badRequest(
           e, String.format("Delete a member(%s) for orgId:%s, error:", memberId, orgId));
     }
+  }
+
+  public User signUp(UserSignupDto userSignupDto) {
+    try {
+      ManagementAPI managementAPI = this.auth0Client.getMgmtClient();
+
+      OrganizationsEntity organizationsEntity = managementAPI.organizations();
+      Organization organization = this.findOrganizationAndThrow(userSignupDto.getOrgId());
+
+      // 1. Validate whether the user is invited.
+      Response<Invitation> invitationResponse =
+          organizationsEntity
+              .getInvitation(organization.getId(), userSignupDto.getInvitationId(), null)
+              .execute();
+      Invitation invitation = invitationResponse.getBody();
+      if (Objects.isNull(invitation)
+          || invitation.getExpiresAt().getTime() < new Date().getTime()) {
+        throw VortexException.badRequest("You are not invited or the invitation is expired.");
+      }
+
+      // 2. Validate connection type.
+      OrganizationMetadata organizationMetadata =
+          OrganizationMetadata.fromMap(organization.getMetadata());
+      if (!ConnectionStrategyEnum.AUTH0.equals(organizationMetadata.getStrategy())
+          || OrgStatusEnum.INACTIVE == organizationMetadata.getStatus()) {
+        throw VortexException.badRequest("Signup is not supported for your company.");
+      }
+
+      Optional<Connection> optionalConnection =
+          this.getOrganizationConnection(organizationMetadata.getConnectionId());
+
+      // 3. sign up in Auth0
+      User user = doSignup(userSignupDto, optionalConnection.get(), managementAPI.users());
+
+      // 4. add a member
+      organizationsEntity
+          .addMembers(organization.getId(), new Members(List.of(user.getId())))
+          .execute();
+
+      // 5. add roles
+      organizationsEntity
+          .addRoles(organization.getId(), user.getId(), invitationResponse.getBody().getRoles())
+          .execute();
+
+      // 6. remove the invitation record
+      revokeInvitation(organization.getId(), userSignupDto.getInvitationId(), null);
+
+      return user;
+    } catch (APIException e) {
+      log.error("signup api error", e);
+      throw VortexException.badRequest(e.getDescription());
+    } catch (Exception e) {
+      log.error("signup error", e);
+      throw VortexException.badRequest(e.getMessage());
+    }
+  }
+
+  private User doSignup(UserSignupDto userSignupDto, Connection connection, UsersEntity usersEntity)
+      throws Auth0Exception {
+    User user = new User();
+    // Define a new variable to avoid sonar issue.
+    char[] password = userSignupDto.getPassword().toCharArray();
+    user.setPassword(password);
+    user.setEmail(userSignupDto.getEmail());
+    user.setFamilyName(userSignupDto.getFamilyName());
+    user.setGivenName(userSignupDto.getGivenName());
+    user.setName(
+        String.format("%s %s", userSignupDto.getGivenName(), userSignupDto.getFamilyName()));
+    user.setConnection(connection.getName());
+    return usersEntity.create(user).execute().getBody();
   }
 }
